@@ -1,0 +1,24 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Parent -->
+<div>
+  <h3><?php echo TFISH_RELATED; ?></h3>
+  <h4 class="parent"><a href="<?php echo xss($parent->url()); ?>"><?php echo xss($parent->title()); ?></a></h4>
+  <?php if ($parent->image()): ?>
+  <div class="float-left">
+    <figure class="figure-left">
+      <a href="<?php echo xss($parent->url()); ?>">
+        <img class="image img-fluid" src="<?php echo $parent->cachedImage(150); ?>" 
+        <?php if ($parent->caption()): ?>
+          title="<?php echo xss($parent->caption()); ?>" alt="<?php echo xss($parent->caption()); ?>"
+        <?php else: ?>
+            alt=""
+        <?php endif; ?>
+      /></a>
+    </figure>
+    </div>
+    <?php endif; ?>
+    <div class="teaser">
+      <?php echo $parent->teaserForDisplay(); ?>
+    </div>
+</div>

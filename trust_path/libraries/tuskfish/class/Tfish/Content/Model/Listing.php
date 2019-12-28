@@ -1,0 +1,451 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tfish\Content\Model;
+
+/**
+ * \Tfish\Content\Model\Listing class file.
+ * 
+ * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
+ * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
+ * @author      Simon Wilkinson <simon@isengard.biz>
+ * @version     Release: 2.0
+ * @since       2.0
+ * @package     content
+ */
+
+/**
+ * Model for listing content objects.
+ *
+ * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
+ * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
+ * @author      Simon Wilkinson <simon@isengard.biz>
+ * @version     Release: 2.0
+ * @since       2.0
+ * @package     content
+ * @uses        trait \Tfish\Traits\Content\ContentTypes	Provides definition of permitted content object types.
+ * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
+ * @var         \Tfish\Database $database Instance of the Tuskfish database class.
+ * @var         \Tfish\CriteriaFactory $criteriaFactory A factory class that returns instances of Criteria and CriteriaItem.
+ * @var         \Tfish\Entity\Preference Instance of the Tfish site preferences class.
+ * @var         \Tfish\Session Instance of the Tfish session management class.
+ */
+class Listing
+{
+    use \Tfish\Content\Traits\ContentTypes;
+    use \Tfish\Traits\ValidateString;
+    
+    private $database;
+    private $criteriaFactory;
+    private $preference;
+    private $session;
+
+    /**
+     * Constructor.
+     * 
+     * @param   \Tfish\Database $database Instance of the Tuskfish database class.
+     * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
+     * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish site preferences class.
+     * @param   \Tfish\Session $session Instance of the Tuskfish session manager class.
+     */
+    public function __construct(
+        \Tfish\Database $database,
+        \Tfish\CriteriaFactory $criteriaFactory,
+        \Tfish\Entity\Preference $preference,
+        \Tfish\Session $session
+        )
+    {
+        $this->database = $database;
+        $this->criteriaFactory = $criteriaFactory;
+        $this->preference = $preference;
+        $this->session = $session;
+    }
+
+    /** Actions. */
+
+    /**
+     * Get a single content object.
+     * 
+     * @param   int $id ID of the content object to retrieve.
+     * @return  Mixed \Tfish\Content\Entity\Content on success, false on failure.
+     */
+    public function getObject(int $id)
+    {
+        $params = [];
+
+        if ($id < 1) {
+            return false;
+        }
+
+        $params['id'] = $id;
+
+        if (!$this->session->isAdmin()) { // NOT admin.
+            $params['onlineStatus'] = 1;
+        }
+
+        $cleanParams = $this->validateParams($params);
+        $criteria = $this->setCriteria($cleanParams);
+        $statement = $this->database->select('content', $criteria);
+
+        $content = $statement->fetchObject('\Tfish\Content\Entity\Content');
+
+        if ($content && $content->type() !== 'TfDownload') {
+            $this->updateCounter($id);
+        }
+
+        return $content;
+    }
+
+    /**
+     * Get content objects matching filtering criteria.
+     * 
+     * @param   array $params Filtering criteria.
+     * @return  array Array of content objects.
+     */
+    public function getObjects(array $params): array
+    {
+        $cleanParams = $this->validateParams($params);
+        $criteria = $this->setCriteria($cleanParams);
+
+        return $this->runQuery($criteria);        
+    }
+
+    /* Utilties. */
+
+    /**
+     * Return IDs and titles of tags that are actually in use with content objects.
+     * 
+     * @return  array IDs and titles as key-value pairs.
+     */
+    public function activeTagOptions()
+    {
+        // Get a list of active tag IDs (those listed in the taglnks table).
+        $criteria = $this->criteriaFactory->criteria();
+        $criteria->add($this->criteriaFactory->item('module', 'content'));
+        
+        $taglinks = $this->database->selectDistinct('taglink', $criteria, ['tagId'])
+            ->fetchAll(\PDO::FETCH_COLUMN);
+
+        if (empty($taglinks)) {
+            return [];
+        }
+
+        // Look up the actual tag IDs.
+        $sql = "SELECT `id`, `title` FROM `content` WHERE `id` IN (";
+        
+        foreach ($taglinks as $taglink) {
+            $sql .= "?,";
+        }
+
+        $sql = rtrim($sql, ",");
+        $sql .= ")";
+
+        $statement = $this->database->preparedStatement($sql);
+        $result = $statement->execute($taglinks);
+
+        if (!$result) {
+            \trigger_error(TFISH_ERROR_NO_RESULT, E_USER_ERROR);
+            return false;
+        }
+
+        return $statement->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Return the admin-side pagination limit.
+     * 
+     * @return  int Number of content items to display in one page view.
+     */
+    public function adminlimit(): int
+    {
+        return $this->preference->adminPagination();
+    }
+
+    /**
+     * Return a collection of tags.
+     * 
+     * Retrieves tags that have been grouped into a collection as ID-title key-value pairs.
+     * 
+     * @param   int $id ID of the collection content object.
+     * @return  array Tag IDs and titles as associative array.
+     */
+    public function collectionTagOptions(int $id)
+    {
+        if ($id < 1) {
+            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            exit;
+        }
+
+        $criteria = $this->criteriaFactory->criteria();
+        $criteria->add($this->criteriaFactory->item('type', 'TfTag'));
+        $criteria->add($this->criteriaFactory->item('parent', $id));
+        $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
+
+        return $this->database->select('content', $criteria, ['id', 'title'])
+            ->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Returns the template for formatting the date from preferences.
+     */
+    public function dateFormat(): string
+    {
+        return $this->preference->dateFormat();
+    }
+
+    /**
+     * Return the gallery pagination limit.
+     * 
+     * @return  int Number of content items to display in one page view.
+     */
+    public function gallerylimit(): int
+    {
+        return $this->preference->galleryPagination();
+    }
+
+    public function getCount(array $params): int
+    {
+        unset(
+            $params['start'],
+            $params['limit'],
+            $params['order'],
+            $params['orderType'],
+            $params['secondaryOrder'],
+            $params['secondaryOrderType']
+        );
+
+        $cleanParams = $this->validateParams($params);
+        $criteria = $this->setCriteria($cleanParams);
+
+        return $this->runCount($criteria);
+    }
+
+    /**
+     * Returns the Google Maps API key (if set) from preferences.
+     * 
+     * @return  string Google Maps API key.
+     */
+    public function mapsApiKey(): string
+    {
+        return $this->preference->mapsApiKey();
+    }
+
+    /**
+     * Count the number of content objects meeting the filtering criteria.
+     * 
+     * @param   \Tfish\Criteria $criteria Filter criteria.
+     * @return  int Count.
+     */
+    private function runCount(\Tfish\Criteria $criteria): int
+    {
+        return $this->database->selectCount('content', $criteria);
+    }
+
+    /**
+     * Get the tags associated with a content object.
+     * 
+     * @param   int $id ID of the content object.
+     * @return  array Array of tags as id/title key-value pairs.
+     */
+    public function getTagsForObject(int $id)
+    {
+        if ($id < 1) {
+            return false;
+        }
+        
+        // Look up related tag IDs.
+        $criteria = $this->criteriaFactory->criteria();
+        $criteria->add($this->criteriaFactory->item('contentId', $id));
+        $criteria->add($this->criteriaFactory->item('module', 'content'));
+
+        $taglinks = [];
+        
+        $taglinks = $this->database->select('taglink', $criteria, ['tagId'])
+            ->fetchAll(\PDO::FETCH_COLUMN);
+
+        if (empty($taglinks)) {
+            return [];
+        }
+
+        // Retrieve related tags.
+        $sql = "SELECT `id`, `title` FROM `content` WHERE `id` IN (";
+        
+        foreach ($taglinks as $taglink) {
+            $sql .= "?,";
+        }
+
+        $sql = rtrim($sql, ",");
+        $sql .= ")";
+
+        $statement = $this->database->preparedStatement($sql);
+        $result = $statement->execute($taglinks);
+
+        if (!$result) {
+            \trigger_error(TFISH_ERROR_INSERTION_FAILED, E_USER_ERROR);
+            return false;
+        }
+
+        return $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
+    }
+
+    /**
+     * Get content objects.
+     * 
+     * @param   \Tfish\Criteria $criteria Filter criteria.
+     * @return  array Array of content objects as associative arrays.
+     */
+    private function runQuery(\Tfish\Criteria $criteria): array
+    {
+        $statement = $this->database->select('content', $criteria);
+
+        return $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Content\Entity\Content');
+    }
+
+    private function runTagQuery(\Tfish\Criteria $criteria): array
+    {
+        $statement = $this->database->select('content', $criteria);
+        return $statement->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Set filter criteria for listing content.
+     * 
+     * @param   array $params Filter criteria.
+     * @return   \Tfish\Criteria Query composer.
+     */
+    private function setCriteria(array $cleanParams): \Tfish\Criteria
+    {
+        $criteria = $this->criteriaFactory->criteria();
+
+        if (isset($cleanParams['onlineStatus']))
+            $criteria->add($this->criteriaFactory->item('onlineStatus', $cleanParams['onlineStatus']));
+
+        if (!empty($cleanParams['id'])) {
+            $criteria->add($this->criteriaFactory->item('id', $cleanParams['id']));
+
+            return $criteria;
+        }
+
+        if (!empty($cleanParams['parent']))
+            $criteria->add($this->criteriaFactory->item('parent', $cleanParams['parent']));
+
+        // Unless a specific type is requested, default behaviour is to exclude tags and blocks from the stream.
+        if (!empty($cleanParams['type'])) {
+            $criteria->add($this->criteriaFactory->item('type', $cleanParams['type']));
+        } else {
+            $criteria->add($this->criteriaFactory->item('type', 'TfStatic', '!='));
+            $criteria->add($this->criteriaFactory->item('type', 'TfTag', '!='));
+            $criteria->add($this->criteriaFactory->item('type', 'TfBlock', '!='));
+        }
+
+        if (!empty($cleanParams['tag']))
+            $criteria->setTag([$cleanParams['tag']]);
+
+        if (!empty($cleanParams['start']))
+            $criteria->setOffset($cleanParams['start']);
+       
+        if (!empty($cleanParams['order'])) {
+            $criteria->setOrder($cleanParams['order']);
+            $criteria->setOrderType($cleanParams['orderType']);
+        }
+
+        if (!empty($cleanParams['secondaryOrder'])) {
+            $criteria->setSecondaryOrder($cleanParams['secondaryOrder']);
+            $criteria->setSecondaryOrderType($cleanParams['secondaryOrderType']);
+        }
+
+        if (!empty($cleanParams['limit'])) {
+            $criteria->setLimit($cleanParams['limit']);
+        }
+
+        return $criteria;
+    }
+
+    /**
+     * Return the user-side pagination limit.
+     * 
+     * @return  int Number of content items to display in one page view.
+     */
+    public function userlimit(): int
+    {
+        return $this->preference->userPagination();
+    }
+
+    /**
+     * Increment the view/download counter for a content object.
+     * 
+     * @param   int $id ID of content object.
+     */
+    private function updateCounter(int $id)
+    {
+        $this->database->updateCounter($id, 'content', 'counter');
+    }
+
+    /**
+     * Validate parameters for filtering content.
+     * 
+     * @param   array $params Parameters for filtering content.
+     * @return  array Validated parameters.
+     */
+    private function validateParams(array $params): array
+    {
+        $cleanParams = [];
+
+        if ($params['id'] ?? 0)
+            $cleanParams['id'] = (int) $params['id'];
+
+        if ($params['parent'] ?? 0)
+            $cleanParams['parent'] = (int) $params['parent'];
+
+        if ($params['start'] ?? 0)
+            $cleanParams['start'] = (int) $params['start'];
+
+        if ($params['limit'] ?? 0) {
+            $cleanParams['limit'] = (int) $params['limit'];
+        }
+        
+        if ($params['tag'] ?? 0)
+            $cleanParams['tag'] = (int) ($params['tag']);
+
+        if (isset($params['type']) && \array_key_exists($params['type'], $this->listTypes())) {
+            $cleanParams['type'] = $this->trimString($params['type']);
+        }
+
+        if (isset($params['onlineStatus'])) {
+            $onlineStatus = (int) $params['onlineStatus'];
+
+            if ($onlineStatus == 0 || $onlineStatus == 1) {
+                $cleanParams['onlineStatus'] = $onlineStatus;
+            }
+        }
+
+        if (isset($params['order']) && $this->isAlnumUnderscore($params['order'])) {
+            $cleanParams['order'] = $this->trimString($params['order']);
+        }
+
+        if (isset($params['orderType'])) {
+            
+            if ($params['orderType'] === 'ASC') {
+                $cleanParams['orderType'] = 'ASC';
+            } else {
+                $cleanParams['orderType'] = 'DESC';
+            }
+        }
+
+        if (isset($params['secondaryOrder']) && $this->isAlnumUnderscore($params['secondaryOrder'])) {
+            $cleanParams['secondaryOrder'] = $this->trimString($params['secondaryOrder']);
+        }
+
+        if (isset($params['secondaryOrderType'])) {
+            
+            if ($params['secondaryOrderType'] === 'ASC') {
+                $cleanParams['secondaryOrderType'] = 'ASC';
+            } else {
+                $cleanParams['secondaryOrderType'] = 'DESC';
+            }
+        }
+
+        return $cleanParams;
+    }
+}

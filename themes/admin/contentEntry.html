@@ -1,0 +1,231 @@
+<?php declare(strict_types=1); ?>
+
+<?php
+  $content = $viewModel->content();
+?>
+
+<div class="row">
+    <div class="col">
+      <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+    </div>
+</div>
+
+<!-- Custom form manager script to show or hide fields used by specific content subclasses and manage media file uploads -->
+<script type="text/javascript" src="<?php echo TFISH_VENDOR_URL . 'tuskfish/contentForm.js'; ?>"></script>
+
+<div class="row">
+  <div class="col">
+    <form class="form-horizontal" action="<?php echo TFISH_ADMIN_URL . 'content/'; ?>" method="post" enctype="multipart/form-data" role="form" accept-charset="UTF-8">
+      <div class="row">
+            
+      <!-- Media file type compatibility alert -->
+      <div class="col-12">
+        <div class="mb-3 alert alert-danger alert-dismissible fade d-none" role="alert">
+          <?php echo '<i class="fas fa-exclamation-triangle"></i> ' . TFISH_MEDIA_NOT_COMPATIBLE; ?>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Type -->
+      <div class="col-md-6 col-lg-4 mb-3 text-left" id="typeContainer">
+        <label for="type"><strong><?php echo TFISH_TYPE; ?></strong></label>
+          <select class="form-control custom-select" name="content[type]" id="type" required>
+            <?php
+              foreach ($content->listTypes() as $key => $type) {
+                echo '<option value="' . xss($key) . '">' . xss($type) . '</option>';
+              }
+            ?>
+          </select>
+      </div>
+
+      <!-- Date (bootstrap-datepicker) -->
+      <div class="col-md-6 col-lg-4 mb-3 text-left" id="dateContainer">
+        <label for="date"><strong><?php echo TFISH_DATE; ?></strong></label>
+        <input type="text" class="form-control" name="content[date]" id="date">
+      </div>
+      <script>
+      $(document).ready(function() {
+        $('#date').datepicker({
+            format: 'yyyy-mm-dd',
+            todayHighlight: 'true',
+            todayBtn: 'linked',
+            startView: 'years'
+        });
+        $('#date').datepicker('setDate', new Date());
+        $('#date').datepicker('update');
+      });
+      </script>
+      
+      <!-- Tags -->
+      <div class="col-md-6 col-lg-4 mb-3 text-left" id="tagsContainer">
+        <label for="tags"><strong><?php echo TFISH_TAGS; ?></strong></label>
+        <select multiple class="form-control custom-select" size="5"  name="tags[]" id="tags">
+            <?php
+                foreach ($viewModel->listTags() as $tagId => $tagTitle) {
+                    echo '<option value="' . xss($tagId) . '">' . xss($tagTitle) . '</option>';
+                }
+            ?>
+        </select>
+      </div>
+
+        <!-- Title -->
+        <div class="col-12 mb-3 text-left" id="titleContainer">
+          <label for="title"><strong><?php echo TFISH_TITLE; ?></strong></label>
+          <input type="text" class="form-control" name="content[title]" id="title">
+        </div>
+
+        <!-- Teaser -->
+        <div class="col-12 mb-3 text-left" id="teaserContainer">
+          <label for="teaser"><strong><?php echo TFISH_TEASER; ?></strong></label>
+          <textarea id="teaser" name="content[teaser]" class="form-control text-left"></textarea>
+        </div>
+
+        <!-- Description -->
+        <div class="col-12 mb-3 text-left" id="descriptionContainer">
+          <label for="description"><strong><?php echo TFISH_DESCRIPTION; ?></strong></label>
+          <textarea id="description" name="content[description]" class="form-control text-left"></textarea>
+        </div>
+
+        <!-- Creator (author) -->
+        <div class="col-md-6 mb-3 text-left" id="creatorContainer">
+          <label for="creator"><strong><?php echo TFISH_CREATOR; ?></strong></label>
+          <input type="text" class="form-control" name="content[creator]" id="creator">
+        </div>
+
+        <!-- Publisher -->
+        <div class="col-md-6 mb-3 text-left" id="publisherContainer">
+          <label for="publisher"><strong><?php echo TFISH_PUBLISHER; ?></strong></label>
+          <input type="text" class="form-control" name="content[publisher]" id="publisher" value="<?php echo xss($viewModel->siteAuthor()); ?>">
+        </div>
+
+        <!-- Parent -->
+        <div class="col-12 mb-3 text-left" id="parentContainer">
+          <label for="publisher"><strong><?php echo TFISH_PARENT; ?></strong></label>
+          <select class="form-control custom-select" name="content[parent]" id="parent">
+          <?php foreach ($viewModel->parentOptions() as $key => $option): ?>
+              <option value="<?php echo xss($key); ?>"><?php echo xss($option); ?></option>
+          <?php endforeach; ?>
+          </select>
+        </div>
+
+        <!-- Image -->
+        <div class="col-md-6 mb-3 text-left" id="imageContainer">
+          <label for="image"><strong><?php echo TFISH_IMAGE; ?></strong></label>
+          <input id="image" name="content[image]" type="file" data-preview-file-type="text">
+        </div>
+        <script>
+        $(document).ready(function() {    
+          $("#image").fileinput({
+          'showUpload': false,
+          'showRemove': true,
+          'allowedFileExtensions': ["gif", "jpg", "png"],
+          'previewFileType': ["image"],
+          'fileActionSettings': {
+              'showDrag': false},
+          'theme': "fa"});
+        });
+        </script>
+
+        <!-- Media -->
+        <div class="col-md-6 mb-3 text-left" id="mediaContainer">
+          <label for="media"><span class="alert2 text-danger d-none  hide"><i class="fas fa-exclamation-triangle" title="<?php echo TFISH_MEDIA_NOT_COMPATIBLE; ?>"></i> </span><strong><?php echo TFISH_MEDIA; ?></strong></label>
+          <input id="media" name="content[media]" type="file" data-preview-file-type="text" >
+        </div>
+        <script>
+        $(document).ready(function() {
+          $("#media").fileinput({
+          'showUpload': false,
+          'showRemove': true,
+          'allowedPreviewTypes': ['image', 'video', 'audio', 'object'],
+          'allowedFileExtensions': ["doc","docx","gif","gz","jpg","kml", "kmz", "mp3","mp4","odt",
+              "ods", "odp", "oga","ogg","ogv","pdf","png","ppt", "pptx", "tar","wav","webm","xls",
+              "xlsx", "zip"],
+          'fileActionSettings': {
+              'showDrag': false},
+          'theme': "fa"});
+        });
+        </script>
+
+        <!-- Caption -->
+        <div class="col-md-6 mb-3 text-left" id="captionContainer">
+          <label for="caption"><strong><?php echo TFISH_CAPTION; ?></strong></label>
+          <input type="text" class="form-control" name="content[caption]" id="caption">
+        </div>
+
+        <!-- Rights -->
+        <div class="col-md-6 mb-3 text-left" id="rightsContainer">
+          <label for="rights"><strong><?php echo TFISH_RIGHTS; ?></strong></label>
+          <select class="form-control custom-select" name="content[rights]" id="rights" required>
+            <?php foreach ($content->listRights() as $key => $right) { echo '<option value="' . xss($key) . '">' . xss($right) . '</option>';} ?>
+          </select>
+        </div>
+
+        <!-- Language -->
+        <div class="col-md-6 mb-3 text-left" id="languageContainer">
+          <label for="language"><strong><?php echo TFISH_LANGUAGE; ?></strong></label>
+            <select class="form-control custom-select" name="content[language]" id="language" required>
+              <?php
+                  foreach ($content->listLanguages() as $key => $value) {
+                    if ($key === $viewModel->defaultLanguage()) {
+                      echo '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>';
+                    } else {}
+                      echo '<option value="' . xss($key) . '">' . xss($value) . '</option>';
+                  }
+              ?>
+            </select>
+        </div>
+
+        <!-- Online status -->
+        <div class="col-md-6 mb-3 text-left" id="onlineContainer">
+          <p><strong><?php echo TFISH_ONLINE_STATUS; ?></strong></p>
+          <div class="custom-control custom-radio custom-control-inline">
+            <input type="radio" id="online" name="content[onlineStatus]" value="1" checked class="custom-control-input" required>
+            <label class="custom-control-label" for="online"><?php echo TFISH_ONLINE; ?></label>
+          </div>
+          <div class="custom-control custom-radio custom-control-inline">
+            <input type="radio" id="offline" name="content[onlineStatus]" value="0" class="custom-control-input" required>
+            <label class="custom-control-label" for="offline"><?php echo TFISH_OFFLINE; ?></label>
+          </div>
+        </div>
+        
+        <!-- Format -->
+        <input type="hidden" id="format" name="content[format]" value="" />
+
+        <div class="col-md-12" id="metaHeader">
+          <h2><?php echo TFISH_META_TAGS; ?></h2>
+          <hr>
+        </div>
+
+        <!-- Meta title -->
+        <div class="col-md-6 mb-3 text-left" id="metaTitleContainer">
+          <label for="metaTitle"><strong><?php echo TFISH_META_TITLE; ?></strong></label>
+          <input type="text" class="form-control" name="content[metaTitle]" id="metaTitle">
+        </div>
+
+        <!-- SEO -->
+        <div class="col-md-6 mb-3 text-left" id="seoContainer">
+          <label for="metaSeo"><strong><?php echo TFISH_SEO; ?></strong></label>
+          <input type="text" class="form-control" name="content[metaSeo]" id="metaSeo">
+        </div>
+
+        <!-- Meta description -->
+        <div class="col-12 mb-3 text-left" id="metaDescriptionContainer">
+          <label for="metaDescription"><strong><?php echo TFISH_META_DESCRIPTION; ?></strong></label>
+          <input type="text" class="form-control" name="content[metaDescription]" id="metaDescription">
+        </div>
+      
+      </div> <!-- /row -->
+      
+      <!-- Action buttons -->
+      <div class="float-left clearfix">
+        <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
+        <button name="action" value="save" type="submit" class="btn btn-primary"><?php echo TFISH_SUBMIT; ?></button>
+        <button name="action" value="cancel" type="submit" class="btn btn-primary" formnovalidate><?php echo TFISH_CANCEL; ?></button>
+      </div>
+
+    </form>
+
+  </div>
+</div>

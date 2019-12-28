@@ -1,0 +1,118 @@
+<?php declare(strict_types=1); ?>
+
+<?php $preference = $viewModel->preference(); ?>
+
+<div class="row">
+  <div class="col">
+    <h1 class="page-title"><?php echo TFISH_PREFERENCE; ?></h1>
+  </div>
+</div>
+
+<div>
+  <table class="table table-bordered table-striped text-left">
+    <thead>
+      <tr>
+        <th><?php echo TFISH_PREFERENCE; ?></th>
+        <th><?php echo TFISH_PREFERENCE_VALUE; ?></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_SITE_NAME; ?></td>
+        <td><?php echo xss($preference->siteName()); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_SITE_DESCRIPTION; ?></td>
+        <td><?php echo xss($preference->siteDescription()); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_SITE_AUTHOR; ?></td>
+        <td><?php echo xss($preference->siteAuthor()); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_SITE_EMAIL; ?></td>
+        <td><?php echo xss($preference->siteEmail()); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_SITE_COPYRIGHT; ?></td>
+        <td><?php echo xss($preference->siteCopyright()); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_CLOSE_SITE; ?></td>
+        <td><?php echo xss($preference->closeSite() ? TFISH_YES : TFISH_NO); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_SERVER_TIMEZONE; ?></td>
+        <td><?php echo xss($preference->listTimezones()[$preference->serverTimezone()]); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_SITE_TIMEZONE; ?></td>
+        <td><?php echo xss($preference->listTimezones()[$preference->siteTimezone()]); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_MIN_SEARCH_LENGTH; ?></td>
+        <td><?php echo xss($preference->minSearchLength()); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_SEARCH_PAGINATION; ?></td>
+        <td><?php echo xss($preference->searchPagination()); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_USER_PAGINATION; ?></td>
+        <td><?php echo xss($preference->userPagination()); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_ADMIN_PAGINATION; ?></td>
+        <td><?php echo xss($preference->adminPagination()); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_GALLERY_PAGINATION; ?></td>
+        <td><?php echo xss($preference->galleryPagination()); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_RSS_POSTS; ?></td>
+        <td><?php echo xss($preference->rssPosts()); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_PAGINATION_ELEMENTS; ?></td>
+        <td><?php echo xss($preference->paginationElements()); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_SESSION_NAME; ?></td>
+        <td><?php echo xss($preference->sessionName()); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_SESSION_LIFE; ?></td>
+        <td><?php echo xss($preference->sessionLife()); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_DEFAULT_LANGUAGE; ?></td>
+        <td><?php echo xss($preference->defaultLanguage()); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_DATE_FORMAT; ?></td>
+        <td><?php echo xss($preference->dateFormat()); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_ENABLE_CACHE; ?></td>
+        <td><?php echo xss($preference->enableCache() ? TFISH_YES : TFISH_NO); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_CACHE_LIFE; ?></td>
+        <td><?php echo xss($preference->cacheLife()); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_MAPS_API_KEY; ?></td>
+        <td><?php echo xss($preference->mapsApiKey()); ?></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="form-buttons clearfix">
+  <form class="form-horizontal" action="<?php echo TFISH_PREFERENCE_EDIT_URL; ?>" method="post" enctype="multipart/form-data" role="form">
+    <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
+    <button name="action" value="display" type="submit" class="btn btn-primary float-left">
+    <?php echo TFISH_PREFERENCE_EDIT_PREFERENCES; ?></button>
+  </form>
+</div>

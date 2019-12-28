@@ -1,0 +1,4 @@
+FallbackResource disabled
+<FilesMatch "\.(sqlite|sdb|s3db)$">
+Deny from all
+</FilesMatch>

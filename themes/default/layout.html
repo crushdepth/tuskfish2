@@ -1,0 +1,116 @@
+<?php declare(strict_types=1); ?>
+<!doctype html>
+<html lang="<?php echo xss($metadata->language); ?>">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">    
+    <meta name="description" content="<?php echo xss($metadata->description); ?>">
+    <meta name="author" content="<?php echo xss($metadata->author); ?>">
+    <meta name="dcterms.rights" content="<?php echo xss($metadata->copyright); ?>">
+    <meta name="robots" content="<?php echo xss($metadata->robots); ?>">
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="<?php echo TFISH_URL . 'rss.php'; ?>" />
+    <link rel="schema.dcterms" href="http://purl.org/dc/terms/">
+    
+    <?php if (!empty($metadata->canonicalUrl)): ?>
+    <!-- Canonical URL -->
+    <link rel="canonical" href="<?php echo xss($metadata->canonicalUrl); ?>">
+    <?php endif; ?>
+
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo TFISH_URL . 'apple-touch-icon.png'; ?>">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?php echo TFISH_URL . 'favicon-32x32.png'; ?>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?php echo TFISH_URL . 'favicon-16x16.png'; ?>">
+    <link rel="manifest" href="<?php echo TFISH_URL . 'site.webmanifest'; ?>">
+    <link rel="mask-icon" href="<?php echo TFISH_URL . 'safari-pinned-tab.svg'; ?>" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
+    <title><?php echo xss($metadata->title); ?></title>
+    
+    <!-- jQuery -->
+    <script src="<?php echo TFISH_VENDOR_URL . 'jquery/jquery.min.js'; ?>"></script>
+    
+    <!-- Bootstrap -->
+    <link href="<?php echo TFISH_VENDOR_URL . 'bootstrap/css/bootstrap.min.css'; ?>" rel="stylesheet">
+    <script src="<?php echo TFISH_VENDOR_URL . 'bootstrap/js/bootstrap.bundle.min.js'; ?>"></script>
+    
+    <!-- Font Awesome -->
+    <script defer src="<?php echo TFISH_VENDOR_URL . 'fontawesome/fontawesome.min.js'; ?>"></script>
+    <script defer src="<?php echo TFISH_VENDOR_URL . 'fontawesome/icons-in-use.js'; ?>"></script>
+  
+    <!-- Custom styles for this template -->
+    <link href="<?php echo TFISH_THEMES_URL . 'default/style.css'; ?>" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+      <a class="navbar-brand" href="<?php echo TFISH_URL; ?>"><?php echo xss($metadata->siteName); ?></a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+          <!-- ADMIN CHECK -->
+          <?php if (isset($session) && $session->isAdmin()): ?>
+          <li class="nav-item active"><a class="nav-link"  href="<?php echo TFISH_ADMIN_URL; ?>"><?php echo TFISH_ADMIN; ?></a></li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" id="settings" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo TFISH_SETTINGS; ?></a>
+            <div class="dropdown-menu" aria-labelledby="dropdown01">
+              <a class="dropdown-item" href="<?php echo TFISH_PREFERENCE_URL; ?>"><?php echo TFISH_PREFERENCES; ?></a>
+              <a class="dropdown-item" href="<?php echo TFISH_PASSWORD_URL; ?>"><?php echo TFISH_PASSWORD; ?></a>
+              <a class="dropdown-item" href="<?php echo TFISH_URL . 'flush/'; ?>"><?php echo TFISH_FLUSH_CACHE; ?></a>
+            </div>
+          </li>
+          <?php endif; ?>
+          <?php if (isset($session) && $session->isAdmin()): ?>
+          <li class="nav-item">
+            <a class="nav-link" href="<?php echo TFISH_URL . 'logout/'; ?>"><?php echo TFISH_LOGOUT; ?></a>
+          </li>
+          <?php else: ?>
+          <li class="nav-item">
+            <a class="nav-link" href="<?php echo TFISH_URL . 'login/'; ?>"><?php echo TFISH_LOGIN; ?></a>
+          </li>
+          <?php endif; ?>
+          <li class="nav-item">
+            <a class="nav-link" href="<?php echo TFISH_URL . 'gallery/'; ?>"><?php echo TFISH_IMAGE_GALLERY; ?></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="<?php echo TFISH_RSS_URL; ?>"><i class="fas fa-rss"></i></a>
+          </li>
+        </ul>
+          <form class="form-inline my-2 my-lg-0" method="post" accept-charset="UTF-8" action="<?php echo TFISH_URL . 'search/'; ?>">
+            <input class="form-control mr-sm-2" id="searchTerms" name="searchTerms" type="text" placeholder="<?php echo TFISH_KEYWORDS; ?>" aria-label="<?php echo TFISH_KEYWORDS; ?>">
+            <input type="hidden" name="action" value="search" />
+            <input type="hidden" name="searchType" value="AND" />
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?php echo TFISH_SEARCH; ?></button>
+          </form>
+      </div>
+    </nav>
+
+    <main role="main" class="container">
+
+      <div class="starter-template">
+
+        <!-- Main page -->
+        <?php if ($page ?? null): ?>
+        <div><?php echo $page; ?></div>
+        <?php endif; ?>
+        
+        <!-- Footer -->
+        <div class="row">
+          <div class="col">
+            <hr>
+            <footer class="clearfix">
+              <p class="copyright">Copyright &copy; <?php echo xss($metadata->author) . ' ' . \date('Y'); ?> | <?php if (isset($session)) echo $session->getLoginLink(); ?></p>
+            </footer>
+          </div>
+        </div>
+        
+      </div>
+        
+    </main><!-- /.container -->
+  </body>
+</html>

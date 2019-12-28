@@ -1,0 +1,68 @@
+<?php declare(strict_types=1); ?>
+
+<div class="row">
+  <div class="col">
+    <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+  </div>
+</div>
+
+<!-- Select filters -->
+<div class="row">
+  <div class="col-sm-6 col-md-6 col-lg-4 mx-auto select-filters">
+    <form class="form-horizontal" name="selectFilters" method="get">
+      <div class="row">
+      
+          <select class="form-control custom-select" name="tag" id="tag" onchange="this.form.submit()">
+          <?php foreach ($viewModel->activeTagOptions() as $key => $value) {
+            echo ($key === $viewModel->tag()) ?
+              '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>' :
+              '<option value="' . xss($key) . '">' . xss($value) . '</option>';
+          } ?>
+          </select>
+
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Top pagination -->
+<?php if ($pagination ?? null): ?>
+<div class="row">
+  <div class="col d-flex justify-content-end pagination-top clearfix">
+    <?php echo $pagination; ?>
+  </div>
+</div>
+<?php endif; ?>
+
+<!-- Display a list of images in grid view -->
+<?php if ($contentObjects = $viewModel->contentList()): ?>
+<div class="row">
+<?php $i = 1; foreach ($contentObjects as $content): ?>
+
+  <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 mb-4">
+    <a href="<?php echo xss($content->url()); ?>">
+      <img class="img-thumbnail img-responsive" src="<?php echo $content->cachedImage(400); ?>"
+      <?php if ($content->caption()): ?>
+        alt="<?php echo xss($content->caption()); ?>" 
+        title="<?php echo xss($content->caption()); ?>" />
+      <?php else: ?>
+        alt="<?php echo xss($content->title()); ?>" />
+      <?php endif; ?>
+    </a>
+  </div>
+  <?php if ($i % 2 === 0): ?><div class="clearfix d-none d-sm-block d-md-none"></div><?php endif; ?>
+  <?php if ($i % 3 === 0): ?><div class="clearfix d-none d-md-block d-lg-none"></div><?php endif; ?>
+  <?php if ($i % 4 === 0): ?><div class="clearfix d-none d-sm-block d-md-none d-lg-block d-xl-none"></div><?php endif; ?>
+
+<?php $i++; endforeach; ?>
+</div>
+<?php endif; ?>
+
+<!-- Bottom pagination -->
+<?php if ($pagination ?? null): ?>
+<div class="row">
+  <div class="col d-flex justify-content-end pagination-bottom clearfix">
+    <?php echo $pagination; ?>
+  </div>
+</div>
+<?php endif; ?>

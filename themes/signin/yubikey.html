@@ -1,0 +1,30 @@
+<?php declare(strict_types=1); ?>
+
+<h1><?php echo TFISH_LOGIN; ?></h1>
+
+<form class="form-horizontal" action="<?php echo TFISH_URL . 'login/'; ?>" method="post" role="form" accept-charset="UTF-8">
+    
+    <!-- Password -->
+    <div class="col-md-4 offset-md-4 form-group input-group">
+        <input type="password" class="form-control is-valid" name="password" id="password" placeholder="<?php echo TFISH_PASSWORD; ?>" required>
+        <div class="input-group-append">
+            <span class="input-group-text" id="password-addon"><i class="fas fa-lock"></i></span>
+        </div>
+    </div>
+    
+    <!-- Yubikey -->
+    <div class="col-md-4 offset-md-4 form-group input-group">
+        <input type="password" class="form-control is-valid" name="yubikeyOtp" id="yubikeyOtp" placeholder="<?php echo TFISH_YUBIKEY; ?>" required>
+        <div class="input-group-append">
+            <span class="input-group-text" id="password-addon"><i class="fas fa-key"></i></span>
+        </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="form-group col-md-4 offset-md-4">
+        <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
+        <input type="hidden" name="action" value="login" />
+        <button type="submit" class="btn btn-primary float-left"><?php echo TFISH_SUBMIT ?></button>
+    </div>
+    
+</form>

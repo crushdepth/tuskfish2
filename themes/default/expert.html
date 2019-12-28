@@ -1,0 +1,79 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Display a single expert object -->
+<?php $content = $viewModel->content(); ?>
+<?php $contentTags = $viewModel->contentTags(); ?>
+
+<?php if ($content): ?>
+
+<!-- Title and meta information -->
+<div>
+  <h2 class="name"><?php echo $content->nameAndJob(); ?></h2>
+  <?php if ($content->businessUnit() || $content->organisation()): ?>
+  <p><b><?php echo $content->affiliation(); ?></b></p>
+  <?php endif; ?>
+  <?php if ($contentTags): ?>
+  <p class="expert-info">
+    <span class="small">
+      <?php if ($contentTags) {
+        $tags = [];
+        foreach ($contentTags as $key => $value) {
+          $tags[] = '<a href="?tag=' . xss($key) . '">' . xss($value) . '</a>';
+        }
+        echo \implode(', ', $tags);
+      } ?>
+    </span>
+  </p>
+  <?php endif; ?>
+</div>
+
+<!-- Image -->
+<?php if ($content->image()): ?>
+<div class="float-right figure-right">
+  <figure>
+      <img class="image img-fluid" src="<?php echo $content->cachedImage(200); ?>" alt="<?php echo $content->nameAndJob(); ?>" />           
+  </figure>
+</div>
+<?php endif; ?>
+
+<!-- Experience -->
+<?php if ($content->experience()): ?>
+<div class="experience">
+  <h3><?php echo TFISH_EXPERTS_EXPERIENCE; ?></h3>
+  <?php echo $content->experienceForDisplay(); ?>  
+</div>
+<?php endif; ?>
+
+<!-- Projects -->
+<?php if ($content->projects()): ?>
+<div class="projects">
+  <h3><?php echo TFISH_EXPERTS_PROJECTS; ?></h3>
+  <?php echo $content->projectsForDisplay(); ?>
+</div>
+<?php endif; ?>
+
+<!-- Publications -->
+<?php if ($content->publications()): ?>
+<div class="publications">
+  <h3><?php echo TFISH_EXPERTS_PUBLICATIONS; ?></h3>
+  <?php echo $content->publicationsForDisplay(); ?>  
+</div>
+<?php endif; ?>
+
+<!-- Contact details -->
+<?php if ($content->address() || $content->country() || $content->email()): ?>
+<div class="contact">
+  <h3><?php echo TFISH_EXPERTS_CONTACT_DETAILS; ?></h3>
+  <p><?php echo $content->contactDetails(); ?></p>  
+</div>
+<?php endif; ?>
+
+<!-- Personal profile link -->
+<?php if ($content->profileLink()): ?>
+<div class="profileLink">
+  <h3><?php echo TFISH_EXPERTS_PROFILE_LINK; ?></h3>
+  <p><?php echo $content->profileLink(); ?></p>
+</div>
+<?php endif; ?>
+
+<?php endif; ?>

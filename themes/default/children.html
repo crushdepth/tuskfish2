@@ -1,0 +1,45 @@
+<?php if (!empty($children)): ?>
+<!-- Children -->
+
+<?php if (!empty($pagination)): ?>
+<div class="d-flex justify-content-end collection-pagination-top clearfix">
+  <?php echo $pagination; ?>
+</div>
+<?php endif; ?>
+
+<div>
+  <h3 class="mb-3"><?php echo TFISH_IN_THIS_COLLECTION; ?></h3>
+</div>
+<div class="mb-3">
+  <?php foreach ($children as $child): ?>
+  <div class="clearfix">
+    <h4 class="child-title"><a href="<?php echo xss($child->url()); ?>"><?php echo xss($child->title()); ?></a></h4>
+    <?php if ($child->image()): ?>
+      <div class="float-left">
+        <figure class="figure-left">
+        <a href="<?php echo xss($child->url()); ?>">
+        <img class="image img-fluid" src="<?php echo $child->cachedImage(150); ?>" 
+        <?php if ($child->caption()): ?>
+            title="<?php echo xss($child->caption()); ?>" alt="<?php echo xss($child->caption()); ?>"
+        <?php else: ?>
+            alt=""
+        <?php endif; ?> />
+        </a>
+        </figure>
+      </div>
+    <?php endif; ?>
+    <div class="child-teaser">
+      <?php echo $child->teaserForDisplay(); ?>
+    </div>
+  </div>
+  <?php endforeach; ?>    
+</div>
+
+<!-- Intra-collection pagination -->
+<?php if (!empty($pagination)): ?>
+<div class="d-flex justify-content-end collection-pagination-bottom clearfix">
+  <?php echo $pagination; ?>
+</div>
+<?php endif; ?>
+
+<?php endif; ?>
