@@ -1,3 +1,4 @@
+/.htaccess
 cache/
 /mainfile.php
 trust_path/cache/
