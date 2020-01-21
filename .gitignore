@@ -1,6 +1,6 @@
 /.htaccess
 cache/
-/mainfile.php
+mainfile.php
 trust_path/cache/
 configuration/
 trust_path/config/
