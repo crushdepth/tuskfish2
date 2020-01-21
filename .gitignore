@@ -1,0 +1,8 @@
+/.htaccess
+cache/
+/mainfile.php
+trust_path/cache/
+configuration/
+trust_path/config/
+trust_path/log
+uploads/
