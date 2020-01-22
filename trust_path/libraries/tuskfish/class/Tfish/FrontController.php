@@ -91,7 +91,7 @@ class FrontController
         $cacheParams = $this->controller->{$action}();
         $cache->check($path, $cacheParams);
         
-        $this->renderLayout($metadata, $viewModel->theme(), $viewModel->layout());
+        $this->renderLayout($metadata, $viewModel);
         $cache->save($cacheParams, \ob_get_contents());
         $database->close();
 
@@ -128,13 +128,16 @@ class FrontController
      * Renders the layout (main template) of a theme.
      * 
      * @param \Tfish\Entity\Metadata $metadata Instance of the Tuskfish metadata class.
-     * @param string $theme Name of the theme set to use.
+     * @param string $viewModel Instance of a viewModel class.
      */
-    private function renderLayout(Entity\Metadata $metadata, string $theme, string $layout)
+    private function renderLayout(Entity\Metadata $metadata, $viewModel)
     {
         $page = $this->view->render();
         $metadata->update($this->view->metadata());
         $session = $this->session;
+
+        $theme = $this->trimString($viewModel->theme() ?? 'default');
+        $layout = $this->trimString($viewModel->layout() ?? 'layout');
 
         if ($this->hasTraversalorNullByte($theme) || $this->hasTraversalorNullByte($layout)) {
             \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
