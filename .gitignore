@@ -1,8 +1,0 @@
-/.htaccess
-cache/
-/mainfile.php
-trust_path/cache/
-trust_path/configuration/
-trust_path/database/
-trust_path/log/
-uploads/
