@@ -116,28 +116,30 @@
       </div>
     </nav>
 
-    <main role="main" class="container">
+    <main role="main">
 
       <div class="starter-template">
 
         <!-- Main page -->
         <?php if ($page ?? null): ?>
-        <div><?php echo $page; ?></div>
+        <?php echo $page; ?>
         <?php endif; ?>
         
         <!-- Footer -->
-        <div class="row">
-          <div class="col">
-            <hr>
-            <footer class="clearfix">
-              <p class="copyright">Copyright &copy; <?php echo xss($metadata->author) . ' ' . \date('Y'); ?> | <?php echo $session->getLoginLink(); ?></p>
-            </footer>
+        <div class="container">
+          <div class="row">
+            <div class="col">
+              <hr>
+              <footer class="clearfix">
+                <p class="copyright">Copyright &copy; <?php echo xss($metadata->author) . ' ' . \date('Y'); ?> | <?php echo $session->getLoginLink(); ?></p>
+              </footer>
+            </div>
           </div>
         </div>
         
       </div>
         
-    </main><!-- /.container -->
+    </main>
     
   </body>
 </html>
