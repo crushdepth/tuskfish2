@@ -1,5 +1,8 @@
 <?php declare(strict_types=1); ?>
 
+<!-- Container -->
+<div class="container">
+
 <div class="row">
   <div class="col">
     <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
@@ -10,4 +13,7 @@
   <div class="col text-center">
     <p><?php echo xss($viewModel->displayError()); ?></p>
   </div>
+</div>
+
+<!-- /.container -->
 </div>

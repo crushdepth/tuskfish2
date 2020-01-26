@@ -6,6 +6,9 @@
 <?php $parent = $viewModel->parent(); ?>
 <?php $children = $viewModel->children(); ?>
 
+<!-- Container -->
+<div class="container">
+
 <!-- Title and meta information -->
 <div>
   <h2 class="title"><?php echo xss($content->title()); ?></h2>
@@ -53,3 +56,6 @@
 
 <?php if (!empty($parent)) include_once('parent.html'); ?>
 <?php if (!empty($children)) include_once('children.html'); ?>
+
+<!-- Container -->
+</div>

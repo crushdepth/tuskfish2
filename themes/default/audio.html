@@ -5,6 +5,9 @@
 <?php $contentTags = $viewModel->contentTags(); ?>
 <?php $parent = $viewModel->parent(); ?>
 
+<!-- Container -->
+<div class="container">
+
 <!-- Title and meta information -->
 <div>
   <h2 class="title">
@@ -90,3 +93,6 @@
 <?php endif; ?>
 
 <?php if (!empty($parent)) include_once('parent.html'); ?>
+
+<!-- /.container -->
+</div>

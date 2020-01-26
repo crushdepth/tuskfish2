@@ -2,6 +2,9 @@
 
 <!-- Display the two-factor authentication form -->
 
+<!-- Container -->
+<div class="container">
+
 <?php if (!\Tfish\Session::isAdmin()): ?>
 
 <form class="form-horizontal" action="login.php" method="post" role="form" accept-charset="UTF-8">
@@ -36,3 +39,6 @@
 <p><?php echo TFISH_YOU_ARE_ALREADY_LOGGED_IN . ' <a href="' . TFISH_URL . 'admin/login.php?op=logout">' . TFISH_LOGOUT . '.</a>'; ?></p>
 
 <?php endif; ?>
+
+<!-- /.container -->
+</div>

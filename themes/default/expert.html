@@ -6,6 +6,9 @@
 
 <?php if ($content): ?>
 
+<!-- Container -->
+<div class="container">
+
 <!-- Title and meta information -->
 <div>
   <h2 class="name"><?php echo $content->nameAndJob(); ?></h2>
@@ -75,5 +78,8 @@
   <p><?php echo $content->profileLink(); ?></p>
 </div>
 <?php endif; ?>
+
+<!-- /.container -->
+</div>
 
 <?php endif; ?>
