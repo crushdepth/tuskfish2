@@ -261,26 +261,6 @@ class ContentEdit
     }
 
     /**
-     * Returns the date template as per the date() function of PHP.
-     * 
-     * @return  string
-     */
-    public function dateFormat(): string
-    {
-        return $this->preference->dateFormat();
-    }
-
-    /**
-     * Returns the default language preference.
-     * 
-     * @return  string Default language as two-letter ISO code.
-     */
-    public function defaultLanguage(): string 
-    {
-        return $this->preference->defaultLanguage();
-    }
-
-    /**
      * Get a single content object as an associative array.
      * 
      * @param   int $id ID of content object.
@@ -312,16 +292,6 @@ class ContentEdit
 
         return $this->database->select('taglink', $criteria, $columns)
             ->fetchAll(\PDO::FETCH_COLUMN);
-    }
-
-    /**
-     * Returns the site author preference.
-     * 
-     * @return  string
-     */
-    public function siteAuthor(): string
-    {
-        return $this->preference->siteAuthor();
     }
 
     /**

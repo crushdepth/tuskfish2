@@ -50,15 +50,17 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
     private $action = '';
     private $response = '';
     private $backUrl = '';
+    private $preference;
 
     /**
      * Constructor.
      * 
      * @param   object $model Instance of a model class.
      */
-    public function __construct($model)
+    public function __construct($model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
+        $this->preference = $preference;
         $this->theme = 'admin';
         $this->setMetadata(['robots' => 'noindex,nofollow']);
     }
@@ -157,7 +159,7 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
      */
     public function dateFormat(): string
     {
-        return $this->model->dateFormat();
+        return $this->preference->dateFormat();
     }
 
     /**
@@ -167,7 +169,7 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
      */
     public function defaultLanguage(): string 
     {
-        return $this->model->defaultLanguage();
+        return $this->preference->defaultLanguage();
     }
 
     /**
@@ -200,7 +202,7 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
      */
     public function siteAuthor(): string
     {
-        return $this->model->siteAuthor();
+        return $this->preference->siteAuthor();
     }
 
     /** Getters and setters */
