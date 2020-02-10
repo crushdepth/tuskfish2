@@ -60,15 +60,17 @@ class Admin implements \Tfish\ViewModel\Listable
     private $action = '';
     private $backUrl = '';
     private $response = '';
+    private $preference;
 
     /**
      * Constructor.
      * 
      * @param   object $model Instance of a model class.
      */
-    public function __construct($model)
+    public function __construct($model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
+        $this->preference = $preference;
         $this->theme = 'admin';
         $this->order = 'date';
         $this->orderType = 'DESC';
@@ -165,7 +167,7 @@ class Admin implements \Tfish\ViewModel\Listable
      */
     public function dateFormat(): string
     {
-        return $this->model->dateFormat();
+        return $this->preference->dateFormat();
     }
 
     /**
@@ -216,7 +218,7 @@ class Admin implements \Tfish\ViewModel\Listable
      */
     public function limit(): int
     {
-        return $this->model->adminlimit();
+        return $this->preference->adminPagination();
     }
     
     /**

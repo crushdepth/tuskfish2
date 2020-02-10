@@ -273,24 +273,6 @@ class Admin
 
         return $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
     }
-
-    /**
-     * Return the admin-side pagination limit.
-     * 
-     * @return  int Number of items to display on one page of the admin summary table.
-     */
-    public function adminlimit(): int
-    {
-        return $this->preference->adminPagination();
-    }
-
-    /**
-     * Returns the template for formatting the date from preferences.
-     */
-    public function dateFormat(): string
-    {
-        return $this->preference->dateFormat();
-    }
     
     /**
      * Deletes an uploaded image file associated with a content object.
