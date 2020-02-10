@@ -76,24 +76,6 @@ class Search
     /** Utilities. */
 
     /**
-     * Return admin-side pagination limit.
-     * 
-     * @return  int Number of items to display in one page view.
-     */
-    public function adminLimit(): int
-    {
-        return $this->preference->adminPagination();
-    }
-
-    /**
-     * Return the template for formatting dates from preferences.
-     */
-    public function dateFormat(): string
-    {
-        return $this->preference->dateFormat();
-    }
-
-    /**
      * Get objects matching filtering criteria.
      * 
      * @param   array $params Filtering criteria such as keywords, limit, offset etc.
@@ -104,28 +86,6 @@ class Search
         $criteria = $this->setCriteria($cleanParams);
 
         return $this->runQuery($criteria);        
-    }
-
-    /**
-     * Return search results pagination limit.
-     * 
-     * @return  int Number of items to display in one page of search results.
-     */
-    public function limit(): int
-    {
-        return $this->preference->searchPagination();
-    }
-
-    /**
-     * Return minimum length (characters) of search terms.
-     * 
-     * Shorter search tersm will be discarded.
-     * 
-     * @return int
-     */
-    public function minSearchLength(): int
-    {
-        return $this->preference->minSearchLength();
     }
 
     /**

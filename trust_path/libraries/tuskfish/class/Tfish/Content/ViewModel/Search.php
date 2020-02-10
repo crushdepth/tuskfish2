@@ -27,6 +27,7 @@ namespace Tfish\Content\ViewModel;
  * @uses        trait \Tfish\Traits\Listable Provides a standard implementation of the \Tfish\View\Listable interface.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         object $model Classname of the model used to display this page.
+ * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  * @var         array $searchResults Array of content objects matching the search criteria.
  * @var         int $contentCount Number of search results matching the search criteria.
  * @var         string $action Action to be embedded in the form and executed after next submission.
@@ -45,6 +46,7 @@ class Search implements \Tfish\ViewModel\Listable
     use \Tfish\Traits\ValidateString;
 
     private $model;
+    private $preference;
     private $searchResults = [];
     private $contentCount = 0;
 
@@ -62,9 +64,10 @@ class Search implements \Tfish\ViewModel\Listable
      * 
      * @param   object $model Instance of a model class.
      */
-    public function __construct($model)
+    public function __construct($model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
+        $this->preference = $preference;
         $this->template = 'search';
         $this->theme = 'default';
         
@@ -113,7 +116,7 @@ class Search implements \Tfish\ViewModel\Listable
      */
     public function limit(): int
     {
-        return $this->model->limit();
+        return $this->preference->searchPagination();
     }
 
     /** Getters and setters. */
@@ -231,7 +234,7 @@ class Search implements \Tfish\ViewModel\Listable
         foreach ($searchTerms as $term) {
             $term = $this->trimString($term);
             
-            if (!empty($term) && \mb_strlen($term, 'UTF-8') >= $this->model->minSearchLength()) {
+            if (!empty($term) && \mb_strlen($term, 'UTF-8') >= $this->preference->minSearchLength()) {
                 $cleanSearchTerms[] = $term;
             }
         }
@@ -242,7 +245,7 @@ class Search implements \Tfish\ViewModel\Listable
             $escapedTerm = $this->trimString($escapedTerm);
             
             if (!empty($escapedTerm) && \mb_strlen($escapedTerm, 'UTF-8')
-                    >= $this->model->minSearchLength()) {
+                    >= $this->preference->minSearchLength()) {
                 $cleanEscapedSearchTerms[] = (string) $escapedTerm;
             }
         }

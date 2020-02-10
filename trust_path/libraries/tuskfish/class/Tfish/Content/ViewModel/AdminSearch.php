@@ -113,7 +113,7 @@ class AdminSearch implements \Tfish\ViewModel\Listable
      */
     public function dateFormat(): string
     {
-        return $this->model->dateFormat();
+        return $this->preference->dateFormat();
     }
 
     /**
@@ -123,7 +123,7 @@ class AdminSearch implements \Tfish\ViewModel\Listable
      */
     public function limit(): int
     {
-        return $this->model->adminLimit();
+        return $this->preference->adminPagination();
     }
 
     /**
