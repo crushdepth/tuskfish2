@@ -117,8 +117,8 @@ class Enclosure
                 return false;
             }
         } else {
-            \trigger_error(TFISH_ERROR_NO_SUCH_OBJECT, E_USER_WARNING);
-            return false;
+            header("HTTP/1.0 404 Not Found");
+            exit;
         }
     }
     
