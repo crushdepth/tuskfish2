@@ -236,24 +236,4 @@ class Criteria
             \trigger_error(TFISH_ERROR_NOT_ARRAY, E_USER_ERROR);
         }
     }
-    
-    /**
-     * Unset existing type criteria.
-     * 
-     * Used by content object handler subclasses to remove any existing type filter when they may
-     * need to set or reset it to a specific type.
-     * 
-     * @param int $key Key of the item array containing the type filter.
-     */
-    public function unsetType(int $key)
-    {
-        if (isset($this->item[$key])) {
-            unset($this->item[$key]);
-            unset($this->condition[$key]);
-        }
-
-        // Reindex the arrays.
-        $this->item = \array_values($this->item);
-        $this->condition = \array_values($this->condition);
-    }
 }
