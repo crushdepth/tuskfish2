@@ -153,16 +153,6 @@ class Listing
     }
 
     /**
-     * Return the admin-side pagination limit.
-     * 
-     * @return  int Number of content items to display in one page view.
-     */
-    public function adminlimit(): int
-    {
-        return $this->preference->adminPagination();
-    }
-
-    /**
      * Return a collection of tags.
      * 
      * Retrieves tags that have been grouped into a collection as ID-title key-value pairs.
@@ -186,24 +176,6 @@ class Listing
             ->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Returns the template for formatting the date from preferences.
-     */
-    public function dateFormat(): string
-    {
-        return $this->preference->dateFormat();
-    }
-
-    /**
-     * Return the gallery pagination limit.
-     * 
-     * @return  int Number of content items to display in one page view.
-     */
-    public function gallerylimit(): int
-    {
-        return $this->preference->galleryPagination();
-    }
-
     public function getCount(array $params): int
     {
         unset(
@@ -219,16 +191,6 @@ class Listing
         $criteria = $this->setCriteria($cleanParams);
 
         return $this->runCount($criteria);
-    }
-
-    /**
-     * Returns the Google Maps API key (if set) from preferences.
-     * 
-     * @return  string Google Maps API key.
-     */
-    public function mapsApiKey(): string
-    {
-        return $this->preference->mapsApiKey();
     }
 
     /**
@@ -360,16 +322,6 @@ class Listing
         }
 
         return $criteria;
-    }
-
-    /**
-     * Return the user-side pagination limit.
-     * 
-     * @return  int Number of content items to display in one page view.
-     */
-    public function userlimit(): int
-    {
-        return $this->preference->userPagination();
     }
 
     /**

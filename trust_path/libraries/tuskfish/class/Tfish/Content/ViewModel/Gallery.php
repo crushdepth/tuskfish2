@@ -28,6 +28,7 @@ namespace Tfish\Content\ViewModel;
  * @uses        trait \Tfish\Traits\Listable Provides a standard implementation of the \Tfish\View\Listable interface.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         object $model Classname of the model used to display this page.
+ * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  * @var         array $contentList An array of content objects to be displayed in this page view. 
  * @var         int $contentCount The number of content objects that match filtering criteria. Used to build pagination control. 
  * @var         int $id ID of a single content object to be displayed.
@@ -56,10 +57,12 @@ class Gallery implements \Tfish\ViewModel\Listable
      * Constructor.
      * 
      * @param   object $model Instance of a model class.
+     * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
-    public function __construct($model)
+    public function __construct($model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
+        $this->preference = $preference;
         $this->template = 'gallery';
         $this->theme = 'default';
         $this->pageTitle = TFISH_IMAGE_GALLERY;
@@ -165,7 +168,7 @@ class Gallery implements \Tfish\ViewModel\Listable
      */
     public function limit(): int
     {
-        return $this->model->galleryLimit();
+        return $this->preference->galleryPagination();
     }
 
     /**

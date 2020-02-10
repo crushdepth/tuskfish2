@@ -28,6 +28,7 @@ namespace Tfish\Content\ViewModel;
  * @uses        trait \Tfish\Traits\Listable Provides a standard implementation of the \Tfish\View\Listable interface.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         object $model Classname of the model used to display this page.
+ * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  * @var         \Tfish\Content\Entity\content $content A single content object for display.
  * @var         array $contentTags Array of tag IDs/names associated with a single content object.
  * @var         array $contentList An array of content objects to be displayed in this page view. 
@@ -51,6 +52,7 @@ class Listing implements \Tfish\ViewModel\Listable
     use \Tfish\Traits\ValidateString;
     
     private $model;
+    private $preference;
     private $content = '';
     private $contentTags = '';
     private $contentList = [];
@@ -72,9 +74,10 @@ class Listing implements \Tfish\ViewModel\Listable
      * 
      * @param   object $model Instance of a model class.
      */
-    public function __construct($model)
+    public function __construct($model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
+        $this->preference = $preference;
         $this->theme = 'default';
     }
 
@@ -250,7 +253,7 @@ class Listing implements \Tfish\ViewModel\Listable
      */
     public function limit(): int
     {
-        return $this->model->userLimit();
+        return $this->preference->userPagination();
     }
 
     /**
@@ -378,7 +381,7 @@ class Listing implements \Tfish\ViewModel\Listable
      */
     public function dateFormat(): string
     {
-        return $this->model->dateFormat();
+        return $this->preference->dateFormat();
     }
 
     /**
@@ -408,7 +411,7 @@ class Listing implements \Tfish\ViewModel\Listable
      */
     public function mapsApiKey(): string
     {
-        return $this->model->mapsApiKey();
+        return $this->preference->mapsApiKey();
     }
 
     /**
