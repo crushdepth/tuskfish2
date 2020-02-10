@@ -29,6 +29,7 @@ namespace Tfish\Content\ViewModel;
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
  * @var         object $model Classname of the model used to display this page.
+ * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  * @var         string $contentTitle Name of content object to display in confirm delete request.
  * @var         array $contentList An array of content objects to be displayed in this page view. 
  * @var         int $contentCount The number of content objects that match filtering criteria. Used to build pagination control. 
@@ -49,6 +50,7 @@ class Admin implements \Tfish\ViewModel\Listable
     use \Tfish\Traits\ValidateToken;
     
     private $model;
+    private $preference;
     private $contentTitle = '';
     private $contentList = [];
     private $contentCount = 0;
@@ -60,12 +62,12 @@ class Admin implements \Tfish\ViewModel\Listable
     private $action = '';
     private $backUrl = '';
     private $response = '';
-    private $preference;
 
     /**
      * Constructor.
      * 
      * @param   object $model Instance of a model class.
+     * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
     public function __construct($model, \Tfish\Entity\Preference $preference)
     {

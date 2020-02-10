@@ -28,6 +28,7 @@ namespace Tfish\Content\ViewModel;
  * @uses        trait \Tfish\Traits\Listable Provides a standard implementation of the \Tfish\View\Listable interface.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         object $model Classname of the model used to display this page.
+ * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  * @var         array $searchResults Array of content objects matching the search criteria.
  * @var         int $contentCount Number of search results matching the search criteria.
  * @var         string $action Action to be embedded in the form and executed after next submission.
@@ -47,6 +48,7 @@ class AdminSearch implements \Tfish\ViewModel\Listable
     use \Tfish\Traits\ValidateString;
 
     private $model;
+    private $preference;
 
     private $searchResults = [];
     private $contentCount = 0;
@@ -64,10 +66,12 @@ class AdminSearch implements \Tfish\ViewModel\Listable
      * Constructor.
      * 
      * @param   object $model Instance of a model class.
+     * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
-    public function __construct($model)
+    public function __construct($model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
+        $this->preference = $preference;
         $this->template = 'adminSearch';
         $this->theme = 'admin';
         $this->pageTitle = TFISH_ADMIN_SEARCH;

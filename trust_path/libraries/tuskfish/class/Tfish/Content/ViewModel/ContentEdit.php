@@ -29,6 +29,7 @@ namespace Tfish\Content\ViewModel;
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
  * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\View\Viewable interface.
  * @var         object $model Classname of the model used to display this page.
+ * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  * @var         int $id ID of a single content object to be displayed.
  * @var         \Tfish\Content\Entity\Content $content Content object to be edited.
  * @var         array $parentOptions A list of parents (collections) IDs and titles.
@@ -56,6 +57,7 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
      * Constructor.
      * 
      * @param   object $model Instance of a model class.
+     * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
     public function __construct($model, \Tfish\Entity\Preference $preference)
     {

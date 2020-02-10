@@ -28,10 +28,10 @@ namespace Tfish\Content\ViewModel;
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\View\Viewable interface.
  * @var         object $model Classname of the model used to display this page.
+ * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  * @var         int $id ID of a single content object to be displayed.
  * @var         int $tag Filter search results by tag ID.
  * @var         array $items Content objects to include in the feed.
- * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  */
 
 class Rss implements \Tfish\ViewModel\Viewable

@@ -73,6 +73,7 @@ class Listing implements \Tfish\ViewModel\Listable
      * Constructor.
      * 
      * @param   object $model Instance of a model class.
+     * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
     public function __construct($model, \Tfish\Entity\Preference $preference)
     {
