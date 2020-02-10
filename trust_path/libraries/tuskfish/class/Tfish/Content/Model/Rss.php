@@ -62,16 +62,6 @@ class Rss
     /* Getters and setters. */
 
     /**
-     * Return site (feed) copyright.
-     * 
-     * @return  string
-     */
-    public function copyright()
-    {
-        return $this->preference->siteCopyright();
-    }
-
-    /**
      * Customise RSS feed title and description for a specific tag or collection.
      * 
      * @param   int $id ID of a target tag or collection object.
@@ -92,14 +82,6 @@ class Rss
         $statement = $this->database->select('content', $criteria, ['title', 'description']);
 
         return $statement->fetch(\PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Return site (feed) description.
-     */
-    public function description()
-    {
-        return $this->preference->siteDescription();
     }
 
     /**
