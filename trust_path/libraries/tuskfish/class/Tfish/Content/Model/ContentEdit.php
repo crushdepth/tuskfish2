@@ -315,16 +315,6 @@ class ContentEdit
     }
 
     /**
-     * Return an instance of the Tuskfish site preferences.
-     * 
-     * @return  \Tfish\Entity\Preference
-     */
-    public function preference(): \Tfish\Entity\Preference
-    {
-        return $this->preference;
-    }
-
-    /**
      * Returns the site author preference.
      * 
      * @return  string

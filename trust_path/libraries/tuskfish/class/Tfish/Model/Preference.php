@@ -98,16 +98,4 @@ class Preference
         
         return true;
     }
-
-    /** Getters and setters. */
-
-    /**
-     * Return instance of the site preferences class.
-     * 
-     * @return  \Tfish\Entity\Preference
-     */
-    public function preference(): \Tfish\Entity\Preference
-    {
-        return $this->preference;
-    }
 }

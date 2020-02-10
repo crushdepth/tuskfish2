@@ -142,5 +142,5 @@ class PreferenceEdit implements Viewable
     public function response(): string
     {
         return $this->response;
-    }  
+    }
 }
