@@ -56,12 +56,13 @@ class PreferenceEdit implements Viewable
      * Constructor
      * 
      * @param   object $model Instance of a model class.
+     * @param   \Tfish\Entity\Preference $preference Instance of the Tfish site preference class.
      */
-    public function __construct($model)
+    public function __construct($model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
         $this->theme = 'admin';
-        $this->preference = $this->model->preference();
+        $this->preference = $preference;
         $this->setMetadata(['robots' => 'noindex,nofollow']);
     }
 

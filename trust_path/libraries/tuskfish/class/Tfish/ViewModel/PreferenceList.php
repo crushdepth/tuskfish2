@@ -49,10 +49,12 @@ class PreferenceList implements Viewable
      * Constructor
      * 
      * @param   object $model Instance of a model class.
+     * @param   \Tfish\Entity\Preference $preference Instance of the Tfish site preference class.
      */
-    public function __construct($model)
+    public function __construct($model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
+        $this->preference = $preference;
         $this->template = 'preferenceTable';
         $this->theme = 'admin';
         $this->setMetadata(['robots' => 'noindex,nofollow']);
@@ -66,7 +68,6 @@ class PreferenceList implements Viewable
     public function displayForm()
     {
         $this->pageTitle = TFISH_PREFERENCES;
-        $this->preference = $this->model->preference();
     }
 
     /**
