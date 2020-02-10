@@ -95,12 +95,6 @@ class Content
     private $publisher = '';
     private $module = 'content';
 
-    /** Magic get access is to support the Tree class - better to refactor it. */
-    public function __get($property)
-    {
-        return $this->$property;
-    }
-
     /**
      * Load properties.
      * 

@@ -106,10 +106,10 @@ class Tree
         foreach (\array_keys($this->_objects) as $i) {
 
             $id_field = $this->_myId;
-            $key1 = $this->_objects[$i]->$id_field;
+            $key1 = $this->_objects[$i]->$id_field();
             $this->_tree[$key1]['obj'] = & $this->_objects[$i];
             $parent_id_field = $this->_parentId;
-            $key2 = $this->_objects[$i]->$parent_id_field;
+            $key2 = $this->_objects[$i]->$parent_id_field();
             $this->_tree[$key1]['parent'] = $key2;
             $this->_tree[$key2]['child'][] = $key1;
             
@@ -272,8 +272,8 @@ class Tree
         if ($key > 0) {
 
             $id_field = $this->_myId;
-            $value = $this->_tree[$key]['obj']->$id_field;
-            $ret[$value] = $prefix_curr . $this->_tree[$key]['obj']->$fieldName;
+            $value = $this->_tree[$key]['obj']->$id_field();
+            $ret[$value] = $prefix_curr . $this->_tree[$key]['obj']->$fieldName();
             $prefix_curr .= $prefix_orig;
 
         }
