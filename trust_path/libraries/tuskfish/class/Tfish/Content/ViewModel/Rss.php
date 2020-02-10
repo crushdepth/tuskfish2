@@ -31,6 +31,7 @@ namespace Tfish\Content\ViewModel;
  * @var         int $id ID of a single content object to be displayed.
  * @var         int $tag Filter search results by tag ID.
  * @var         array $items Content objects to include in the feed.
+ * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  */
 
 class Rss implements \Tfish\ViewModel\Viewable
@@ -43,15 +44,18 @@ class Rss implements \Tfish\ViewModel\Viewable
     private $id = 0;
     private $tag = 0;
     private $items = [];
+    private $preference;
 
     /**
      * Constructor.
      * 
      * @param   object $model Instance of a model class.
+     * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
-    public function __construct($model)
+    public function __construct($model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
+        $this->preference = $preference;
         $this->template = 'feed';
         $this->theme = 'rss';
         $this->setMetadata([]);
@@ -102,7 +106,7 @@ class Rss implements \Tfish\ViewModel\Viewable
      */
     public function copyright(): string
     {
-        return $this->model->copyright();
+        return $this->preference->siteCopyright();
     }
 
     /**
@@ -114,7 +118,7 @@ class Rss implements \Tfish\ViewModel\Viewable
             return strip_tags($this->description);
         }
 
-        return $this->model->description();
+        return $this->preference->siteDescription();
     }
 
     /**
@@ -174,7 +178,7 @@ class Rss implements \Tfish\ViewModel\Viewable
      */
     public function siteEmail(): string
     {
-        return $this->model->siteEmail();
+        return $this->preference->siteEmail();
     }
 
     /**
@@ -188,7 +192,7 @@ class Rss implements \Tfish\ViewModel\Viewable
             return $this->title;
         }
 
-        return $this->model->title();
+        return $this->preference->siteName();
     }
 
     /**
@@ -198,6 +202,6 @@ class Rss implements \Tfish\ViewModel\Viewable
      */
     public function webMaster(): string
     {
-        return $this->model->webMaster();
+        return $this->preference->siteEmail();
     }
 }

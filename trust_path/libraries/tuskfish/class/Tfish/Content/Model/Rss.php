@@ -180,44 +180,4 @@ class Rss
         return $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Content\Entity\Content');
         
     }
-
-    /**
-     * Return managing editor email address.
-     * 
-     * @return  string Email address.
-     */
-    public function managingEditor()
-    {
-        return $this->preference->siteEmail();
-    }
-
-    /**
-     * Return site administrative email address.
-     * 
-     * @return  string Email address.
-     */
-    public function siteEmail()
-    {
-        return $this->preference->siteEmail();
-    }
-
-    /**
-     * Return site (feed) title.
-     * 
-     * @return  string Title, as set in site preferences.
-     */
-    public function title()
-    {
-        return $this->preference->siteName();
-    }
-
-    /**
-     * Return site webmaster's email address.
-     * 
-     * @return  string Email address.
-     */
-    public function webMaster()
-    {
-        return $this->preference->siteEmail();
-    }
 }
