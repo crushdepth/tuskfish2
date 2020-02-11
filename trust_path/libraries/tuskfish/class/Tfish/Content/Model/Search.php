@@ -297,29 +297,29 @@ class Search
             $cleanParams['limit'] = $limit;
         }
 
-        if (isset($params['order']) && $this->isAlnumUnderscore($params['order'])) {
-            $cleanParams['order'] = $this->trimString($params['order']);
+        if (isset($params['sort']) && $this->isAlnumUnderscore($params['sort'])) {
+            $cleanParams['sort'] = $this->trimString($params['sort']);
         }
 
-        if (isset($params['orderType'])) {
+        if (isset($params['order'])) {
             
-            if ($params['order'] === 'ASC') {
-                $cleanParams['orderType'] = 'ASC';
+            if ($params['sort'] === 'ASC') {
+                $cleanParams['order'] = 'ASC';
             } else {
-                $cleanParams['orderType'] = 'DESC';
+                $cleanParams['order'] = 'DESC';
             }
         }
 
-        if (isset($params['secondaryOrder']) && $this->isAlnumUnderscore($params['secondaryOrder'])) {
-            $cleanParams['secondaryOrder'] = $this->trimString($params['secondaryOrder']);
+        if (isset($params['secondarySort']) && $this->isAlnumUnderscore($params['secondarySort'])) {
+            $cleanParams['secondarySort'] = $this->trimString($params['secondarySort']);
         }
 
-        if (isset($params['secondaryOrderType'])) {
+        if (isset($params['secondaryOrder'])) {
             
-            if ($params['secondaryOrder'] === 'ASC') {
-                $cleanParams['secondaryOrderType'] = 'ASC';
+            if ($params['secondarySort'] === 'ASC') {
+                $cleanParams['secondaryOrder'] = 'ASC';
             } else {
-                $cleanParams['secondaryOrderType'] = 'DESC';
+                $cleanParams['secondaryOrder'] = 'DESC';
             }
         }
 

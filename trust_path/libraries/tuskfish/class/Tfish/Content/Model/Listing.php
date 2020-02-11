@@ -181,10 +181,10 @@ class Listing
         unset(
             $params['start'],
             $params['limit'],
+            $params['sort'],
             $params['order'],
-            $params['orderType'],
-            $params['secondaryOrder'],
-            $params['secondaryOrderType']
+            $params['secondarySort'],
+            $params['secondaryOrder']
         );
 
         $cleanParams = $this->validateParams($params);
@@ -307,14 +307,14 @@ class Listing
         if (!empty($cleanParams['start']))
             $criteria->setOffset($cleanParams['start']);
        
-        if (!empty($cleanParams['order'])) {
+        if (!empty($cleanParams['sort'])) {
+            $criteria->setSort($cleanParams['sort']);
             $criteria->setOrder($cleanParams['order']);
-            $criteria->setOrderType($cleanParams['orderType']);
         }
 
-        if (!empty($cleanParams['secondaryOrder'])) {
+        if (!empty($cleanParams['secondarySort'])) {
+            $criteria->setSecondarySort($cleanParams['secondarySort']);
             $criteria->setSecondaryOrder($cleanParams['secondaryOrder']);
-            $criteria->setSecondaryOrderType($cleanParams['secondaryOrderType']);
         }
 
         if (!empty($cleanParams['limit'])) {
@@ -372,29 +372,29 @@ class Listing
             }
         }
 
-        if (isset($params['order']) && $this->isAlnumUnderscore($params['order'])) {
-            $cleanParams['order'] = $this->trimString($params['order']);
+        if (isset($params['sort']) && $this->isAlnumUnderscore($params['sort'])) {
+            $cleanParams['sort'] = $this->trimString($params['sort']);
         }
 
-        if (isset($params['orderType'])) {
+        if (isset($params['order'])) {
             
-            if ($params['orderType'] === 'ASC') {
-                $cleanParams['orderType'] = 'ASC';
+            if ($params['order'] === 'ASC') {
+                $cleanParams['order'] = 'ASC';
             } else {
-                $cleanParams['orderType'] = 'DESC';
+                $cleanParams['order'] = 'DESC';
             }
         }
 
-        if (isset($params['secondaryOrder']) && $this->isAlnumUnderscore($params['secondaryOrder'])) {
-            $cleanParams['secondaryOrder'] = $this->trimString($params['secondaryOrder']);
+        if (isset($params['secondarySort']) && $this->isAlnumUnderscore($params['secondarySort'])) {
+            $cleanParams['secondarySort'] = $this->trimString($params['secondarySort']);
         }
 
-        if (isset($params['secondaryOrderType'])) {
+        if (isset($params['secondaryOrder'])) {
             
-            if ($params['secondaryOrderType'] === 'ASC') {
-                $cleanParams['secondaryOrderType'] = 'ASC';
+            if ($params['secondaryOrder'] === 'ASC') {
+                $cleanParams['secondaryOrder'] = 'ASC';
             } else {
-                $cleanParams['secondaryOrderType'] = 'DESC';
+                $cleanParams['secondaryOrder'] = 'DESC';
             }
         }
 

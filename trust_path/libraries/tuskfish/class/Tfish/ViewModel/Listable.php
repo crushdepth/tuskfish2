@@ -35,28 +35,28 @@ interface Listable
      * 
      * @param   string $field Name of field.
      */
-    public function setOrder(string $field);
+    public function setSort(string $field);
 
     /**
-     * Set primary sort order.
+     * Set primary sort sort.
      * 
-     * @param   string $order Order (ASC or DESC).
+     * @param   string $sort Sort (ASC or DESC).
      */
-    public function setOrderType(string $order);
+    public function setOrder(string $sort);
 
     /**
      * Set secondary field to sort query results by.
      * 
      * @param   string $field Name of field.
      */
-    public function setSecondaryOrder(string $field);
+    public function setSecondarySort(string $field);
 
     /**
-     * Set secondary sort order.
+     * Set secondary sort sort.
      * 
-     * @param   string $secondaryOrder Order (ASC or DESC).
+     * @param   string $secondarySort Sort (ASC or DESC).
      */
-    public function setSecondaryOrderType(string $secondaryOrder);
+    public function setSecondaryOrder(string $secondarySort);
     
     /* Pagination support. */
 

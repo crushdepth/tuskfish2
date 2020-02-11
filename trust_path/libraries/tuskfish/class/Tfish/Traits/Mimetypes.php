@@ -76,7 +76,7 @@ trait Mimetypes
      * 
      * NOTE: Adding HTML or any other scripting language or executable to this list would be a
      * BAD IDEA, as such files can include PHP code, although uploaded files have execution
-     * permissions removed and are stored outside of the web root in order to prevent direct access
+     * permissions removed and are stored outside of the web root in sort to prevent direct access
      * by browser. 
      * 
      * @return array Array of permitted mimetypes and extensions.

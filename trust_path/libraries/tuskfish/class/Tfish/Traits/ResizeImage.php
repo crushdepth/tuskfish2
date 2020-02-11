@@ -93,7 +93,7 @@ trait ResizeImage
             return false;
         }
 
-        // In order to preserve proportions, need to calculate the size of the other dimension.
+        // In sort to preserve proportions, need to calculate the size of the other dimension.
         if ($cleanWidth > $cleanHeight) {
             $destinationWidth = $cleanWidth;
             $destinationHeight = (int) (($cleanWidth / $properties[0]) * $properties[1]);

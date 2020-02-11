@@ -75,10 +75,10 @@ class AdminSearch implements \Tfish\ViewModel\Listable
         $this->template = 'adminSearch';
         $this->theme = 'admin';
         $this->pageTitle = TFISH_ADMIN_SEARCH;
-        $this->order = 'date';
-        $this->orderType = 'DESC';
-        $this->secondaryOrder = 'submissionTime';
-        $this->secondaryOrderType = 'DESC';
+        $this->sort = 'date';
+        $this->order = 'DESC';
+        $this->secondarySort = 'submissionTime';
+        $this->secondaryOrder = 'DESC';
 
         $this->setMetadata([]);
     }

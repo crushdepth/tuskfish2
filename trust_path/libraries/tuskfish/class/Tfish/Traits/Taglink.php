@@ -71,7 +71,7 @@ trait TagLink
      * Tags are stored separately in the taglinks table. Tags are assembled in one batch before
      * proceeding to insertion; so if one fails a range check all should fail. If the
      * lastInsertId could not be retrieved, then halt execution because this data
-     * is necessary in order to correctly assign taglinks to content objects.
+     * is necessary in sort to correctly assign taglinks to content objects.
      * 
      * @param   int $contentId ID of the content object associated with these taglinks.
      * @param   string $contentType The type of content object.

@@ -268,10 +268,10 @@ class Listing implements \Tfish\ViewModel\Listable
             'start' => $this->start,
             'type' => $this->type,
             'onlineStatus' => $this->onlineStatus,
+            'sort' => $this->sort,
             'order' => $this->order,
-            'orderType' => $this->orderType,
-            'secondaryOrder' => $this->secondaryOrder,
-            'secondaryOrderType' => $this->secondaryOrderType
+            'secondarySort' => $this->secondarySort,
+            'secondaryOrder' => $this->secondaryOrder
         ];
 
         if ($this->content->type() === 'TfTag') $params['tag'] = $this->content->id();  
@@ -295,10 +295,10 @@ class Listing implements \Tfish\ViewModel\Listable
                 'tag' => $this->tag,
                 'type' => $this->type,
                 'onlineStatus' => $this->onlineStatus,
+                'sort' => $this->sort,
                 'order' => $this->order,
-                'orderType' => $this->orderType,
-                'secondaryOrder' => $this->secondaryOrder,
-                'secondaryOrderType' => $this->secondaryOrderType
+                'secondarySort' => $this->secondarySort,
+                'secondaryOrder' => $this->secondaryOrder
             ]
         );
     }

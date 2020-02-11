@@ -74,10 +74,10 @@ class Admin implements \Tfish\ViewModel\Listable
         $this->model = $model;
         $this->preference = $preference;
         $this->theme = 'admin';
-        $this->order = 'date';
-        $this->orderType = 'DESC';
-        $this->secondaryOrder = 'submissionTime';
-        $this->secondaryOrderType = 'DESC';
+        $this->sort = 'date';
+        $this->order = 'DESC';
+        $this->secondarySort = 'submissionTime';
+        $this->secondaryOrder = 'DESC';
         $this->setMetadata(['robots' => 'noindex,nofollow']);
     }
 
@@ -203,10 +203,10 @@ class Admin implements \Tfish\ViewModel\Listable
                 'tag' => $this->tag,
                 'type' => $this->type,
                 'onlineStatus' => $this->onlineStatus,
+                'sort' => $this->sort,
                 'order' => $this->order,
-                'orderType' => $this->orderType,
-                'secondaryOrder' => $this->secondaryOrder,
-                'secondaryOrderType' => $this->secondaryOrderType
+                'secondarySort' => $this->secondarySort,
+                'secondaryOrder' => $this->secondaryOrder
             ]
         );
     }

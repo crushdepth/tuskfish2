@@ -322,8 +322,8 @@ class Database
                 \trigger_error(TFISH_ERROR_NOT_ARRAY, E_USER_ERROR);
             }
 
-            // Set the order (sort) column and order (default is ascending), limit and offset.
-            $sql .= $this->renderOrder($criteria);
+            // Set the sort (sort) column and sort (default is ascending), limit and offset.
+            $sql .= $this->renderSort($criteria);
             $sql .= $this->renderLimitAndOffset($criteria);
         }
 
@@ -351,7 +351,7 @@ class Database
      * 3. MS SQL style square brackets: []
      * 
      * Escaping of delimiters where they are used as part of a table or column name is done by
-     * doubling them, eg ` becomes ``. In order to safely escape table and column names ALL
+     * doubling them, eg ` becomes ``. In sort to safely escape table and column names ALL
      * three delimiter types must be escaped.
      * 
      * Tuskfish policy is that table names can only contain alphanumeric characters (and column
@@ -565,23 +565,23 @@ class Database
     }
     
     /**
-     * Renders the primary and secondary sort order section of the SQL statement.
+     * Renders the primary and secondary sort sort section of the SQL statement.
      * 
      * @param \Tfish\Criteria $criteria Query composer object for the query.
      */
-    private function renderOrder(Criteria $criteria)
+    private function renderSort(Criteria $criteria)
     {
         $sql = '';
         
-        if ($criteria->order) {
+        if ($criteria->sort) {
             $sql = "ORDER BY `t1`." 
-                    . $this->addBackticks($this->escapeIdentifier($criteria->order)) . " ";
-            $sql .= $criteria->orderType === "DESC" ? "DESC" : "ASC";
+                    . $this->addBackticks($this->escapeIdentifier($criteria->sort)) . " ";
+            $sql .= $criteria->order === "DESC" ? "DESC" : "ASC";
 
-            if ($criteria->secondaryOrder && ($criteria->secondaryOrder != $criteria->order)) {
+            if ($criteria->secondarySort && ($criteria->secondarySort != $criteria->sort)) {
                 $sql .= ", `t1`."
-                     . $this->addBackticks($this->escapeIdentifier($criteria->secondaryOrder)) . " ";
-                $sql .= $criteria->secondaryOrderType === "DESC" ? "DESC" : "ASC";
+                     . $this->addBackticks($this->escapeIdentifier($criteria->secondarySort)) . " ";
+                $sql .= $criteria->secondaryOrder === "DESC" ? "DESC" : "ASC";
             }
         }
         
@@ -797,8 +797,8 @@ class Database
             // Set GROUP BY.
             $sql .= $this->renderGroupBy($criteria);
 
-            // Set the order (sort) column and order (default is ascending), limit and offset.
-            $sql .= $this->renderOrder($criteria);
+            // Set the sort (sort) column and sort (default is ascending), limit and offset.
+            $sql .= $this->renderSort($criteria);
             $sql .= $this->renderLimitAndOffset($criteria);
         }
 
@@ -981,8 +981,8 @@ class Database
             // Set GROUP BY.
             $sql .= $this->renderGroupBy($criteria);
 
-            // Set the order (sort) column and order (default is ascending), limit and offset.
-            $sql .= $this->renderOrder($criteria);
+            // Set the sort (sort) column and sort (default is ascending), limit and offset.
+            $sql .= $this->renderSort($criteria);
             $sql .= $this->renderLimitAndOffset($criteria);
         }
 
@@ -1241,7 +1241,7 @@ class Database
      * Renders a JOIN component of an SQL query for tagged content.
      * 
      * If the $criteria for a query include tag(s), the object table must have a JOIN to the
-     * taglinks table in order to sort the content.
+     * taglinks table in sort to sort the content.
      * 
      * @internal
      * @param string $table Name of table.
@@ -1324,24 +1324,24 @@ class Database
             exit;
         }
         
-        if ($criteria->order && !$this->isAlnumUnderscore($criteria->order)) {
+        if ($criteria->sort && !$this->isAlnumUnderscore($criteria->sort)) {
             \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
             exit;
         }
         
-        if ($criteria->orderType &&
-                ($criteria->orderType != "ASC" && $criteria->orderType != "DESC")) {
+        if ($criteria->order &&
+                ($criteria->order != "ASC" && $criteria->order != "DESC")) {
             \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
             exit;
         }
         
-        if ($criteria->secondaryOrder && !$this->isAlnumUnderscore($criteria->secondaryOrder)) {
+        if ($criteria->secondarySort && !$this->isAlnumUnderscore($criteria->secondarySort)) {
             \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
             exit;
         }
         
-        if ($criteria->secondaryOrderType &&
-                ($criteria->secondaryOrderType != "ASC" && $criteria->secondaryOrderType != "DESC")) {
+        if ($criteria->secondaryOrder &&
+                ($criteria->secondaryOrder != "ASC" && $criteria->secondaryOrder != "DESC")) {
             \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
             exit;
         }

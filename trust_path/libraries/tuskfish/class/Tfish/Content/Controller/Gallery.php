@@ -76,10 +76,10 @@ class Gallery
         $this->viewModel->setType($type); 
         $cacheParams['type'] = $type;
 
-        $this->viewModel->setOrder('date');
-        $this->viewModel->setOrderType('DESC');
-        $this->viewModel->setSecondaryOrder('submissionTime');
-        $this->viewModel->setSecondaryOrderType('DESC');
+        $this->viewModel->setSort('date');
+        $this->viewModel->setOrder('DESC');
+        $this->viewModel->setSecondarySort('submissionTime');
+        $this->viewModel->setSecondaryOrder('DESC');
 
         $this->viewModel->displayList();
 

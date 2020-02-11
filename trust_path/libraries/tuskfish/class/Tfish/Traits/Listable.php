@@ -28,10 +28,10 @@ namespace Tfish\Traits;
  * @var         string $layout Name of layout file to display this page (alphanumeric and underscore characters, only).
  * @var         string $theme Name of the theme (directory) for this page.
  * @var         array $metadata Meta tags to be overridden with custom values.
- * @var         string $order Primary sort order (ASC or DESC).
- * @var         string $orderType Primary column to sort results by.
- * @var         string $secondaryOrder Secondary sort order (ASC or DESC).
- * @var         string $secondaryOrderType Secondary column to sort results by.
+ * @var         string $sort Primary sort sort (ASC or DESC).
+ * @var         string $order Primary column to sort results by.
+ * @var         string $secondarySort Secondary sort sort (ASC or DESC).
+ * @var         string $secondaryOrder Secondary column to sort results by.
  */
 trait Listable
 {
@@ -40,51 +40,51 @@ trait Listable
     private $layout = 'layout';
     private $theme = '';
     private $metadata = [];
+    private $sort = '';
     private $order = '';
-    private $orderType = '';
+    private $secondarySort = '';
     private $secondaryOrder = '';
-    private $secondaryOrderType = '';
 
     /** Sorting support. */
 
     /**
-     * Sets the primary column to order query results by.
+     * Sets the primary column to sort query results by.
      * 
-     * @param string $field Name of the primary column to order the query results by.
+     * @param string $field Name of the primary column to sort the query results by.
      */
-    public function setOrder(string $field)
+    public function setSort(string $field)
     {
-        $this->order = $this->trimString($field);
+        $this->sort = $this->trimString($field);
     }
 
     /**
-     * Sets the sort type (ascending or descending) for the primary order column of a result set.
+     * Sets the sort type (ascending or descending) for the primary sort column of a result set.
      * 
-     * @param string $orderType Ascending (ASC) or descending (DESC) order.
+     * @param string $order Ascending (ASC) or descending (DESC) sort.
      */
-    public function setOrderType(string $orderType)
+    public function setOrder(string $order)
     {
-        $this->orderType = $this->trimString($orderType);
+        $this->order = $this->trimString($order);
     }
 
     /**
-     * Sets the secondary column to order query results by.
+     * Sets the secondary column to sort query results by.
      * 
-     * @param string $field Name of the secondary column to order the query results by.
+     * @param string $field Name of the secondary column to sort the query results by.
      */
-    public function setSecondaryOrder(string $field)
+    public function setSecondarySort(string $field)
     {
-        $this->secondaryOrder = $this->trimString($field);
+        $this->secondarySort = $this->trimString($field);
     }
 
     /**
-     * Sets the sort type (ascending or descending) for the secondary order column of a result set.
+     * Sets the sort type (ascending or descending) for the secondary sort column of a result set.
      * 
-     * @param string $orderType Ascending (ASC) or descending (DESC) order.
+     * @param string $order Ascending (ASC) or descending (DESC) sort.
      */
-    public function setSecondaryOrderType(string $orderType)
+    public function setSecondaryOrder(string $order)
     {
-        $this->secondaryOrderType = $this->trimString($orderType);
+        $this->secondaryOrder = $this->trimString($order);
     }
 
     /** View support. */

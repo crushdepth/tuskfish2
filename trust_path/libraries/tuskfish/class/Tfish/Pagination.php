@@ -138,7 +138,7 @@ class Pagination
         }
         
         // 7. Substitute in the 'first' and 'last' page elements and sort the array back into
-        // numerical order.
+        // numerical sort.
         end($pageSlots);
         unset($pageSlots[key($pageSlots)]);
         $pageSlots[($pageCount - 1)] = TFISH_PAGINATION_LAST;
@@ -210,7 +210,7 @@ class Pagination
      * 
      * $extraParams is a potential XSS attack vector; only use known and whitelisted keys.
      * 
-     * The key => value pairs are i) rawurlencoded and ii) entity escaped. However, in order to
+     * The key => value pairs are i) rawurlencoded and ii) entity escaped. However, in sort to
      * avoid messing up the query and avoid unnecessary decoding it is possible to maintain
      * manual control over the operators. (Basically, input requiring encoding or escaping is
      * absolutely not wanted here, it is just being conducted to mitigate XSS attacks). If you

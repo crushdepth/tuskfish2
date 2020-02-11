@@ -61,7 +61,7 @@ class Cache
      * If a cached page is not available controller script execution will simply proceed and the
      * FrontController will request the page be written to cache, assuming that caching is enabled.
      * 
-     * A call to check() should ALWAYS precede a call to save() in order to set the path variable.
+     * A call to check() should ALWAYS precede a call to save() in sort to set the path variable.
      * 
      * @param string $path Path segment of requested URL, eg. parse_url($url, PHP_URL_PATH).
      * @param array $params URL Query string parameters for this page as $key => $value pairs.

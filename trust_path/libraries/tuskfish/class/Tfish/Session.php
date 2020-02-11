@@ -161,7 +161,7 @@ class Session
      * Authenticate the user and establish a session.
      * 
      * The number of failed login attempts is tracked. Subsequent login attempts will sleep for
-     * an equivalent number of seconds before processing, in order to frustrate brute force attacks.
+     * an equivalent number of seconds before processing, in sort to frustrate brute force attacks.
      * A successful login will reset the counter to zero. Note that the password field is
      * unrestricted content.
      * 

@@ -246,10 +246,10 @@ class ContentEdit
 
         $criteria->add($this->criteriaFactory->item('type', 'TfCollection'));
         $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
-        $criteria->setOrder('title');
-        $criteria->setOrderType('ASC');
-        $criteria->setSecondaryOrder('submissionTime');
-        $criteria->setSecondaryOrderType('DESC');
+        $criteria->setSort('title');
+        $criteria->setOrder('ASC');
+        $criteria->setSecondarySort('submissionTime');
+        $criteria->setSecondaryOrder('DESC');
 
         $statement = $this->database->select('content', $criteria);
 
@@ -307,10 +307,10 @@ class ContentEdit
 
         $criteria->add($this->criteriaFactory->item('type', 'TfTag'));
         $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
-        $criteria->setOrder('title');
-        $criteria->setOrderType('ASC');
-        $criteria->setSecondaryOrder('submissionTime');
-        $criteria->setSecondaryOrderType('DESC');
+        $criteria->setSort('title');
+        $criteria->setOrder('ASC');
+        $criteria->setSecondarySort('submissionTime');
+        $criteria->setSecondaryOrder('DESC');
 
         $statement = $this->database->select('content', $criteria, $columns);
 

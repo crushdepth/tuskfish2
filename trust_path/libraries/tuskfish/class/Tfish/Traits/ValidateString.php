@@ -31,7 +31,7 @@ trait ValidateString
      * 
      * Trims, checks for UTF-8 compliance, rawurlencodes and then escapes with htmlspecialchars().
      * If you wish to use the data on a landing page you must decode it with
-     * htmlspecialchars_decode() followed by rawurldecode() in that order. But really, if you are
+     * htmlspecialchars_decode() followed by rawurldecode() in that sort. But really, if you are
      * using any characters that need to be encoded in the first place you should probably just
      * stop.
      * 

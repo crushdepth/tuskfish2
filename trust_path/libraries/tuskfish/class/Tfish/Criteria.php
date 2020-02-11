@@ -38,10 +38,10 @@ namespace Tfish;
  * @var         string $groupBy Column to group results by.
  * @var         int $limit Number of records to retrieve.
  * @var         int $offset Starting point for retrieving records.
- * @var         string $order Primary column to sort records by.
- * @var         string $orderType Sort ascending (ASC) or descending(DESC).
- * @var         string $secondaryOrder secondary column to sort records by.
- * @var         string $secondaryOrderType Sort ascending (ASC) or descending (DESC).
+ * @var         string $sort Primary column to sort records by.
+ * @var         string $order Sort ascending (ASC) or descending(DESC).
+ * @var         string $secondarySort secondary column to sort records by.
+ * @var         string $secondaryOrder Sort ascending (ASC) or descending (DESC).
  * @var         array $tag Array of tag IDs.
  */
 class Criteria
@@ -55,10 +55,10 @@ class Criteria
     public $groupBy = '';
     public $limit = 0;
     public $offset = 0;
-    public $order = '';
-    public $orderType = "DESC";
-    public $secondaryOrder = '';
-    public $secondaryOrderType = "DESC";
+    public $sort = '';
+    public $order = "DESC";
+    public $secondarySort = '';
+    public $secondaryOrder = "DESC";
     public $tag = [];
     
     /**
@@ -149,66 +149,66 @@ class Criteria
     }
     
     /**
-     * Sets the primary column to order query results by.
+     * Sets the primary column to sort query results by.
      * 
-     * @param string $column Name of the primary column to order the query results by.
+     * @param string $column Name of the primary column to sort the query results by.
      */
-    public function setOrder(string $column)
+    public function setSort(string $column)
     {
         $column = $this->trimString($column);
 
         if ($this->isAlnumUnderscore($column)) {
-            $this->order = $column;
+            $this->sort = $column;
         } else {
             \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
         }
     }
     
     /**
-     * Sets the sort type (ascending or descending) for the primary order column of a result set.
+     * Sets the sort type (ascending or descending) for the primary sort column of a result set.
      * 
-     * @param string $sort Ascending (ASC) or descending (DESC) order.
+     * @param string $sort Ascending (ASC) or descending (DESC) sort.
      */
-    public function setOrderType(string $sort)
+    public function setOrder(string $sort)
     {
         $sort = $this->trimString($sort);
         
         if ($sort === "ASC") {
-            $this->orderType = "ASC";
+            $this->order = "ASC";
         } else {
-            $this->orderType = "DESC";
+            $this->order = "DESC";
         }
     }
     
     /**
-     * Sets the secondary column to order query results by.
+     * Sets the secondary column to sort query results by.
      * 
-     * @param string $column Name of the secondary column to order the query results by.
+     * @param string $column Name of the secondary column to sort the query results by.
      */
-    public function setSecondaryOrder(string $column)
+    public function setSecondarySort(string $column)
     {
         $column = $this->trimString($column);
 
         if ($this->isAlnumUnderscore($column)) {
-            $this->secondaryOrder = $column;
+            $this->secondarySort = $column;
         } else {
             \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
         }
     }
     
     /**
-     * Sets the sort type (ascending or descending) for the secondary order column of a result set.
+     * Sets the sort type (ascending or descending) for the secondary sort column of a result set.
      * 
-     * @param string $sort Ascending (ASC) or descending (DESC) order.
+     * @param string $sort Ascending (ASC) or descending (DESC) sort.
      */
-    public function setSecondaryOrderType(string $sort)
+    public function setSecondaryOrder(string $sort)
     {
         $sort = $this->trimString($sort);
         
         if ($sort === "ASC") {
-            $this->secondaryOrderType = "ASC";
+            $this->secondaryOrder = "ASC";
         } else {
-            $this->secondaryOrderType = "DESC";
+            $this->secondaryOrder = "DESC";
         }
     }
     

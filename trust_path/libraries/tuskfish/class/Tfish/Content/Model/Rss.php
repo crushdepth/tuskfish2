@@ -95,8 +95,8 @@ class Rss
         $criteria = $this->criteriaFactory->criteria();
         $criteria->setOffset(0);
         $criteria->setLimit($this->preference->rssPosts());
-        $criteria->setOrder('submissionTime');
-        $criteria->setOrderType("DESC");
+        $criteria->setSort('submissionTime');
+        $criteria->setOrder("DESC");
         $criteria->add($this->criteriaFactory->item('type', 'TfStatic', '!='));
         $criteria->add($this->criteriaFactory->item('type', 'TfTag', '!='));
         $criteria->add($this->criteriaFactory->item('type', 'TfBlock', '!='));
