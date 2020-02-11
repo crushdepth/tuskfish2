@@ -483,13 +483,23 @@ class Content
     }
 
     /**
-     * Return file size of media attachment.
+     * Return the raw file size (bytes) of media attachment.
      * 
      * @return int
      */
-    public function fileSize(): string
+    public function fileSize(): int
     {
-        return $this->bytesToHumanReadable((int) $this->fileSize);
+        return (int) $this->fileSize;
+    }
+
+    /**
+     * Return file size of media attachment, formatted for display (bytes / KB / MB / GB etc).
+     * 
+     * @return string
+     */
+    public function fileSizeForDisplay(): string
+    {
+        return $this->bytesToHumanReadable($this->fileSize);
     }
 
     /**
