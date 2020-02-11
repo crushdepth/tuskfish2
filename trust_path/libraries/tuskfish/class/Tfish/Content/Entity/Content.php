@@ -620,7 +620,7 @@ class Content
             $info[] = '.' . $this->extension();
 
         if ($this->fileSize)
-            $info[] = $this->fileSize();
+            $info[] = $this->fileSizeForDisplay();
 
         return \implode(' | ', $info);
     }
