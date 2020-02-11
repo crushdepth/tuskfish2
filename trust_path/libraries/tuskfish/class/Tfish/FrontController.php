@@ -133,7 +133,7 @@ class FrontController
     private function renderLayout(Entity\Metadata $metadata, $viewModel)
     {
         $page = $this->view->render();
-        $metadata->update($this->view->metadata());
+        $metadata->update($viewModel->metadata());
         $session = $this->session;
 
         $theme = $this->trimString($viewModel->theme() ?? 'default');

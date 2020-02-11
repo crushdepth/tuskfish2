@@ -44,16 +44,6 @@ class Single
     }
 
     /**
-     * Returns overriden metadata from the viewModel (if any).
-     * 
-     * @return  array
-     */
-    public function metadata(): array
-    {
-        return $this->viewModel->metadata();
-    }
-
-    /**
      * Render the template used by this page.
      * 
      * @return  string Template output as HTML.

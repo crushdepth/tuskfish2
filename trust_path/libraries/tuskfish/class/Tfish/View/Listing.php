@@ -48,16 +48,6 @@ class Listing
     }
 
     /**
-     * Returns overriden metadata from the viewModel, if any.
-     * 
-     * @return  array
-     */
-    public function metadata()
-    {
-        return $this->viewModel->metadata();
-    }
-
-    /**
      * Render the pagination control.
      * 
      * @return  string Pagination control output as HTML.
