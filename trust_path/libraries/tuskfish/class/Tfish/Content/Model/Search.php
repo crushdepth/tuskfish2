@@ -76,19 +76,6 @@ class Search
     /** Utilities. */
 
     /**
-     * Get objects matching filtering criteria.
-     * 
-     * @param   array $params Filtering criteria such as keywords, limit, offset etc.
-     */
-    public function getObjects(array $params): array
-    {
-        $cleanParams = $this->validateParams($params);
-        $criteria = $this->setCriteria($cleanParams);
-
-        return $this->runQuery($criteria);        
-    }
-
-    /**
      * Return onlineStatus.
      * 
      * @return  int Retrieve all content (0) or only online content (1).
