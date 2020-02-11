@@ -149,11 +149,11 @@ class Content
     /**
      * Converts bytes to a human readable units (KB, MB, GB etc).
      * 
-     * @param int $bytes File size in bytes.
      * @return string Bytes expressed as convenient human readable units.
      */
-    public function bytesToHumanReadable(int $bytes)
+    public function bytesToHumanReadable()
     {
+        $bytes = $this->fileSize;
         $unit = $val = '';
 
         if ($bytes === 0 || $bytes < ONE_KILOBYTE) {
@@ -499,7 +499,7 @@ class Content
      */
     public function fileSizeForDisplay(): string
     {
-        return $this->bytesToHumanReadable($this->fileSize);
+        return $this->bytesToHumanReadable();
     }
 
     /**
