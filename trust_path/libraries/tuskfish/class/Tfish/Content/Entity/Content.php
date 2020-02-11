@@ -156,7 +156,7 @@ class Content
         $bytes = $this->fileSize;
         $unit = $val = '';
 
-        if ($bytes === 0 || $bytes < ONE_KILOBYTE) {
+        if ($bytes >= 0 && $bytes < ONE_KILOBYTE) {
             $unit = ' bytes';
             $val = $bytes;
         } elseif ($bytes >= ONE_KILOBYTE && $bytes < ONE_MEGABYTE) {
