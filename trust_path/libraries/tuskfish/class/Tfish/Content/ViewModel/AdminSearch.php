@@ -238,8 +238,14 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
         // Create an escaped copy that will be used to search the HTML teaser and description fields.
         $escapedSearchTerms = \htmlspecialchars($searchTerms, ENT_NOQUOTES, "UTF-8");
-        $searchTerms = \explode(" ", $searchTerms);
-        $escapedSearchTerms = \explode(" ", $escapedSearchTerms);
+
+        if ($this->searchType !== 'exact') {
+            $searchTerms = \explode(" ", $searchTerms);
+            $escapedSearchTerms = \explode(" ", $escapedSearchTerms);
+        } else {
+            $searchTerms = [$searchTerms];
+            $escapedSearchTerms = [$escapedSearchTerms];
+        }
         
         // Trim search terms and discard any that are less than the minimum search length characters.
         foreach ($searchTerms as $term) {
@@ -291,6 +297,10 @@ class AdminSearch implements \Tfish\ViewModel\Listable
      */
     public function setSearchType(string $searchType)
     {
+        if (!\in_array($searchType, ['AND', 'OR', 'exact'], true)) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        }
+
         $this->searchType = $this->trimString($searchType);
     }
 

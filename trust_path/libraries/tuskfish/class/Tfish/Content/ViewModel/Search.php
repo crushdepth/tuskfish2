@@ -251,7 +251,7 @@ class Search implements \Tfish\ViewModel\Listable
             }
         }
         
-        $this->escapedSearchTerms = $escapedSearchTerms;
+        $this->escapedSearchTerms = $cleanEscapedSearchTerms;
     }
 
     /**
