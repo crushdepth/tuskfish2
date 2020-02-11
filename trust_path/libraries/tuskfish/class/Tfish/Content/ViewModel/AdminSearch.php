@@ -245,7 +245,7 @@ class AdminSearch implements \Tfish\ViewModel\Listable
         foreach ($searchTerms as $term) {
             $term = $this->trimString($term);
             
-            if (!empty($term) && \mb_strlen($term, 'UTF-8') >= $this->model->minSearchLength()) {
+            if (!empty($term) && \mb_strlen($term, 'UTF-8') >= $this->preference->minSearchLength()) {
                 $cleanSearchTerms[] = $term;
             }
         }
@@ -256,7 +256,7 @@ class AdminSearch implements \Tfish\ViewModel\Listable
             $escapedTerm = $this->trimString($escapedTerm);
             
             if (!empty($escapedTerm) && \mb_strlen($escapedTerm, 'UTF-8')
-                    >= $this->model->minSearchLength()) {
+                    >= $this->preference->minSearchLength()) {
                 $cleanEscapedSearchTerms[] = $escapedTerm;
             }
         }
