@@ -114,7 +114,7 @@ class Listing implements \Tfish\ViewModel\Listable
             $this->template = $this->listTemplates()[$this->content->type()];
             $this->setMetadata();
         } else {
-            $this->pageTitle = TFISH_ERROR  ;
+            $this->pageTitle = TFISH_ERROR;
             $this->response = TFISH_ERROR_NO_SUCH_CONTENT;
             $this->backUrl = TFISH_URL;
             $this->template = 'response';
