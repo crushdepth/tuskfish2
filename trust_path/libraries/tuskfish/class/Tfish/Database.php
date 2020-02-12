@@ -322,7 +322,7 @@ class Database
                 \trigger_error(TFISH_ERROR_NOT_ARRAY, E_USER_ERROR);
             }
 
-            // Set the sort (sort) column and sort (default is ascending), limit and offset.
+            // Set the sort column and order (default is ascending), limit and offset.
             $sql .= $this->renderSort($criteria);
             $sql .= $this->renderLimitAndOffset($criteria);
         }
@@ -565,7 +565,7 @@ class Database
     }
     
     /**
-     * Renders the primary and secondary sort sort section of the SQL statement.
+     * Renders the primary and secondary sorting section of the SQL statement.
      * 
      * @param \Tfish\Criteria $criteria Query composer object for the query.
      */
@@ -797,7 +797,7 @@ class Database
             // Set GROUP BY.
             $sql .= $this->renderGroupBy($criteria);
 
-            // Set the sort (sort) column and sort (default is ascending), limit and offset.
+            // Set the sort column and order (default is ascending), limit and offset.
             $sql .= $this->renderSort($criteria);
             $sql .= $this->renderLimitAndOffset($criteria);
         }
@@ -981,7 +981,7 @@ class Database
             // Set GROUP BY.
             $sql .= $this->renderGroupBy($criteria);
 
-            // Set the sort (sort) column and sort (default is ascending), limit and offset.
+            // Set the sort column and order (default is ascending), limit and offset.
             $sql .= $this->renderSort($criteria);
             $sql .= $this->renderLimitAndOffset($criteria);
         }

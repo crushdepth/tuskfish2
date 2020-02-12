@@ -28,10 +28,10 @@ namespace Tfish\Traits;
  * @var         string $layout Name of layout file to display this page (alphanumeric and underscore characters, only).
  * @var         string $theme Name of the theme (directory) for this page.
  * @var         array $metadata Meta tags to be overridden with custom values.
- * @var         string $sort Primary sort sort (ASC or DESC).
- * @var         string $order Primary column to sort results by.
- * @var         string $secondarySort Secondary sort sort (ASC or DESC).
- * @var         string $secondaryOrder Secondary column to sort results by.
+ * @var         string $sort Primary column to sort results by.
+ * @var         string $order Primary sorting order (ASC or DESC).
+ * @var         string $secondarySort Secondary column to sort results by.
+ * @var         string $secondaryOrder Secondary sorting order (ASC or DESC).
  */
 trait Listable
 {
@@ -58,9 +58,9 @@ trait Listable
     }
 
     /**
-     * Sets the sort type (ascending or descending) for the primary sort column of a result set.
+     * Sets the sorting order (ascending or descending) for the primary sort column of a result set.
      * 
-     * @param string $order Ascending (ASC) or descending (DESC) sort.
+     * @param string $order Ascending (ASC) or descending (DESC).
      */
     public function setOrder(string $order)
     {
@@ -78,9 +78,9 @@ trait Listable
     }
 
     /**
-     * Sets the sort type (ascending or descending) for the secondary sort column of a result set.
+     * Sets the sorting order (ascending or descending) for the secondary sort column of a result set.
      * 
-     * @param string $order Ascending (ASC) or descending (DESC) sort.
+     * @param string $order Ascending (ASC) or descending (DESC).
      */
     public function setSecondaryOrder(string $order)
     {
