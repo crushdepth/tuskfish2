@@ -60,6 +60,7 @@ class PreferenceEdit implements Viewable
      */
     public function __construct($model, \Tfish\Entity\Preference $preference)
     {
+        $this->pageTitle = TFISH_PREFERENCE_EDIT_PREFERENCES;
         $this->model = $model;
         $this->theme = 'admin';
         $this->preference = $preference;
@@ -85,7 +86,6 @@ class PreferenceEdit implements Viewable
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
 
-        $this->pageTitle = TFISH_PREFERENCE_EDIT_PREFERENCES;
         $this->template = 'preferenceEdit';
     }
 
@@ -98,12 +98,10 @@ class PreferenceEdit implements Viewable
         $this->validateToken($token);
         
         if ($this->model->update()) {
-            $this->pageTitle = TFISH_PREFERENCE_EDIT_PREFERENCES;
             $this->response = TFISH_PREFERENCES_WERE_UPDATED;
             $this->backUrl = TFISH_PREFERENCE_URL;
             $this->template = 'response';
         } else {
-            $this->pageTitle = TFISH_PREFERENCE_EDIT_PREFERENCES;
             $this->response = TFISH_PREFERENCES_UPDATE_FAILED;
             $this->backUrl = TFISH_PREFERENCE_URL;
             $this->template = 'response';

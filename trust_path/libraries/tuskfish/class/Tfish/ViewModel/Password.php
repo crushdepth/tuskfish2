@@ -52,6 +52,7 @@ class Password implements Viewable
      */
     public function __construct($model)
     {
+        $this->pageTitle = TFISH_CHANGE_PASSWORD;
         $this->model = $model;
         $this->theme = 'admin';
         $this->setMetadata([
@@ -67,7 +68,6 @@ class Password implements Viewable
      */
     public function displayForm()
     {
-        $this->pageTitle = TFISH_CHANGE_PASSWORD;
         $this->template = 'changePassword';
     }
 
@@ -78,8 +78,6 @@ class Password implements Viewable
     {
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
-        
-        $this->pageTitle = TFISH_CHANGE_PASSWORD;
 
         if ($this->model->changePassword($this->password, $this->confirm)) {
             $this->response = TFISH_PASSWORD_CHANGED_SUCCESSFULLY;

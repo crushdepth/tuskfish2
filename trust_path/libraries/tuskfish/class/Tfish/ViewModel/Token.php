@@ -49,8 +49,8 @@ class Token implements Viewable
      */
     public function __construct($model)
     {
-        $this->model = $model;
         $this->pageTitle = TFISH_INVALID_TOKEN;
+        $this->model = $model;
         $this->theme = 'default';
         $this->template = 'error';
         $this->setMetadata(['robots' => 'noindex,nofollow']);

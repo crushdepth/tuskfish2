@@ -53,6 +53,7 @@ class PreferenceList implements Viewable
      */
     public function __construct($model, \Tfish\Entity\Preference $preference)
     {
+        $this->pageTitle = TFISH_PREFERENCES;
         $this->model = $model;
         $this->preference = $preference;
         $this->template = 'preferenceTable';
@@ -65,10 +66,7 @@ class PreferenceList implements Viewable
     /**
      * Display the table of preference values.
      */
-    public function displayForm()
-    {
-        $this->pageTitle = TFISH_PREFERENCES;
-    }
+    public function displayForm() {}
 
     /**
      * Return an instance of the site preferences class.

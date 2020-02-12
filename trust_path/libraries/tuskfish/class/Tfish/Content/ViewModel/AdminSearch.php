@@ -70,11 +70,11 @@ class AdminSearch implements \Tfish\ViewModel\Listable
      */
     public function __construct($model, \Tfish\Entity\Preference $preference)
     {
+        $this->pageTitle = TFISH_ADMIN_SEARCH;
         $this->model = $model;
         $this->preference = $preference;
         $this->template = 'adminSearch';
         $this->theme = 'admin';
-        $this->pageTitle = TFISH_ADMIN_SEARCH;
         $this->sort = 'date';
         $this->order = 'DESC';
         $this->secondarySort = 'submissionTime';
