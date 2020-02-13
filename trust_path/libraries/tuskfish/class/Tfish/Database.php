@@ -322,7 +322,7 @@ class Database
                 \trigger_error(TFISH_ERROR_NOT_ARRAY, E_USER_ERROR);
             }
 
-            // Set the sort column and order (default is ascending), limit and offset.
+            // Set the sorting column and order (default is ascending), limit and offset.
             $sql .= $this->renderSort($criteria);
             $sql .= $this->renderLimitAndOffset($criteria);
         }
@@ -351,7 +351,7 @@ class Database
      * 3. MS SQL style square brackets: []
      * 
      * Escaping of delimiters where they are used as part of a table or column name is done by
-     * doubling them, eg ` becomes ``. In sort to safely escape table and column names ALL
+     * doubling them, eg ` becomes ``. In order to safely escape table and column names ALL
      * three delimiter types must be escaped.
      * 
      * Tuskfish policy is that table names can only contain alphanumeric characters (and column
@@ -1241,7 +1241,7 @@ class Database
      * Renders a JOIN component of an SQL query for tagged content.
      * 
      * If the $criteria for a query include tag(s), the object table must have a JOIN to the
-     * taglinks table in sort to sort the content.
+     * taglinks table in order to sort the content.
      * 
      * @internal
      * @param string $table Name of table.
