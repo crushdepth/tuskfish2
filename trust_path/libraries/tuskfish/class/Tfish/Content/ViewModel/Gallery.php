@@ -61,11 +61,11 @@ class Gallery implements \Tfish\ViewModel\Listable
      */
     public function __construct($model, \Tfish\Entity\Preference $preference)
     {
+        $this->pageTitle = TFISH_IMAGE_GALLERY;
         $this->model = $model;
         $this->preference = $preference;
         $this->template = 'gallery';
         $this->theme = 'default';
-        $this->pageTitle = TFISH_IMAGE_GALLERY;
         $this->setMetadata(['canonicalUrl' => $this->canonicalUrl()]);
     }
 

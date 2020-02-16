@@ -67,12 +67,11 @@ class Search implements \Tfish\ViewModel\Listable
      */
     public function __construct($model, \Tfish\Entity\Preference $preference)
     {
+        $this->pageTitle = TFISH_SEARCH;
         $this->model = $model;
         $this->preference = $preference;
         $this->template = 'search';
         $this->theme = 'default';
-        
-        $this->pageTitle = TFISH_SEARCH;
         $this->sort = 'date';
         $this->order = 'DESC';
         $this->secondarySort = 'submissionTime';

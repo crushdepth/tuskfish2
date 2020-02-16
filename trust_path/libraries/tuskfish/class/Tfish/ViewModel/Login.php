@@ -48,6 +48,7 @@ class Login implements Viewable
      */
     public function __construct($model)
     {
+        $this->pageTitle = TFISH_LOGIN;
         $this->model = $model;
         $this->template = 'login';
         $this->theme = 'signin';
@@ -59,8 +60,5 @@ class Login implements Viewable
     /**
      * Display the login form.
      */
-    public function displayForm()
-    {
-        $this->pageTitle = TFISH_LOGIN;
-    }
+    public function displayForm() {}
 }

@@ -39,9 +39,9 @@ namespace Tfish;
  * @var         int $limit Number of records to retrieve.
  * @var         int $offset Starting point for retrieving records.
  * @var         string $sort Primary column to sort records by.
- * @var         string $order Sort ascending (ASC) or descending(DESC).
+ * @var         string $order Ascending (ASC) or descending(DESC).
  * @var         string $secondarySort secondary column to sort records by.
- * @var         string $secondaryOrder Sort ascending (ASC) or descending (DESC).
+ * @var         string $secondaryOrder Ascending (ASC) or descending (DESC).
  * @var         array $tag Array of tag IDs.
  */
 class Criteria
@@ -165,15 +165,15 @@ class Criteria
     }
     
     /**
-     * Sets the sort type (ascending or descending) for the primary sort column of a result set.
+     * Sets the sorting order (ascending or descending) for the primary sort column of a result set.
      * 
-     * @param string $sort Ascending (ASC) or descending (DESC) sort.
+     * @param string $order Ascending (ASC) or descending (DESC).
      */
-    public function setOrder(string $sort)
+    public function setOrder(string $order)
     {
-        $sort = $this->trimString($sort);
+        $order = $this->trimString($order);
         
-        if ($sort === "ASC") {
+        if ($order === "ASC") {
             $this->order = "ASC";
         } else {
             $this->order = "DESC";
@@ -197,15 +197,15 @@ class Criteria
     }
     
     /**
-     * Sets the sort type (ascending or descending) for the secondary sort column of a result set.
+     * Sets the sorting order (ascending or descending) for the secondary sort column of a result set.
      * 
-     * @param string $sort Ascending (ASC) or descending (DESC) sort.
+     * @param string $order Ascending (ASC) or descending (DESC).
      */
-    public function setSecondaryOrder(string $sort)
+    public function setSecondaryOrder(string $order)
     {
-        $sort = $this->trimString($sort);
+        $order = $this->trimString($order);
         
-        if ($sort === "ASC") {
+        if ($order === "ASC") {
             $this->secondaryOrder = "ASC";
         } else {
             $this->secondaryOrder = "DESC";

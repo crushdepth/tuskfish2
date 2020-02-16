@@ -290,7 +290,7 @@ class Search
 
         if (isset($params['order'])) {
             
-            if ($params['sort'] === 'ASC') {
+            if ($params['order'] === 'ASC') {
                 $cleanParams['order'] = 'ASC';
             } else {
                 $cleanParams['order'] = 'DESC';
@@ -303,7 +303,7 @@ class Search
 
         if (isset($params['secondaryOrder'])) {
             
-            if ($params['secondarySort'] === 'ASC') {
+            if ($params['secondaryOrder'] === 'ASC') {
                 $cleanParams['secondaryOrder'] = 'ASC';
             } else {
                 $cleanParams['secondaryOrder'] = 'DESC';
