@@ -34,6 +34,7 @@ namespace Tfish\Content\Model;
 class Listing
 {
     use \Tfish\Content\Traits\ContentTypes;
+    use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
     
     private $database;
@@ -202,53 +203,6 @@ class Listing
     private function runCount(\Tfish\Criteria $criteria): int
     {
         return $this->database->selectCount('content', $criteria);
-    }
-
-    /**
-     * Get the tags associated with a content object.
-     * 
-     * @param   int $id ID of the content object.
-     * @return  array Array of tags as id/title key-value pairs.
-     */
-    public function getTagsForObject(int $id)
-    {
-        if ($id < 1) {
-            return false;
-        }
-        
-        // Look up related tag IDs.
-        $criteria = $this->criteriaFactory->criteria();
-        $criteria->add($this->criteriaFactory->item('contentId', $id));
-        $criteria->add($this->criteriaFactory->item('module', 'content'));
-
-        $taglinks = [];
-        
-        $taglinks = $this->database->select('taglink', $criteria, ['tagId'])
-            ->fetchAll(\PDO::FETCH_COLUMN);
-
-        if (empty($taglinks)) {
-            return [];
-        }
-
-        // Retrieve related tags.
-        $sql = "SELECT `id`, `title` FROM `content` WHERE `id` IN (";
-        
-        foreach ($taglinks as $taglink) {
-            $sql .= "?,";
-        }
-
-        $sql = rtrim($sql, ",");
-        $sql .= ")";
-
-        $statement = $this->database->preparedStatement($sql);
-        $result = $statement->execute($taglinks);
-
-        if (!$result) {
-            \trigger_error(TFISH_ERROR_INSERTION_FAILED, E_USER_ERROR);
-            return false;
-        }
-
-        return $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
     }
 
     /**

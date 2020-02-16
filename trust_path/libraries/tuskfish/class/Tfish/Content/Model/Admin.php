@@ -38,6 +38,7 @@ class Admin
     {
     use \Tfish\Content\Traits\ContentTypes;
     use \Tfish\Traits\Taglink;
+    use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
     
     private $database;
@@ -225,53 +226,6 @@ class Admin
 
         return $this->database->select('content', $criteria, ['type', 'id', 'image', 'media'])
             ->fetch(\PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Get tags associated with a content object.
-     * 
-     * @param   int $id ID of content object.
-     * @return  array Tag IDs and titles as key-value pairs.
-     */
-    public function getTagsForObject(int $id)
-    {
-        if ($id < 1) {
-            return false;
-        }
-        
-        // Look up related tag IDs.
-        $criteria = $this->criteriaFactory->criteria();
-        $criteria->add($this->criteriaFactory->item('contentId', $id));
-        $criteria->add($this->criteriaFactory->item('module', 'content'));
-
-        $taglinks = [];
-        
-        $taglinks = $this->database->select('taglink', $criteria, ['tagId'])
-            ->fetchAll(\PDO::FETCH_COLUMN);
-
-        if (empty($taglinks)) {
-            return [];
-        }
-
-        // Retrieve related tags.
-        $sql = "SELECT `id`, `title` FROM `content` WHERE `id` IN (";
-        
-        foreach ($taglinks as $taglink) {
-            $sql .= "?,";
-        }
-
-        $sql = rtrim($sql, ",");
-        $sql .= ")";
-
-        $statement = $this->database->preparedStatement($sql);
-        $result = $statement->execute($taglinks);
-
-        if (!$result) {
-            \trigger_error(TFISH_ERROR_NO_RESULT, E_USER_ERROR);
-            return false;
-        }
-
-        return $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
     }
     
     /**

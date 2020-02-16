@@ -7,6 +7,8 @@ namespace Tfish\Traits;
 /**
  * \Tfish\Traits\TagRead trait file.
  * 
+ * Requires simultaneous use of \Tfish\Traits\ValidateString.
+ * 
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -39,16 +41,25 @@ trait TagRead
      * @param   string $module Name of module associated with this object.
      * @return  array Tag IDs and titles as key-value pairs.
      */
-    public function getTagsForObject(int $id, string $module)
+    public function getTagsForObject(int $id, string $module, string $table)
     {
         if ($id < 1) {
             return [];
         }
 
-        $module = $this->trimString($module);
+        $module = $this->trimString($module); // Alphanumeric and underscores, only.
 
-        if (!$module) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        if (!$this->isAlnumUnderscore($module)) {
+            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
+            exit;
+        }
+
+
+        $table = $this->trimString($table); // Alphanumeric characters only.
+
+        if (!$this->isAlnum($table)) {
+            \trigger_error(TFISH_ERROR_NOT_ALNUM, E_USER_ERROR);
+            exit;
         }
         
         // Look up related tag IDs.
@@ -66,7 +77,7 @@ trait TagRead
         }
 
         // Retrieve related tags.
-        $sql = "SELECT `id`, `title` FROM `content` WHERE `id` IN (";
+        $sql = "SELECT `id`, `title` FROM `" . $table . "` WHERE `id` IN (";
         
         foreach ($taglinks as $taglink) {
             $sql .= "?,";

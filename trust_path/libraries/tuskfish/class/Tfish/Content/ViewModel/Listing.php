@@ -206,7 +206,7 @@ class Listing implements \Tfish\ViewModel\Listable
      */
     public function contentTags()
     {
-        $tags = $this->model->getTagsForObject($this->id);
+        $tags = $this->model->getTagsForObject($this->id, 'content', 'content');
 
         return $tags;
     }
