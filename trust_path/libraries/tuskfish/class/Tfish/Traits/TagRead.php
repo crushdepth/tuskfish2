@@ -37,7 +37,7 @@ trait TagRead
     /**
      * Return IDs and titles of tags that are actually in use with content objects for a given module.
      * 
-     * @param   string  Module name. 
+     * @param   string  Module name to filter results by.
      * @return  array IDs and titles as key-value pairs.
      */
     public function activeTagOptions(string $module)
@@ -110,6 +110,7 @@ trait TagRead
      * 
      * @param   int $id ID of content object.
      * @param   string $module Name of module associated with this object.
+     * @param   string $table Name of DB table associated with this object.
      * @return  array Tag IDs and titles as key-value pairs.
      */
     public function getTagsForObject(int $id, string $module, string $table)
