@@ -43,6 +43,7 @@ class ContentEdit
     use \Tfish\Traits\HtmlPurifier;
     use \Tfish\Traits\Mimetypes;
     use \Tfish\Traits\Taglink;
+    use \Tfish\Traits\TagRead;
     use \Tfish\Traits\TraversalCheck;
     use \Tfish\Traits\ValidateString;
 
@@ -94,7 +95,7 @@ class ContentEdit
             return [];
         }
 
-        $row['tags'] = $this->getTags($id);
+        $row['tags'] = $this->getTagIds($id);
 
         return $row;
     }
@@ -278,50 +279,6 @@ class ContentEdit
     }
 
     /**
-     * Get tag IDs associated with a content object.
-     * 
-     * @param   int $id ID of content object.
-     * @return  array Array of tag IDs.
-     */
-    private function getTags(int $id): array
-    {
-        $columns = ['tagId'];
-        $criteria = $this->criteriaFactory->criteria();
-        $criteria->add($this->criteriaFactory->item('contentId', $id));
-        $criteria->add($this->criteriaFactory->item('module', 'content'));
-
-        return $this->database->select('taglink', $criteria, $columns)
-            ->fetchAll(\PDO::FETCH_COLUMN);
-    }
-
-    /**
-     * Returns a list of options for the tag select box.
-     * 
-     * @return  array Array of tag IDs and titles as key-value pairs.
-     */
-    public function tagSelectOptions()
-    {
-        $columns = ['id', 'title'];
-        
-        $criteria = $this->criteriaFactory->criteria();
-
-        $criteria->add($this->criteriaFactory->item('type', 'TfTag'));
-        $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
-        $criteria->setSort('title');
-        $criteria->setOrder('ASC');
-        $criteria->setSecondarySort('submissionTime');
-        $criteria->setSecondaryOrder('DESC');
-
-        $statement = $this->database->select('content', $criteria, $columns);
-
-        if(!$statement) {
-            \trigger_error(TFISH_ERROR_NO_RESULT, E_USER_ERROR);
-        }
-
-        return [0 => TFISH_ZERO_OPTION] + $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
-    }
-
-    /**
      * Move an uploaded image from temporary to permanent storage location.
      * 
      * @param   array $content Content object as associative array.
@@ -431,27 +388,5 @@ class ContentEdit
         $clean['metaSeo'] = $this->trimString($form['metaSeo'] ?? '');
 
         return $clean;
-    }
-
-    /**
-     * Validate tag IDs.
-     * 
-     * @param   array $tags Tag IDs.
-     * @return  array Validated tag IDs.
-     */
-    private function validateTags(array $tags): array
-    {
-        $cleanTags = [];
-
-        foreach ($tags as $key => $value) {
-
-            if (((int) $value) > 0) {
-                $cleanTags[] = $value;
-            }
-
-            unset($key, $value);
-        }
-
-        return $cleanTags;
     }
 }

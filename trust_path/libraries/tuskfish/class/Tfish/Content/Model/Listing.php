@@ -114,69 +114,6 @@ class Listing
 
     /* Utilties. */
 
-    /**
-     * Return IDs and titles of tags that are actually in use with content objects.
-     * 
-     * @return  array IDs and titles as key-value pairs.
-     */
-    public function activeTagOptions()
-    {
-        // Get a list of active tag IDs (those listed in the taglnks table).
-        $criteria = $this->criteriaFactory->criteria();
-        $criteria->add($this->criteriaFactory->item('module', 'content'));
-        
-        $taglinks = $this->database->selectDistinct('taglink', $criteria, ['tagId'])
-            ->fetchAll(\PDO::FETCH_COLUMN);
-
-        if (empty($taglinks)) {
-            return [];
-        }
-
-        // Look up the actual tag IDs.
-        $sql = "SELECT `id`, `title` FROM `content` WHERE `id` IN (";
-        
-        foreach ($taglinks as $taglink) {
-            $sql .= "?,";
-        }
-
-        $sql = rtrim($sql, ",");
-        $sql .= ")";
-
-        $statement = $this->database->preparedStatement($sql);
-        $result = $statement->execute($taglinks);
-
-        if (!$result) {
-            \trigger_error(TFISH_ERROR_NO_RESULT, E_USER_ERROR);
-            return false;
-        }
-
-        return $statement->fetchAll(\PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Return a collection of tags.
-     * 
-     * Retrieves tags that have been grouped into a collection as ID-title key-value pairs.
-     * 
-     * @param   int $id ID of the collection content object.
-     * @return  array Tag IDs and titles as associative array.
-     */
-    public function collectionTagOptions(int $id)
-    {
-        if ($id < 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
-            exit;
-        }
-
-        $criteria = $this->criteriaFactory->criteria();
-        $criteria->add($this->criteriaFactory->item('type', 'TfTag'));
-        $criteria->add($this->criteriaFactory->item('parent', $id));
-        $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
-
-        return $this->database->select('content', $criteria, ['id', 'title'])
-            ->fetchAll(\PDO::FETCH_ASSOC);
-    }
-
     public function getCount(array $params): int
     {
         unset(

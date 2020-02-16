@@ -49,6 +49,7 @@ class Listing implements \Tfish\ViewModel\Listable
 {
     use \Tfish\Content\Traits\ContentTypes;
     use \Tfish\Traits\Listable;
+    use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
     
     private $model;
@@ -132,7 +133,7 @@ class Listing implements \Tfish\ViewModel\Listable
     public function activeTagOptions(string $zeroOption = TFISH_SELECT_TAGS): array
     {
         $zeroOption = $this->trimString($zeroOption);
-        $rows = $this->model->activeTagOptions();
+        $rows = $this->model->activeTagOptions('content');
 
         return $this->selectBoxOptions($zeroOption, $rows);
     }
@@ -156,25 +157,6 @@ class Listing implements \Tfish\ViewModel\Listable
         if ($this->tag) $canonicalUrl .= 'tag=' . $this->tag;
 
         return $canonicalUrl;
-    }
-
-
-    /**
-     * Return a collection of tags.
-     * 
-     * Retrieves tags that have been grouped into a collection as ID-title key-value pairs.
-     * Used to build select box controls.
-     * 
-     * @param   int $id ID of the collection content object.
-     * @param   string $zeroOption Text for the default (unselected) option.
-     * @return  array Tag IDs and titles as associative array.
-     */
-    public function collectionTagOptions(int $id, $zeroOption = TFISH_SELECT_TAGS): array
-    {
-        $zeroOption = $this->trimString($zeroOption);
-        $rows = $this->model->collectionTagOptions($id);
-
-        return $this->selectBoxOptions($zeroOption, $rows);
     }
 
     /**
@@ -301,26 +283,6 @@ class Listing implements \Tfish\ViewModel\Listable
                 'secondaryOrder' => $this->secondaryOrder
             ]
         );
-    }
-
-    /**
-     * Prepare select box options.
-     * 
-     * @param   string $zeroOption The default option (text) to show in the select box.
-     * @param   array $rows IDs and titles as key-value pairs.
-     * @return  array Select box options as key-value pairs.
-     */
-    private function selectBoxOptions(string $zeroOption, array $rows): array
-    {
-        $options = [];
-
-        foreach ($rows as $row) {
-            $options[$row['id']] = $row['title'];
-        }
-
-        \asort($options);
-
-        return [$zeroOption] + $options;
     }
 
     /** Getters and setters */

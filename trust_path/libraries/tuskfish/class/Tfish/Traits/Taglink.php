@@ -63,6 +63,25 @@ trait TagLink
     }
 
     /**
+     * Get tag IDs (only) associated with a SINGLE content object.
+     * 
+     * This is a helper function used in edit operations.
+     * 
+     * @param   int $id ID of content object.
+     * @return  array Array of tag IDs.
+     */
+    private function getTagIds(int $id): array
+    {
+        $columns = ['tagId'];
+        $criteria = $this->criteriaFactory->criteria();
+        $criteria->add($this->criteriaFactory->item('contentId', $id));
+        $criteria->add($this->criteriaFactory->item('module', 'content'));
+
+        return $this->database->select('taglink', $criteria, $columns)
+            ->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
      * Insert the tags associated with an object.
      * 
      * This is a helper function for  CRUD insert() operations. The $content parameter MUST include
@@ -106,7 +125,7 @@ trait TagLink
     }
 
     /**
-     * Update tagslinks for a content object.
+     * Update taglinks for a content object.
      * 
      * @param   int $contentId ID of the content object associated with these taglinks.
      * @param   string $contentType The type of content object.
@@ -129,5 +148,27 @@ trait TagLink
         }
 
         return true;
+    }
+
+    /**
+     * Validate tag IDs.
+     * 
+     * @param   array $tags Tag IDs.
+     * @return  array Validated tag IDs.
+     */
+    private function validateTags(array $tags): array
+    {
+        $cleanTags = [];
+
+        foreach ($tags as $key => $value) {
+
+            if (((int) $value) > 0) {
+                $cleanTags[] = $value;
+            }
+
+            unset($key, $value);
+        }
+
+        return $cleanTags;
     }
 }

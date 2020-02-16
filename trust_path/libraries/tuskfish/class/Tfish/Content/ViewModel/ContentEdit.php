@@ -181,7 +181,7 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
      */
     public function listTags(): array
     {
-        return $this->model->tagSelectOptions();
+        return [0 => TFISH_ZERO_OPTION] + $this->model->onlineTagSelectOptions();
     }
 
     /**

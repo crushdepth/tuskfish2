@@ -35,6 +35,77 @@ namespace Tfish\Traits;
 trait TagRead
 {
     /**
+     * Return IDs and titles of tags that are actually in use with content objects for a given module.
+     * 
+     * @param   string  Module name. 
+     * @return  array IDs and titles as key-value pairs.
+     */
+    public function activeTagOptions(string $module)
+    {
+        $module = $this->trimString($module); // Alphanumeric and underscores, only.
+
+        if (!$this->isAlnumUnderscore($module)) {
+            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
+            exit;
+        }
+
+        // Get a list of active tag IDs (those listed in the taglnks table).
+        $criteria = $this->criteriaFactory->criteria();
+        $criteria->add($this->criteriaFactory->item('module', $module));
+        
+        $taglinks = $this->database->selectDistinct('taglink', $criteria, ['tagId'])
+            ->fetchAll(\PDO::FETCH_COLUMN);
+
+        if (empty($taglinks)) {
+            return [];
+        }
+
+        // Look up the actual tag IDs.
+        $sql = "SELECT `id`, `title` FROM `content` WHERE `id` IN (";
+        
+        foreach ($taglinks as $taglink) {
+            $sql .= "?,";
+        }
+
+        $sql = rtrim($sql, ",");
+        $sql .= ")";
+
+        $statement = $this->database->preparedStatement($sql);
+        $result = $statement->execute($taglinks);
+
+        if (!$result) {
+            \trigger_error(TFISH_ERROR_NO_RESULT, E_USER_ERROR);
+            return false;
+        }
+
+        return $statement->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Return a collection of tags.
+     * 
+     * Retrieves tags that have been grouped into a collection as ID-title key-value pairs.
+     * 
+     * @param   int $id ID of the collection content object.
+     * @return  array Tag IDs and titles as associative array.
+     */
+    public function collectionTagOptions(int $id)
+    {
+        if ($id < 1) {
+            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            exit;
+        }
+
+        $criteria = $this->criteriaFactory->criteria();
+        $criteria->add($this->criteriaFactory->item('type', 'TfTag'));
+        $criteria->add($this->criteriaFactory->item('parent', $id));
+        $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
+
+        return $this->database->select('content', $criteria, ['id', 'title'])
+            ->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
      * Get tags associated with an object.
      * 
      * @param   int $id ID of content object.
@@ -77,7 +148,7 @@ trait TagRead
         }
 
         // Retrieve related tags.
-        $sql = "SELECT `id`, `title` FROM `" . $table . "` WHERE `id` IN (";
+        $sql = "SELECT `id`, `title` FROM `content` WHERE `id` IN (";
         
         foreach ($taglinks as $taglink) {
             $sql .= "?,";
@@ -92,6 +163,33 @@ trait TagRead
         if (!$result) {
             \trigger_error(TFISH_ERROR_NO_RESULT, E_USER_ERROR);
             return false;
+        }
+
+        return $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
+    }
+
+    /**
+     * Returns a list of options for the tag select box.
+     * 
+     * @return  array Array of tag IDs and titles as key-value pairs.
+     */
+    public function onlineTagSelectOptions()
+    {
+        $columns = ['id', 'title'];
+        
+        $criteria = $this->criteriaFactory->criteria();
+
+        $criteria->add($this->criteriaFactory->item('type', 'TfTag'));
+        $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
+        $criteria->setSort('title');
+        $criteria->setOrder('ASC');
+        $criteria->setSecondarySort('submissionTime');
+        $criteria->setSecondaryOrder('DESC');
+
+        $statement = $this->database->select('content', $criteria, $columns);
+
+        if(!$statement) {
+            \trigger_error(TFISH_ERROR_NO_RESULT, E_USER_ERROR);
         }
 
         return $statement->fetchAll(\PDO::FETCH_KEY_PAIR);

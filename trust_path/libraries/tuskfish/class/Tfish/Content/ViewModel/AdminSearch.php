@@ -341,6 +341,8 @@ class AdminSearch implements \Tfish\ViewModel\Listable
     /**
      * Return tag ID.
      * 
+     * Not in use.
+     * 
      * @return  int
      */
     public function tag(): int
@@ -350,6 +352,8 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
     /**
      * Set tag ID.
+     * 
+     * Not in use.
      * 
      * @param   int $tag ID of tag.
      */

@@ -45,6 +45,29 @@ trait Listable
     private $secondarySort = '';
     private $secondaryOrder = '';
 
+    /** Utilities. */
+    
+    /**
+     * Prepare select box options.
+     * 
+     * @param   string $zeroOption The default option (text) to show in the select box.
+     * @param   array $rows IDs and titles as key-value pairs.
+     * @return  array Select box options as key-value pairs.
+     */
+    private function selectBoxOptions(string $zeroOption, array $rows): array
+    {
+        $options = [];
+        $zeroOption = $this->trimString($zeroOption);
+
+        foreach ($rows as $row) {
+            $options[$row['id']] = $row['title'];
+        }
+
+        \asort($options);
+
+        return [$zeroOption] + $options;
+    }
+
     /** Sorting support. */
 
     /**
