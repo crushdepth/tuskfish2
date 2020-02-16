@@ -7,7 +7,7 @@ namespace Tfish\Traits;
 /**
  * \Tfish\Traits\TagRead trait file.
  * 
- * Requires simultaneous use of \Tfish\Traits\ValidateString.
+ * Handles tag retrieval for display-side purposes. Requires simultaneous use of \Tfish\Traits\ValidateString.
  * 
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
