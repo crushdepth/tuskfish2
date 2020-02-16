@@ -267,7 +267,7 @@ class Admin
         $result = $statement->execute($taglinks);
 
         if (!$result) {
-            \trigger_error(TFISH_ERROR_INSERTION_FAILED, E_USER_ERROR);
+            \trigger_error(TFISH_ERROR_NO_RESULT, E_USER_ERROR);
             return false;
         }
 

@@ -17,6 +17,9 @@ namespace Tfish\Traits;
 
 /**
  * Read the tags associated with an object, typically an entity.
+ * 
+ * Note that this is more concerned with reading tags for the presentation side. Actual management
+ * of tag/links is handled by the taglink trait.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -76,7 +79,7 @@ trait TagRead
         $result = $statement->execute($taglinks);
 
         if (!$result) {
-            \trigger_error(TFISH_ERROR_INSERTION_FAILED, E_USER_ERROR);
+            \trigger_error(TFISH_ERROR_NO_RESULT, E_USER_ERROR);
             return false;
         }
 
