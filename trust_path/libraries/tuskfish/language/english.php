@@ -43,7 +43,7 @@ namespace Tfish;
 // Login.
 \define("TFISH_LOGIN", "Login");
 \define("TFISH_LOGIN_NOTED", "New Tuskfish login");
-\define("TFISH_LOGIN_NOTED_MESSAGE", "A login has been noted on your account.");
+\define("TFISH_LOGIN_NOTED_MESSAGE", "A login has been noted on your account: ");
 \define("TFISH_LOGOUT", "Logout");
 \define("TFISH_PASSWORD", "Password");
 \define("TFISH_EMAIL", "Email");
