@@ -33,10 +33,10 @@
         previewZoomButtonIcons: {
             prev: '<i class="fa fa-caret-left fa-lg"></i>',
             next: '<i class="fa fa-caret-right fa-lg"></i>',
-            toggleheader: '<i class="fa fa-fw fa-arrows-v"></i>',
+            toggleheader: '<i class="fas fa-arrows-alt-v"></i>',
             fullscreen: '<i class="fa fa-fw fa-arrows-alt"></i>',
-            borderless: '<i class="fa fa-fw fa-external-link"></i>',
-            close: '<i class="fa fa-fw fa-remove"></i>'
+            borderless: '<i class="fas fa-external-link-square-alt"></i>',
+            close: '<i class="fas fa-times"></i>'
         },
         previewFileIcon: '<i class="fa fa-file"></i>',
         browseIcon: '<i class="fa fa-folder-open"></i>',
