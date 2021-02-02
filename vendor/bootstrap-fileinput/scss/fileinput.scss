@@ -1,13 +1,13 @@
 /*!
- * bootstrap-fileinput v4.4.7
+ * bootstrap-fileinput v5.1.4
  * http://plugins.krajee.com/file-input
  *
  * Krajee default styling for bootstrap-fileinput.
  *
  * Author: Kartik Visweswaran
- * Copyright: 2014 - 2018, Kartik Visweswaran, Krajee.com
+ * Copyright: 2014 - 2021, Kartik Visweswaran, Krajee.com
  *
- * Licensed under the BSD 3-Clause
+ * Licensed under the BSD-3-Clause
  * https://github.com/kartik-v/bootstrap-fileinput/blob/master/LICENSE.md
  */
 //colors
@@ -17,12 +17,16 @@ $vanilla-ice: #f2dede !default;
 $oyster-pink: #ebccd1 !default;
 $gallery: #eee !default;
 $alto: #ddd !default;
+$celeste: #ccc !default;
 $green: #008000 !default;
-$zorba: #a2958a !default;
 $mine-shaft: #333 !default;
 $boston-blue: #428bca !default;
+$pelorous: #17a2b8 !default;
 $tapa: #777 !default;
 $black: #000 !default;
+$black-20: rgba(0, 0, 0, 0.2) !default;
+$black-30: rgba(0, 0, 0, 0.3) !default;
+$black-40: rgba(0, 0, 0, 0.4) !default;
 $mystic: #e1edf7 !default;
 $perano: #a1abff !default;
 $silver-chalice: #aaa !default;
@@ -53,46 +57,37 @@ $border: 1px !default;
 @function multiply($pixels, $multiplier) {
     @return $pixels * $multiplier;
 }
-
 //@extend-elements
 %set-invisible {
     width: 0;
     height: 0;
 }
-
 %set-hidden {
     display: none;
 }
-
 %set-absolute {
     position: absolute;
 }
-
 %set-relative {
     position: relative;
 }
-
 %set-text-left {
     text-align: left;
 }
-
 %set-error {
     @extend %set-text-left;
     margin: 0;
 }
-
 %set-indicator {
-    margin: $pad 0 (-$pad);
+    float: left;
+    margin-top: multiply($pad, 2);
     width: multiply($pad, 3.2);
     height: multiply($pad, 3.2);
 }
-
 %set-progress {
     height: multiply($pad, 2.2);
     font-size: multiply($pad, 1.8);
-    line-height: multiply($pad, 2);
 }
-
 %set-caption {
     display: block;
     white-space: nowrap;
@@ -102,58 +97,40 @@ $border: 1px !default;
     height: multiply($pad, 3);
     margin: auto;
 }
-
 %set-object {
     max-width: 100%;
     max-height: 100%;
     width: auto;
 }
-
 %set-object-video {
     @extend %set-object;
     height: 100%;
 }
-
 %set-object-default {
     width: 100%;
 }
-
 .kv-hidden {
     @extend %set-hidden;
 }
-
 .hide-content .kv-file-content {
     @extend %set-hidden;
 }
-
-.rotate-2 {
-    transform: rotateY(180deg);
+.file-input {
+    @extend %set-relative;
 }
-
-.rotate-3 {
-    transform: rotate(180deg);
+.file-no-browse {
+    @extend %set-absolute;
+    left: 50%;
+    bottom: 20%;
+    width: 1px;
+    height: 1px;
+    font-size: 0;
+    opacity: 0;
+    border: none;
+    background: none;
+    outline: none;
+    box-shadow: none;
 }
-
-.rotate-4 {
-    transform: rotate(180deg) rotateY(180deg);
-}
-
-.rotate-5 {
-    transform: rotate(270deg) rotateY(180deg);
-}
-
-.rotate-6 {
-    transform: rotate(90deg);
-}
-
-.rotate-7 {
-    transform: rotate(90deg) rotateY(180deg);
-}
-
-.rotate-8 {
-    transform: rotate(270deg);
-}
-
 .file-loading {
     input[type=file] {
         @extend %set-invisible;
@@ -170,23 +147,20 @@ $border: 1px !default;
         background: transparent $url-0 top left no-repeat;
     }
 }
-
 input[type=file].file-loading {
     @extend %set-invisible;
 }
-
 .file-object {
     margin: 0 0 (-$pad) 0;
     padding: 0;
 }
-
 .btn-file {
     @extend %set-relative;
     overflow: hidden;
     input[type=file] {
         @extend %set-absolute;
         top: 0;
-        right: 0;
+        left: 0;
         min-width: 100%;
         min-height: 100%;
         text-align: right;
@@ -201,7 +175,6 @@ input[type=file].file-loading {
         height: 100%;
     }
 }
-
 .file-caption {
     @extend %set-relative;
     .file-caption-name {
@@ -222,14 +195,11 @@ input[type=file].file-loading {
         }
     }
 }
-
 .file-caption-icon {
     @extend %set-hidden;
     @extend %set-absolute;
-    line-height: 1;
     left: multiply($pad, 1.6);
 }
-
 .file-error-message {
     color: $apple-blossom;
     background-color: $vanilla-ice;
@@ -245,13 +215,11 @@ input[type=file].file-loading {
         @extend %set-error;
     }
 }
-
 .file-caption-disabled {
     background-color: $gallery;
     cursor: not-allowed;
     opacity: 1;
 }
-
 .file-preview {
     @extend %set-relative;
     border-radius: multiply($radius, 1.25);
@@ -273,33 +241,51 @@ input[type=file].file-loading {
     }
     .clickable {
         cursor: pointer;
+    }    
+    .kv-zoom-cache {
+        display: none;
     }
 }
-
 .file-preview-image {
     font: multiply($pad, 8) $font-0, $font-1, $font-2;
     color: $green;
+    width:auto;
+    height:auto;
+    max-width:100%;
+    max-height:100%;    
 }
-
 .krajee-default {
     &.file-preview-frame {
         @extend %set-relative;
         margin: multiply($pad, 1.6);
-        border: $border solid $alto;
-        box-shadow: $border $border $pad 0 $zorba;
+        border: $border solid $black-20;
+        box-shadow: 0 0 multiply($pad, 2) 0 $black-20;
         padding: multiply($pad, 1.2);
         float: left;
         text-align: center;
         .kv-file-content {
             width: multiply($pad, 42.6);
             height: multiply($pad, 32);
+            &.kv-pdf-rendered {
+                width: 400px;
+            }
         }
         .file-thumbnail-footer {
             height: multiply($pad, 14);
         }
         &:not(.file-preview-error):hover {
-            box-shadow: multiply($pad, 0.6) multiply($pad, 0.6) $pad 0 $mine-shaft;
+            border: $border solid $black-30;
+            box-shadow: 0 0 multiply($pad, 2) 0 $black-40;
         }
+        &[data-template="audio"] .kv-file-content {
+            width: 240px;
+            height: 55px;
+        }
+    }
+    .file-preview-other-frame {
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     .file-preview-text {
         display: block;
@@ -323,6 +309,7 @@ input[type=file].file-loading {
     }
     .file-other-icon {
         font-size: 6em;
+        line-height: 1;
     }
     .file-footer-buttons {
         float: right;
@@ -353,9 +340,11 @@ input[type=file].file-loading {
         right: 0;
         .progress {
             @extend %set-progress;
+            color: $celeste;
         }
         .progress-bar {
             @extend %set-progress;
+            font-family: Verdana, Helvetica, sans-serif;
         }
     }
     .file-thumbnail-footer {
@@ -378,20 +367,37 @@ input[type=file].file-loading {
         color: $black;
     }
 }
-
+.file-upload-stats {
+    font-size: 9px;
+    text-align: center;
+    width: 100%;
+}
 .kv-upload-progress {
     .progress {
         height: multiply($pad, 4);
         line-height: multiply($pad, 4);
         margin: multiply($pad, 2) 0;
         overflow: hidden;
+        color: $celeste;
     }
     .progress-bar {
         height: multiply($pad, 4);
-        line-height: multiply($pad, 4);
+        font-family: Verdana, Helvetica, sans-serif;
+    }
+    .file-upload-stats {
+        font-size: 11px;
+        margin: -10px 0 5px;
     }
 }
-
+.file-thumb-progress {
+    .progress {
+        background-color: #ccc;
+    }
+    .progress-bar {
+        font-size: 0.7rem;
+        font-family: Verdana, Helvetica, sans-serif;
+    }
+}
 .file-zoom-dialog {
     .file-other-icon {
         //noinspection CssOverwrittenProperties
@@ -417,13 +423,13 @@ input[type=file].file-loading {
     .btn-navigate {
         @extend %set-absolute;
         padding: 0;
-        margin: 0;
+        margin: -60px 0 0;
+        font-size: 60px;
         background: transparent;
         text-decoration: none;
         outline: none;
         opacity: 0.7;
-        top: 45%;
-        font-size: 4em;
+        top: 50%;
         color: $curious-blue;
         &:not([disabled]):hover {
             outline: none;
@@ -454,7 +460,6 @@ input[type=file].file-loading {
         text-overflow: ellipsis;
     }
 }
-
 .file-input-new {
     .file-preview {
         @extend %set-hidden;
@@ -481,7 +486,6 @@ input[type=file].file-loading {
         }
     }
 }
-
 .file-input-ajax-new {
     .fileinput-remove-button {
         @extend %set-hidden;
@@ -499,19 +503,16 @@ input[type=file].file-loading {
         }
     }
 }
-
 .file-caption-main {
     width: 100%;
 }
-
 .file-thumb-loading {
     background: transparent $url-0 no-repeat scroll center center content-box !important;
 }
-
 .file-drop-zone {
     border: $border dashed $silver-chalice;
     border-radius: $radius;
-    height: 100%;
+    min-height: multiply($pad, 52);
     text-align: center;
     vertical-align: middle;
     margin: multiply($pad, 2.4) multiply($pad, 3) multiply($pad, 2.4) multiply($pad, 2.4);
@@ -528,73 +529,34 @@ input[type=file].file-loading {
         cursor: default;
     }
 }
-
 .file-drop-zone-title {
     color: $silver-chalice;
     font-size: 1.6em;
     padding: multiply($pad, 17) multiply($pad, 2);
     cursor: default;
 }
-
 .file-highlighted {
     border: multiply($border, 2) dashed $mountain-mist !important;
     background-color: $gallery;
 }
-
 .file-uploading {
     background: $url-1 no-repeat center bottom multiply($pad, 2);
     opacity: 0.65;
 }
-
-@media(min-width: 576px) {
-    .file-zoom-dialog .modal-dialog {
-        max-width: 500px;
-    }
-}
-
-@media(min-width: 992px) {
-    .file-zoom-dialog .modal-lg {
-        max-width: 800px;
-    }
-}
-
 .file-zoom-fullscreen {
-    &.modal {
-        position: fixed;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-    }
     .modal-dialog {
-        position: fixed;
+        min-width: 100%;
         margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        max-width: 100%;
-        max-height: 100%;
     }
     .modal-content {
         border-radius: 0;
         box-shadow: none;
+        min-height: 100vh;
     }
     .modal-body {
         overflow-y: auto;
     }
 }
-
-.btn-kv {
-    display: inline-block;
-    text-align: center;
-    width: multiply($pad, 6);
-    height: multiply($pad, 6);
-    line-height: multiply($pad, 6);
-    padding: 0;
-    font-size: 90%;
-    border-radius: 0.2rem;
-}
-
 .floating-buttons {
     z-index: 3000;
     .btn-kv {
@@ -602,18 +564,17 @@ input[type=file].file-loading {
         z-index: 3000;
     }
 }
-
+.kv-zoom-actions .btn-kv {
+    margin-left: multiply($pad, 0.6);
+}
 .file-zoom-content {
-    height: multiply($pad, 96);
+    min-height: 300px;
     text-align: center;
     .file-preview-image {
         max-height: 100%;
     }
     .file-preview-video {
         max-height: 100%;
-    }
-    .is-portrait-gt4 {
-        margin-top: multiply($pad, 12);
     }
     > .file-object {
         &.type-image {
@@ -645,8 +606,17 @@ input[type=file].file-loading {
         }
     }
 }
-
-@media screen and(max-width: 767px) {
+@media(min-width: 576px) {
+    .file-zoom-dialog .modal-dialog {
+        max-width: 500px;
+    }
+}
+@media(min-width: 992px) {
+    .file-zoom-dialog .modal-lg {
+        max-width: 800px;
+    }
+}
+@media(max-width: 767px) {
     .file-preview-thumbnails {
         display: flex;
         justify-content: center;
@@ -657,35 +627,39 @@ input[type=file].file-loading {
         flex-direction: column;
     }
 }
-
-@media screen and(max-width: 350px) {
-    .krajee-default.file-preview-frame .kv-file-content {
-        width: multiply($pad, 32);
+@media(max-width: 350px) {
+    .krajee-default.file-preview-frame:not([data-template="audio"]) .kv-file-content {
+        width: 160px;
     }
 }
-
+@media(max-width: 420px) {
+    .krajee-default.file-preview-frame .kv-file-content.kv-pdf-rendered {
+        width: 100%;
+    }
+}
 .file-loading[dir=rtl]:before {
     background: transparent $url-0 top right no-repeat;
     padding-left: 0;
     padding-right: multiply($pad, 4);
 }
-
+.clickable .file-drop-zone-title {
+    cursor: pointer;
+}
 .file-sortable .file-drag-handle {
-    cursor: move;
+    cursor: grab;
     opacity: 1;
     &:hover {
         opacity: 0.7;
     }
 }
-
-.clickable .file-drop-zone-title {
-    cursor: pointer;
+.file-grabbing, .file-grabbing * {
+    cursor: not-allowed !important;
 }
-
-.kv-zoom-actions .btn-kv {
-    margin-left: multiply($pad, 0.6);
+.file-grabbing .file-preview-thumbnails * {
+    cursor: grabbing !important;
 }
-
 .file-preview-initial.sortable-chosen {
     background-color: $link-water;
+    border-color: $pelorous;
+    box-shadow: none;
 }
