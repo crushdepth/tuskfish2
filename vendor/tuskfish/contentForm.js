@@ -11,6 +11,14 @@ $(document).ready(function() {
         checkMedia();
     });
 
+    // Copies the title to metaTitle and prefills the metaSEO string.
+    $('#title').change(function(event) {
+        var title = $("#title").val();
+        $("#metaTitle").val(title);
+        title = title.replace(/\s+/g, '-').toLowerCase();
+        $("#metaSeo").val(title);
+    });
+
     // Set flag that media file should be deleted from server.
     $('#media').on('fileclear', function(tf_deleteMedia) {
         document.getElementById("format").value="";
