@@ -15,6 +15,7 @@ The project emphasis is on creating the simplest and most lightweight code base 
 Features include:
 * Publish a mixed stream of articles, downloads, images, audio, video, static pages, GPS tracks and collections with one simple form.
 * Organise your content with tags, collections and content types.
+* Multilingual support.
 * Bootstrap-based templates with responsive, mobile-first themes.
 * Native PHP template engine; easily create new template sets.
 * PHP 7, HTML5 and SQLite database.
