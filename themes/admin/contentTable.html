@@ -77,6 +77,7 @@
     <thead>
       <tr>
         <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_ID; ?></th>
+        <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_LANGUAGE; ?></th>
         <th><?php echo TFISH_TYPE; ?></th>
         <th><?php echo TFISH_TITLE; ?></th>
         <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_SUBMISSION_TIME; ?></th>
@@ -89,6 +90,7 @@
     <?php foreach($viewModel->contentList() as &$row): ?>
       <tr>
         <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['id']); ?></td>
+        <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['language']); ?></td>
         <td><?php echo xss($viewModel->listTypes()[$row['type']]); ?></td>
         <td><a href="<?php echo TFISH_URL . '?id=' . xss($row['id']); ?>"><?php echo xss($row['title']); ?></a></td>
         <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss(\date($viewModel->dateFormat(), (int) $row['submissionTime'])); ?></td>

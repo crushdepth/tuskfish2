@@ -57,10 +57,10 @@ class Database
     }
 
     /** No cloning permitted. */
-    final private function __clone() {}
+    final function __clone() {}
     
     /** No serialisation. */
-    final private function __wakeup() {}
+    final function __wakeup() {}
 
     /**
      * Enclose table and column identifiers in backticks to escape them.

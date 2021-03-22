@@ -219,7 +219,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // pulls DB rows into an instance of a class, based on the first column.
         $contentColumns = array(
             "type" => "TEXT", // article => , image => , audio => , etc.
-            "id" => "INTEGER", // Auto-increment => , set by database.
+            "id" => "INTEGER", // PRIMARY KEY = id + language.
+            "language" => "TEXT", // 2-letter ISO-639 code.
             "title" => "TEXT", // The headline or name of this content.
             "teaser" => "TEXT", // A short (one paragraph) summary or abstract for this content.
             "description" => "TEXT", // The full article or description of the content.
@@ -231,7 +232,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "caption" => "TEXT", // Caption of the image file.
             "date" => "TEXT", // Date of first publication expressed as a string, hopefully in a standard format to allow time/date conversion.
             "parent" => "INTEGER", // A source work or collection of which this content is part.
-            "language" => "TEXT", // English (future proofing).
             "rights" => "INTEGER", // Intellectual property rights scheme or license under which the work is distributed.
             "publisher" => "TEXT", // The entity responsible for distributing this work.
             "onlineStatus" => "INTEGER", // Toggle object on or offline
@@ -242,11 +242,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "metaTitle" => "TEXT", // Set a custom page title for this content.
             "metaDescription" => "TEXT", // Set a custom page meta description for this content.
             "metaSeo" => "TEXT"); // SEO-friendly string; it will be appended to the URL for this content.
-        $database->createTable('content', $contentColumns, 'id');
+        $database->createTable('content', $contentColumns);
+
+        // CONSTRAINT customers_pk PRIMARY KEY (last_name, first_name)
+
+        // Alter table to create composite primary key (id + language).
+        /*$sql = "ALTER TABLE `content` ADD CONSTRAINT PK_CONTID PRIMARY KEY (`id`, `language`)";
+        $statement = $database->preparedStatement($sql);
+        $statement->execute();
+
+        if ($statement) {
+            return true;
+        } else {
+            \trigger_error(TFISH_ERROR_NO_STATEMENT, E_USER_ERROR);
+        }*/
 
         // Insert a "General" tag content object.
         $contentData = array(
             "type" => "TfTag",
+            "language" => "en",
             "title" => "General",
             "teaser" => "Default content tag.",
             "description" => "Default content tag, please edit it to something useful.",
@@ -258,7 +272,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "caption" => '',
             "date" => \date('Y-m-d'),
             "parent" => 0,
-            "language" => "en",
             "rights" => 1,
             "publisher" => '',
             "onlineStatus" => "1",
@@ -272,13 +285,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $query = $database->insert('content', $contentData);
 
         // Create taglink table.
-        $taglinkColumns = array(
-            "id" => "INTEGER",
-            "tagId" => "INTEGER",
-            "contentType" => "TEXT",
-            "contentId" => "INTEGER",
-            "module" => "TEXT");
-        $database->createTable('taglink', $taglinkColumns, 'id');
+        $sql = "CREATE TABLE IF NOT EXISTS `taglink` (" .
+            "`id` INTEGER," .
+            "`tagId` INTEGER, " . 
+            "`contentType` TEXT, " .
+            "`contentId` INTEGER, " .
+            "`language` TEXT, " .
+            "`module` TEXT," .
+            " CONSTRAINT pk_taglink PRIMARY KEY (`contentId`, `language`, `module`))";
+
+        $statement = $database->preparedStatement($sql);
+        $statement->execute();
+
+        if ($statement) {
+            return true;
+        } else {
+            \trigger_error(TFISH_ERROR_NO_STATEMENT, E_USER_ERROR);
+        }
 
         // Create an experts table - not required in public release.
         $expertColumns = [

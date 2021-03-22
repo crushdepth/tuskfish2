@@ -25,9 +25,9 @@ declare(strict_types=1);
  */
 
 ////////// You must configure the following paths //////////
-\define("TFISH_ROOT_PATH", "");
-\define("TFISH_TRUST_PATH", "");
-\define("TFISH_URL", "");
+\define("TFISH_ROOT_PATH", "/opt/lampp/htdocs/tuskfish2/");
+\define("TFISH_TRUST_PATH", "/opt/lampp/htdocs/tuskfish2/trust_path/");
+\define("TFISH_URL", "http://localhost/tuskfish2/");
 //////////////////// End configuration /////////////////////
 
 \define("TFISH_PATH", TFISH_TRUST_PATH . "libraries/tuskfish/");
