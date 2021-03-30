@@ -242,7 +242,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "metaTitle" => "TEXT", // Set a custom page title for this content.
             "metaDescription" => "TEXT", // Set a custom page meta description for this content.
             "metaSeo" => "TEXT"); // SEO-friendly string; it will be appended to the URL for this content.
-        $database->createTable('content', $contentColumns);
+        $database->createTable('content', $contentColumns, 'id');
 
         // CONSTRAINT customers_pk PRIMARY KEY (last_name, first_name)
 
