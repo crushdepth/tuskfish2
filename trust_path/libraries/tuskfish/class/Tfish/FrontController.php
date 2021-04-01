@@ -128,7 +128,7 @@ class FrontController
      * Renders the layout (main template) of a theme.
      * 
      * @param \Tfish\Entity\Metadata $metadata Instance of the Tuskfish metadata class.
-     * @param string $viewModel Instance of a viewModel class.
+     * @param obj $viewModel Instance of a viewModel class.
      */
     private function renderLayout(Entity\Metadata $metadata, $viewModel)
     {
