@@ -194,8 +194,8 @@ class ContentEdit
         $fieldsToDecode = ['title', 'creator', 'publisher'];
 
         foreach ($fieldsToDecode as $field) {
-            if (isset($content->field)) {
-                $content->$field = htmlspecialchars_decode($content->field, ENT_NOQUOTES);
+            if (isset($content[$field])) {
+                $content[$field] = htmlspecialchars_decode($content[$field], ENT_NOQUOTES);
             }
         }
 
@@ -203,8 +203,8 @@ class ContentEdit
         $fieldsToDecode = ['metaTitle', 'metaSeo', 'metaDescription'];
         
         foreach ($fieldsToDecode as $field) {
-            if (isset($content->field)) {
-                $content->$field = htmlspecialchars_decode($content->field, ENT_QUOTES);
+            if (isset($content[$field])) {
+                $content[$field] = htmlspecialchars_decode($content[$field], ENT_QUOTES);
             }
         }
         
