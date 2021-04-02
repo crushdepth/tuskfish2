@@ -25,9 +25,6 @@ declare(strict_types=1);
 \ini_set('log_errors', '1');
 \error_reporting(E_ALL);
 
-// Make core language files available.
-include TFISH_DEFAULT_LANGUAGE;
-
 // Initialise dependencies via DICE dependency injection container.
 $dice = new \Dice\Dice;
 $rules = [
