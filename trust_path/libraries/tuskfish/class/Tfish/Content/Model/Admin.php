@@ -38,6 +38,7 @@ namespace Tfish\Content\Model;
 class Admin
     {
     use \Tfish\Content\Traits\ContentTypes;
+    use \Tfish\Traits\Language;
     use \Tfish\Traits\Taglink;
     use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
@@ -147,15 +148,21 @@ class Admin
      * @param   int $id ID of content object.
      * @return  bool True on success, false on failure.
      */
-    public function toggleOnlineStatus(int $id): bool
+    public function toggleOnlineStatus(int $id, string $lang): bool
     {
         if ($id < 1) {
             return false;
         }
 
+        $lang = $this->trimString($lang);
+
+        if (!\array_key_exists($lang, $this->listLanguages())) {
+            return false;
+        }
+
         $this->cache->flush();
 
-        return $this->database->toggleBoolean($id, 'content', 'onlineStatus');
+        return $this->database->toggleBoolean($id, $lang, 'content', 'onlineStatus');
     }
 
     /** Utilities. */

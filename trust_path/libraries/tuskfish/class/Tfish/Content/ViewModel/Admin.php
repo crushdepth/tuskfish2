@@ -34,6 +34,7 @@ namespace Tfish\Content\ViewModel;
  * @var         array $contentList An array of content objects to be displayed in this page view. 
  * @var         int $contentCount The number of content objects that match filtering criteria. Used to build pagination control. 
  * @var         int $id ID of a single content object to be displayed.
+ * @var         string $language 2-letter ISO-639 language code used to filter content.
  * @var         int $start Position in result set to retrieve objects from.
  * @var         int $tag Filter search results by tag ID. 
  * @var         string $type Filter search results by content type.
@@ -55,6 +56,7 @@ class Admin implements \Tfish\ViewModel\Listable
     private $contentList = [];
     private $contentCount = 0;
     private $id = 0;
+    private $language = '';
     private $start = 0;
     private $tag = 0;
     private $type = '';
@@ -141,7 +143,7 @@ class Admin implements \Tfish\ViewModel\Listable
      */
     public function displayToggle()
     {
-        $this->model->toggleOnlineStatus($this->id);
+        $this->model->toggleOnlineStatus($this->id, $this->language);
         $this->template = 'contentTable';
         header('Location: ' . TFISH_ADMIN_URL);
     }
@@ -341,6 +343,26 @@ class Admin implements \Tfish\ViewModel\Listable
     }
 
     /**
+     * Set language.
+     * 
+     * @param   string $lang Language of content object.
+     */
+    public function setLanguage(string $lang)
+    {
+        $this->language = $this->trimString($lang);
+    }
+
+    /**
+     * Return language.
+     * 
+     * @return  string Language of content object (2-letter ISO-639 code).
+     */
+    public function language(): string
+    {
+        return $this->language;
+    }
+
+    /**
      * Return content title.
      */
     public function contentTitle(): string
@@ -411,7 +433,7 @@ class Admin implements \Tfish\ViewModel\Listable
     /**
      * Return ID of tag filter.
      * 
-     * @return  int
+     * @return  intint
      */
     public function tag(): int
     {

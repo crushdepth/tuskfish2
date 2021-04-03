@@ -24,7 +24,8 @@ namespace Tfish\Content\Model;
  * @version     Release: 2.0
  * @since       2.0
  * @package     content
- * @uses        trait \Tfish\Traits\Content\ContentTypes	Provides definition of permitted content object types.
+ * @uses        trait \Tfish\Traits\Content\ContentTypes Provides definition of permitted content object types.
+ * @uses        trait \Tfish\Traits\Language System languages.
  * @uses        trait \Tfish\Traits\TagRead Retrieve tag information for display.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         \Tfish\Database $database Instance of the Tuskfish database class.
@@ -35,6 +36,7 @@ namespace Tfish\Content\Model;
 class Listing
 {
     use \Tfish\Content\Traits\ContentTypes;
+    use \Tfish\Traits\Language;
     use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
     
@@ -72,7 +74,7 @@ class Listing
      * @param   int $id ID of the content object to retrieve.
      * @return  Mixed \Tfish\Content\Entity\Content on success, false on failure.
      */
-    public function getObject(int $id)
+    public function getObject(int $id, string $lang)
     {
         $params = [];
 
@@ -81,6 +83,7 @@ class Listing
         }
 
         $params['id'] = $id;
+        $params['language'] = $lang;
 
         if (!$this->session->isAdmin()) { // NOT admin.
             $params['onlineStatus'] = 1;
@@ -88,12 +91,13 @@ class Listing
 
         $cleanParams = $this->validateParams($params);
         $criteria = $this->setCriteria($cleanParams);
+
         $statement = $this->database->select('content', $criteria);
 
         $content = $statement->fetchObject('\Tfish\Content\Entity\Content');
 
         if ($content && $content->type() !== 'TfDownload') {
-            $this->updateCounter($id);
+            $this->updateCounter($cleanParams['id'], $cleanParams['language']);
         }
 
         return $content;
@@ -175,6 +179,10 @@ class Listing
         if (isset($cleanParams['onlineStatus']))
             $criteria->add($this->criteriaFactory->item('onlineStatus', $cleanParams['onlineStatus']));
 
+        if (!empty($cleanParams['language'])) {
+            $criteria->add($this->criteriaFactory->item('language', $cleanParams['language']));
+        }
+
         if (!empty($cleanParams['id'])) {
             $criteria->add($this->criteriaFactory->item('id', $cleanParams['id']));
 
@@ -220,10 +228,11 @@ class Listing
      * Increment the view/download counter for a content object.
      * 
      * @param   int $id ID of content object.
+     * @param   string $lang Language of content object.
      */
-    private function updateCounter(int $id)
+    private function updateCounter(int $id, string $lang)
     {
-        $this->database->updateCounter($id, 'content', 'counter');
+        $this->database->updateCounter($id, $lang, 'content', 'counter');
     }
 
     /**
@@ -238,6 +247,10 @@ class Listing
 
         if ($params['id'] ?? 0)
             $cleanParams['id'] = (int) $params['id'];
+
+        if (isset($params['language']) && \array_key_exists($params['language'], $this->listLanguages())) {
+            $cleanParams['language'] = $this->trimString($params['language']);
+        }
 
         if ($params['parent'] ?? 0)
             $cleanParams['parent'] = (int) $params['parent'];

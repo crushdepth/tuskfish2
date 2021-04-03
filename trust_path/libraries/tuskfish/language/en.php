@@ -7,9 +7,10 @@ namespace Tfish;
 /**
  * Tuskfish core language constants (English).
  * 
- * Translate this file to convert Tuskfish to another language. To actually use a translated language
- * file, edit /trust_path/masterfile.php and change the TFISH_DEFAULT_LANGUAGE constant to point at
- * your translated language file.
+ * To make the Tuskfish interface available in another language, translate this file and name it
+ * to match the 2-letter ISO-639 code for that language (eg. Thai is th.php). To activate the
+ * translation, edit Tfish/Traits/Language.php and add the ISO-639 code to listLanguages(). You can
+ * then select the translation in site preferences, and when adding content items.
  *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2

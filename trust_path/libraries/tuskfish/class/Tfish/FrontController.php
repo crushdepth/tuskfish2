@@ -49,7 +49,6 @@ class FrontController
      * @param   \Dice\Dice $dice DICE dependency injection container.
      * @param   \Tfish\Session $session Instance of the Tuskfish session class.
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.
-     * @param   \Tfish\CriteriaFactory $criteriaFactory A factory class that returns instances of Criteria and CriteriaItem.
      * @param   \Tfish\Entity\Preference Instance of the Tfish site preferences class.
      * @param   \Tfish\Entity\Metadata  Instance of the Tfish metadata class.
      * @param   \Tfish\Cache Instance of the Tfish cache class.
@@ -60,7 +59,6 @@ class FrontController
         \Dice\Dice $dice,
         Session $session,
         Database $database,
-        CriteriaFactory $criteriaFactory,
         Entity\Preference $preference,
         Entity\Metadata $metadata,
         Cache $cache,
@@ -70,12 +68,12 @@ class FrontController
         $this->session = $session;
         $session->start();
 
-        $this->setLanguage($_GET['lang'] ?? "");
+        $this->setLanguage($preference, $_GET['lang'] ?? "");
         $this->checkSiteClosed($preference, $path);
         $this->checkAdminOnly($route);
 
         // Create MVVM components with dice (as they have variable dependencies).
-        $pagination = $dice->create('\\Tfish\\Pagination', [$path]);
+        $pagination = $dice->create('\\Tfish\\Pagination', [$path, $_SESSION['lang']]);
         $model = $dice->create($route->model());
         $viewModel = $dice->create($route->viewModel(), [$model]);
         $this->view = $dice->create($route->view(), [$viewModel]);
@@ -134,24 +132,40 @@ class FrontController
      * Note that a valid translation file must exist. By convention, the name of the file must match the
      * two-letter ISO-639 language code, eg. en.php for English, ru.php for Russian. Each available
      * translation should also be listed in \TfishTraits\Language->listLanguages().
+     * 
+     * If a requested translation does not exist, or nothing is requested, the default
+     * language preference of the site will be used.
+     * 
+     * @param   \Tfish\Entity\Preference $preference Tfish preference object.
+     * @param   string $lang Preferred language.
      */
-    private function setLanguage(string $lang) {
+
+    /**
+     * Two issues:
+     * 
+     * 1. If a lang param is not set in request, site reverts to default language, when it should
+     * actually remember the prior setting stored in the session.
+     * 
+     * 2. If a resource has a different langauge param (because they all do), this will reset the
+     * session to that language. Which could be a problem on the admin side?
+     */
+
+    private function setLanguage(Entity\Preference $preference, string $lang) {
+
         if (!empty($lang) && \array_key_exists($lang, $this->listLanguages())) {
-            $_SESSION['lang'] = \trim($_GET['lang']);
+            $_SESSION['lang'] = $lang;
         }
 
-        if (!empty($_SESSION['lang'])) {
-            include TFISH_LANGUAGE_PATH . "/" . $_SESSION['lang'] . ".php";
-        } else {
-            include TFISH_DEFAULT_LANGUAGE;
-        }
+        if (empty($_SESSION['lang'])) $_SESSION['lang'] = $preference->defaultLanguage();
+        
+        include TFISH_LANGUAGE_PATH . "/" . $_SESSION['lang'] . ".php";
     }
 
     /**
      * Renders the layout (main template) of a theme.
      * 
      * @param \Tfish\Entity\Metadata $metadata Instance of the Tuskfish metadata class.
-     * @param string $viewModel Instance of a viewModel class.
+     * @param obj $viewModel Instance of a viewModel class.
      */
     private function renderLayout(Entity\Metadata $metadata, $viewModel)
     {

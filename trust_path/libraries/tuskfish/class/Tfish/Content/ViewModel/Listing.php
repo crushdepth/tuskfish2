@@ -41,6 +41,7 @@ namespace Tfish\Content\ViewModel;
  * @var         string $backUrl $backUrl URL to return to if the user cancels the action.
  * @var         string $response Message to display to the user after processing action (success/failure). 
  * @var         int $id ID of a single content object to be displayed.
+ * @var         string $language 2-leter ISO-639 language code to filter content.
  * @var         int $start Position in result set to retrieve objects from.
  * @var         int $tag Filter search results by tag ID. 
  * @var         string $type Filter search results by content type.
@@ -66,6 +67,7 @@ class Listing implements \Tfish\ViewModel\Listable
     private $backUrl = '';
     private $response = '';
     private $id = 0;
+    private $language = '';
     private $start = 0;
     private $tag = 0;
     private $type = '';
@@ -103,13 +105,17 @@ class Listing implements \Tfish\ViewModel\Listable
      */
     public function displayObject()
     {
-        $this->content = $this->getObject($this->id);
+        $this->content = $this->getObject($this->id, $this->language);
 
         if ($this->content) {
             $this->pageTitle = $this->content->metaTitle();
             $this->description = $this->content->metaDescription();
             $this->author = $this->content->creator();
-            $this->parent = $this->getObject($this->content->parent());
+            /**
+             * TODO: Parent needs to support composite keys as well. Otherwise collections will be
+             * limited to same language.
+             */
+            $this->parent = $this->getObject($this->content->parent(), $this->language);
 
             if ($this->content->type() === 'TfCollection' || $this->content->type() === 'TfTag') $this->listChildren();
 
@@ -168,6 +174,7 @@ class Listing implements \Tfish\ViewModel\Listable
         $params = [
             'tag' => $this->tag,
             'type' => $this->type,
+            'language' => $this->language,
             'onlineStatus' => $this->onlineStatus
         ];
 
@@ -224,10 +231,11 @@ class Listing implements \Tfish\ViewModel\Listable
      * Get a content object.
      * 
      * @param   int $id ID of content object.
+     * @param   string $lang Language of content object.
      */
-    public function getObject(int $id)
+    public function getObject(int $id, string $lang)
     {
-        return $this->model->getObject($id);
+        return $this->model->getObject($id, $lang);
     }
 
     /**
@@ -273,6 +281,7 @@ class Listing implements \Tfish\ViewModel\Listable
         $this->contentList = $this->model->getObjects(
             [
                 'id' => $this->id,
+                'language' => $this->language,
                 'start' => $this->start,
                 'limit' => $this->limit(),
                 'tag' => $this->tag,
@@ -366,6 +375,26 @@ class Listing implements \Tfish\ViewModel\Listable
     public function setId(int $id)
     {
         $this->id = $id;
+    }
+
+    /**
+     * Return language.
+     * 
+     * @return  string Language of content object.
+     */
+    public function language(): string
+    {
+        return $this->language;
+    }
+
+    /**
+     * Set language.
+     * 
+     * @param   int $id ID of content object.
+     */
+    public function setLanguage(string $language)
+    {
+        $this->language = $this->trimString($language);
     }
 
     /**

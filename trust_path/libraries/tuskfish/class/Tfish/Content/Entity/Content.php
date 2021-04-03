@@ -227,6 +227,7 @@ class Content
         }
 
         $url .= '?id=' . $this->id;
+        $url .= '&amp;lang=' . $this->language;
         
         if (!empty($this->metaSeo)) {
             $url .= '&amp;title=' . $this->encodeQueryString($this->metaSeo);

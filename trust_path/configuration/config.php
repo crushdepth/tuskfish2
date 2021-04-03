@@ -66,7 +66,6 @@ if (\parse_url(TFISH_URL, PHP_URL_SCHEME) === 'https') {
  */
 // Language: Specify the file name of the default language file.
 \define("TFISH_LANGUAGE_PATH", TFISH_PATH . "language/");
-\define("TFISH_DEFAULT_LANGUAGE", TFISH_LANGUAGE_PATH . "english.php");
 
 // Numerical constants.
 \define("ONE_KILOBYTE", 1024);
@@ -97,4 +96,4 @@ function tfish_autoload(string $classname) {
     //define("TFISH_YUBIKEY_SIGNATURE_KEY", "your_api_key");
 
 // Site database name are appended here.
-if (!\defined("TFISH_DATABASE")) define("TFISH_DATABASE", "/opt/lampp/htdocs/tuskfish2/trust_path/database/1067644632_test.db");
+if (!\defined("TFISH_DATABASE")) define("TFISH_DATABASE", "/opt/lampp/htdocs/tuskfish2/trust_path/database/960547053_test.db");
