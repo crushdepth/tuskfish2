@@ -139,10 +139,9 @@ class Admin
     public function toggle(): array
     {
         $id = (int) ($_GET['id'] ?? 0);
-        $lang = $this->trimString($_GET['lang']);
+        $lang = $this->trimString($_GET['language'] ?? '');
         $this->viewModel->setId($id);
         $this->viewModel->setLanguage($lang);
-
         $this->viewModel->displayToggle();
 
         return [];

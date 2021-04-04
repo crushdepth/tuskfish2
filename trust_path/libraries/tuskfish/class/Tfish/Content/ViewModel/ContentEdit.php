@@ -24,6 +24,7 @@ namespace Tfish\Content\ViewModel;
  * @version     Release: 2.0
  * @since       2.0
  * @package     content
+ * @uses        trait \Tfish\Traits\Language Provides a list of system languages.
  * @uses        trait \Tfish\Traits\Timezones	Provides an array of time zones.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
@@ -39,6 +40,7 @@ namespace Tfish\Content\ViewModel;
  */
 class ContentEdit implements \Tfish\ViewModel\Viewable
 {
+    use \Tfish\Traits\Language;
     use \Tfish\Traits\Timezones;
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
@@ -97,23 +99,35 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
      */
     public function displayEdit()
     {
-        $id = (int) ($_GET['id'] ?? 0);
-
         $this->pageTitle = TFISH_EDIT_CONTENT;
         $content = new \Tfish\Content\Entity\Content();
 
-        if ($data = $this->model->edit($id)) {
+        $id = (int) ($_GET['id'] ?? 0);
+        $lang = $this->trimString($_GET['language'] ?? '');
+
+        if (!\array_key_exists($lang, $this->listLanguages())) {
+            $this->noSuchObject();
+            return;
+        }
+
+        if ($data = $this->model->edit($id, $lang)) {
             $content->load($data, false);
             $this->setContent($content);
             $this->action = 'update';
             $this->parentOptions = [];
             $this->template = 'contentEdit';
         } else {
-            $this->pageTitle = TFISH_FAILED;
-            $this->response = TFISH_ERROR_NO_SUCH_OBJECT;
-            $this->backUrl = TFISH_ADMIN_URL;
-            $this->template = 'response';
+            $this->noSuchObject();
         }
+    }
+
+    /** @internal */
+    private function noSuchObject()
+    {
+        $this->pageTitle = TFISH_FAILED;
+        $this->response = TFISH_ERROR_NO_SUCH_OBJECT;
+        $this->backUrl = TFISH_ADMIN_URL;
+        $this->template = 'response';
     }
 
     /**

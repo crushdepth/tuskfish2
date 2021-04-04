@@ -87,11 +87,18 @@ class ContentEdit
      * Edit content object.
      * 
      * @param   int $id ID of content object.
+     * @param   string $lang Language of content object.
      * @return  array Content object data as associative array.
      */
-    public function edit(int $id): array
+    public function edit(int $id, string $lang): array
     {
-        $row = $this->getRow($id);
+        $id = ($id < 0) ? 0 : $id;
+
+        if (!\array_key_exists($lang, $this->listLanguages())) {
+            $lang = '';
+        }
+
+        $row = $this->getRow($id, $lang);
 
         if (empty($row)) {
             return [];
@@ -151,10 +158,11 @@ class ContentEdit
         $tags = $this->validateTags($_POST['tags'] ?? []);
 
         $id = (int) $content['id'];
+        $lang = $this->trimString($content['language']);
         $content['lastUpdated'] = \time();
 
         // Set image/media to currently stored values.
-        $savedContent = $this->getRow($id);
+        $savedContent = $this->getRow($id, $lang);
         $content['image'] = $savedContent['image'];
         $content['media'] = $savedContent['media'];
 
@@ -211,7 +219,7 @@ class ContentEdit
             }
         }
         
-        return $this->database->update('content', $id, $content);
+        return $this->database->update('content', $id, $lang, $content);
     }
 
     /** Utilities. */
@@ -271,10 +279,11 @@ class ContentEdit
      * @param   int $id ID of content object.
      * @return  array
      */
-    private function getRow(int $id): array
+    private function getRow(int $id, string $lang): array
     {
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
+        $criteria->add($this->criteriaFactory->item('language', $lang));
 
         $row = $this->database->select('content', $criteria)
             ->fetch(\PDO::FETCH_ASSOC);
@@ -340,6 +349,14 @@ class ContentEdit
 
         $id = ((int) ($form['id'] ?? 0));
         if ($id > 0) $clean['id'] = $id;
+
+        $lang = $this->trimString($form['language'] ?? '');
+
+        if (!\array_key_exists($lang, $this->listLanguages())) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        }
+
+        $clean['language'] = $lang;
         
         $clean['title'] = $this->trimString($form['title'] ?? '');
 
@@ -384,7 +401,6 @@ class ContentEdit
         $clean['counter'] = (int) ($form['counter'] ?? 0);
         $clean['onlineStatus'] = (int) ($form['onlineStatus'] ?? 0);
         $clean['parent'] = (int) ($form['parent'] ?? 0);
-        $clean['language'] = \array_key_exists($form['language'], $this->listLanguages()) ? $form['language'] : $this->preference->defaultLanguage();
         $clean['rights'] = (int) ($form['rights'] ?? 0);
         $clean['publisher'] = $this->trimString($form['publisher'] ?? '');
         $clean['metaTitle'] = $this->trimString($form['metaTitle'] ?? '');

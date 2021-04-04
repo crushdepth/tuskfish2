@@ -1121,20 +1121,22 @@ class Database
      * 
      * @param string $table Name of table.
      * @param int $id ID of row to update.
+     * @param string $lang Language of content object.
      * @param array $keyValues Array of column names and values to update.
      * @return bool True on success, false on failure.
      */
-    public function update(string $table, int $id, array $keyValues)
+    public function update(string $table, int $id, string $lang, array $keyValues)
     {
         $cleanTable = $this->validateTableName($table);
         $cleanId = $this->validateId($id);
+        $cleanLang = $this->validateLanguage($lang);
         $cleanKeys = $this->validateKeys($keyValues);
         
-        return $this->_update($cleanTable, $cleanId, $cleanKeys);
+        return $this->_update($cleanTable, $cleanId, $cleanLang, $cleanKeys);
     }
 
     /** @internal */
-    private function _update(string $table, int $id, array $keyValues)
+    private function _update(string $table, int $id, string $lang, array $keyValues)
     {
         // Prepare the statement
         $sql = "UPDATE " . $this->addBackticks($table) . " SET ";
@@ -1144,13 +1146,14 @@ class Database
         }
         
         $sql = \trim($sql, ", ");
-        $sql .= " WHERE `id` = :id";
+        $sql .= " WHERE `id` = :id AND `language` = :language";
 
         // Prepare the statement and bind the values.
         $statement = $this->preparedStatement($sql);
         
         if ($statement) {
             $statement->bindValue(":id", $id, \PDO::PARAM_INT);
+            $statement->bindValue(":language", $lang, \PDO::PARAM_STR);
             
             foreach ($keyValues as $key => $value) {
                 $type = \gettype($value);

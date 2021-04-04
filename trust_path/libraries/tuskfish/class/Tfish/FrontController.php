@@ -68,7 +68,7 @@ class FrontController
         $this->session = $session;
         $session->start();
 
-        $this->setLanguage($preference, $_GET['lang'] ?? "");
+        $this->setLanguage($preference, $_GET['lang'] ?? '');
         $this->checkSiteClosed($preference, $path);
         $this->checkAdminOnly($route);
 
