@@ -1032,11 +1032,11 @@ class Database
      * Toggle the online status of a column between 0 and 1, use for columns representing booleans.
      * 
      * Note that the $id and $lang MUST represent columns called id and language for whatever table
-     * you want to run it on, and $lang must also be an in-service 2-letter ISO-639 language code
+     * you want to run it on, and $lang must also be an in-service 2-letter ISO 639-1 language code
      * (composite primary key for multi-language support).
      * 
      * @param int $id ID of the row to update.
-     * @param string $lang Language of the resource (2-letter ISO-639 language code).
+     * @param string $lang Language of the resource (2-letter ISO 639-1 language code).
      * @param string $table Name of table.
      * @param string $column Name of column to update.
      * @return bool True on success, false on failure.
@@ -1464,7 +1464,7 @@ class Database
 
     /* Validate that langage parameter is a supported system language.
      *
-     * @param string $lang 2-letter ISO-639 language code, whitelisted in \Traits\Language.
+     * @param string $lang 2-letter ISO 639-1 language code, whitelisted in \Traits\Language.
      */
     public function validateLanguage(string $lang)
     {
