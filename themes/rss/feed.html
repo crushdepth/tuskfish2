@@ -5,6 +5,7 @@
     <title><?php echo xss($viewModel->title()); ?></title>
     <link><?php echo xss($viewModel->link()); ?></link>
     <description><?php echo xss($viewModel->description()); ?></description>
+    <language><?php echo xss($_SESSION['lang']); ?></language>
     <managingEditor><?php echo xss($viewModel->siteEmail()); ?></managingEditor>
     <webMaster><?php echo xss($viewModel->webMaster()); ?></webMaster>
     <copyright><?php echo xss($viewModel->copyright()); ?></copyright>
