@@ -113,7 +113,7 @@ class Admin implements \Tfish\ViewModel\Listable
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
         
-        if ($this->model->delete($this->id)) {
+        if ($this->model->delete($this->id, $this->language)) {
             $this->pageTitle = TFISH_SUCCESS;
             $this->response = TFISH_OBJECT_WAS_DELETED;
         } else {

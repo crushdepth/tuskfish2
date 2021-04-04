@@ -78,15 +78,20 @@ class Admin
      * Delete content object.
      * 
      * @param   int $id ID of content object.
+     * @param   string $lang Language of content object.
      * @return  bool True on success, false on failure.
      */
-    public function delete(int $id): bool
+    public function delete(int $id, string $lang): bool
     {
         if ($id < 1) {
             return false;
         }
 
-        $row = $this->getRow($id);
+        if (!\array_key_exists($lang, $this->listLanguages())) {
+            return false;
+        }
+        
+        $row = $this->getRow($id, $lang);
 
         if (!$row) {
             return false;
@@ -106,12 +111,7 @@ class Admin
         if ($row['type'] !== 'TfTag' && !$this->deleteTaglinks($id, 'content')) {
             return false;
         }
-
-        // If object is a tag, delete inbound taglinks referring to it.
-        if ($row['type'] === 'TfTag' && !$this->deleteReferencesToTag($id)) {
-            return false;
-        }
-
+        
         // If object is a collection delete related parent references in child content.
         if ($row['type'] === 'TfCollection') {
             if (!$this->deleteReferencesToParent($id)) {
@@ -125,7 +125,7 @@ class Admin
         }
 
         // Finally, delete the object.
-        return $this->database->delete('content', $id);
+        return $this->database->delete('content', $id, $lang);
     }
 
     /**
@@ -220,17 +220,14 @@ class Admin
      * Return certain columns from a content object required to aid its deletion.
      * 
      * @param   int $id ID of content object.
+     * @param   string $lang Language of content object.
      * @return  array Associative array containing type, id, image and media values.
      */
-    private function getRow(int $id)
+    private function getRow(int $id, string $lang)
     {
-        if ($id < 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_NOTICE);
-            return [];
-        }
-
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
+        $criteria->add($this->criteriaFactory->item('language', $lang));
 
         return $this->database->select('content', $criteria, ['type', 'id', 'image', 'media'])
             ->fetch(\PDO::FETCH_ASSOC);

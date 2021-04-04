@@ -92,16 +92,16 @@
         <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['id']); ?></td>
         <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['language']); ?></td>
         <td><?php echo xss($viewModel->listTypes()[$row['type']]); ?></td>
-        <td><a href="<?php echo TFISH_URL . '?id=' . xss($row['id']); ?>&amp;lang=<?php echo xss($row['language']); ?>"><?php echo xss($row['title']); ?></a></td>
+        <td><a href="<?php echo TFISH_URL . '?id=' . xss($row['id']); ?>&amp;language=<?php echo xss($row['language']); ?>"><?php echo xss($row['title']); ?></a></td>
         <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss(\date($viewModel->dateFormat(), (int) $row['submissionTime'])); ?></td>
         <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['counter']); ?></td>
         <?php if ($row['onlineStatus']): ?>
-        <td class="text-center"><a class="text-success" href="<?php echo TFISH_ADMIN_URL; ?>?action=toggle&amp;id=<?php echo xss($row['id']); ?>&amp;lang=<?php echo xss($row['language']); ?>"><i class="fas fa-check"></i></a></td>
+        <td class="text-center"><a class="text-success" href="<?php echo TFISH_ADMIN_URL; ?>?action=toggle&amp;id=<?php echo xss($row['id']); ?>&amp;language=<?php echo xss($row['language']); ?>"><i class="fas fa-check"></i></a></td>
         <?php else: ?>
-        <td class="text-center"><a class="text-danger" href="<?php echo TFISH_ADMIN_URL; ?>?action=toggle&amp;id=<?php echo xss($row['id']); ?>&amp;lang=<?php echo xss($row['language']); ?>"><i class="fas fa-times"></i></a></td>
+        <td class="text-center"><a class="text-danger" href="<?php echo TFISH_ADMIN_URL; ?>?action=toggle&amp;id=<?php echo xss($row['id']); ?>&amp;language=<?php echo xss($row['language']); ?>"><i class="fas fa-times"></i></a></td>
         <?php endif; ?>
-        <td class="text-center"><a href="<?php echo TFISH_ADMIN_URL . 'content/'; ?>?action=edit&amp;id=<?php echo xss($row['id']); ?>&amp;lang=<?php echo xss($row['language']); ?>"><i class="fas fa-edit"></i></a></td>
-        <td class="text-center"><a href="<?php echo TFISH_ADMIN_URL; ?>?action=confirmDelete&amp;id=<?php echo xss($row['id']); ?>&amp;lang=<?php echo xss($row['language']); ?>"><i class="fas fa-trash-alt"></i></a></td>
+        <td class="text-center"><a href="<?php echo TFISH_ADMIN_URL . 'content/'; ?>?action=edit&amp;id=<?php echo xss($row['id']); ?>&amp;language=<?php echo xss($row['language']); ?>"><i class="fas fa-edit"></i></a></td>
+        <td class="text-center"><a href="<?php echo TFISH_ADMIN_URL; ?>?action=confirmDelete&amp;id=<?php echo xss($row['id']); ?>&amp;language=<?php echo xss($row['language']); ?>"><i class="fas fa-trash-alt"></i></a></td>
         <?php unset($row); ?>
       </tr>
     <?php endforeach; ?>
