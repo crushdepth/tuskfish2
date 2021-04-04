@@ -54,7 +54,7 @@ class Gallery
      */
     public function display(): array
     {
-        $cacheParams = [];
+        $cacheParams = ['lang' => $_SESSION['lang']];
 
         $id = (int) ($_GET['id'] ?? 0);
 
