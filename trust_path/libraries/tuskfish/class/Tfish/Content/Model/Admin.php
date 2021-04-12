@@ -25,6 +25,7 @@ namespace Tfish\Content\Model;
  * @since       2.0
  * @package     content
  * @uses        trait \Tfish\Traits\Content\ContentTypes	Provides definition of permitted content object types.
+ * @uses        trait \Tfish\Traits\Language System languages.
  * @uses        trait \Tfish\Traits\Taglink Manage object-tag associations via taglinks.
  * @uses        trait \Tfish\Traits\TagRead Retrieve tag information for display.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
@@ -329,7 +330,11 @@ class Admin
         if (isset($cleanParams['onlineStatus']))
             $criteria->add($this->criteriaFactory->item('onlineStatus', $cleanParams['onlineStatus']));
 
-        // If ID is set, retrieve a single object.
+        // If ID/language is set, retrieve a single object.
+        if (!empty($cleanParams['language'])) {
+            $criteria->add($this->criteriaFactory->item('language', $cleanParams['language']));
+        }
+        
         if (!empty($cleanParams['id'])) {
             $criteria->add($this->criteriaFactory->item('id', $cleanParams['id']));
 
@@ -375,6 +380,10 @@ class Admin
 
         if ($params['id'] ?? 0)
             $cleanParams['id'] = (int) $params['id'];
+
+        if (isset($params['language']) && \array_key_exists($params['language'], $this->listLanguages())) {
+            $cleanParams['language'] = $this->trimString($params['language']);
+        }
 
         if ($params['start'] ?? 0)
             $cleanParams['start'] = (int) $params['start'];

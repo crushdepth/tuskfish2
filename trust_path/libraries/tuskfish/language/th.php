@@ -54,6 +54,7 @@ namespace Tfish;
 
 // Admin.
 \define("TFISH_ADMIN", "Admin");
+\define("TFISH_SELECT_LANGUAGE", "- Select language -");
 \define("TFISH_SELECT_STATUS", "- Select status -");
 \define("TFISH_SELECT_TAGS", "- Select tag -");
 \define("TFISH_SELECT_TYPE", "- Select type -");

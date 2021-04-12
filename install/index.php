@@ -284,7 +284,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             `contentType` TEXT,
             `contentId` INTEGER,
             `module` TEXT,
-            `language` TEXT)";
+            `lang` TEXT)";
 
         $statement = $database->preparedStatement($sql);
         $statement->execute();

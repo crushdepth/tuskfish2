@@ -219,7 +219,7 @@ class ContentEdit
             }
         }
         
-        return $this->database->update('content', $id, $lang, $content);
+        return $this->database->update('content', $id, $content, $content['language']);
     }
 
     /** Utilities. */

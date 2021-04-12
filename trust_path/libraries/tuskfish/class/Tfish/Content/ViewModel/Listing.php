@@ -223,6 +223,10 @@ class Listing implements \Tfish\ViewModel\Listable
             $extraParams['type'] = $this->trimString($this->type);
         }
 
+        if (!empty($this->language)) {
+            $extraParams['lang'] = $this->language;
+        }
+
         return $extraParams;
 
     }

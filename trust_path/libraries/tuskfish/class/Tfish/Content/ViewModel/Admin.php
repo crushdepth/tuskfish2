@@ -25,6 +25,7 @@ namespace Tfish\Content\ViewModel;
  * @since       2.0
  * @package     content
  * @uses        trait \Tfish\Traits\Content\ContentTypes	Provides definition of permitted content object types.
+ * @uses        trait \Tfish\Traits\Language List of system languages.
  * @uses        trait \Tfish\Traits\Listable Provides a standard implementation of the \Tfish\View\Listable interface.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
@@ -46,6 +47,7 @@ namespace Tfish\Content\ViewModel;
 class Admin implements \Tfish\ViewModel\Listable
 {
     use \Tfish\Content\Traits\ContentTypes;
+    use \Tfish\Traits\Language;
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
@@ -57,6 +59,7 @@ class Admin implements \Tfish\ViewModel\Listable
     private $contentCount = 0;
     private $id = 0;
     private $language = '';
+    private $queryLanguage = '';
     private $start = 0;
     private $tag = 0;
     private $type = '';
@@ -158,6 +161,7 @@ class Admin implements \Tfish\ViewModel\Listable
         $this->contentCount = $this->model->getCount(
             [
                 'id' => $this->id,
+                'language' => $this->queryLanguage,
                 'start' => $this->start,
                 'tag' => $this->tag,
                 'type' => $this->type,
@@ -183,6 +187,7 @@ class Admin implements \Tfish\ViewModel\Listable
     {
         $extraParams = [];
 
+        if (!empty($this->queryLanguage)) $extraParams['language'] = $this->queryLanguage;
         if (!empty($this->tag)) $extraParams['tag'] = $this->tag;
         if (!empty($this->type)) $extraParams['type'] = $this->type;
         if (isset($this->onlineStatus) && $this->onlineStatus == 0 || $this->onlineStatus == 1)
@@ -204,6 +209,7 @@ class Admin implements \Tfish\ViewModel\Listable
                 'start' => $this->start,
                 'tag' => $this->tag,
                 'type' => $this->type,
+                'language' => $this->queryLanguage,
                 'onlineStatus' => $this->onlineStatus,
                 'sort' => $this->sort,
                 'order' => $this->order,
@@ -223,6 +229,12 @@ class Admin implements \Tfish\ViewModel\Listable
     public function limit(): int
     {
         return $this->preference->adminPagination();
+    }
+
+
+    public function languageOptions($zeroOption = TFISH_SELECT_LANGUAGE)
+    {
+        return [$zeroOption] + $this->listLanguages();
     }
     
     /**
@@ -343,6 +355,16 @@ class Admin implements \Tfish\ViewModel\Listable
     }
 
     /**
+     * Return language.
+     * 
+     * @return  string Language of content object (2-letter ISO 639-1 code).
+     */
+    public function language(): string
+    {
+        return $this->language;
+    }
+
+    /**
      * Set language.
      * 
      * @param   string $lang Language of content object.
@@ -353,13 +375,21 @@ class Admin implements \Tfish\ViewModel\Listable
     }
 
     /**
-     * Return language.
-     * 
-     * @return  string Language of content object (2-letter ISO 639-1 code).
+     * Return language for admin-side content filtering.
+     *
+     * @return string
      */
-    public function language(): string
-    {
-        return $this->language;
+    public function queryLanguage(): string {
+        return $this->queryLanguage;
+    }
+
+    /**
+     * Set language for admin-side content filtering.
+     *
+     * @param string $lang
+     */
+    public function setQueryLanguage(string $lang) {
+        $this->queryLanguage = !empty($lang) ? $this->trimString($lang) : '';
     }
 
     /**

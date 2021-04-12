@@ -1082,28 +1082,29 @@ class Database
      * when a related media file is downloaded.
      * 
      * @param int $id ID of content object.
-     * @param string $lang Language of content object.
      * @param string $table Name of table.
      * @param string $column Name of column.
+     * @param string $lang Language of content object.
      * @return bool True on success false on failure.
      */
-    public function updateCounter(int $id, string $lang, string $table, string $column)
+    public function updateCounter(int $id, string $table, string $column, string $lang = '')
     {
         $cleanId = $this->validateId($id);
-        $cleanLang = $this->validateLanguage($lang);
         $cleanTable = $this->validateTableName($table);
         $cleanColumn = $this->validateColumns([$column]);
         $cleanColumn = reset($cleanColumn);
+        $cleanLang = $lang ? $this->validateLanguage($lang) : '';
         
-        return $this->_updateCounter($cleanId, $cleanLang, $cleanTable, $cleanColumn);
+        return $this->_updateCounter($cleanId, $cleanTable, $cleanColumn, $cleanLang);
     }
 
     /** @internal */
-    private function _updateCounter(int $id, string $lang, string $table, string $column)
+    private function _updateCounter(int $id, string $table, string $column, string $lang)
     {
         $sql = "UPDATE " . $this->addBackticks($table) . " SET " . $this->addBackticks($column)
-                . " = " . $this->addBackticks($column) . " + 1"
-                . " WHERE `id` = :id AND `language` = :language";
+                . " = " . $this->addBackticks($column) . " + 1 WHERE `id` = :id";
+                
+        if ($lang) $sql .= " AND `language` = :language";
 
         // Prepare the statement and bind the ID value.
         $statement = $this->preparedStatement($sql);
@@ -1121,22 +1122,22 @@ class Database
      * 
      * @param string $table Name of table.
      * @param int $id ID of row to update.
-     * @param string $lang Language of content object.
      * @param array $keyValues Array of column names and values to update.
+     * @param string $lang Language of content object.
      * @return bool True on success, false on failure.
      */
-    public function update(string $table, int $id, string $lang, array $keyValues)
+    public function update(string $table, int $id, array $keyValues, string $lang = '')
     {
         $cleanTable = $this->validateTableName($table);
         $cleanId = $this->validateId($id);
-        $cleanLang = $this->validateLanguage($lang);
         $cleanKeys = $this->validateKeys($keyValues);
+        $cleanLang = $lang ? $this->validateLanguage($lang) : '';
         
-        return $this->_update($cleanTable, $cleanId, $cleanLang, $cleanKeys);
+        return $this->_update($cleanTable, $cleanId, $cleanKeys, $cleanLang);
     }
 
     /** @internal */
-    private function _update(string $table, int $id, string $lang, array $keyValues)
+    private function _update(string $table, int $id, array $keyValues, string $lang)
     {
         // Prepare the statement
         $sql = "UPDATE " . $this->addBackticks($table) . " SET ";
@@ -1146,7 +1147,9 @@ class Database
         }
         
         $sql = \trim($sql, ", ");
-        $sql .= " WHERE `id` = :id AND `language` = :language";
+        $sql .= " WHERE `id` = :id";
+        
+        if ($lang) $sql .= " AND `language` = :language";
 
         // Prepare the statement and bind the values.
         $statement = $this->preparedStatement($sql);

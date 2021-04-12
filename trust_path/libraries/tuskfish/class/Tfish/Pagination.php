@@ -49,7 +49,6 @@ class Pagination
     private $count;
     private $limit;
     private $start;
-    private $language;
     private $url;
     
     private $tag;
@@ -60,15 +59,13 @@ class Pagination
      * 
      * @param   \Tfish\Entity\Preference $preference An instance of the Tuskfish site preferences class.
      * @param   string $path Base URL for constructing pagination links.
-     * @param   string $lang Language filter.
      */
-    function __construct(Entity\Preference $preference, string $path, string $language) {
+    function __construct(Entity\Preference $preference, string $path) {
         $this->preference = $preference;
         $this->setUrl($path);
         $this->count = 0;
         $this->limit = 0;
         $this->start = 0;
-        $this->language = $this->trimString($language);
         $this->tag = 0;
         $this->extraParams = [];
     }
@@ -162,14 +159,12 @@ class Pagination
         foreach ($pageSlots as $key => $slot) {
             $this->start = (int) ($key * $this->limit);
             
-            if ($this->start || $this->tag || $this->language || $this->extraParams) {
+            if ($this->start || $this->tag || $this->extraParams) {
                 $args = [];
 
                 if (!empty($this->extraParams)) {
                     $args[] = $this->extraParams;
                 }
-
-                $args[] = 'lang=' . $this->language;
 
                 if (!empty($this->tag)) {
                     $args[] = 'tag=' . $this->tag;

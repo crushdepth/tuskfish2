@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tfish\Content\Model;
 
+use Exception;
+
 /**
  * \Tfish\Content\Model\Listing class file.
  * 
@@ -93,7 +95,6 @@ class Listing
         $criteria = $this->setCriteria($cleanParams);
 
         $statement = $this->database->select('content', $criteria);
-
         $content = $statement->fetchObject('\Tfish\Content\Entity\Content');
 
         if ($content && $content->type() !== 'TfDownload') {
@@ -232,7 +233,7 @@ class Listing
      */
     private function updateCounter(int $id, string $lang)
     {
-        $this->database->updateCounter($id, $lang, 'content', 'counter');
+        $this->database->updateCounter($id, 'content', 'counter', $lang);
     }
 
     /**

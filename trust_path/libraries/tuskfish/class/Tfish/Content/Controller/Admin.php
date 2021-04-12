@@ -107,10 +107,15 @@ class Admin
         $id = (int) ($_GET['id'] ?? 0);
         $this->viewModel->setId($id);
 
-        $this->viewModel->setLanguage($_SESSION['lang']);
+        $this->viewModel->setLanguage($_SESSION['lang']); // Controls interface language.
+        $this->viewModel->setQueryLanguage($_REQUEST['language'] ?? ''); // Controls query language, only available in /admin/
 
         $start = (int) ($_GET['start'] ?? 0);
-        $this->viewModel->setStart($start);
+
+        if (empty($_POST['language'])) { // If the language filter has changed, start should not be set.
+            $this->viewModel->setStart($start);
+        } else {
+        }
 
         $tag = (int) ($_REQUEST['tag'] ?? 0);
         $this->viewModel->setTag($tag);
