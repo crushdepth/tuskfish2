@@ -40,18 +40,25 @@ trait TagRead
      * @param   string  Module name to filter results by.
      * @return  array IDs and titles as key-value pairs.
      */
-    public function activeTagOptions(string $module)
+    public function activeTagOptions(string $module, string $lang)
     {
         $module = $this->trimString($module); // Alphanumeric and underscores, only.
+        $lang = $this->trimString($lang); // Alpha only.
 
         if (!$this->isAlnumUnderscore($module)) {
             \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
             exit;
         }
 
+        if (!$this->isAlpha($lang)) {
+            \trigger_error(TFISH_ERROR_NOT_ALPHA, E_USER_ERROR);
+            exit;
+        }
+
         // Get a list of active tag IDs (those listed in the taglnks table).
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('module', $module));
+        $criteria->add($this->criteriaFactory->item('lang', $lang));
         
         $taglinks = $this->database->selectDistinct('taglink', $criteria, ['tagId'])
             ->fetchAll(\PDO::FETCH_COLUMN);
@@ -170,11 +177,11 @@ trait TagRead
     }
 
     /**
-     * Returns a list of options for the tag select box.
+     * Returns a list of options for the tag select box, optionally filtered by language.
      * 
      * @return  array Array of tag IDs and titles as key-value pairs.
      */
-    public function onlineTagSelectOptions()
+    public function onlineTagSelectOptions($lang = '')
     {
         $columns = ['id', 'title'];
         
@@ -182,6 +189,11 @@ trait TagRead
 
         $criteria->add($this->criteriaFactory->item('type', 'TfTag'));
         $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
+
+        if (!empty($lang)) {
+            $criteria->add($this->criteriaFactory->item('language', $this->trimString($lang)));
+        }
+
         $criteria->setSort('title');
         $criteria->setOrder('ASC');
         $criteria->setSecondarySort('submissionTime');

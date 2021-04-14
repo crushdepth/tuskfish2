@@ -32,13 +32,15 @@ trait TagLink
      * Delete taglinks associated with an object.
      * 
      * @param   int $contentId ID of content object.
+     * @param   string $lang Language of the content object.
      * @param   string $module Module the content belongs to.
      * @return  bool True on success, false on failure.
      */
-    private function deleteTaglinks(int $contentId, string $module): bool
+    private function deleteTaglinks(int $contentId, string $lang, string $module): bool
     {
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('contentId', $contentId));
+        $criteria->add($this->criteriaFactory->item('lang', $lang));
         $criteria->add($this->criteriaFactory->item('module', $module));
 
         return $this->database->deleteAll('taglink', $criteria);
@@ -93,12 +95,13 @@ trait TagLink
      * is necessary in sort to correctly assign taglinks to content objects.
      * 
      * @param   int $contentId ID of the content object associated with these taglinks.
+     * @param   string $lang Language of the content object associated with these taglinks.
      * @param   string $contentType The type of content object.
      * @param   string $module The module this content object is associated with.
      * @param   array $tags Array of Tag IDs associated with this content object.
      * @return boolean
      */
-    private function saveTaglinks(int $contentId, string $contentType, string $module, array $tags): bool
+    private function saveTaglinks(int $contentId, string $lang, string $contentType, string $module, array $tags): bool
     {
         if ($module === '') {
             \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_NOTICE);
@@ -110,6 +113,7 @@ trait TagLink
         foreach ($tags as $tag) {
             $taglink = [];
             $taglink['tagId'] = (int) $tag;
+            $taglink['lang'] = $lang;
             $taglink['contentType'] = $contentType;
             $taglink['contentId'] = $contentId;
             $taglink['module'] = $module;
@@ -128,22 +132,23 @@ trait TagLink
      * Update taglinks for a content object.
      * 
      * @param   int $contentId ID of the content object associated with these taglinks.
+     * @param   string $lang Language of the content object associated with these taglinks.
      * @param   string $contentType The type of content object.
      * @param   string $module The module this content object is associated with.
      * @param   array $tags Array of Tag IDs associated with this content object.
      * @return  bool True on success, false on failure.
      */
-    private function updateTaglinks(int $contentId, string $contentType, string $module, array $tags): bool
+    private function updateTaglinks(int $contentId, string $lang, string $contentType, string $module, array $tags): bool
     {
         // Delete existing taglinks for this content.
-        if (!$this->deleteTaglinks($contentId, $module)) {
+        if (!$this->deleteTaglinks($contentId, $lang, $module)) {
             return false;
         }
 
         // Save the updated taglinks for this content.
         $content['tags'] = $tags;
 
-        if (!$this->saveTaglinks($contentId, $contentType, $module, $tags)) {
+        if (!$this->saveTaglinks($contentId, $lang, $contentType, $module, $tags)) {
             return false;
         }
 

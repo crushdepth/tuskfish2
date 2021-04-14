@@ -115,7 +115,7 @@ class Admin
         }
 
         // Delete outbound taglinks owned by this content.
-        if ($row['type'] !== 'TfTag' && !$this->deleteTaglinks($id, 'content')) {
+        if ($row['type'] !== 'TfTag' && !$this->deleteTaglinks($id, $lang, 'content')) {
             return false;
         }
         
