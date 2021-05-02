@@ -222,6 +222,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sql = "CREATE TABLE IF NOT EXISTS `content` (
             `type` TEXT,
             `id` INTEGER,
+            `uid` INTEGER,
             `title` TEXT,
             `teaser` TEXT,
             `description` TEXT,
@@ -253,6 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $contentData = array(
             "type" => "TfTag",
             "id" => 1,
+            "uid" => 1,
             "title" => "General",
             "teaser" => "Default content tag.",
             "description" => "Default content tag, please edit it to something useful.",

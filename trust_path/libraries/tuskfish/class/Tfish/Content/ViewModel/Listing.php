@@ -115,7 +115,7 @@ class Listing implements \Tfish\ViewModel\Listable
              * TODO: Parent needs to support composite keys as well. Otherwise collections will be
              * limited to same language.
              */
-            $this->parent = $this->getObject($this->content->parent(), $this->language);
+            $this->parent = $this->getParent($this->content->parent());
 
             if ($this->content->type() === 'TfCollection' || $this->content->type() === 'TfTag') $this->listChildren();
 
@@ -243,6 +243,16 @@ class Listing implements \Tfish\ViewModel\Listable
     }
 
     /**
+     * Get a parent content object.
+     * 
+     * @param   int $uid UID of content object.
+     */
+    public function getParent(int $uid)
+    {
+        return $this->model->getParent($uid);
+    }
+
+    /**
      * Return user-side pagination limit.
      * 
      * @return  int Number of items to display on user-side pages.
@@ -270,7 +280,7 @@ class Listing implements \Tfish\ViewModel\Listable
         ];
 
         if ($this->content->type() === 'TfTag') $params['tag'] = $this->content->id();  
-        if ($this->content->type() === 'TfCollection') $params['parent'] = $this->content->id();
+        if ($this->content->type() === 'TfCollection') $params['parent'] = $this->content->uid();
 
         $this->children = $this->model->getObjects($params);
     }

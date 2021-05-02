@@ -104,6 +104,28 @@ class Listing
         return $content;
     }
 
+    public function getParent(int $uid) {
+        $params = [];
+
+        if ($uid < 1) {
+            return false;
+        }
+
+        $params['uid'] = $uid;
+
+        if (!$this->session->isAdmin()) { // NOT admin.
+            $params['onlineStatus'] = 1;
+        }
+
+        $cleanParams = $this->validateParams($params);
+        $criteria = $this->setCriteria($cleanParams);
+
+        $statement = $this->database->select('content', $criteria);
+        $content = $statement->fetchObject('\Tfish\Content\Entity\Content');
+
+        return $content;
+    }
+
     /**
      * Get content objects matching filtering criteria.
      * 
@@ -180,6 +202,14 @@ class Listing
         if (isset($cleanParams['onlineStatus']))
             $criteria->add($this->criteriaFactory->item('onlineStatus', $cleanParams['onlineStatus']));
 
+        // If uid (parent) is set, return immediately (single object call).
+        if (!empty($cleanParams['uid'])) {
+            $criteria->add($this->criteriaFactory->item('uid', $cleanParams['uid']));
+
+            return $criteria;
+        }
+
+        // If ID and language are set, return immediately (single object call).
         if (!empty($cleanParams['language'])) {
             $criteria->add($this->criteriaFactory->item('language', $cleanParams['language']));
         }
@@ -248,6 +278,9 @@ class Listing
 
         if ($params['id'] ?? 0)
             $cleanParams['id'] = (int) $params['id'];
+
+        if ($params['uid'] ?? 0)
+            $cleanParams['uid'] = (int) $params['uid'];
 
         if (isset($params['language']) && \array_key_exists($params['language'], $this->listLanguages())) {
             $cleanParams['language'] = $this->trimString($params['language']);

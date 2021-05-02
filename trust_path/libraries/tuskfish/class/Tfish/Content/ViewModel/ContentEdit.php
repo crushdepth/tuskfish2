@@ -207,7 +207,7 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
     public function parentOptions()
     {
         $collections = $this->model->collections();
-        $parentTree = new \Tfish\Tree($collections, 'id', 'parent');
+        $parentTree = new \Tfish\Tree($collections, 'uid', 'parent');
         
         return $parentTree->makeParentSelectBox();
     }

@@ -119,6 +119,7 @@ class ContentEdit
         $content = $this->validateForm($_POST['content']);
         $tags = $this->validateTags($_POST['tags'] ?? []);
         $content['id'] = $this->database->maxVal('id', 'content') + 1; // Increment to next highest available ID slot.
+        $content['uid'] = $this->database->maxVal('uid', 'content') + 1; // Increment to next highest available ID slot.
         $content['submissionTime'] = \time();
         $content['lastUpdated'] = 0;
         $content['expiresOn'] = 0;
@@ -246,7 +247,7 @@ class ContentEdit
         if ($savedContent['type'] === 'TfCollection' && $content['type'] !== 'TfCollection') {
             
             $criteria = $this->criteriaFactory->criteria();
-            $criteria->add($this->criteriaFactory->item('parent', (int) $content['id']));
+            $criteria->add($this->criteriaFactory->item('parent', (int) $content['uid']));
 
             if (!$this->database->updateAll('content', array('parent' => 0), $criteria)) {
                 \trigger_error(TFISH_ERROR_PARENT_UPDATE_FAILED, E_USER_NOTICE);
@@ -387,6 +388,9 @@ class ContentEdit
 
         $id = ((int) ($form['id'] ?? 0));
         if ($id > 0) $clean['id'] = $id;
+
+        $uid = ((int) ($form['uid'] ?? 0));
+        if ($uid > 0) $clean['uid'] = $uid;
 
         $lang = $this->trimString($form['language'] ?? '');
 

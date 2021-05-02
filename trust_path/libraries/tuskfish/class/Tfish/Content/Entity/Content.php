@@ -36,7 +36,8 @@ namespace Tfish\Content\Entity;
  * @uses        trait \Tfish\Traits\Tag Support for tagging of content.
  * @uses        trait \Tfish\Traits\TraversalCheck	Validates that a filename or path does NOT contain directory traversals in any form.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
- * @var         int $id Auto-increment, set by database.
+ * @var         int $id Synthetic (non-unique) auto-increment.
+ * @var         int $uid Auto-increment (unique), set by database.
  * @var         string $type Content object type eg. TfArticle etc. [ALPHA]
  * @var         string $title The name of this content.
  * @var         string $teaser A short (one paragraph) summary or abstract for this content. [HTML]
@@ -73,6 +74,7 @@ class Content
     use \Tfish\Traits\ValidateString;
 
     private $id = 0;
+    private $uid = 0;
     private $type = '';
     private $title = '';
     private $teaser = '';
@@ -107,6 +109,7 @@ class Content
     public function load(array $row, bool $convertUrlToConstant = true)
     {
         $this->setId((int) ($row['id'] ?? 0));
+        $this->setUid((int) ($row['uid'] ?? 0));
         $this->setType((string) ($row['type'] ?? ''));
         $this->setTitle((string) ($row['title'] ?? ''));
         $this->setTeaser((string) ($row['teaser'] ?? ''));
@@ -272,6 +275,30 @@ class Content
         }
 
         $this->id = $id;
+    }
+
+    /**
+     * Return UID.
+     * 
+     * @return int
+     */
+    public function uid(): int
+    {
+        return (int) $this->uid;
+    }
+
+    /**
+     * Set ID
+     * 
+     * @param   int $id UID of content object.
+     */
+    public function setUid(int $uid)
+    {
+        if ($uid < 0) {
+            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+        }
+
+        $this->uid = $uid;
     }
 
     /**
