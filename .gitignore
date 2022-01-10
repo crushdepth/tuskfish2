@@ -11,4 +11,4 @@ uploads/image/*
 !uploads/image/index.html
 uploads/media/*
 !uploads/media/index.html
-!mainfile.php
+mainfile.php
