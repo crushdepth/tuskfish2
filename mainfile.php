@@ -25,7 +25,7 @@ declare(strict_types=1);
  */
 
 ////////// You must configure the following paths //////////
-\define("TFISH_ROOT_PATH", "test");
+\define("TFISH_ROOT_PATH", "");
 \define("TFISH_TRUST_PATH", "");
 \define("TFISH_URL", "");
 //////////////////// End configuration /////////////////////
