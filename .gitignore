@@ -1,6 +1,8 @@
 cache/
 trust_path/cache/*
 !trust_path/cache/index.html
+trust_path/configuration/*
+!trust_path/database/index.html
 trust_path/database/*
 !trust_path/database/index.html
 trust_path/log/*
@@ -9,3 +11,4 @@ uploads/image/*
 !uploads/image/index.html
 uploads/media/*
 !uploads/media/index.html
+!mainfile.php
