@@ -439,9 +439,20 @@ class Session
         // If true PHP will *attempt* to send the httponly flag when setting the session cookie.
         $http_only = true;
 
+        // Instruct browsers to disallow embedding of site in frame. Options: strict, lax, none.
+        $samesite = 'strict';
+
         // Set the parameters and start the session.
         \session_name($sessionName);
-        \session_set_cookie_params($lifetime, $path, $domain, $secure, $http_only);
+        $options = [
+            'lifetime' => $lifetime,
+            'path' => $path,
+            'domain' => $domain,
+            'secure' => $secure,
+            'httponly' =>$http_only,
+            'samesite' => $samesite,
+        ];
+        \session_set_cookie_params($options);
         \session_start();
         
         // Set a CSRF token.
