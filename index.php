@@ -16,7 +16,7 @@ declare(strict_types=1);
  */
 
 namespace Tfish;
-
+phpinfo();
 // $time_start = microtime(true);
 
 // Access trust path, DB credentials, configuration and preferences.

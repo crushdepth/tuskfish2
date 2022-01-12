@@ -54,7 +54,7 @@ class Session
     }
     
     /** No cloning permitted */
-    final private function __clone() {}
+    final public function __clone() {}
 
     /** 
      * Unset session variables and destroy the session.
