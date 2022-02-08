@@ -17,7 +17,7 @@ Features include:
 * Organise your content with tags, collections and content types.
 * Bootstrap-based templates with responsive, mobile-first themes.
 * Native PHP template engine; easily create new template sets.
-* PHP 7, HTML5 and SQLite database.
+* PHP 8, HTML5 and SQLite database.
 * Single admin system: There is no user rights management system to worry about. They don't have any.
 * SQLite database: There is no database server to worry about.
 * Exclusive use of prepared statements with bound values and parameters as protection against SQL injection.
@@ -25,10 +25,11 @@ Features include:
 * Lightweight core library.
 
 System requirements
-* PHP 7.2+
+* PHP 7.2+ (tested up to 8.1)
 * SQLite3 extension.
 * PDO extension.
 * pdo_sqlite extension.
+* GD2 extension.
 * [Optional]: curl extension + a Yubikey hardware token are required if you want to use two-factor Yubikey authentication.
 * Apache webserver.
 
