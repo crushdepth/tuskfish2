@@ -15,5 +15,5 @@ namespace Tfish;
  * @package     core
  */
 
-$version = 'Tuskfish V2.0.2';
+$version = 'Tuskfish V2.0.2 beta';
 $released = '8 February 2022';
