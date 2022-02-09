@@ -71,31 +71,6 @@
   <body>
 
     <!-- Navigation -->
-    <!--<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-      <a class="navbar-brand" href="<?php echo TFISH_URL; ?>"><?php echo xss($metadata->siteName); ?></a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-
-        <ul class="navbar-nav mr-auto">
-          <?php if ($session->isAdmin()): ?>
-          <li class="nav-item active"><a class="nav-link"  href="<?php echo TFISH_ADMIN_URL; ?>"><?php echo TFISH_ADMIN; ?></a></li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" id="settings" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo TFISH_SETTINGS; ?></a>
-            <div class="dropdown-menu" aria-labelledby="dropdown01">
-              <a class="dropdown-item" href="<?php echo TFISH_PREFERENCE_URL; ?>"><?php echo TFISH_PREFERENCES; ?></a>
-              <a class="dropdown-item" href="<?php echo TFISH_PASSWORD_URL; ?>"><?php echo TFISH_PASSWORD; ?></a>
-              <a class="dropdown-item" href="<?php echo TFISH_URL . 'flush/'; ?>"><?php echo TFISH_FLUSH_CACHE; ?></a>
-            </div>
-          </li>
-          <?php endif; ?>
-          
-        </ul>
-        
-      </div>
-    </nav>-->
     <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
         <div class="container-fluid">
           <a class="navbar-brand" href="<?php echo TFISH_URL; ?>"><?php echo xss($metadata->siteName); ?></a>
