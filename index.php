@@ -26,7 +26,10 @@ require_once TFISH_PATH . 'header.php';
 // Routing table for front end controller is declared here for convenient editing.
 $routingTable = require_once TFISH_PATH . 'routingTable.php';
 
-// Extract the route and action from the request.
+// Extract the route and action from the request. 
+// Note: If using an NGINX reverse proxy in front of Apache/Tuskfish to terminate SSL, use the
+// commented out line instead (which locks protocol to https), otherwise routing won't work.
+//$url = "https://" . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
 $url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http")
     . "://" . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
 
