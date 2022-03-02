@@ -5,7 +5,7 @@
   <h3><?php echo TFISH_RELATED; ?></h3>
   <h4 class="parent"><a href="<?php echo xss($parent->url()); ?>"><?php echo xss($parent->title()); ?></a></h4>
   <?php if ($parent->image()): ?>
-  <div class="float-left">
+  <div class="float-start">
     <figure class="figure-left">
       <a href="<?php echo xss($parent->url()); ?>">
         <img class="image img-fluid" src="<?php echo $parent->cachedImage(150); ?>" 

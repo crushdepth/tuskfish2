@@ -45,7 +45,7 @@
 <div class="col stream-item clearfix">
 <div><h3 class="title"><a href="<?php echo xss($content->url()); ?>"><?php echo xss($content->title()); ?></a></h3></div>
 <?php if ($content->image()): ?>
-<div class="float-left">
+<div class="float-start">
   <figure class="figure-left">
     <a href="<?php echo xss($content->url()); ?>">
     <img class="image img-fluid" src="<?php echo $content->cachedImage(150); ?>" 

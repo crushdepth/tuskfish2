@@ -37,7 +37,7 @@
       <!-- Submit -->
       <div class="form-group col-md-4 clearfix">
           <input type="hidden" name="action" value="search" />
-          <button type="submit" class="btn btn-primary float-left"><?php echo TFISH_SEARCH ?></button>
+          <button type="submit" class="btn btn-primary float-start"><?php echo TFISH_SEARCH ?></button>
       </div>
     
     </form>
@@ -66,7 +66,7 @@
         <div class="clearfix">
             <h3><a href="<?php echo xss($content->url()); ?>"><?php echo xss($content->title()); ?></a></h3>
             <?php if ($content->image()): ?>
-            <div class="float-left">
+            <div class="float-start">
                 <figure class="figure-left">
                     <a href="<?php echo xss($content->url()); ?>">
                         <img class="img-responsive" src="<?php echo $content->cachedImage(100); ?>" 

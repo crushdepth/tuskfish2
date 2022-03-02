@@ -15,7 +15,7 @@
   <div class="clearfix">
     <h4 class="child-title"><a href="<?php echo xss($child->url()); ?>"><?php echo xss($child->title()); ?></a></h4>
     <?php if ($child->image()): ?>
-      <div class="float-left">
+      <div class="float-start">
         <figure class="figure-left">
         <a href="<?php echo xss($child->url()); ?>">
         <img class="image img-fluid" src="<?php echo $child->cachedImage(150); ?>" 

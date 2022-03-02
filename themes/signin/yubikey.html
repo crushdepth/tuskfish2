@@ -7,13 +7,13 @@
 </div>
 
 <div class="row justify-content-center">
-<div class="col-md-4">
+<div class="col-md-3">
 <form class="form-horizontal" action="<?php echo TFISH_URL . 'login/'; ?>" method="post" role="form" accept-charset="UTF-8">
 
 <div class="row justify-content-center">
         
     <!-- Password -->
-    <div class="col-md-4 form-group input-group">
+    <div class="col-md-3 form-group input-group">
         <input type="password" class="form-control" name="password" id="password" placeholder="<?php echo TFISH_PASSWORD; ?>" required>
         <span class="input-group-text" id="password-addon"><i class="fas fa-lock"></i></span>
     </div>
@@ -23,7 +23,7 @@
 <div class="row justify-content-center">
 
     <!-- Yubikey -->
-    <div class="col-md-4 form-group input-group">
+    <div class="col-md-3 form-group input-group">
         <input type="password" class="form-control" name="yubikeyOtp" id="yubikeyOtp" placeholder="<?php echo TFISH_YUBIKEY; ?>" required>
         <span class="input-group-text" id="password-addon"><i class="fas fa-key"></i></span>
     </div>
@@ -33,10 +33,10 @@
 <div class="row justify-content-center">
 
     <!-- Submit -->
-    <div class="col-md-4 form-group input-group">
+    <div class="col-md-3 form-group input-group">
         <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
         <input type="hidden" name="action" value="login" />
-        <button type="submit" class="btn btn-primary float-left"><?php echo TFISH_SUBMIT ?></button>
+        <button type="submit" class="btn btn-primary float-end"><?php echo TFISH_SUBMIT ?></button>
     </div>
 
 </div>
