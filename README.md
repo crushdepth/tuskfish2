@@ -9,7 +9,7 @@ The project emphasis is on creating the simplest and most lightweight code base 
 * A small, simple code base is easy to understand and maintain as PHP evolves.
 * Security is a lot easier to manage in a small project.
 * Avoiding use of external libraries as far as possible to reduce attack surface, maintenance overhead
-  and code bloat. External libraries in use are: Boostrap 4, jQuery, Bootstrap-datepicker,
+  and code bloat. External libraries in use are: Boostrap 5, jQuery, Bootstrap-datepicker,
   Bootstrap-fileinput, HTMLPurifier and TinyMCE.
 
 Features include:
@@ -17,7 +17,7 @@ Features include:
 * Organise your content with tags, collections and content types.
 * Bootstrap-based templates with responsive, mobile-first themes.
 * Native PHP template engine; easily create new template sets.
-* PHP 8, HTML5 and SQLite database.
+* PHP 8, HTML5 and SQLite3 database.
 * Single admin system: There is no user rights management system to worry about. They don't have any.
 * SQLite database: There is no database server to worry about.
 * Exclusive use of prepared statements with bound values and parameters as protection against SQL injection.
