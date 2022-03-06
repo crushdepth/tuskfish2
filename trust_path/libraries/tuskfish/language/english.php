@@ -147,15 +147,15 @@ namespace Tfish;
 \define("TFISH_RIGHTS_GPL3", "GNU General Public License Version 3.");
 \define("TFISH_RIGHTS_PUBLIC_DOMAIN", "Public domain.");
 
-// Confirmation messages.
+// Actions and confirmation messages.
+\define("TFISH_ADD", "Add");
+\define("TFISH_EDIT", "Edit");
+\define("TFISH_BACK", "Back");
 \define("TFISH_SUBMIT", "Submit");
 \define("TFISH_UPDATE", "Update");
 \define("TFISH_DO_YOU_WANT_TO_DELETE", "Do you want to delete");
 \define("TFISH_YES", "Yes");
 \define("TFISH_NO", "No");
-\define("TFISH_CANCEL", "Cancel");
-\define("TFISH_BACK", "Back");
-\define("TFISH_EDIT", "Edit");
 \define("TFISH_SUCCESS", "Success");
 \define("TFISH_FAILED", "Failed");
 \define("TFISH_OBJECT_WAS_INSERTED", "The object was successfully inserted.");
@@ -247,10 +247,6 @@ namespace Tfish;
 \define("TFISH_LANGUAGE", "Language");
 \define("TFISH_RIGHTS", "Rights");
 \define("TFISH_PUBLISHER", "Publisher");
-
-// Actions.
-\define("TFISH_ADD_CONTENT", "Add content");
-\define("TFISH_EDIT_CONTENT", "Edit content");
 
 // Related and parent works.
 \define("TFISH_RELATED", "Related");
