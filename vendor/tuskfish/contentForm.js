@@ -19,6 +19,19 @@ $(document).ready(function() {
         $("#metaSeo").val(title);
     });
 
+    // Display a live character counter in the metaDescription field.
+    $('#metaDescription').on('keyup', function () {
+        var len = $(this).val().length;
+        if (len > 160) {
+            $('#metaCounter').removeClass('text-success');
+            $('#metaCounter').addClass('text-danger');
+        } else {
+            $('#metaCounter').removeClass('text-danger');
+            $('#metaCounter').addClass('text-success');
+        }
+        $('#metaCounter').text(len + ' characters');
+    });
+
     // Set flag that media file should be deleted from server.
     $('#media').on('fileclear', function(tf_deleteMedia) {
         document.getElementById("format").value="";

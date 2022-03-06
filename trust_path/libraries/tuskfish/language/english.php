@@ -153,6 +153,7 @@ namespace Tfish;
 \define("TFISH_BACK", "Back");
 \define("TFISH_SUBMIT", "Submit");
 \define("TFISH_UPDATE", "Update");
+\define("TFISH_CANCEL", "Cancel");
 \define("TFISH_DO_YOU_WANT_TO_DELETE", "Do you want to delete");
 \define("TFISH_YES", "Yes");
 \define("TFISH_NO", "No");
