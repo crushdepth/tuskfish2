@@ -101,6 +101,7 @@ namespace Tfish;
 \define("TFISH_PREFERENCE_ADMIN_PAGINATION", "Admin-side pagination");
 \define("TFISH_PREFERENCE_GALLERY_PAGINATION", "Gallery pagination");
 \define("TFISH_PREFERENCE_RSS_POSTS", "RSS posts in feed");
+\define("TFISH_PREFERENCE_MINIMUM_VIEWS", "Minimum views to display counter");
 \define("TFISH_PREFERENCE_SESSION_NAME", "Session name");
 \define("TFISH_PREFERENCE_DEFAULT_LANGUAGE", "Default language");
 \define("TFISH_PREFERENCE_DATE_FORMAT", 

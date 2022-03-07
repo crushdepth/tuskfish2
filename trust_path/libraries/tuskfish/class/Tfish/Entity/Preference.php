@@ -74,6 +74,7 @@ class Preference
     private $galleryPagination = 0; // viewmodel
     private $rssPosts = 0; // viewmodel
     private $paginationElements = 0; // viewmodel
+    private $minimumViews = 0;
     private $sessionName = ''; // global
     private $sessionLife = 0; // global
     private $defaultLanguage = ''; // ??
@@ -138,6 +139,7 @@ class Preference
         $this->setGalleryPagination((int) ($input['galleryPagination'] ?? 20));
         $this->setRssPosts((int) ($input['rssPosts'] ?? 10));
         $this->setPaginationElements((int) ($input['paginationElements'] ?? 5));
+        $this->setMinimumViews((int) ($input['minimumViews'] ?? 0));
         $this->setSessionName($input['sessionName'] ?? 'tfish');
         $this->setSessionLife((int) ($input['sessionLife'] ?? 20));
         $this->setDefaultLanguage($input['defaultLanguage'] ?? 'en');
@@ -478,6 +480,26 @@ class Preference
         }
 
         $this->paginationElements = $value;
+    }
+
+    /**
+     * Return the minimum views/downloads required to display the view/downloads counter.
+     *
+     * @return int
+     */
+    public function minimumViews(): int
+    {
+        return $this->minimumViews;
+    }
+
+
+    public function setMinimumViews(int $value)
+    {
+        if ($value < 0) {
+            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+        }
+
+        $this->minimumViews = $value;
     }
 
     /**

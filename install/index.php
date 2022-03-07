@@ -192,6 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             array('title' => 'adminPagination', 'value' => '20'),
             array('title' => 'galleryPagination', 'value' => '20'),
             array('title' => 'paginationElements', 'value' => '5'),
+            array('title' => 'minimumViews', 'value' => '0'),
             array('title' => 'rssPosts', 'value' => '10'),
             array('title' => 'sessionName', 'value' => 'tfish'),
             array('title' => 'sessionLife', 'value' => '20'),
