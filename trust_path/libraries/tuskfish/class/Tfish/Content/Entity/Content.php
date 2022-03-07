@@ -88,6 +88,7 @@ class Content
     private $lastUpdated = 0;
     private $expiresOn = 0;
     private $counter = 0;
+    private $minimumViews = 0;
     private $onlineStatus = 0;
     private $parent = 0;
     private $language = '';
@@ -610,8 +611,8 @@ class Content
 
         if ($this->creator)
             $info[] = $this->creator;
-        
-        if ($this->counter > 0) {
+
+        if ($this->counter >= $this->minimumViews) {
             $suffix = ($this->type == 'TfDownload') ? TFISH_DOWNLOADS : TFISH_VIEWS;
             $info[] = $this->counter . ' ' . $suffix;
         }
@@ -723,6 +724,15 @@ class Content
         }
 
         $this->counter = $counter;
+    }
+
+    public function setMinimumViews(int $minimumViews)
+    {
+        if ($minimumViews < 0) {
+            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+        }
+
+        $this->minimumViews = $minimumViews;
     }
 
     /**

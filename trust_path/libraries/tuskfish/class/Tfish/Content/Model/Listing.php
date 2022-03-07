@@ -96,6 +96,9 @@ class Listing
             $this->updateCounter($id);
         }
 
+        // Pass in the minimum views preference value.
+        $content->setMinimumViews($this->preference->minimumViews());
+
         return $content;
     }
 
