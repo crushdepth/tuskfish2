@@ -306,6 +306,9 @@
         <label for="metaDescription"><strong><?php echo TFISH_META_DESCRIPTION; ?></strong></label>
         <input type="text" class="form-control" name="content[metaDescription]" id="metaDescription" <?php if (!empty($content->metaDescription())) { echo 'value="' . xss($content->metaDescription()) . '"'; } ?>>
       </div>
+
+      <!-- Meta description counter -->
+      <div class="col-12 mb-3 text-left" id="metaCounter"></div>
     
     </div><!-- /row -->
 

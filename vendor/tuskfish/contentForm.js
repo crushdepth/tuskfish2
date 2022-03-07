@@ -20,7 +20,7 @@ $(document).ready(function() {
     });
 
     // Display a live character counter in the metaDescription field.
-    $('#metaDescription').on('keyup', function () {
+    $('#metaDescription').on('input', function () {
         var len = $(this).val().length;
         if (len > 160) {
             $('#metaCounter').removeClass('text-success');
