@@ -97,7 +97,7 @@ class Admin
         }
 
         // Delete associated media.
-        if ($row['media'] && !$this->deleteMedia($row['media'])) {
+        if ($row['type'] !== 'TfVideo' && $row['media'] && !$this->deleteMedia($row['media'])) {
             return false;
         }
 

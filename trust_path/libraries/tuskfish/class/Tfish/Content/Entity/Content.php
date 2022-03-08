@@ -35,6 +35,7 @@ namespace Tfish\Content\Entity;
  * @uses        trait \Tfish\Traits\Rights	Provides a common list of intellectual property rights licenses.
  * @uses        trait \Tfish\Traits\Tag Support for tagging of content.
  * @uses        trait \Tfish\Traits\TraversalCheck	Validates that a filename or path does NOT contain directory traversals in any form.
+ * @uses        trait \Tfish\Traits\UrlCheck    Validate that a URL meets the specification.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         int $id Auto-increment, set by database.
  * @var         string $type Content object type eg. TfArticle etc. [ALPHA]
@@ -70,6 +71,7 @@ class Content
     use \Tfish\Traits\Rights;
     use \Tfish\Traits\Tag;
     use \Tfish\Traits\TraversalCheck;
+    use \Tfish\Traits\UrlCheck;
     use \Tfish\Traits\ValidateString;
 
     private $id = 0;
@@ -433,7 +435,14 @@ class Content
             \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
             exit; // Hard stop due to high probability of abuse.
         }
-        
+
+        // Video files are now assumed to be hosted externally so this should be a URL.
+        if ($this->type === 'TfVideo') {
+            $this->media = $this->isUrl($filename) ? $filename : '';
+
+            return;
+        }
+
         $whitelist = $this->listMimetypes();
         $extension = \mb_strtolower(pathinfo($filename, PATHINFO_EXTENSION), 'UTF-8');
 

@@ -173,9 +173,15 @@
       
       <!-- Delete image -->
       <input type="hidden" name="deleteImage" id="deleteImage" value="0">
+
+      <!-- TESTCODE -->
+      <div class="col-md-6 mb-3 text-left" id="mediaContainer">
+        <label for="media"><strong><?php echo TFISH_MEDIA; ?></strong></label>
+        <input type="text" class="form-control" name="content[media]" id="media" <?php if (!empty($content->media())) echo 'value="' . xss($content->media()) . '"'; ?>>
+      </div>
       
       <!-- Media -->
-      <?php if (!empty($content->media())): ?>
+      <!--<?php if (!empty($content->media())): ?>
       <div class="col-md-6 mb-4 text-left" id="mediaContainer">
         <label for="media"><strong><span class="alert2 text-danger d-none hide"><i class="fas fa-exclamation-triangle" title="<?php echo TFISH_MEDIA_NOT_COMPATIBLE; ?>"></i> </span><?php echo TFISH_MEDIA; ?></strong></label>
         <input id="media" name="content[media]" type="file" data-preview-file-type="text" value="<?php echo xss($content->media()); ?>">
@@ -211,7 +217,7 @@
         });
         
       });
-      </script>
+      </script>-->
 
       <!-- Delete media -->
       <input type="hidden" name="deleteMedia" id="deleteMedia" value="0">
