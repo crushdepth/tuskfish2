@@ -36,13 +36,18 @@
 </div>
 
 <?php if ($content->media()): ?>
+
+<!-- Embedded Youtube videos, if you want to use another player change this html snippet -->
 <div class="video-player text-left">
-  <video controls>
-    <source src="<?php echo TFISH_MEDIA_URL . xss($content->media()); ?>" type="<?php echo xss($content->format()); ?>">
-        <?php echo TFISH_BROWSER_DOES_NOT_SUPPORT_VIDEO; ?>
-  </video>
+<iframe width="960" height="540" src="<?php echo xss($content->media()); ?>" 
+    title="YouTube video player" 
+    frameborder="0" 
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+    allowfullscreen>
+</iframe>
 </div>
-<?php endif; ?>
+
+<?php endif; ?>-
 
 <!-- Image -->
 <?php if ($content->image()): ?>
@@ -80,13 +85,6 @@
 <div class="description">
   <?php if ($content->description()) echo $content->descriptionForDisplay(); ?>
 </div>
-
-<!-- Media attachment -->
-<?php if ($content->media()): ?>
-<div>
-  <p class="media"><b><a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>"><i title="<?php echo TFISH_DOWNLOAD; ?>" class="fas fa-download"></i> <?php echo xss($content->media()); ?></a></b></p>
-</div>
-<?php endif; ?>
 
 <!-- Rights -->
 <?php if ($content->rights()): ?>
