@@ -216,6 +216,12 @@
       <!-- Delete media -->
       <input type="hidden" name="deleteMedia" id="deleteMedia" value="0">
       
+      <!-- External media -->
+      <div class="col-md-12 mb-3 text-left" id="externalMediaContainer">
+        <label for="externalMedia"><strong><?php echo TFISH_EXTERNAL_MEDIA; ?></strong></label>
+        <input type="text" class="form-control" name="content[externalMedia]" id="externalMedia" <?php if (!empty($content->externalMedia())) echo 'value="' . xss($content->externalMedia()) . '"'; ?>>
+      </div>
+
       <!-- Caption -->
       <div class="col-md-6 mb-3 text-left" id="captionContainer">
         <label for="caption"><strong><?php echo TFISH_CAPTION; ?></strong></label>

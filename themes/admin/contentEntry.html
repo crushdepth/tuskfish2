@@ -8,9 +8,9 @@
 <div class="container">
 
 <div class="row">
-    <div class="col">
-      <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
-    </div>
+  <div class="col">
+    <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+  </div>
 </div>
 
 <!-- Custom form manager script to show or hide fields used by specific content subclasses and manage media file uploads -->
@@ -150,6 +150,12 @@
           'theme': "fa"});
         });
         </script>
+
+        <!-- External media -->
+        <div class="col-12 mb-3 text-left" id="externalMediaContainer">
+          <label for="externalMediaContainer"><strong><?php echo TFISH_EXTERNAL_MEDIA; ?></strong></label>
+          <input type="text" class="form-control" name="content[externalMedia]" id="externalMedia">
+        </div>
 
         <!-- Caption -->
         <div class="col-md-6 mb-3 text-left" id="captionContainer">

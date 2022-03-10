@@ -227,6 +227,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "media" => "TEXT", // URL of an associated audio file.
             "format" => "TEXT", // Mimetype
             "fileSize" => "INTEGER", // Specify in bytes.
+            "externalMedia" => "TEXT", // URL of an external media resource, such as Youtube link.
             "creator" => "TEXT", // Author.
             "image" => "TEXT", // URL of an associated image file => , eg. a screenshot a good way to handle it.
             "caption" => "TEXT", // Caption of the image file.
@@ -254,6 +255,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "media" => '',
             "format" => '',
             "fileSize" => '',
+            "externalMedia" => '',
             "creator" => '',
             "image" => '',
             "caption" => '',

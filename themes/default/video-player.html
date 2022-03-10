@@ -1,0 +1,64 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Title and meta information -->
+<div>
+  <h2 class="title"><?php echo xss($content->title()); ?></h2>
+  <p class="content-info">
+    <span class="small">
+      <?php echo xss($content->date()
+        ->format($viewModel->dateFormat())) . ' | '; ?>
+      <?php echo xss($content->info()); ?>
+      <?php if ($contentTags) {
+          echo ' | ';
+          $tags = [];
+          foreach ($contentTags as $key => $value) {
+            $tags[] = '<a href="?id=' . xss($key) . '">' . xss($value) . '</a>';
+          }
+          echo \implode(', ', $tags);
+        } ?>
+    </span>
+  </p>
+</div>
+
+<?php if ($content->externalMedia()): ?>
+<div class="video-player text-left">
+  <iframe width="853" height="505" 
+    src="<?php echo $content->externalMedia(); ?>" 
+    title="YouTube video player" 
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen>
+  </iframe>
+</div>
+<?php endif; ?>
+
+<!-- Image -->
+<?php if ($content->image()): ?>
+
+<div>
+  <figure class="float-end figure-right">
+    <img class="image img-fluid" src="<?php echo $content->cachedImage(400); ?>" 
+    <?php if ($content->caption()): ?>
+      title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"/>
+      <figcaption><em><?php echo xss($content->caption()); ?></em></figcaption>
+    <?php else: ?>
+      alt="" />
+    <?php endif; ?>
+  </figure>
+</div>
+
+<?php endif; ?>
+
+<!-- Description -->
+<div class="description">
+  <?php if ($content->description()) echo $content->descriptionForDisplay(); ?>
+</div>
+
+<!-- Rights -->
+<?php if ($content->rights()): ?>
+<div>
+  <p class="rights"><?php echo xss($content->listRights()[$content->rights()]); ?></p>
+</div>
+<?php endif; ?>
+
+<?php if (!empty($parent)) include_once('parent.html'); ?>

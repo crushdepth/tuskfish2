@@ -43,6 +43,7 @@ namespace Tfish\Content\Entity;
  * @var         string $description The full article or description of the content. [HTML]
  * @var         string $creator Author.
  * @var         string $media An associated download/audio/video file. [FILEPATH OR URL]
+ * @var         string $externalMedia An external media file. [URL]
  * @var         string $format Mimetype
  * @var         int $fileSize Specify in bytes.
  * @var         string image An associated image file, eg. a screenshot a good way to handle it. [FILEPATH OR URL]
@@ -70,6 +71,7 @@ class Content
     use \Tfish\Traits\Rights;
     use \Tfish\Traits\Tag;
     use \Tfish\Traits\TraversalCheck;
+    use \Tfish\Traits\UrlCheck;
     use \Tfish\Traits\ValidateString;
 
     private $id = 0;
@@ -79,6 +81,7 @@ class Content
     private $description = '';
     private $creator = '';
     private $media = '';
+    private $externalMedia = '';
     private $format = '';
     private $fileSize = 0;
     private $image = '';
@@ -114,6 +117,7 @@ class Content
         $this->setDescription((string) ($row['description'] ?? ''));
         $this->setCreator((string) ($row['creator'] ?? ''));
         $this->setMedia((string) ($row['media'] ?? ''));
+        $this->setExternalMedia((string) ($row['externalMedia'] ?? ''));
         $this->setFormat((string) ($row['format'] ?? ''));
         $this->setFileSize((int) ($row['fileSize'] ?? 0));
         $this->setImage((string) ($row['image'] ?? ''));
@@ -515,6 +519,25 @@ class Content
         }
 
         $this->fileSize = $fileSize;
+    }
+
+    /**
+     * Return external media URL.
+     */
+    public function externalMedia(): string
+    {
+        return $this->externalMedia;
+    }
+
+    public function setExternalMedia(string $url)
+    {
+        $url = $this->trimString($url);
+
+        if (!empty($url) && !$this->isUrl($url)) {
+            \trigger_error(TFISH_ERROR_NOT_URL, E_USER_ERROR);
+        }
+
+        $this->externalMedia = $url;
     }
 
     /**

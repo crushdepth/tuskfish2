@@ -257,9 +257,9 @@ function showHide() {
     var allowedProperties = ['teaserContainer', 'descriptionContainer',
         'captionContainer','creatorContainer', 'dateContainer',
         'imageContainer', 'languageContainer','mediaContainer',
-        'parentContainer', 'publisherContainer', 'rightsContainer',
-        'tagsContainer', 'metaHeader', 'metaTitleContainer', 'seoContainer',
-        'metaDescriptionContainer'];
+        'parentContainer', 'publisherContainer',
+        'rightsContainer', 'tagsContainer', 'metaHeader', 'metaTitleContainer',
+        'seoContainer', 'metaDescriptionContainer'];
 
     $.each(allowedProperties, function (i, value) {
         $('#' + value).show();
@@ -271,6 +271,11 @@ function showHide() {
         $.each(disabledProperties, function (i, value) {
             $('#' + value).hide();
         });
+    }
+    if ($("#type").val() === 'TfVideo') {
+        $("#externalMediaContainer").show();
+    } else {
+        $("#externalMediaContainer").hide();
     }
     if ($("#type").val() === 'TfBlock') {
         var disabledProperties = [

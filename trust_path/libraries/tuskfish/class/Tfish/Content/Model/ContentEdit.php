@@ -46,6 +46,7 @@ class ContentEdit
     use \Tfish\Traits\Taglink;
     use \Tfish\Traits\TagRead;
     use \Tfish\Traits\TraversalCheck;
+    use \Tfish\Traits\UrlCheck;
     use \Tfish\Traits\ValidateString;
 
     private $database;
@@ -195,7 +196,7 @@ class ContentEdit
 
         foreach ($fieldsToDecode as $field) {
             if (isset($content[$field])) {
-                $content->$field = htmlspecialchars_decode($content[$field], ENT_NOQUOTES);
+                $content[$field] = htmlspecialchars_decode($content[$field], ENT_NOQUOTES);
             }
         }
 
@@ -360,6 +361,14 @@ class ContentEdit
 
         $clean['format'] = $format;
         $clean['fileSize'] = (int) ($form['fileSize'] ?? 0);
+
+        $externalMedia = $this->trimString($form['externalMedia'] ?? '');
+
+        if (!empty($externalMedia) && !$this->isUrl($externalMedia)) {
+            \trigger_error(TFISH_ERROR_NOT_URL, E_USER_ERROR);
+        }
+
+        $clean['externalMedia'] = $externalMedia;
 
         $image = $this->trimString($form['image'] ?? '');
 
