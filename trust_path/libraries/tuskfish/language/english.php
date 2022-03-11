@@ -245,6 +245,7 @@ namespace Tfish;
 \define("TFISH_IMAGE", "Image");
 \define("TFISH_CAPTION", "Caption");
 \define("TFISH_MEDIA", "Media");
+\define("TFISH_EXTERNAL_MEDIA", "External media URL (eg. Youtube share link)");
 \define("TFISH_PARENT", "Parent");
 \define("TFISH_LANGUAGE", "Language");
 \define("TFISH_RIGHTS", "Rights");

@@ -382,6 +382,14 @@ class ContentEdit
         $clean['format'] = $format;
         $clean['fileSize'] = (int) ($form['fileSize'] ?? 0);
 
+        $externalMedia = $this->trimString($form['externalMedia'] ?? '');
+
+        if (!empty($externalMedia) && !$this->isUrl($externalMedia)) {
+            \trigger_error(TFISH_ERROR_NOT_URL, E_USER_ERROR);
+        }
+
+        $clean['externalMedia'] = $externalMedia;
+
         $image = $this->trimString($form['image'] ?? '');
 
         if (!empty($image) && $this->hasTraversalorNullByte($image)) {

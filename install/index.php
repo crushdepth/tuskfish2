@@ -144,18 +144,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             \define("TFISH_DATABASE", $dbPath);
         }
         
-        // Create user table.
-        $userColumns = array(
-            "id" => "INTEGER",
-            "adminEmail" => "TEXT",
-            "passwordHash" => "TEXT",
-            "userGroup" => "INTEGER",
-            "yubikeyId" => "TEXT",
-            "yubikeyId2" => "TEXT",
-            "loginErrors" => "INTEGER"
-        );
-
-        $database->createTable('user', $userColumns, 'id');
+        $sql = "CREATE TABLE IF NOT EXISTS `user` (
+            `id` INTEGER PRIMARY KEY, 
+            `adminEmail` TEXT NOT NULL, 
+            `passwordHash` TEXT NOT NULL, 
+            `userGroup` INTEGER NOT NULL, 
+            `yubikeyId` TEXT NOT NULL, 
+            `yubikeyId2` TEXT NOT NULL, 
+            `loginErrors` INTEGER NOT NULL
+        );";
+        $statement = $database->preparedStatement($sql);
+        $statement->execute();
+        
+        $sql = "CREATE TABLE IF NOT EXISTS `preference` (
+            `id` INTEGER PRIMARY KEY,
+            `title` TEXT NOT NULL,
+            `value` TEXT NOT NULL
+        );";
+        $statement = $database->preparedStatement($sql);
+        $statement->execute();
+        
+        $sql = "CREATE TABLE IF NOT EXISTS `session` (
+            `id` INTEGER PRIMARY KEY,
+            `lastActive` INTEGER NOT NULL,
+            `data` TEXT NOT NULL
+        );";
+        $statement = $database->preparedStatement($sql);
+        $statement->execute();
+        
+        $sql = "CREATE TABLE `content` (
+            `type` TEXT NOT NULL,
+            `id` INTEGER PRIMARY KEY,
+            `title` TEXT NOT NULL,
+            `teaser` TEXT NOT NULL,
+            `description` TEXT NOT NULL,
+            `media` TEXT NOT NULL,
+            `format` TEXT NOT NULL,
+            `fileSize` INTEGER NOT NULL,
+            `externalMedia` TEXT NOT NULL,
+            `creator` TEXT NOT NULL,
+            `image` TEXT NOT NULL,
+            `caption` TEXT NOT NULL,
+            `date` TEXT NOT NULL,
+            `parent` INTEGER NOT NULL,
+            `language` TEXT NOT NULL,
+            `rights` INTEGER NOT NULL,
+            `publisher` TEXT NOT NULL,
+            `onlineStatus` INTEGER NOT NULL,
+            `submissionTime` INTEGER NOT NULL,
+            `lastUpdated` INTEGER NOT NULL,
+            `expiresOn` INTEGER NOT NULL,
+            `counter` INTEGER NOT NULL,
+            `metaTitle` TEXT NOT NULL,
+            `metaDescription` TEXT NOT NULL,
+            `metaSeo` TEXT NOT NULL
+        );";
+        $statement = $database->preparedStatement($sql);
+        $statement->execute();
+        
+        $sql = "CREATE TABLE IF NOT EXISTS `taglink` (
+            `id` INTEGER PRIMARY KEY,
+            `tagId` INTEGER  NOT NULL,
+            `contentType` TEXT  NOT NULL,
+            `contentId` INTEGER  NOT NULL,
+            `module` TEXT  NOT NULL,
+            CONSTRAINT fk_content,
+            FOREIGN KEY (contentId)
+            REFERENCES content(id)
+            ON DELETE CASCADE
+        );";        
+        $statement = $database->preparedStatement($sql);
+        $statement->execute();
 
         // Insert admin user's details to database.
         $userData = array(
@@ -167,14 +226,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'loginErrors' => '0'
             );
         $query = $database->insert('user', $userData);
-
-        // Create preference table.
-        $preferenceColumns = array(
-            "id" => "INTEGER",
-            "title" => "TEXT",
-            "value" => "TEXT"
-        );
-        $database->createTable('preference', $preferenceColumns, 'id');
 
         // Insert default preferences to database.
         $preferenceData = array(
@@ -206,45 +257,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach ($preferenceData as $preference) {
             $database->insert('preference', $preference, 'id');
         }
-
-        // Create session table.
-        $sessionColumns = array(
-            "id" => "INTEGER",
-            "lastActive" => "INTEGER",
-            "data" => "TEXT"
-        );
-        $database->createTable('session', $sessionColumns, 'id');
-
-        // Create content object table. Note that the type must be first column to enable
-        // the PDO::FETCH_CLASS|PDO::FETCH_CLASSTYPE functionality, which automatically
-        // pulls DB rows into an instance of a class, based on the first column.
-        $contentColumns = array(
-            "type" => "TEXT", // article => , image => , audio => , etc.
-            "id" => "INTEGER", // Auto-increment => , set by database.
-            "title" => "TEXT", // The headline or name of this content.
-            "teaser" => "TEXT", // A short (one paragraph) summary or abstract for this content.
-            "description" => "TEXT", // The full article or description of the content.
-            "media" => "TEXT", // URL of an associated audio file.
-            "format" => "TEXT", // Mimetype
-            "fileSize" => "INTEGER", // Specify in bytes.
-            "creator" => "TEXT", // Author.
-            "image" => "TEXT", // URL of an associated image file => , eg. a screenshot a good way to handle it.
-            "caption" => "TEXT", // Caption of the image file.
-            "date" => "TEXT", // Date of first publication expressed as a string, hopefully in a standard format to allow time/date conversion.
-            "parent" => "INTEGER", // A source work or collection of which this content is part.
-            "language" => "TEXT", // English (future proofing).
-            "rights" => "INTEGER", // Intellectual property rights scheme or license under which the work is distributed.
-            "publisher" => "TEXT", // The entity responsible for distributing this work.
-            "onlineStatus" => "INTEGER", // Toggle object on or offline
-            "submissionTime" => "INTEGER", // Timestamp representing submission time.
-            "lastUpdated" => "INTEGER", // Timestamp of last update of this object.
-            "expiresOn" => "INTEGER", // Timestamp for expiry of this item.
-            "counter" => "INTEGER", // Number of times this content was viewed or downloaded.
-            "metaTitle" => "TEXT", // Set a custom page title for this content.
-            "metaDescription" => "TEXT", // Set a custom page meta description for this content.
-            "metaSeo" => "TEXT"); // SEO-friendly string; it will be appended to the URL for this content.
-        $database->createTable('content', $contentColumns, 'id');
-
+        
         // Insert a "General" tag content object.
         $contentData = array(
             "type" => "TfTag",
@@ -254,6 +267,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "media" => '',
             "format" => '',
             "fileSize" => '',
+            "externalMedia" => '',
             "creator" => '',
             "image" => '',
             "caption" => '',
@@ -272,17 +286,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "metaSeo" => "general");
         $query = $database->insert('content', $contentData);
 
-        // Create taglink table.
-        $taglinkColumns = array(
-            "id" => "INTEGER",
-            "tagId" => "INTEGER",
-            "contentType" => "TEXT",
-            "contentId" => "INTEGER",
-            "module" => "TEXT");
-        $database->createTable('taglink', $taglinkColumns, 'id');
-
         // Create an experts table - not required in public release.
-        $expertColumns = [
+        /*$expertColumns = [
             "id" => "INTEGER",
             "type" => "TEXT",
             "salutation" => "INTEGER",
@@ -312,7 +317,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "metaDescription" => "TEXT",
             "metaSeo" => "TEXT"
         ];
-        $database->createTable('expert', $expertColumns, 'id');
+        $database->createTable('expert', $expertColumns, 'id');*/
         
         // Close the database connection.
         $database->close();
