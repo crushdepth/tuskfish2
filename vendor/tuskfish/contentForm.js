@@ -5,10 +5,14 @@ $(document).ready(function() {
     
     // Check the media when form loads. The warning displays faster if initiated from this position.
     checkMedia();
+
+    // Populate the template options.
+    loadTemplateOptions();
     
     $("#type").change(function () {
         showHide();
         checkMedia();
+        loadTemplateOptions();
     });
 
     // Copies the title to metaTitle and prefills the metaSEO string.
@@ -108,6 +112,47 @@ function checkMedia() {
     } else {
         hideAlerts(); // Mimetype is good.
     }
+}
+
+// Populates the template options in the content entry / edit forms.
+// NB: The options in var templateList must be kept synchronised with those in
+// Content/Traits/ContentTypes.php => listTemplates(), which is the template whitelist.
+function loadTemplateOptions() {
+    var dropdown = $("#template");
+
+    dropdown.empty();
+
+    var templateList = {
+        "TfArticle":
+            {"article": "Center image", "article-left": "Left image", "article-right": "Right image"},            
+        "TfAudio":
+            {"audio": "Audio"},
+        "TfBlock":
+            {"block": "Block"},
+        "TfCollection":
+            {"collection": "Collection"},
+        "TfDownload":
+            {"download": "Download"},
+        "TfImage":
+            {"image": "Image"},
+        "TfTag":
+            {"tag": "Tag"},
+        "TfTrack":
+            {"track": "Track"},
+        "TfStatic":
+            {"static": "Static"},
+        "TfVideo":
+            {"video": "Video"},
+    };
+
+    $.each(templateList[$("#type").val()], function(index, value) {
+        var st = $("#selectedTemplate");
+        if (st.length && st.val() == index) {
+            dropdown.append($("<option></option>").attr({'value': index, 'selected': 'true'}).text(value));
+        } else {
+        dropdown.append($("<option></option>").attr('value', index).text(value));
+        }
+    });
 }
 
 // Read the file type and set an appropriate preview type for Bootstrap-fileinput. Somehow it knows

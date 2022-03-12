@@ -174,6 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         $sql = "CREATE TABLE `content` (
             `type` TEXT NOT NULL,
+            `template` TEXT NOT NULL,
             `id` INTEGER PRIMARY KEY,
             `title` TEXT NOT NULL,
             `teaser` TEXT NOT NULL,
@@ -261,6 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Insert a "General" tag content object.
         $contentData = array(
             "type" => "TfTag",
+            "template" => 'tag',
             "title" => "General",
             "teaser" => "Default content tag.",
             "description" => "Default content tag, please edit it to something useful.",

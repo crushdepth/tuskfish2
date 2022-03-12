@@ -32,7 +32,7 @@
       </div>
 
       <!-- Type -->
-      <div class="col-md-6 col-lg-4 mb-3 text-left" id="typeContainer">
+      <div class="col-md-6 col-lg-3 mb-3 text-left" id="typeContainer">
         <label for="type"><strong><?php echo TFISH_TYPE; ?></strong></label>
           <select class="form-control custom-select" name="content[type]" id="type" required>
             <?php
@@ -43,8 +43,15 @@
           </select>
       </div>
 
+      <!-- Template -->
+      <div class="col-md-6 col-lg-3 mb-3 text-left" id="templateContainer">
+        <label for="type"><strong><?php echo TFISH_TEMPLATE; ?></strong></label>
+          <select class="form-control custom-select" name="content[template]" id="template" required>
+          </select>
+      </div>
+
       <!-- Date (bootstrap-datepicker) -->
-      <div class="col-md-6 col-lg-4 mb-3 text-left" id="dateContainer">
+      <div class="col-md-6 col-lg-3 mb-3 text-left" id="dateContainer">
         <label for="date"><strong><?php echo TFISH_DATE; ?></strong></label>
         <input type="text" class="form-control" name="content[date]" id="date">
       </div>
@@ -62,7 +69,7 @@
       </script>
       
       <!-- Tags -->
-      <div class="col-md-6 col-lg-4 mb-3 text-left" id="tagsContainer">
+      <div class="col-md-6 col-lg-3 mb-3 text-left" id="tagsContainer">
         <label for="tags"><strong><?php echo TFISH_TAGS; ?></strong></label>
         <select multiple class="form-control custom-select" size="5"  name="tags[]" id="tags">
             <?php
@@ -130,12 +137,6 @@
           'theme': "fa"});
         });
         </script>
-
-        <!-- TESTCODE -->
-        <div class="col-md-6 mb-3 text-left" id="mediaContainer">
-            <label for="media"><strong><?php echo TFISH_MEDIA; ?></strong></label>
-            <input type="text" class="form-control" name="content[media]" id="media">
-        </div>
 
         <!-- Media -->
         <div class="col-md-6 mb-3 text-left" id="mediaContainer">

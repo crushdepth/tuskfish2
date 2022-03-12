@@ -24,6 +24,7 @@ namespace Tfish;
 /** System wide and generic constants. */
 \define("TFISH_ID", "ID");
 \define("TFISH_TYPE", "Type");
+\define("TFISH_TEMPLATE", "Template");
 \define("TFISH_TITLE", "Title");
 \define("TFISH_TEASER", "Teaser");
 \define("TFISH_DESCRIPTION", "Description");
@@ -184,6 +185,7 @@ namespace Tfish;
 \define("TFISH_ERROR_COUNT_MISMATCH", "Count mismatch.");
 \define("TFISH_ERROR_NOT_CRITERIA_ITEM_OBJECT", "Not a CriteriaItem object.");
 \define("TFISH_ERROR_ILLEGAL_TYPE", "Illegal data type (not whitelisted).");
+\define("TFISH_ERROR_ILLEGAL_TEMPLATE", "Illegal template (not whitelisted).");
 \define("TFISH_ERROR_ILLEGAL_VALUE", "Illegal value (not whitelisted).");
 \define("TFISH_ERROR_NOT_INT", "Not an integer, or integer range violation.");
 \define("TFISH_ERROR_NOT_EMAIL", "Not a valid email.");

@@ -349,6 +349,14 @@ class ContentEdit
 
         $clean['type'] = $type;
 
+        $template = $this->trimString($form['template'] ?? '');
+
+        if (!\in_array($template, $this->listTemplates()[$clean['type']])) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_TEMPLATE, E_USER_ERROR);
+        }
+
+        $clean['template'] = $template;
+
         $id = ((int) ($form['id'] ?? 0));
         if ($id > 0) $clean['id'] = $id;
         

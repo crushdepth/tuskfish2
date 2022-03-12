@@ -29,23 +29,28 @@ namespace Tfish\Content\Traits;
 trait ContentTypes
 {
     /**
-     * Returns a list of template names used by specific content types.
+     * Returns a list of template names used by specific content types. 
+     *
+     * Used to validate template selections set in jQuery function listed below. The options listed
+     * here MUST be kept synchronised with those in:
+     * 
+     * vendor/tuskfish/contentForm.js => loadTemplateOptions()
      * 
      * @return  array Array of type-template key values.
      */
     public function listTemplates(): array
     {
         return [
-            'TfArticle' => 'article',
-            'TfAudio' => 'audio',
-            'TfBlock' => 'block',
-            'TfCollection' => 'collection',
-            'TfDownload' => 'download',
-            'TfImage' => 'image',
-            'TfTag' => 'tag',
-            'TfTrack' => 'track',
-            'TfStatic' => 'static',
-            'TfVideo' => 'video',
+            'TfArticle' => ['article', 'article-left', 'article-right'],
+            'TfAudio' => ['audio'],
+            'TfBlock' => ['block'],
+            'TfCollection' => ['collection'],
+            'TfDownload' => ['download'],
+            'TfImage' => ['image'],
+            'TfTag' => ['tag'],
+            'TfTrack' => ['track'],
+            'TfStatic' => ['static'],
+            'TfVideo' => ['video'],
         ];
     }
 

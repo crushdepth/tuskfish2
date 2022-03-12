@@ -113,7 +113,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
             if ($this->content->type() === 'TfCollection' || $this->content->type() === 'TfTag') $this->listChildren();
 
-            $this->template = $this->listTemplates()[$this->content->type()];
+            $this->template = $this->content->template();
             $this->setMetadata();
         } else {
             $this->pageTitle = TFISH_ERROR;

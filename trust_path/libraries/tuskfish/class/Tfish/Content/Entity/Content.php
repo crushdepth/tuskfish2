@@ -59,6 +59,7 @@ namespace Tfish\Content\Entity;
  * @var         string $language Future proofing.
  * @var         int $rights Intellectual property rights scheme or license under which the work is distributed.
  * @var         string $publisher The entity responsible for distributing this work.
+ * @var         string $template The user-side template for displaying this object.
  * @var         string $module The module that handles this content type (not persistent).
  */
 
@@ -98,6 +99,7 @@ class Content
     private $language = '';
     private $rights = 1;
     private $publisher = '';
+    private $template = '';
     private $module = 'content';
 
     /**
@@ -113,6 +115,7 @@ class Content
     {
         $this->setId((int) ($row['id'] ?? 0));
         $this->setType((string) ($row['type'] ?? ''));
+        $this->setTemplate((string) ($row['template'] ?? ''));
         $this->setTitle((string) ($row['title'] ?? ''));
         $this->setTeaser((string) ($row['teaser'] ?? ''));
         $this->setDescription((string) ($row['description'] ?? ''));
@@ -888,6 +891,33 @@ class Content
     public function setPublisher(string $publisher)
     {
         $this->publisher = $this->trimString($publisher);
+    }
+
+    /**
+     * Return template
+     *
+     * @return string The user-side template for displaying this object.
+     */
+    public function template(): string
+    {
+        return $this->template;
+    }
+
+    /**
+     * Set template
+     *
+     * @param string $template Should correspond to file name of template (without extension).
+     * @return void
+     */
+    public function setTemplate(string $template)
+    {
+        $template = $this->trimString($template);
+
+        if ($this->hasTraversalorNullByte($template)) {
+            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
+        }
+
+        $this->template = $template;
     }
 
     /**
