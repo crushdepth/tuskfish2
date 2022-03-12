@@ -208,11 +208,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             `tagId` INTEGER  NOT NULL,
             `contentType` TEXT  NOT NULL,
             `contentId` INTEGER  NOT NULL,
-            `module` TEXT  NOT NULL,
-            CONSTRAINT fk_content,
-            FOREIGN KEY (contentId)
-            REFERENCES content(id)
-            ON DELETE CASCADE
+            `module` TEXT  NOT NULL
         );";        
         $statement = $database->preparedStatement($sql);
         $statement->execute();

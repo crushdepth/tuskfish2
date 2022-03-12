@@ -302,7 +302,7 @@ function showHide() {
     var allowedProperties = ['teaserContainer', 'descriptionContainer',
         'captionContainer','creatorContainer', 'dateContainer',
         'imageContainer', 'languageContainer','mediaContainer',
-        'parentContainer', 'publisherContainer',
+        'parentContainer', 'publisherContainer', 'templateContainer',
         'rightsContainer', 'tagsContainer', 'metaHeader', 'metaTitleContainer',
         'seoContainer', 'metaDescriptionContainer'];
 
