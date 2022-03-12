@@ -316,7 +316,7 @@ class Admin
      * Set filter criteria on queries.
      * 
      * @param   array $cleanParams Parameters to filter the query.
-     * @return  \Tfish\Criteria.
+     * @return  \Tfish\Criteria
      */
     private function setCriteria(array $cleanParams): \Tfish\Criteria
     {
