@@ -1,8 +1,10 @@
 <?php if (!empty($children)): ?>
 <!-- Children -->
 
+<div class="clearfix">
+
 <?php if (!empty($pagination)): ?>
-<div class="d-flex justify-content-end collection-pagination-top clearfix">
+<div class="d-flex justify-content-end collection-pagination-top">
   <?php echo $pagination; ?>
 </div>
 <?php endif; ?>
@@ -24,10 +26,7 @@
         <?php else: ?>
             alt=""
         <?php endif; ?> />
-        </a>
-        </figure>
-      </div>
-    <?php endif; ?>
+        </a></div>
     <div class="child-teaser">
       <?php echo $child->teaserForDisplay(); ?>
     </div>
@@ -41,5 +40,7 @@
   <?php echo $pagination; ?>
 </div>
 <?php endif; ?>
+
+</div>
 
 <?php endif; ?>
