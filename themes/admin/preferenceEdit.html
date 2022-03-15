@@ -64,7 +64,7 @@
       <select class="form-control custom-select" name="preference[serverTimezone]" id="serverTimezone" required>
       <?php
         foreach ($preference->listTimezones() as $key => $value) {
-          if ($preference->serverTimezone() === (string) $key) {
+          if ((string) $preference->serverTimezone() === (string) $key) {
             echo '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>';
           } else {
             echo '<option value="' . xss($key) . '">' . xss($value) . '</option>';
@@ -81,7 +81,7 @@
       <select class="form-control custom-select" name="preference[siteTimezone]" id="siteTimezone" required>
         <?php
           foreach ($preference->listTimezones() as $key => $value) {
-            if ($preference->siteTimezone() === (string) $key) {
+            if ((string) $preference->siteTimezone() === (string) $key) {
               echo '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>';
             } else {
               echo '<option value="' . xss($key) . '">' . xss($value) . '</option>';
