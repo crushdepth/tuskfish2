@@ -492,7 +492,12 @@ class Preference
         return $this->minimumViews;
     }
 
-
+    /**
+     * Set the number of views required before the views counter of a content object is displayed.
+     *
+     * @param integer $value Number of views before showing counter.
+     * @return void
+     */
     public function setMinimumViews(int $value)
     {
         if ($value < 0) {
