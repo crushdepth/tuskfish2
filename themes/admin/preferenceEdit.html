@@ -130,9 +130,9 @@
 
     <!-- Threshold views before displaying the views counter -->
     <div class="col-md-6 col-lg-4 mb-3 text-left">
-        <label for="minimumViews"><strong><?php echo TFISH_PREFERENCE_MINIMUM_VIEWS; ?></strong></label>
-        <input type="number" min="0" class="form-control" name="preference[minimumViews]" id="minimumViews" <?php if (null !== ($preference->minimumViews())) { echo 'value="' . xss($preference->minimumViews()) . '"'; } ?> required>
-      </div>
+      <label for="minimumViews"><strong><?php echo TFISH_PREFERENCE_MINIMUM_VIEWS; ?></strong></label>
+      <input type="number" min="0" class="form-control" name="preference[minimumViews]" id="minimumViews" <?php if (null !== ($preference->minimumViews())) { echo 'value="' . xss($preference->minimumViews()) . '"'; } ?> required>
+    </div>
       
     <!-- Number of posts to be included in RSS feeds -->
     <div class="col-md-6 col-lg-4 mb-3 text-left">
