@@ -188,6 +188,8 @@ class Listing
             $criteria->add($this->criteriaFactory->item('parent', $cleanParams['parent']));
 
         // Unless a specific type is requested, default behaviour is to exclude tags and blocks from the stream.
+        // If you are organising your tags into collections, you may wish to re-enable tags in the stream
+        // to facilitate their discovery.
         if (!empty($cleanParams['type'])) {
             $criteria->add($this->criteriaFactory->item('type', $cleanParams['type']));
         } else {
