@@ -90,7 +90,7 @@ function tfish_autoload(string $classname) {
 \spl_autoload_register('tfish_autoload');
 
 // Optional Yubikey support for two-factor authentication. See the user manual for how to configure.
-// If (!\defined("TFISH_YUBIKEY_ID"))
+// if (!\defined("TFISH_YUBIKEY_ID"))
 //define("TFISH_YUBIKEY_ID", "your_client_id");
 
 // if (!\defined("TFISH_YUBIKEY_SIGNATURE_KEY"))
