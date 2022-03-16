@@ -95,9 +95,11 @@ class Listing
         if ($content && $content->type() !== 'TfDownload') {
             $this->updateCounter($id);
         }
-
+        
         // Pass in the minimum views preference value.
-        $content->setMinimumViews($this->preference->minimumViews());
+        if ($content) {
+            $content->setMinimumViews($this->preference->minimumViews());
+        }
 
         return $content;
     }
