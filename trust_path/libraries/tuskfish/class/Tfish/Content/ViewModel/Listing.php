@@ -111,9 +111,12 @@ class Listing implements \Tfish\ViewModel\Listable
             $this->author = $this->content->creator();
             $this->parent = $this->getObject($this->content->parent());
 
-            if ($this->content->type() === 'TfCollection' || $this->content->type() === 'TfTag') $this->listChildren();
+            if ($this->content->type() === 'TfCollection' || $this->content->type() === 'TfTag') {
+                $this->listChildren();
+                $this->countContent();
+            }
 
-            $this->template = $this->listTemplates()[$this->content->type()];
+            $this->template = $this->content->template();
             $this->setMetadata();
         } else {
             $this->pageTitle = TFISH_ERROR;
@@ -249,6 +252,7 @@ class Listing implements \Tfish\ViewModel\Listable
     {
         $params = [
             'start' => $this->start,
+            'limit' => $this->limit(),
             'type' => $this->type,
             'onlineStatus' => $this->onlineStatus,
             'sort' => $this->sort,

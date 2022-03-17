@@ -30,6 +30,7 @@ namespace Tfish\Content\Model;
  * @uses        trait \Tfish\Traits\Taglink Manage object-tag associations via taglinks.
  * @uses        trait \Tfish\Traits\TagRead Retrieve tag information for display.
  * @uses        trait \Tfish\Traits\TraversalCheck Validates that a filename or path does NOT contain directory traversals in any form.
+ * @uses        trait \Tfish\Traits\UrlCheck Validate that a URL meets the specification.
  * @uses        trait \Tfish\Traits\ValidateString Provides methods for validating UTF-8 character encoding and string composition.
  * @var         \Tfish\Database $database Instance of the Tuskfish database class.
  * @var         \Tfish\CriteriaFactory $criteriaFactory A factory class that returns instances of Criteria and CriteriaItem.
@@ -46,6 +47,7 @@ class ContentEdit
     use \Tfish\Traits\Taglink;
     use \Tfish\Traits\TagRead;
     use \Tfish\Traits\TraversalCheck;
+    use \Tfish\Traits\UrlCheck;
     use \Tfish\Traits\ValidateString;
 
     private $database;
@@ -118,7 +120,10 @@ class ContentEdit
 
         // Upload image/media files and update the file names in $content.
         $this->uploadImage($content);
-        $this->uploadMedia($content);
+
+        if ($content['type'] !== 'TfVideo') {
+            $this->uploadMedia($content);
+        }
 
         // Insert new content.
         if (!$this->database->insert('content', $content)) {
@@ -153,15 +158,14 @@ class ContentEdit
         // Set image/media to currently stored values.
         $savedContent = $this->getRow($id);
         $content['image'] = $savedContent['image'];
-        $content['media'] = $savedContent['media'];
+
+        if ($content['type'] !== 'TfVideo') {
+            $content['media'] = $savedContent['media'];
+        }
 
         // Check if there are any redundant image/media files that should be deleted.
         if (!empty($savedContent['image']) && $savedContent['image'] !== $content['image']) {
             $this->fileHandler->deleteFile('image/' . $savedContent['image']);
-        }
-
-        if (!empty($savedContent['media']) && $savedContent['media'] !== $content['media']) {
-            $this->fileHandler->deleteFile('media/' . $savedContent['media']);
         }
 
         // Check if delete flag was set.
@@ -170,16 +174,26 @@ class ContentEdit
             $this->fileHandler->deleteFile('image/' . $savedContent['image']);
         }
 
-        if ($_POST['deleteMedia'] === '1' && !empty($savedContent['media'])) {
-            $content['media'] = '';
-            $content['format'] = '';
-            $content['fileSize'] = 0;
-            $this->fileHandler->deleteFile('media/' . $savedContent['media']);
+        if ($savedContent['type'] !== 'TfVideo') {
+        
+            if (!empty($savedContent['media']) && $savedContent['media'] !== $content['media']) {
+                $this->fileHandler->deleteFile('media/' . $savedContent['media']);
+            }        
+
+            if ($_POST['deleteMedia'] === '1' && !empty($savedContent['media'])) {
+                $content['media'] = '';
+                $content['format'] = '';
+                $content['fileSize'] = 0;
+                $this->fileHandler->deleteFile('media/' . $savedContent['media']);
+            }
         }
 
         // Upload any new image/media files and update file names. 
         $this->uploadImage($content);
-        $this->uploadMedia($content);
+
+        if ($content['type'] !== 'TfVideo') {
+            $this->uploadMedia($content);
+        }
 
         // Update taglinks.
         $this->updateTaglinks($id, $content['type'], 'content', $tags);
@@ -194,8 +208,8 @@ class ContentEdit
         $fieldsToDecode = ['title', 'creator', 'publisher'];
 
         foreach ($fieldsToDecode as $field) {
-            if (isset($content->field)) {
-                $content->$field = htmlspecialchars_decode($content->field, ENT_NOQUOTES);
+            if (isset($content[$field])) {
+                $content[$field] = htmlspecialchars_decode($content[$field], ENT_NOQUOTES);
             }
         }
 
@@ -203,8 +217,8 @@ class ContentEdit
         $fieldsToDecode = ['metaTitle', 'metaSeo', 'metaDescription'];
         
         foreach ($fieldsToDecode as $field) {
-            if (isset($content->field)) {
-                $content->$field = htmlspecialchars_decode($content->field, ENT_QUOTES);
+            if (isset($content[$field])) {
+                $content[$field] = htmlspecialchars_decode($content[$field], ENT_QUOTES);
             }
         }
         
@@ -335,6 +349,14 @@ class ContentEdit
 
         $clean['type'] = $type;
 
+        $template = $this->trimString($form['template'] ?? '');
+
+        if (!\in_array($template, $this->listTemplates()[$clean['type']])) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_TEMPLATE, E_USER_ERROR);
+        }
+
+        $clean['template'] = $template;
+
         $id = ((int) ($form['id'] ?? 0));
         if ($id > 0) $clean['id'] = $id;
         
@@ -350,7 +372,14 @@ class ContentEdit
         $clean['description'] = $this->htmlPurifier->purify($description);
 
         $clean['creator'] = $this->trimString($form['creator'] ?? '');
-        $clean['media'] = $this->trimString($form['media'] ?? '');
+
+        $media = $this->trimString($form['media'] ?? '');
+
+        if ($clean['type'] === 'TfVideo') {
+            $clean['media'] = $this->isUrl($media) ? $media : '';
+        } else {
+            $clean['media'] = $media;
+        }
 
         $format = $this->trimString($form['format'] ?? '');
         
@@ -360,6 +389,14 @@ class ContentEdit
 
         $clean['format'] = $format;
         $clean['fileSize'] = (int) ($form['fileSize'] ?? 0);
+
+        $externalMedia = $this->trimString($form['externalMedia'] ?? '');
+
+        if (!empty($externalMedia) && !$this->isUrl($externalMedia)) {
+            \trigger_error(TFISH_ERROR_NOT_URL, E_USER_ERROR);
+        }
+
+        $clean['externalMedia'] = $externalMedia;
 
         $image = $this->trimString($form['image'] ?? '');
 

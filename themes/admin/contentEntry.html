@@ -8,9 +8,9 @@
 <div class="container">
 
 <div class="row">
-    <div class="col">
-      <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
-    </div>
+  <div class="col">
+    <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+  </div>
 </div>
 
 <!-- Custom form manager script to show or hide fields used by specific content subclasses and manage media file uploads -->
@@ -32,7 +32,7 @@
       </div>
 
       <!-- Type -->
-      <div class="col-md-6 col-lg-4 mb-3 text-left" id="typeContainer">
+      <div class="col-md-6 col-lg-3 mb-3 text-left" id="typeContainer">
         <label for="type"><strong><?php echo TFISH_TYPE; ?></strong></label>
           <select class="form-control custom-select" name="content[type]" id="type" required>
             <?php
@@ -43,8 +43,15 @@
           </select>
       </div>
 
+      <!-- Template -->
+      <div class="col-md-6 col-lg-3 mb-3 text-left" id="templateContainer">
+        <label for="type"><strong><?php echo TFISH_TEMPLATE; ?></strong></label>
+          <select class="form-control custom-select" name="content[template]" id="template" required>
+          </select>
+      </div>
+
       <!-- Date (bootstrap-datepicker) -->
-      <div class="col-md-6 col-lg-4 mb-3 text-left" id="dateContainer">
+      <div class="col-md-6 col-lg-3 mb-3 text-left" id="dateContainer">
         <label for="date"><strong><?php echo TFISH_DATE; ?></strong></label>
         <input type="text" class="form-control" name="content[date]" id="date">
       </div>
@@ -62,7 +69,7 @@
       </script>
       
       <!-- Tags -->
-      <div class="col-md-6 col-lg-4 mb-3 text-left" id="tagsContainer">
+      <div class="col-md-6 col-lg-3 mb-3 text-left" id="tagsContainer">
         <label for="tags"><strong><?php echo TFISH_TAGS; ?></strong></label>
         <select multiple class="form-control custom-select" size="5"  name="tags[]" id="tags">
             <?php
@@ -151,6 +158,12 @@
         });
         </script>
 
+        <!-- External media -->
+        <div class="col-12 mb-3 text-left" id="externalMediaContainer">
+          <label for="externalMediaContainer"><strong><?php echo TFISH_EXTERNAL_MEDIA; ?></strong></label>
+          <input type="text" class="form-control" name="content[externalMedia]" id="externalMedia">
+        </div>
+
         <!-- Caption -->
         <div class="col-md-6 mb-3 text-left" id="captionContainer">
           <label for="caption"><strong><?php echo TFISH_CAPTION; ?></strong></label>
@@ -218,11 +231,14 @@
           <label for="metaDescription"><strong><?php echo TFISH_META_DESCRIPTION; ?></strong></label>
           <input type="text" class="form-control" name="content[metaDescription]" id="metaDescription">
         </div>
+        
+        <!-- Meta description counter -->
+        <div class="col-12 mb-3 text-left" id="metaCounter"></div>
       
       </div> <!-- /row -->
       
       <!-- Action buttons -->
-      <div class="float-left clearfix">
+      <div class="float-start clearfix">
         <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
         <button name="action" value="save" type="submit" class="btn btn-primary"><?php echo TFISH_SUBMIT; ?></button>
         <button name="action" value="cancel" type="submit" class="btn btn-primary" formnovalidate><?php echo TFISH_CANCEL; ?></button>

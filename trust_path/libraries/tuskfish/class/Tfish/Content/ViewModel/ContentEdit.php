@@ -77,7 +77,7 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
 
-        $this->pageTitle = TFISH_ADD_CONTENT;
+        $this->pageTitle = TFISH_ADD;
         $this->content = new \Tfish\Content\Entity\Content();
         $this->parentOptions = [];
         $this->template = 'contentEntry';
@@ -99,7 +99,7 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
     {
         $id = (int) ($_GET['id'] ?? 0);
 
-        $this->pageTitle = TFISH_EDIT_CONTENT;
+        $this->pageTitle = TFISH_EDIT;
         $content = new \Tfish\Content\Entity\Content();
 
         if ($data = $this->model->edit($id)) {

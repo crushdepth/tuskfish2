@@ -35,6 +35,7 @@ namespace Tfish\Content\Entity;
  * @uses        trait \Tfish\Traits\Rights	Provides a common list of intellectual property rights licenses.
  * @uses        trait \Tfish\Traits\Tag Support for tagging of content.
  * @uses        trait \Tfish\Traits\TraversalCheck	Validates that a filename or path does NOT contain directory traversals in any form.
+ * @uses        trait \Tfish\Traits\UrlCheck    Validate that a URL meets the specification.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         int $id Auto-increment, set by database.
  * @var         string $type Content object type eg. TfArticle etc. [ALPHA]
@@ -43,6 +44,7 @@ namespace Tfish\Content\Entity;
  * @var         string $description The full article or description of the content. [HTML]
  * @var         string $creator Author.
  * @var         string $media An associated download/audio/video file. [FILEPATH OR URL]
+ * @var         string $externalMedia An external media file. [URL]
  * @var         string $format Mimetype
  * @var         int $fileSize Specify in bytes.
  * @var         string image An associated image file, eg. a screenshot a good way to handle it. [FILEPATH OR URL]
@@ -57,6 +59,7 @@ namespace Tfish\Content\Entity;
  * @var         string $language Future proofing.
  * @var         int $rights Intellectual property rights scheme or license under which the work is distributed.
  * @var         string $publisher The entity responsible for distributing this work.
+ * @var         string $template The user-side template for displaying this object.
  * @var         string $module The module that handles this content type (not persistent).
  */
 
@@ -70,6 +73,7 @@ class Content
     use \Tfish\Traits\Rights;
     use \Tfish\Traits\Tag;
     use \Tfish\Traits\TraversalCheck;
+    use \Tfish\Traits\UrlCheck;
     use \Tfish\Traits\ValidateString;
 
     private $id = 0;
@@ -79,6 +83,7 @@ class Content
     private $description = '';
     private $creator = '';
     private $media = '';
+    private $externalMedia = '';
     private $format = '';
     private $fileSize = 0;
     private $image = '';
@@ -88,11 +93,13 @@ class Content
     private $lastUpdated = 0;
     private $expiresOn = 0;
     private $counter = 0;
+    private $minimumViews = 0;
     private $onlineStatus = 0;
     private $parent = 0;
     private $language = '';
     private $rights = 1;
     private $publisher = '';
+    private $template = '';
     private $module = 'content';
 
     /**
@@ -108,11 +115,13 @@ class Content
     {
         $this->setId((int) ($row['id'] ?? 0));
         $this->setType((string) ($row['type'] ?? ''));
+        $this->setTemplate((string) ($row['template'] ?? ''));
         $this->setTitle((string) ($row['title'] ?? ''));
         $this->setTeaser((string) ($row['teaser'] ?? ''));
         $this->setDescription((string) ($row['description'] ?? ''));
         $this->setCreator((string) ($row['creator'] ?? ''));
         $this->setMedia((string) ($row['media'] ?? ''));
+        $this->setExternalMedia((string) ($row['externalMedia'] ?? ''));
         $this->setFormat((string) ($row['format'] ?? ''));
         $this->setFileSize((int) ($row['fileSize'] ?? 0));
         $this->setImage((string) ($row['image'] ?? ''));
@@ -432,7 +441,14 @@ class Content
             \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
             exit; // Hard stop due to high probability of abuse.
         }
-        
+
+        // Video files are now assumed to be hosted externally so this should be a URL.
+        if ($this->type === 'TfVideo') {
+            $this->media = $this->isUrl($filename) ? $filename : '';
+
+            return;
+        }
+
         $whitelist = $this->listMimetypes();
         $extension = \mb_strtolower(pathinfo($filename, PATHINFO_EXTENSION), 'UTF-8');
 
@@ -514,6 +530,25 @@ class Content
         }
 
         $this->fileSize = $fileSize;
+    }
+
+    /**
+     * Return external media URL.
+     */
+    public function externalMedia(): string
+    {
+        return $this->externalMedia;
+    }
+
+    public function setExternalMedia(string $url)
+    {
+        $url = $this->trimString($url);
+
+        if (!empty($url) && !$this->isUrl($url)) {
+            \trigger_error(TFISH_ERROR_NOT_URL, E_USER_ERROR);
+        }
+
+        $this->externalMedia = $url;
     }
 
     /**
@@ -610,8 +645,8 @@ class Content
 
         if ($this->creator)
             $info[] = $this->creator;
-        
-        if ($this->counter > 0) {
+
+        if ($this->counter >= $this->minimumViews) {
             $suffix = ($this->type == 'TfDownload') ? TFISH_DOWNLOADS : TFISH_VIEWS;
             $info[] = $this->counter . ' ' . $suffix;
         }
@@ -723,6 +758,15 @@ class Content
         }
 
         $this->counter = $counter;
+    }
+
+    public function setMinimumViews(int $minimumViews)
+    {
+        if ($minimumViews < 0) {
+            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+        }
+
+        $this->minimumViews = $minimumViews;
     }
 
     /**
@@ -847,6 +891,33 @@ class Content
     public function setPublisher(string $publisher)
     {
         $this->publisher = $this->trimString($publisher);
+    }
+
+    /**
+     * Return template
+     *
+     * @return string The user-side template for displaying this object.
+     */
+    public function template(): string
+    {
+        return $this->template;
+    }
+
+    /**
+     * Set template
+     *
+     * @param string $template Should correspond to file name of template (without extension).
+     * @return void
+     */
+    public function setTemplate(string $template)
+    {
+        $template = $this->trimString($template);
+
+        if ($this->hasTraversalorNullByte($template)) {
+            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
+        }
+
+        $this->template = $template;
     }
 
     /**

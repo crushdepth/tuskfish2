@@ -1,13 +1,5 @@
 <?php declare(strict_types=1); ?>
 
-<!-- Display a single audio object -->
-<?php $content = $viewModel->content(); ?>
-<?php $contentTags = $viewModel->contentTags(); ?>
-<?php $parent = $viewModel->parent(); ?>
-
-<!-- Container -->
-<div class="container">
-
 <!-- Title and meta information -->
 <div>
   <h2 class="title">
@@ -20,7 +12,8 @@
 
   <p class="content-info">
     <span class="small">
-      <?php echo xss($content->date()->format($viewModel->dateFormat())) . ' | '; ?>
+      <?php echo xss($content->date()
+        ->format($viewModel->dateFormat())) . ' | '; ?>
       <?php echo xss($content->info()); ?>
       <?php if ($contentTags) {
           echo ' | ';
@@ -35,16 +28,17 @@
 </div>
 
 <?php if ($content->media()): ?>
-<div class="audio-player text-left">
-  <audio controls>
+<div class="video-player text-left">
+  <video controls>
     <source src="<?php echo TFISH_MEDIA_URL . xss($content->media()); ?>" type="<?php echo xss($content->format()); ?>">
-    <?php echo TFISH_BROWSER_DOES_NOT_SUPPORT_AUDIO; ?>
-  </audio>
+        <?php echo TFISH_BROWSER_DOES_NOT_SUPPORT_VIDEO; ?>
+  </video>
 </div>
 <?php endif; ?>
 
 <!-- Image -->
 <?php if ($content->image()): ?>
+
 <div>
   <figure class="float-end figure-right">
     <?php if ($content->media()): ?>
@@ -71,6 +65,7 @@
 
   </figure>
 </div>
+
 <?php endif; ?>
 
 <!-- Description -->
@@ -93,6 +88,3 @@
 <?php endif; ?>
 
 <?php if (!empty($parent)) include_once('parent.html'); ?>
-
-<!-- /.container -->
-</div>

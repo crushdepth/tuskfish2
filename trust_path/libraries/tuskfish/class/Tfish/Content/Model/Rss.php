@@ -76,7 +76,6 @@ class Rss
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
         $criteria->add($this->criteriaFactory->item('type', 'TfStatic', '!='));
-        $criteria->add($this->criteriaFactory->item('type', 'TfTag', '!='));
         $criteria->add($this->criteriaFactory->item('type', 'TfBlock', '!='));
         $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
         $statement = $this->database->select('content', $criteria, ['title', 'description']);
