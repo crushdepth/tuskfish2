@@ -72,6 +72,10 @@ namespace Tfish;
 \define("TFISH_CACHE_FLUSH_FAILED_TO_UNLINK", "Cache flush failed, could not unlink file(s).");
 \define("TFISH_CACHE_FLUSH_FAILED_BAD_PATH", "Cache flush failed due to bad file path(s).");
 \define("TFISH_SETTINGS", "Settings");
+\define("TFISH_UPDATE_SITEMAP", "Update sitemap");
+\define("TFISH_DO_YOU_WANT_TO_UPDATE_SITEMAP", "Do you want to update the sitemap?");
+\define("TFISH_SITEMAP_UPDATED", "Sitemap updated.");
+\define("TFISH_SITEMAP_UPDATE_FAILED", "Sitemap update failed, check file permissions.");
 
 // Gallery
 \define("TFISH_IMAGE_GALLERY", "Gallery");

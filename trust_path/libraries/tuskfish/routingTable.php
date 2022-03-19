@@ -113,6 +113,12 @@ return [
         '\\Tfish\\View\\Single',
         '\\Tfish\\Content\\Controller\\Rss',
         false),
+    '/sitemap/' => new Route(
+        '\\Tfish\\Model\\Sitemap',
+        '\\Tfish\\ViewModel\\Sitemap',
+        '\\Tfish\\View\\Single',
+        '\\Tfish\\Controller\\Sitemap',
+        true),
     '/search/' => new Route(
         '\\Tfish\\Content\\Model\\Search',
         '\\Tfish\\Content\\ViewModel\\Search',
