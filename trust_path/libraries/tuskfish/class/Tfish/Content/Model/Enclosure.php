@@ -73,6 +73,7 @@ class Enclosure
 
         $filename = !empty($filename) ? $this->trimString($filename) : '';
         $result = $this->_streamFileToBrowser($id, $filename);
+        $this->database->close();
         exit;
     }
 
@@ -101,14 +102,14 @@ class Enclosure
                 $mimetypeList = $this->listMimetypes();
                 $mimetype = $mimetypeList[$fileExtension];
 
-                // Must call session_write_close() first otherwise the script gets locked.
-                \session_write_close();
-
-                // Update counter.
+                // Update counter. 
+                // Speculative fix for DB locked error: Moved this above session_write_close().
                 if ($row['type'] === 'TfDownload') {
                     $this->updateCounter($id);
                 }
 
+                // Must call session_write_close() first otherwise the script gets locked.
+                \session_write_close();
                 
                 // Output the header.
                 $this->_outputHeader($filename, $fileExtension, $mimetype, $fileSize, $filepath);
@@ -117,7 +118,8 @@ class Enclosure
                 return false;
             }
         } else {
-            header("HTTP/1.0 404 Not Found");
+            $this->database->close();
+            \header("HTTP/1.0 404 Not Found");
             exit;
         }
     }
