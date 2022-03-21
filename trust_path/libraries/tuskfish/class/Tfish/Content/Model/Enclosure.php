@@ -90,6 +90,9 @@ class Enclosure
         
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
         
+        // Speculative fix for 'database locked' error.
+        $statement->closeCursor();
+        
         if ($row && $row['onlineStatus'] == '1') {
             $media = $row['media'] ?? false;
             
@@ -103,7 +106,6 @@ class Enclosure
                 $mimetype = $mimetypeList[$fileExtension];
 
                 // Update counter. 
-                // Speculative fix for DB locked error: Moved this above session_write_close().
                 if ($row['type'] === 'TfDownload') {
                     $this->updateCounter($id);
                 }

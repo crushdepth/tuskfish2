@@ -58,6 +58,12 @@ class Database
 
     /** No cloning permitted. */
     final public function __clone() {}
+
+    /** Always close the connection on termination. **/
+    public function __destruct()
+    {
+        $this->close();
+    }
     
     /** No serialisation. */
     final public function __wakeup() {}
