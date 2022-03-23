@@ -68,7 +68,7 @@ class Logger
         $line = isset($line) ? $this->trimString($line) : TFISH_ERROR_UNSPECIFIED;
         
         $message = \date("Y-m-d, H:i:s", \time()) . ": [ERROR][$errno][$error]";
-        $message .= "[$file:$line]\r\n";
+        $message .= "[$file:$line]\n";
         \error_log($message, 3, TFISH_ERROR_LOG_PATH);
 
         // Debug only - comment OUT in production site to display errors on screen.
