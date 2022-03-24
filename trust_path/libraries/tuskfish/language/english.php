@@ -271,3 +271,8 @@ namespace Tfish;
         . "content type. Inline media players will not display.");
 \define("TFISH_ERROR_PARENT_UPDATE_FAILED", "Attempt to update references to a non-extant collection"
         . " failed.");
+
+// Experts module.
+\define("TFISH_EXPERTS_MOBILE", "Mobile");
+\define("TFISH_EXPERTS_FAX", "Fax");
+\define("TFISH_EXPERTS_EMAIL", "Email");
