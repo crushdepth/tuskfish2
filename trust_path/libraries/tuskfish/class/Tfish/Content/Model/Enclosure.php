@@ -90,7 +90,6 @@ class Enclosure
         
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
         
-        // Speculative fix for 'database locked' error.
         $statement->closeCursor();
         
         if ($row && $row['onlineStatus'] == '1') {
