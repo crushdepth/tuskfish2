@@ -92,7 +92,6 @@ class Listing
 
         $content = $statement->fetchObject('\Tfish\Content\Entity\Content');
 
-        // Speculative fix for 'database locked' error.
         $statement->closeCursor();
 
         if ($content && $content->type() !== 'TfDownload') {
