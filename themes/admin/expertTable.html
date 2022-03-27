@@ -1,0 +1,57 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Container -->
+<div class="container">
+
+    <div class="row">
+      <div class="col">
+        <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+      </div>
+    </div>
+
+<div class="form-buttons clearfix">
+  <form method="post">
+    <input type="hidden" name="token" value="<?php echo $_SESSION['token']; ?>" />
+    <input type="hidden" name="op" value="add">
+    <button class="btn btn-primary float-start add-content" type="submit" formaction="<?php echo TFISH_EXPERTS_ADMIN_URL; ?>"><?php echo TFISH_ADD; ?></button>
+  </form>
+</div>
+
+<div class="clearfix">
+<table class="table table-bordered table-striped table-hover text-left">
+  <thead>
+    <tr>
+      <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_ID; ?></th>
+      <th><?php echo TFISH_EXPERTS_SALUTATION; ?></th>
+      <th><?php echo TFISH_EXPERTS_NAME; ?></th>
+      <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_LAST_UPDATED; ?></th>
+      <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_SUBMISSION_TIME; ?></th>
+      <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_COUNTER; ?></th>
+      <th class="text-center"><?php echo TFISH_ONLINE; ?></th>
+      <th colspan="2" class="text-center"><?php echo TFISH_ACTION; ?></th>
+    </tr>
+    </thead>
+  <tbody>
+  <?php foreach($viewModel->contentList() as &$row): ?>
+    <tr>
+      <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['id']); ?></td>
+      <td><?php echo $salutationList[$row['salutation']]; ?></td>
+      <td><a href="<?php echo TFISH_ADMIN_URL . 'experts.php?op=view&amp;id=' . xss($row['id']); ?>"><?php echo $row['name']; ?></a></td>
+      <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['lastUpdated']); ?></td>
+      <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['submissionTime']); ?></td>
+      <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['counter']); ?></td>
+      <?php if ($row['online']): ?>
+      <td class="text-center"><a class="text-success" href="experts.php?op=toggle&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-check"></i></a></td>
+      <?php else: ?>
+      <td class="text-center"><a class="text-danger" href="experts.php?op=toggle&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-times"></i></a></td>
+      <?php endif; ?>
+      <td class="text-center"><a href="<?php echo TFISH_EXPERTS_ADMIN_URL . '?op=edit&amp;id=' . xss($row['id']); ?>"><i class="fas fa-edit"></i></a></td>
+      <td class="text-center"><a href="<?php echo TFISH_EXPERTS_ADMIN_URL . '?op=confirmDelete&amp;id=' . xss($row['id']); ?>"><i class="fas fa-trash-alt"></i></a></td>
+      <?php unset($row); ?>
+    </tr>
+  <?php endforeach; ?>
+  </tbody>
+</table>
+</div>
+
+</div> <!-- /container -->

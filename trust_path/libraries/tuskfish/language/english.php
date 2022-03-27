@@ -273,6 +273,9 @@ namespace Tfish;
         . " failed.");
 
 // Experts module.
+\define("TFISH_EXPERTS", "Experts");
 \define("TFISH_EXPERTS_MOBILE", "Mobile");
 \define("TFISH_EXPERTS_FAX", "Fax");
 \define("TFISH_EXPERTS_EMAIL", "Email");
+\define("TFISH_EXPERTS_SALUTATION", "Salutation");
+\define("TFISH_EXPERTS_NAME", "Name");

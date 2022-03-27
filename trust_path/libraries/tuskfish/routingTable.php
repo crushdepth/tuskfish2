@@ -130,5 +130,11 @@ return [
         '\\Tfish\\ViewModel\\Token',
         '\\Tfish\\View\\Single',
         '\\Tfish\\Controller\\Error',
-        false)
+        false),
+    '/admin/expert/' => new Route(
+        '\\Tfish\\Expert\\Model\\Admin',
+        '\\Tfish\\Expert\\ViewModel\\Admin',
+        '\\Tfish\\View\\Listing',
+        '\\Tfish\\Expert\\Controller\\Admin',
+        true),
 ];
