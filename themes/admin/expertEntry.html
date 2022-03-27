@@ -1,0 +1,144 @@
+<?php declare(strict_types=1); ?>
+
+<?php
+  $content = $viewModel->expert();
+?>
+
+<!-- Container -->
+<div class="container">
+
+<div class="row">
+  <div class="col">
+    <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+  </div>
+</div>
+
+<!-- Custom form manager script to show or hide fields and manage file uploads -->
+<script type="text/javascript" src="<?php echo TFISH_VENDOR_URL . 'tuskfish/contentForm.js'; ?>"></script>
+
+<div class="row">
+  <div class="col">
+    <form class="form-horizontal" action="<?php echo TFISH_EXPERTS_ADMIN_URL . 'edit/'; ?>" method="post" enctype="multipart/form-data" role="form" accept-charset="UTF-8">
+      <div class="row">
+
+      <!-- Template -->
+      <div class="col-md-6 col-lg-3 mb-3 text-left" id="templateContainer">
+        <label for="type"><strong><?php echo TFISH_TEMPLATE; ?></strong></label>
+          <select class="form-control custom-select" name="content[template]" id="template" required>
+          </select>
+      </div>
+      
+      <!-- Tags -->
+      <div class="col-md-6 col-lg-3 mb-3 text-left" id="tagsContainer">
+        <label for="tags"><strong><?php echo TFISH_TAGS; ?></strong></label>
+        <select multiple class="form-control custom-select" size="5"  name="tags[]" id="tags">
+            <?php
+                foreach ($viewModel->listTags() as $tagId => $tagTitle) {
+                    echo '<option value="' . xss($tagId) . '">' . xss($tagTitle) . '</option>';
+                }
+            ?>
+        </select>
+      </div>
+
+        <!-- Title -->
+        <div class="col-12 mb-3 text-left" id="titleContainer">
+          <label for="title"><strong><?php echo TFISH_TITLE; ?></strong></label>
+          <input type="text" class="form-control" name="content[title]" id="title">
+        </div>
+
+        <!-- Teaser -->
+        <div class="col-12 mb-3 text-left" id="teaserContainer">
+          <label for="teaser"><strong><?php echo TFISH_TEASER; ?></strong></label>
+          <textarea id="teaser" name="content[teaser]" class="form-control text-left"></textarea>
+        </div>
+
+        <!-- Description -->
+        <div class="col-12 mb-3 text-left" id="descriptionContainer">
+          <label for="description"><strong><?php echo TFISH_DESCRIPTION; ?></strong></label>
+          <textarea id="description" name="content[description]" class="form-control text-left"></textarea>
+        </div>
+
+        <!-- Creator (author) -->
+        <div class="col-md-6 mb-3 text-left" id="creatorContainer">
+          <label for="creator"><strong><?php echo TFISH_CREATOR; ?></strong></label>
+          <input type="text" class="form-control" name="content[creator]" id="creator">
+        </div>
+
+        <!-- Publisher -->
+        <div class="col-md-6 mb-3 text-left" id="publisherContainer">
+          <label for="publisher"><strong><?php echo TFISH_PUBLISHER; ?></strong></label>
+          <input type="text" class="form-control" name="content[publisher]" id="publisher" value="<?php echo xss($viewModel->siteAuthor()); ?>">
+        </div>
+
+        <!-- Image -->
+        <div class="col-md-6 mb-3 text-left" id="imageContainer">
+          <label for="image"><strong><?php echo TFISH_IMAGE; ?></strong></label>
+          <input id="image" name="content[image]" type="file" data-preview-file-type="text">
+        </div>
+        <script>
+        $(document).ready(function() {    
+          $("#image").fileinput({
+          'showUpload': false,
+          'showRemove': true,
+          'allowedFileExtensions': ["gif", "jpg", "png"],
+          'previewFileType': ["image"],
+          'fileActionSettings': {
+              'showDrag': false},
+          'theme': "fa"});
+        });
+        </script>
+
+        <!-- Online status -->
+        <div class="col-md-6 mb-3 text-left" id="onlineContainer">
+          <p><strong><?php echo TFISH_ONLINE_STATUS; ?></strong></p>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" id="online" name="content[onlineStatus]" value="1" checked>
+            <label class="form-check-label" for="online"><?php echo TFISH_ONLINE; ?></label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" id="offline" name="content[onlineStatus]" value="0" required>
+            <label class="form-check-label" for="offline"><?php echo TFISH_OFFLINE; ?></label>
+          </div>
+        </div>
+
+        <div class="col-md-12" id="metaHeader">
+          <h2><?php echo TFISH_META_TAGS; ?></h2>
+          <hr>
+        </div>
+
+        <!-- Meta title -->
+        <div class="col-md-6 mb-3 text-left" id="metaTitleContainer">
+          <label for="metaTitle"><strong><?php echo TFISH_META_TITLE; ?></strong></label>
+          <input type="text" class="form-control" name="content[metaTitle]" id="metaTitle">
+        </div>
+
+        <!-- SEO -->
+        <div class="col-md-6 mb-3 text-left" id="seoContainer">
+          <label for="metaSeo"><strong><?php echo TFISH_SEO; ?></strong></label>
+          <input type="text" class="form-control" name="content[metaSeo]" id="metaSeo">
+        </div>
+
+        <!-- Meta description -->
+        <div class="col-12 mb-3 text-left" id="metaDescriptionContainer">
+          <label for="metaDescription"><strong><?php echo TFISH_META_DESCRIPTION; ?></strong></label>
+          <input type="text" class="form-control" name="content[metaDescription]" id="metaDescription">
+        </div>
+        
+        <!-- Meta description counter -->
+        <div class="col-12 mb-3 text-left" id="metaCounter"></div>
+      
+      </div> <!-- /row -->
+      
+      <!-- Action buttons -->
+      <div class="float-start clearfix">
+        <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
+        <button name="action" value="save" type="submit" class="btn btn-primary"><?php echo TFISH_SUBMIT; ?></button>
+        <button name="action" value="cancel" type="submit" class="btn btn-primary" formnovalidate><?php echo TFISH_CANCEL; ?></button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+</div>

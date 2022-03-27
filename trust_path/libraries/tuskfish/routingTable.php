@@ -137,4 +137,10 @@ return [
         '\\Tfish\\View\\Listing',
         '\\Tfish\\Expert\\Controller\\Admin',
         true),
+    '/admin/expert/edit/' => new Route(
+        '\\Tfish\\Expert\\Model\\ExpertEdit',
+        '\\Tfish\\Expert\\ViewModel\\ExpertEdit',
+        '\\Tfish\\View\\Single',
+        '\\Tfish\\Expert\\Controller\\ExpertEdit',
+        true),
 ];
