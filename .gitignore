@@ -1,4 +1,6 @@
 cache/
+.DS_Store
+uploads/.DS_Store
 trust_path/cache/*
 !trust_path/cache/index.html
 trust_path/configuration/*
