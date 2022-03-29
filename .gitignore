@@ -1,3 +1,4 @@
+*.DS_Store
 cache/
 trust_path/cache/*
 !trust_path/cache/index.html
