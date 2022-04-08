@@ -6,7 +6,7 @@ namespace Tfish\Traits;
 
 /**
  * \Tfish\Traits\ResizeImage trait file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -30,17 +30,17 @@ trait ResizeImage
 {
     /**
      * Resizes and caches an associated image and returns a URL to the cached copy.
-     * 
+     *
      * Allows arbitrary sized thumbnails to be produced from the object's image property. These are
      * saved in the cache for future lookups. Image proportions are always preserved, so if both
      * width and height are specified, the larger dimension will take precedence for resizing and
      * the other will be ignored.
-     * 
+     *
      * Usually, you want to produce an image of a specific width or (less commonly) height to meet
      * a template/presentation requirement.
-     * 
+     *
      * Requires GD library.
-     * 
+     *
      * @param int $width Width of the cached image output.
      * @param int $height Height of the cached image output.
      * @return string $url URL to the cached image.
@@ -50,7 +50,7 @@ trait ResizeImage
         // Validate parameters; and at least one must be set.
         $cleanWidth = ($width > 0) ? $width : 0;
         $cleanHeight = ($height > 0) ? $height : 0;
-        
+
         if (!$cleanWidth && !$cleanHeight) {
             return false;
         }
@@ -68,7 +68,7 @@ trait ResizeImage
         $cachedPath = TFISH_PUBLIC_CACHE_PATH . $filename . '-';
         $cachedUrl = TFISH_CACHE_URL . $filename . '-';
         $originalPath = TFISH_IMAGE_PATH . $filename . $extension;
-        
+
         if ($cleanWidth > $cleanHeight) {
             $cachedPath .= $cleanWidth . 'w' . $extension;
             $cachedUrl .= $cleanWidth . 'w' . $extension;
@@ -101,20 +101,20 @@ trait ResizeImage
             $destinationWidth = (int) (($cleanHeight / $properties[1]) * $properties[0]);
             $destinationHeight = $cleanHeight;
         }
-        
-        $result = $this->scaleAndCacheImage($properties, $originalPath, $cachedPath, 
+
+        $result = $this->scaleAndCacheImage($properties, $originalPath, $cachedPath,
             $destinationWidth, $destinationHeight);
-        
+
         if (!$result) {
             return false;
         }
-        
+
         return $cachedUrl;
     }
-    
+
     /**
      * Generates thumbnails of content->image property and saves them to the image cache.
-     * 
+     *
      * @param array $properties Original image size properties as returned by getimagesize().
      * @param string $originalPath Path to the original image file stored on the server.
      * @param string $cachedPath Path to the scaled version of the image, stored in the image cache.
@@ -132,7 +132,7 @@ trait ResizeImage
     {
         // Create a blank (black) image RESOURCE of the specified size.
         $thumbnail = \imagecreatetruecolor($destinationWidth, $destinationHeight);
-        
+
         $result = false;
         switch ($properties['mime']) {
             case "image/jpeg":
@@ -153,24 +153,24 @@ trait ResizeImage
                 }
                 /**
                  * Handle transparency
-                 * 
+                 *
                  * The following code block (only) is a derivative of
                  * the PHP_image_resize project by Nimrod007, which is a fork of the
                  * smart_resize_image project by Maxim Chernyak. The source code is available
                  * from the link below, and it is distributed under the following license terms:
-                 * 
+                 *
                  * Copyright © 2008 Maxim Chernyak
-                 * 
+                 *
                  * Permission is hereby granted, free of charge, to any person obtaining a copy
                  * of this software and associated documentation files (the "Software"), to deal
                  * in the Software without restriction, including without limitation the rights
-                 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+                 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
                  * copies of the Software, and to permit persons to whom the Software is
                  * furnished to do so, subject to the following conditions:
-                 * 
+                 *
                  * The above copyright notice and this permission notice shall be included in
                  * all copies or substantial portions of the Software.
-                 * 
+                 *
                  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
                  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
                  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -178,8 +178,8 @@ trait ResizeImage
                  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
                  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
                  * THE SOFTWARE.
-                 * 
-                 * https://github.com/Nimrod007/PHP_image_resize 
+                 *
+                 * https://github.com/Nimrod007/PHP_image_resize
                  */
                 // Sets the transparent colour in the given image, using a colour identifier
                 // created with imagecolorallocate().
@@ -188,8 +188,8 @@ trait ResizeImage
                 if ($transparency >= 0 && $transparency < $numberOfColours) {
                     // Get the colours for an index.
                     $transparentColour = \imagecolorsforindex($original, $transparency);
-                    // Allocate a colour for an image. The first call to imagecolorallocate() 
-                    // fills the background colour in palette-based images created using 
+                    // Allocate a colour for an image. The first call to imagecolorallocate()
+                    // fills the background colour in palette-based images created using
                     // imagecreate().
                     $transparency = \imagecolorallocate(
                         $thumbnail,
@@ -239,9 +239,9 @@ trait ResizeImage
         if (!$result) {
             return false;
         }
-        
+
         \imagedestroy($thumbnail); // Free memory.
-        
+
         return true;
     }
 }

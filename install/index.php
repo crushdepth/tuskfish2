@@ -2,7 +2,7 @@
 
 /**
  * Installation script for Tuskfish CMS.
- * 
+ *
  * The installation directory should be deleted after use, otherwise someone may decide to reinstall
  * Tuskfish and take over management of your site.
  *
@@ -58,7 +58,7 @@ $page = '';
 
 /**
  * Helper function to grab the site URL and protocol during installation.
- * 
+ *
  * @return string Site URL.
  */
 function getUrl() {
@@ -80,35 +80,35 @@ $template['output'] = '';
 
 // Test and save database credentials.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
+
     ////////////////////////////////////
     ////////// VALIDATE INPUT //////////
     ////////////////////////////////////
-    
+
     // Check that form was completed.
     if (empty($_POST['dbName']) || empty($_POST['adminEmail']) || empty($_POST['adminPassword'])) {
         $template['output'] .= '<p>' . TFISH_INSTALLATION_COMPLETE_FORM . '</p>';
     }
-    
+
     // Database name is restricted to alphanumeric and underscore characters only.
     $dbName = \trimString($_POST['dbName']);
     if (!\isAlnumUnderscore($dbName)) {
         $template['output'] .= '<p>' . TFISH_INSTALLATION_DB_ALNUMUNDERSCORE . '</p>';
     }
-    
+
     // Admin email must conform to email specification.
     $adminEmail = \trimString($_POST['adminEmail']);
     if (!\isEmail($adminEmail)) {
         $template['output'] .= '<p>' . TFISH_INSTALLATION_BAD_EMAIL . '</p>';
     }
-    
+
     // There are no restrictions on what characters you use for a password. Only only on what you
     // don't use!
     $adminPassword = \trimString($_POST['adminPassword']);
-    
+
     // Check password length and quality.
     $passwordQuality = \checkPasswordStrength($adminPassword);
-    
+
     if ($passwordQuality['strong'] === false) {
         $template['output'] .= '<p>' . TFISH_INSTALLATION_WEAK_PASSWORD . '</p>';
         unset($passwordQuality['strong']);
@@ -117,10 +117,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach ($passwordQuality as $weakness) {
             $template['output'] .= '<li>' . $weakness . '</li>';
         }
-        
+
         $template['output'] .= '</ul>';
     }
-    
+
     // Report errors.
     if (!empty($template['output'])) {
         $template['output'] = '<h1 class="text-center">' . TFISH_INSTALLATION_WARNING . '</h1>'
@@ -129,11 +129,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         \ob_start();
         include "./dbCredentialsForm.html";
         $page = \ob_get_clean();
-    // All input validated, proceed to process and set up database.    
+    // All input validated, proceed to process and set up database.
     } else {
         $passwordHash = hashPassword($adminPassword);
         $fileHandler = new \Tfish\FileHandler();
-        
+
         ////////////////////////////////////
         // INITIALISE THE SQLITE DATABASE //
         ////////////////////////////////////
@@ -143,19 +143,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($dbPath && !\defined("TFISH_DATABASE")) {
             \define("TFISH_DATABASE", $dbPath);
         }
-        
+
         $sql = "CREATE TABLE IF NOT EXISTS `user` (
-            `id` INTEGER PRIMARY KEY, 
-            `adminEmail` TEXT NOT NULL, 
-            `passwordHash` TEXT NOT NULL, 
-            `userGroup` INTEGER NOT NULL, 
-            `yubikeyId` TEXT NOT NULL, 
-            `yubikeyId2` TEXT NOT NULL, 
+            `id` INTEGER PRIMARY KEY,
+            `adminEmail` TEXT NOT NULL,
+            `passwordHash` TEXT NOT NULL,
+            `userGroup` INTEGER NOT NULL,
+            `yubikeyId` TEXT NOT NULL,
+            `yubikeyId2` TEXT NOT NULL,
             `loginErrors` INTEGER NOT NULL
         );";
         $statement = $database->preparedStatement($sql);
         $statement->execute();
-        
+
         $sql = "CREATE TABLE IF NOT EXISTS `preference` (
             `id` INTEGER PRIMARY KEY,
             `title` TEXT NOT NULL,
@@ -163,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );";
         $statement = $database->preparedStatement($sql);
         $statement->execute();
-        
+
         $sql = "CREATE TABLE IF NOT EXISTS `session` (
             `id` INTEGER PRIMARY KEY,
             `lastActive` INTEGER NOT NULL,
@@ -171,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );";
         $statement = $database->preparedStatement($sql);
         $statement->execute();
-        
+
         $sql = "CREATE TABLE `content` (
             `type` TEXT NOT NULL,
             `template` TEXT NOT NULL,
@@ -202,14 +202,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );";
         $statement = $database->preparedStatement($sql);
         $statement->execute();
-        
+
         $sql = "CREATE TABLE IF NOT EXISTS `taglink` (
             `id` INTEGER PRIMARY KEY,
             `tagId` INTEGER  NOT NULL,
             `contentType` TEXT  NOT NULL,
             `contentId` INTEGER  NOT NULL,
             `module` TEXT  NOT NULL
-        );";        
+        );";
         $statement = $database->preparedStatement($sql);
         $statement->execute();
 
@@ -254,7 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach ($preferenceData as $preference) {
             $database->insert('preference', $preference, 'id');
         }
-        
+
         // Insert a "General" tag content object.
         $contentData = array(
             "type" => "TfTag",
@@ -316,7 +316,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "metaSeo" => "TEXT"
         ];
         $database->createTable('expert', $expertColumns, 'id');*/
-        
+
         // Close the database connection.
         $database->close();
 
@@ -366,7 +366,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     . TFISH_EXTENSION . '</li>';
         }
     }
-    
+
     // Check path to mainfile.
     if (\is_readable("../mainfile.php")) {
         $presentList .= '<li><i class="fas fa-check text-success"></i> ' . TFISH_PATH_TO_MAINFILE_OK . '</li>';
@@ -397,9 +397,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $template['output'] .= '<p><b>' . TFISH_SYSTEM_REQUIREMENTS_NOT_MET . '</b></p>'
                 . $missingList;
     }
-    
+
     $template['output'] .= '</div></div>';
-    
+
     // Display data entry form.
     $template['pageTitle'] = TFISH_INSTALLATION_TUSKFISH;
     $template['rootPath'] = \realpath('../') . '/';
@@ -414,12 +414,12 @@ include TFISH_THEMES_PATH . "default/layout.html";
 
 /**
  * Evaluates the strength of a password to resist brute force cracking.
- * 
+ *
  * Issues warnings if deficiencies are found. Requires a minimum length of 15 characters.
  * Due to revision of advice on best practices most requirements have been relaxed, as user
  * behaviour tends to be counter-productive. Basically, it's up to you, the admin, to choose
  * a sane password.
- * 
+ *
  * @param string $password Input password.
  * @return array Array of evaluation warnings as strings.
  */
@@ -438,17 +438,17 @@ function checkPasswordStrength(string $password): array
 
 /**
  * Hashes and salts a password to harden it against dictionary attacks.
- * 
+ *
  * Uses the default password hashing algorithm, which wa bcrypt as of PHP 7.2, with a cost
  * of 11. If logging in is too slow, you could consider reducing this to 10 (the default value).
  * Lowering it further will weaken the security of the hash.
- * 
+ *
  * @param string $password Input password.
  * @return string Password hash, incorporating algorithm and difficulty information.
  */
 function hashPassword(string $password): string
 {
-    $options = array('cost' => 11);        
+    $options = array('cost' => 11);
     $password = \password_hash($password, PASSWORD_DEFAULT, $options);
 
     return $password;
@@ -456,10 +456,10 @@ function hashPassword(string $password): string
 
 /**
  * Check that a string is comprised solely of alphanumeric characters and underscores.
- * 
+ *
  * Accented regional characters are rejected. This method is designed to be used to check
  * database identifiers or object property names.
- * 
+ *
  * @param string $alnumUnderscore Input to be tested.
  * @return bool True if valid alphanumerical or underscore string, false otherwise.
  */
@@ -474,7 +474,7 @@ function isAlnumUnderscore(string $alnumUnderscore): bool
 
 /**
  * Check if an email address is valid.
- * 
+ *
  * Note that valid email addresses can contain database-unsafe characters such as single quotes.
  *
  * @param string $email Input to be tested.
@@ -491,10 +491,10 @@ function isEmail(string $email)
 
 /**
  * Check if the character encoding of text is UTF-8.
- * 
+ *
  * All strings received from external sources must be passed through this function, particularly
  * prior to storage in the database.
- * 
+ *
  * @param string $text Input string to check.
  * @return bool True if string is UTF-8 encoded otherwise false.
  */
@@ -505,21 +505,21 @@ function isUtf8(string $text): bool
 
 /**
  * Cast to string, check UTF-8 encoding and strip trailing whitespace and control characters.
- * 
+ *
  * Removes trailing whitespace and control characters (ASCII <= 32 / UTF-8 points 0-32 inclusive),
  * checks for UTF-8 character set and casts input to a string. Note that the data returned by
  * this function still requires escaping at the point of use; it is not database or XSS safe.
- * 
+ *
  * As the input is cast to a string do NOT apply this function to non-string types (int, float,
  * bool, object, resource, null, array, etc).
- * 
+ *
  * @param mixed $text Input to be trimmed.
  * @return string Trimmed and UTF-8 validated string.
  */
 function trimString($text): string
 {
     $text = (string) $text;
-    
+
     if (\isUtf8($text)) {
         return \trim($text, "\x00..\x20");
     } else {
@@ -529,13 +529,13 @@ function trimString($text): string
 
 /**
  * Universal XSS output escape function for use in templates.
- * 
+ *
  * Encodes quotes (but not double encode).
- * 
+ *
  * @param   string $value Value to be XSS escaped for output.
  */
 function xss($value): string
 {
     $value = (string) $value;
-    return \htmlspecialchars($value, ENT_QUOTES, 'UTF-8', false); 
+    return \htmlspecialchars($value, ENT_QUOTES, 'UTF-8', false);
 }

@@ -6,7 +6,7 @@ namespace Tfish\ViewModel;
 
 /**
  * \Tfish\ViewModelModel\PreferenceList class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -47,7 +47,7 @@ class PreferenceList implements Viewable
 
     /**
      * Constructor
-     * 
+     *
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tfish site preference class.
      */
@@ -70,7 +70,7 @@ class PreferenceList implements Viewable
 
     /**
      * Return an instance of the site preferences class.
-     * 
+     *
      * @return  \Tfish\Entity\Preference
      */
     public function preference(): \Tfish\Entity\Preference

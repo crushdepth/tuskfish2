@@ -6,9 +6,9 @@ namespace Tfish\Traits;
 
 /**
  * \Tfish\Traits\Mimetypes trait file.
- * 
+ *
  * Provides a list of common (permitted) mimetypes for file uploads.
- * 
+ *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -16,7 +16,7 @@ namespace Tfish\Traits;
  * @package     core
  */
 
-/** 
+/**
  * Provides a list of common (permitted) mimetypes for file uploads.
  *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
@@ -30,7 +30,7 @@ trait Mimetypes
 {
     /**
      * Return a list of permitted audio mimetypes and extensions.
-     * 
+     *
      * @return  array
      */
     public function listAudioMimetypes()
@@ -45,7 +45,7 @@ trait Mimetypes
 
     /**
      * Return a list of permitted image mimetypes and extensions.
-     * 
+     *
      * @return  array
      */
     public function listImageMimetypes()
@@ -59,7 +59,7 @@ trait Mimetypes
 
     /**
      * Return a list of permitted video mimetypes and extensions.
-     * 
+     *
      * @return  array
      */
     public function listVideoMimetypes()
@@ -73,12 +73,12 @@ trait Mimetypes
 
     /**
      * Returns an array of mimetypes that are permitted for upload to the media directory.
-     * 
+     *
      * NOTE: Adding HTML or any other scripting language or executable to this list would be a
      * BAD IDEA, as such files can include PHP code, although uploaded files have execution
      * permissions removed and are stored outside of the web root in sort to prevent direct access
-     * by browser. 
-     * 
+     * by browser.
+     *
      * @return array Array of permitted mimetypes and extensions.
      *
      */

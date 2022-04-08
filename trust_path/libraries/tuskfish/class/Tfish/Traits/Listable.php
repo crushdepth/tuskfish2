@@ -4,7 +4,7 @@ namespace Tfish\Traits;
 
 /**
  * \Tfish\Traits\Listable trait file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -14,7 +14,7 @@ namespace Tfish\Traits;
  */
 
 /**
- * Provides standard implementation for common parts of the Listable interface 
+ * Provides standard implementation for common parts of the Listable interface
  * (excepting pagination and setMetadata()).
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
@@ -46,10 +46,10 @@ trait Listable
     private $secondaryOrder = '';
 
     /** Utilities. */
-    
+
     /**
      * Prepare select box options.
-     * 
+     *
      * @param   string $zeroOption The default option (text) to show in the select box.
      * @param   array $rows IDs and titles as key-value pairs.
      * @return  array Select box options as key-value pairs.
@@ -72,7 +72,7 @@ trait Listable
 
     /**
      * Sets the primary column to sort query results by.
-     * 
+     *
      * @param string $field Name of the primary column to sort the query results by.
      */
     public function setSort(string $field)
@@ -82,7 +82,7 @@ trait Listable
 
     /**
      * Sets the sorting order (ascending or descending) for the primary sort column of a result set.
-     * 
+     *
      * @param string $order Ascending (ASC) or descending (DESC).
      */
     public function setOrder(string $order)
@@ -92,7 +92,7 @@ trait Listable
 
     /**
      * Sets the secondary column to sort query results by.
-     * 
+     *
      * @param string $field Name of the secondary column to sort the query results by.
      */
     public function setSecondarySort(string $field)
@@ -102,7 +102,7 @@ trait Listable
 
     /**
      * Sets the sorting order (ascending or descending) for the secondary sort column of a result set.
-     * 
+     *
      * @param string $order Ascending (ASC) or descending (DESC).
      */
     public function setSecondaryOrder(string $order)
@@ -114,7 +114,7 @@ trait Listable
 
     /**
      * Return title of this page.
-     * 
+     *
      * @return  string
      */
     public function pageTitle(): string
@@ -124,17 +124,17 @@ trait Listable
 
     /**
      * Set the title of this page.
-     * 
+     *
      * @param   string $pageTitle Title of this page.
      */
     public function setPageTitle(string $pageTitle)
     {
         $this->pageTitle = $this->trimString($pageTitle);
     }
-    
+
     /**
      * Return the template object required by this page.
-     * 
+     *
      * @return  \Tfish\Entity\Template
      */
     public function template(): \Tfish\Entity\Template
@@ -144,7 +144,7 @@ trait Listable
 
     /**
      * Set the template used by this page.
-     * 
+     *
      * @param   string $template Name of template (alphanumeric and underscore characters only).
      */
     public function setTemplate(string $template)
@@ -161,7 +161,7 @@ trait Listable
 
     /**
      * Return the layout file name for this page view.
-     * 
+     *
      * @return  string
      */
     public function layout(): string
@@ -171,7 +171,7 @@ trait Listable
 
     /**
      * Set an alternative layout file for this page view.
-     * 
+     *
      * @param   string $layout Name of HTML template, without the file extension, (alphanumeric and underscore characters only).
      */
     public function setLayout(string $layout)
@@ -185,22 +185,22 @@ trait Listable
 
         $this->layout = $layout;
     }
-    
+
     /**
      * Return the theme used by this page.
-     * 
+     *
      * @return  string
      */
-    public function theme(): string 
+    public function theme(): string
     {
         return $this->theme;
     }
 
     /**
      * Set (change) the theme.
-     * 
+     *
      * You must ensure that the new theme directory contains the HTML template files that you need.
-     * 
+     *
      * @param   string $theme Name of theme directory (alphanumeric and underscores only).
      */
     public function setTheme(string $theme)
@@ -217,7 +217,7 @@ trait Listable
 
     /**
      * Return page-specific metadata overrides.
-     * 
+     *
      * @return  array
      */
     public function metadata(): array
@@ -227,7 +227,7 @@ trait Listable
 
     /**
      * Set page-specific overrides of the site metadata.
-     * 
+     *
      * @param   array $metadata Array of metadata as key => value pairs.
      */
     public function setMetadata(array $metadata)

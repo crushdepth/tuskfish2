@@ -6,9 +6,9 @@ namespace Tfish\Traits;
 
 /**
  * \Tfish\Traits\Rights trait file.
- * 
+ *
  * Provides a common list of intellectual property rights licenses.
- * 
+ *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -31,11 +31,11 @@ trait Rights
 {
     /**
      * Returns a list of intellectual property rights licenses for the content submission form.
-     * 
+     *
      * In the interests of brevity and sanity, a comprehensive list is not provided. Add entries
      * that you want to use to the array below. Be aware that deleting entries that are in use by
      * your content objects will cause errors.
-     * 
+     *
      * @return array Array of copyright licenses.
      */
     public function listRights(): array

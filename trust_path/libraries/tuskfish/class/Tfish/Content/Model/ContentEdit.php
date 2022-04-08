@@ -6,7 +6,7 @@ namespace Tfish\Content\Model;
 
 /**
  * \Tfish\Content\Model\ContentEdit class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -15,7 +15,7 @@ namespace Tfish\Content\Model;
  * @package     content
  */
 
-/** 
+/**
  * Model for editing content objects.
  *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
@@ -36,7 +36,7 @@ namespace Tfish\Content\Model;
  * @var         \Tfish\CriteriaFactory $criteriaFactory A factory class that returns instances of Criteria and CriteriaItem.
  * @var         \Tfish\Entity\Preference Instance of the Tfish site preferences class.
  * @var         \Tfish\Cache Instance of the Tfish cache class.
- * @var         \HTMLPurifier Instance of HTMLPurifier class. 
+ * @var         \HTMLPurifier Instance of HTMLPurifier class.
  * @var         \Tfish\FileHandler Instance of the Tfish filehandler class.
  */
 class ContentEdit
@@ -59,7 +59,7 @@ class ContentEdit
 
     /**
      * Constructor.
-     * 
+     *
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.
      * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
      * @param   \Tfish\Cache $cache Instance of the Tuskfish cache class.
@@ -86,7 +86,7 @@ class ContentEdit
 
     /**
      * Edit content object.
-     * 
+     *
      * @param   int $id ID of content object.
      * @return  array Content object data as associative array.
      */
@@ -105,7 +105,7 @@ class ContentEdit
 
     /**
      * Insert a content object into the database.
-     * 
+     *
      * @return  bool True on success, false on failure.
      */
     public function insert(): bool
@@ -144,11 +144,11 @@ class ContentEdit
 
     /**
      * Update a content object in the database.
-     * 
+     *
      * @return True on success, false on failure.
      */
     public function update(): bool
-    {        
+    {
         $content = $this->validateForm($_POST['content']);
         $tags = $this->validateTags($_POST['tags'] ?? []);
 
@@ -175,10 +175,10 @@ class ContentEdit
         }
 
         if ($savedContent['type'] !== 'TfVideo') {
-        
+
             if (!empty($savedContent['media']) && $savedContent['media'] !== $content['media']) {
                 $this->fileHandler->deleteFile('media/' . $savedContent['media']);
-            }        
+            }
 
             if ($_POST['deleteMedia'] === '1' && !empty($savedContent['media'])) {
                 $content['media'] = '';
@@ -188,7 +188,7 @@ class ContentEdit
             }
         }
 
-        // Upload any new image/media files and update file names. 
+        // Upload any new image/media files and update file names.
         $this->uploadImage($content);
 
         if ($content['type'] !== 'TfVideo') {
@@ -215,13 +215,13 @@ class ContentEdit
 
         // Properties that are used within attributes must have quotes encoded.
         $fieldsToDecode = ['metaTitle', 'metaSeo', 'metaDescription'];
-        
+
         foreach ($fieldsToDecode as $field) {
             if (isset($content[$field])) {
                 $content[$field] = htmlspecialchars_decode($content[$field], ENT_QUOTES);
             }
         }
-        
+
         return $this->database->update('content', $id, $content);
     }
 
@@ -229,19 +229,19 @@ class ContentEdit
 
     /**
      * Check if the object used to be a TfCollection and delete parental references if necessary.
-     * 
+     *
      * When updating an object, this method is used to check if it used to be a collection. If so,
      * other content objects referring to it as parent will need to be updated. Note that you must
-     * pass in the SAVED copy of the object from the database, rather than the 'current' version, 
+     * pass in the SAVED copy of the object from the database, rather than the 'current' version,
      * as the purpose of the method is to determine if the object *used to be* a collection.
-     * 
+     *
      * @param   array $content An array of the updated content object data as key value pairs.
      * @param   array $savedContent The old content object data as currently stored in database.
      */
     private function checkExCollection(array $content, array $savedContent)
     {
         if ($savedContent['type'] === 'TfCollection' && $content['type'] !== 'TfCollection') {
-            
+
             $criteria = $this->criteriaFactory->criteria();
             $criteria->add($this->criteriaFactory->item('parent', (int) $content['id']));
 
@@ -253,11 +253,11 @@ class ContentEdit
 
     /**
      * Get all colllection-type content objects.
-     * 
+     *
      * @return  array Array of collections.
      */
     public function collections()
-    {        
+    {
         $criteria = $this->criteriaFactory->criteria();
 
         $criteria->add($this->criteriaFactory->item('type', 'TfCollection'));
@@ -278,7 +278,7 @@ class ContentEdit
 
     /**
      * Get a single content object as an associative array.
-     * 
+     *
      * @param   int $id ID of content object.
      * @return  array
      */
@@ -295,7 +295,7 @@ class ContentEdit
 
     /**
      * Move an uploaded image from temporary to permanent storage location.
-     * 
+     *
      * @param   array $content Content object as associative array.
      */
     private function uploadImage(array & $content)
@@ -303,7 +303,7 @@ class ContentEdit
         if (!empty($_FILES['content']['name']['image'])) {
             $filename = $this->trimString($_FILES['content']['name']['image']);
             $cleanFilename = $this->fileHandler->uploadFile($filename, 'image');
-            
+
             if ($cleanFilename) {
                 $content['image'] = $cleanFilename;
             }
@@ -312,14 +312,14 @@ class ContentEdit
 
     /**
      * Move an uploaded media file from temporary to permanent storage location.
-     * 
+     *
      * @param   array $content Content object as associative array.
      */
     private function uploadMedia(array & $content)
-    {        
+    {
         if (!empty($_FILES['content']['name']['media'])) {
             $filename = $this->trimString($_FILES['content']['name']['media']);
-            
+
             $cleanFilename = $this->fileHandler->uploadFile($filename, 'media');
 
             if ($cleanFilename) {
@@ -333,7 +333,7 @@ class ContentEdit
 
     /**
      * Validate submitted form data for content object.
-     * 
+     *
      * @param   array $form Submitted form data.
      * @return  array Validated form data.
      */
@@ -359,7 +359,7 @@ class ContentEdit
 
         $id = ((int) ($form['id'] ?? 0));
         if ($id > 0) $clean['id'] = $id;
-        
+
         $clean['title'] = $this->trimString($form['title'] ?? '');
 
         // Validate HTML fields.
@@ -382,7 +382,7 @@ class ContentEdit
         }
 
         $format = $this->trimString($form['format'] ?? '');
-        
+
         if (!empty($format) && !\in_array($format, $this->listMimetypes())) {
             \trigger_error(TFISH_ERROR_ILLEGAL_MIMETYPE, E_USER_ERROR);
         }

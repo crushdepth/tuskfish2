@@ -6,7 +6,7 @@ namespace Tfish\Content\Model;
 
 /**
  * \Tfish\Content\Model\Listing class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -37,7 +37,7 @@ class Listing
     use \Tfish\Content\Traits\ContentTypes;
     use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
-    
+
     private $database;
     private $criteriaFactory;
     private $preference;
@@ -45,7 +45,7 @@ class Listing
 
     /**
      * Constructor.
-     * 
+     *
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.
      * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish site preferences class.
@@ -68,7 +68,7 @@ class Listing
 
     /**
      * Get a single content object.
-     * 
+     *
      * @param   int $id ID of the content object to retrieve.
      * @return  Mixed \Tfish\Content\Entity\Content on success, false on failure.
      */
@@ -97,7 +97,7 @@ class Listing
         if ($content && $content->type() !== 'TfDownload') {
             $this->updateCounter($id);
         }
-        
+
         // Pass in the minimum views preference value.
         if ($content) {
             $content->setMinimumViews($this->preference->minimumViews());
@@ -108,7 +108,7 @@ class Listing
 
     /**
      * Get content objects matching filtering criteria.
-     * 
+     *
      * @param   array $params Filtering criteria.
      * @return  array Array of content objects.
      */
@@ -117,7 +117,7 @@ class Listing
         $cleanParams = $this->validateParams($params);
         $criteria = $this->setCriteria($cleanParams);
 
-        return $this->runQuery($criteria);        
+        return $this->runQuery($criteria);
     }
 
     /* Utilties. */
@@ -141,7 +141,7 @@ class Listing
 
     /**
      * Count the number of content objects meeting the filtering criteria.
-     * 
+     *
      * @param   \Tfish\Criteria $criteria Filter criteria.
      * @return  int Count.
      */
@@ -152,7 +152,7 @@ class Listing
 
     /**
      * Get content objects.
-     * 
+     *
      * @param   \Tfish\Criteria $criteria Filter criteria.
      * @return  array Array of content objects as associative arrays.
      */
@@ -171,7 +171,7 @@ class Listing
 
     /**
      * Set filter criteria for listing content.
-     * 
+     *
      * @param   array $params Filter criteria.
      * @return   \Tfish\Criteria Query composer.
      */
@@ -207,7 +207,7 @@ class Listing
 
         if (!empty($cleanParams['start']))
             $criteria->setOffset($cleanParams['start']);
-       
+
         if (!empty($cleanParams['sort'])) {
             $criteria->setSort($cleanParams['sort']);
             $criteria->setOrder($cleanParams['order']);
@@ -227,7 +227,7 @@ class Listing
 
     /**
      * Increment the view/download counter for a content object.
-     * 
+     *
      * @param   int $id ID of content object.
      */
     private function updateCounter(int $id)
@@ -237,7 +237,7 @@ class Listing
 
     /**
      * Validate parameters for filtering content.
-     * 
+     *
      * @param   array $params Parameters for filtering content.
      * @return  array Validated parameters.
      */
@@ -257,7 +257,7 @@ class Listing
         if ($params['limit'] ?? 0) {
             $cleanParams['limit'] = (int) $params['limit'];
         }
-        
+
         if ($params['tag'] ?? 0)
             $cleanParams['tag'] = (int) ($params['tag']);
 
@@ -278,7 +278,7 @@ class Listing
         }
 
         if (isset($params['order'])) {
-            
+
             if ($params['order'] === 'ASC') {
                 $cleanParams['order'] = 'ASC';
             } else {
@@ -291,7 +291,7 @@ class Listing
         }
 
         if (isset($params['secondaryOrder'])) {
-            
+
             if ($params['secondaryOrder'] === 'ASC') {
                 $cleanParams['secondaryOrder'] = 'ASC';
             } else {

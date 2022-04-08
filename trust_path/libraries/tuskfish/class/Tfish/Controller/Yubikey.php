@@ -6,7 +6,7 @@ namespace Tfish\Controller;
 
 /**
  * \Tfish\Controller\Yubikey class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -41,7 +41,7 @@ namespace Tfish\Controller;
 
     /**
      * Constructor
-     * 
+     *
      * @param   object $model Instance of a model class.
      * @param   object $viewModel Instance of a viewModel class.
      * @param   \Tfish\Session Instance of the session management class.
@@ -57,7 +57,7 @@ namespace Tfish\Controller;
 
     /**
      * Display the Yubikey login form.
-     * 
+     *
      * @return  array Empty array (the output of this action is not cached).
      */
     public function display(): array
@@ -69,14 +69,14 @@ namespace Tfish\Controller;
 
     /**
      * Process login submission.
-     * 
+     *
      * @return  array Empty array (the output of this action is not cached).
      */
     public function login(): array
     {
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
-        
+
         if (isset($_POST['password']) && isset($_POST['yubikeyOtp'])) {
             $this->model->setSession($this->session);
             $this->model->login($_POST['password'], $_POST['yubikeyOtp']);

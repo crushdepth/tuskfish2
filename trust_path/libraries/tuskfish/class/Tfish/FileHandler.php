@@ -6,7 +6,7 @@ namespace Tfish;
 
 /**
  * \Tfish\FileHandler class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -17,10 +17,10 @@ namespace Tfish;
 
 /**
  * Provides methods for handling common file operations.
- * 
+ *
  * In some cases, sensitive operations are restricted to a particular directory (for example, file
  * uploads).
- * 
+ *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -39,9 +39,9 @@ class FileHandler
 
     /**
      * Append a string to a file.
-     * 
+     *
      * Do not set the $filepath using untrusted data sources, such as user input.
-     * 
+     *
      * @param string $filepath Path to the target file.
      * @param string $contents Content to append to the target file.
      * @return bool True on success false on failure.
@@ -53,19 +53,19 @@ class FileHandler
             \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
             return false;
         }
-        
+
         $cleanFilepath = $this->trimString($filepath);
         // NOTE: Calling trim() removes linefeed from the contents.
         $cleanContent = PHP_EOL . $this->trimString($contents);
-        
+
         if ($cleanFilepath && $cleanContent) {
             $result = $this->_appendToFile($cleanFilepath, $cleanContent);
-            
+
             if (!$result) {
                 \trigger_error(TFISH_ERROR_FAILED_TO_APPEND_FILE, E_USER_NOTICE);
                 return false;
             }
-            
+
             return true;
         }
 
@@ -82,9 +82,9 @@ class FileHandler
 
     /**
      * Deletes the contents of a specific directory, subdirectories are unaffected.
-     * 
+     *
      * Do NOT set the $filepath using untrusted data sources, such as user input.
-     * 
+     *
      * @param string $filepath Path to the target directory.
      * @return bool True on success false on failure.
      */
@@ -95,22 +95,22 @@ class FileHandler
             \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
             return false;
         }
-        
+
         $cleanFilepath = $this->trimString($filepath);
-        
+
         if (!empty($cleanFilepath)) {
             $result = $this->_clearDirectory($cleanFilepath);
-            
+
             if (!$result) {
                 \trigger_error(TFISH_ERROR_FAILED_TO_DELETE_DIRECTORY, E_USER_NOTICE);
                 return false;
             }
-            
+
             return true;
         }
-        
+
         \trigger_error(TFISH_ERROR_REQUIRED_PARAMETER_NOT_SET, E_USER_NOTICE);
-        
+
         return false;
     }
 
@@ -118,7 +118,7 @@ class FileHandler
     private function _clearDirectory(string $filepath): bool
     {
         $resolved_path = $this->_dataFilePath($filepath);
-        
+
         if ($resolved_path) {
             try {
                 foreach (new \DirectoryIterator($resolved_path) as $file) {
@@ -141,7 +141,7 @@ class FileHandler
     /**
      * Prepends the upload directory path to a file or folder name and checks that the path
      * does not contain directory traversals.
-     * 
+     *
      * Note that the running script must have executable permissions on all directories in the
      * hierarchy, otherwise realpath() will return FALSE (this is a realpath() limitation).
      *
@@ -153,7 +153,7 @@ class FileHandler
         if (\mb_strlen($filepath, 'UTF-8') > 0) {
             $filepath = \rtrim($filepath, '/');
             $filepath = TFISH_UPLOADS_PATH . $filepath;
-            $resolvedPath = \realpath($filepath);           
+            $resolvedPath = \realpath($filepath);
 
             // To avoid clashes with Windows director separator:
             $testPath = \mb_strtolower($filepath, "UTF-8");
@@ -166,15 +166,15 @@ class FileHandler
                 return false; // Path is bad.
             }
         }
-        
+
         return false;
     }
 
     /**
      * Destroys a directory and all contents recursively relative to the data_file directory.
-     * 
+     *
      * Do NOT set the $filepath using untrusted data sources, such as user input.
-     * 
+     *
      * @param string $filepath Path relative to data_file directory.
      * @return bool True on success, false on failure.
      */
@@ -185,27 +185,27 @@ class FileHandler
             \trigger_error(TFISH_ERROR_FAILED_TO_DELETE_DIRECTORY, E_USER_NOTICE);
             return false;
         }
-        
+
         // Check for directory traversals and null byte injection.
         if ($this->hasTraversalorNullByte($filepath)) {
             \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
             return false;
         }
-        
+
         $cleanFilepath = $this->trimString($filepath);
-        
+
         if ($cleanFilepath) {
             $result = $this->_deleteDirectory($cleanFilepath);
             if (!$result) {
                 \trigger_error(TFISH_ERROR_FAILED_TO_DELETE_DIRECTORY, E_USER_NOTICE);
                 return false;
             }
-            
+
             return true;
         }
-        
+
         \trigger_error(TFISH_ERROR_REQUIRED_PARAMETER_NOT_SET, E_USER_NOTICE);
-        
+
         return false;
     }
 
@@ -213,12 +213,12 @@ class FileHandler
     private function _deleteDirectory(string $filepath): bool
     {
         $filepath = $this->_dataFilePath($filepath);
-        
+
         if ($filepath) {
             try {
                 $iterator = new \RecursiveDirectoryIterator(
                         $filepath,\RecursiveDirectoryIterator::SKIP_DOTS);
-                
+
                 foreach (new \RecursiveIteratorIterator(
                         $iterator, \RecursiveIteratorIterator::CHILD_FIRST) as $file) {
                     if ($file->isDir()) {
@@ -234,17 +234,17 @@ class FileHandler
                 return false;
             }
         }
-        
+
         \trigger_error(TFISH_ERROR_BAD_PATH, E_USER_NOTICE);
-        
+
         return false;
     }
 
     /**
      * Destroys an individual file in the data_file directory.
-     * 
+     *
      * Do not set the $filepath using untrusted data sources, such as user input.
-     * 
+     *
      * @param string $filepath Path relative to the data_file directory.
      * @return bool True on success, false on failure.
      */
@@ -255,22 +255,22 @@ class FileHandler
             \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
             return false;
         }
-        
+
         $cleanFilepath = $this->trimString($filepath);
-        
+
         if (!empty($cleanFilepath)) {
             $result = $this->_deleteFile($cleanFilepath);
-            
+
             if (!$result) {
                 \trigger_error(TFISH_ERROR_FAILED_TO_DELETE_FILE, E_USER_NOTICE);
                 return false;
             }
-            
+
             return true;
         }
-        
+
         \trigger_error(TFISH_ERROR_REQUIRED_PARAMETER_NOT_SET, E_USER_NOTICE);
-        
+
         return false;
     }
 
@@ -278,11 +278,11 @@ class FileHandler
     private function _deleteFile(string $filepath): bool
     {
         $filepath = $this->_dataFilePath($filepath);
-        
+
         if ($filepath && \file_exists($filepath)) {
             try {
                 \unlink($filepath);
-            } catch (Exeption $e) {
+            } catch (\Exception $e) {
                 \trigger_error(TFISH_ERROR_FAILED_TO_DELETE_FILE, E_USER_NOTICE);
             }
         } else {
@@ -295,7 +295,7 @@ class FileHandler
 
     /**
      * Upload a file to the uploads/image or uploads/media directory and set permissions to 644.
-     * 
+     *
      * @param string $filename Filename.
      * @param string $fieldname Name of form field associated with this upload ('image' or 'media').
      * @return string|bool Filename on success, false on failure.
@@ -307,10 +307,10 @@ class FileHandler
             \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
             exit;
         }
-        
+
         $filename = $this->trimString($filename);
         $cleanFilename = \mb_strtolower(pathinfo($filename, PATHINFO_FILENAME), 'UTF-8');
-        
+
         // Check that target directory is whitelisted (locked to uploads/image or uploads/media).
         if ($fieldname === 'image' || $fieldname === 'media') {
             $clean_fieldname = $this->trimString($fieldname);
@@ -323,11 +323,11 @@ class FileHandler
         $extension = \mb_strtolower(pathinfo($filename, PATHINFO_EXTENSION), 'UTF-8');
         $clean_extension = \array_key_exists($extension, $mimetypeList)
                 ? $this->trimString($extension) : false;
-        
+
         if ($cleanFilename && $clean_fieldname && $clean_extension) {
             return $this->_uploadFile($cleanFilename, $clean_fieldname, $clean_extension);
         }
-        
+
         if (!$clean_extension) {
             \trigger_error(TFISH_ERROR_ILLEGAL_MIMETYPE, E_USER_NOTICE);
         } else {
@@ -342,7 +342,7 @@ class FileHandler
     {
         $filename = \time() . '_' . $filename;
         $upload_path = TFISH_UPLOADS_PATH . $fieldname . '/' . $filename . '.' . $extension;
-        
+
         if ($_FILES['content']["error"][$fieldname]) {
             switch ($_FILES['content']["error"][$fieldname]) {
                 case 1: // UPLOAD_ERR_INI_SIZE
@@ -376,7 +376,7 @@ class FileHandler
                     break;
             }
         }
-        
+
         if (!\move_uploaded_file($_FILES['content']["tmp_name"][$fieldname], $upload_path)) {
             \trigger_error(TFISH_ERROR_FILE_UPLOAD_FAILED, E_USER_ERROR);
         } else {
@@ -385,7 +385,7 @@ class FileHandler
                 return $filename . '.' . $extension;
             }
         }
-        
+
         return false;
     }
 }

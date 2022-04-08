@@ -3,19 +3,19 @@
 <html lang="<?php echo xss($metadata->language); ?>">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">    
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="<?php echo xss($metadata->description); ?>">
     <meta name="author" content="<?php echo xss($metadata->author); ?>">
     <meta name="dcterms.rights" content="<?php echo xss($metadata->copyright); ?>">
     <meta name="robots" content="<?php echo xss($metadata->robots); ?>">
     <link rel="alternate" type="application/rss+xml" title="RSS" href="<?php echo TFISH_URL . 'rss.php'; ?>" />
     <link rel="schema.dcterms" href="http://purl.org/dc/terms/">
-    
+
     <?php if (!empty($metadata->canonicalUrl)): ?>
     <!-- Canonical URL -->
     <link rel="canonical" href="<?php echo xss($metadata->canonicalUrl); ?>">
     <?php endif; ?>
-    
+
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="<?php echo TFISH_URL . 'apple-touch-icon.png'; ?>">
     <link rel="icon" type="image/png" sizes="32x32" href="<?php echo TFISH_URL . 'favicon-32x32.png'; ?>">
@@ -26,14 +26,14 @@
     <meta name="theme-color" content="#ffffff">
 
     <title><?php echo xss($metadata->title); ?></title>
-    
+
     <!-- jQuery -->
     <script src="<?php echo TFISH_VENDOR_URL . 'jquery/jquery.min.js'; ?>"></script>
-    
+
     <!-- Bootstrap -->
     <link href="<?php echo TFISH_VENDOR_URL . 'bootstrap/css/bootstrap.min.css'; ?>" rel="stylesheet">
     <script src="<?php echo TFISH_VENDOR_URL . 'bootstrap/js/bootstrap.bundle.min.js'; ?>"></script>
-    
+
     <!-- Font Awesome -->
     <script defer src="<?php echo TFISH_VENDOR_URL . 'fontawesome/fontawesome.min.js'; ?>"></script>
     <script defer src="<?php echo TFISH_VENDOR_URL . 'fontawesome/icons-in-use.js'; ?>"></script>
@@ -53,7 +53,7 @@
         convert_urls: false,
   });
     </script>
-    
+
     <!-- Bootstrap-datepicker -->
     <link href="<?php echo TFISH_VENDOR_URL . 'bootstrap-datepicker/css/bootstrap-datepicker3.min.css'; ?>" media="all" rel="stylesheet" type="text/css" />
     <script src="<?php echo TFISH_VENDOR_URL . 'bootstrap-datepicker/js/bootstrap-datepicker.min.js'; ?>"></script>
@@ -63,7 +63,7 @@
     <script src="<?php echo TFISH_VENDOR_URL . 'bootstrap-fileinput/js/fileinput.js'; ?>"></script>
     <script src="<?php echo TFISH_VENDOR_URL . 'bootstrap-fileinput/themes/fa/theme.js'; ?>"></script>
     <?php endif; ?>
-  
+
     <!-- Custom styles for this template -->
     <link href="<?php echo TFISH_THEMES_URL . 'admin/style.css'; ?>" rel="stylesheet">
   </head>
@@ -126,7 +126,7 @@
         <?php if ($page ?? null): ?>
         <?php echo $page; ?>
         <?php endif; ?>
-        
+
         <!-- Footer -->
         <div class="container">
           <div class="row">
@@ -138,10 +138,10 @@
             </div>
           </div>
         </div>
-        
+
       </div>
-        
+
     </main>
-    
+
   </body>
 </html>

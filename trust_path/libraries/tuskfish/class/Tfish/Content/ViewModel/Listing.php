@@ -6,7 +6,7 @@ namespace Tfish\Content\ViewModel;
 
 /**
  * \Tfish\Content\ViewModel\Listing class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -32,17 +32,17 @@ namespace Tfish\Content\ViewModel;
  * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  * @var         \Tfish\Content\Entity\content $content A single content object for display.
  * @var         array $contentTags Array of tag IDs/names associated with a single content object.
- * @var         array $contentList An array of content objects to be displayed in this page view. 
- * @var         int $contentCount The number of content objects that match filtering criteria. Used to build pagination control. 
+ * @var         array $contentList An array of content objects to be displayed in this page view.
+ * @var         int $contentCount The number of content objects that match filtering criteria. Used to build pagination control.
  * @var         \Tfish\Content\Entity\Content $parent The parent of this content (the collection to which it belongs).
- * @var         array $children Array of content objects that are members of this collection. 
+ * @var         array $children Array of content objects that are members of this collection.
  * @var         string $description Long-form description of this content.
  * @var         string $author Creator of this content.
  * @var         string $backUrl $backUrl URL to return to if the user cancels the action.
- * @var         string $response Message to display to the user after processing action (success/failure). 
+ * @var         string $response Message to display to the user after processing action (success/failure).
  * @var         int $id ID of a single content object to be displayed.
  * @var         int $start Position in result set to retrieve objects from.
- * @var         int $tag Filter search results by tag ID. 
+ * @var         int $tag Filter search results by tag ID.
  * @var         string $type Filter search results by content type.
  * @var         int $onlineStatus Filter search results by online (1) or offline (0) status.
  */
@@ -52,7 +52,7 @@ class Listing implements \Tfish\ViewModel\Listable
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
-    
+
     private $model;
     private $preference;
     private $content = '';
@@ -73,7 +73,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Constructor.
-     * 
+     *
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
@@ -130,7 +130,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Return IDs and titles of tags that are actually in use with content objects.
-     * 
+     *
      * @param   string $zeroOption Text for the default (unselected) option.
      * @return  array IDs and titles as key-value pairs.
      */
@@ -144,9 +144,9 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Return canonical URL for this page view.
-     * 
+     *
      * Used to populate the canonical link tag in theme files.
-     * 
+     *
      * @return  string
      */
     public function canonicalUrl(): string
@@ -187,7 +187,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Return tags associated with a content object.
-     * 
+     *
      * @return  array Array of tags as id/title key-value pairs.
      */
     public function contentTags()
@@ -199,7 +199,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Return extra parameters to be included in pagination control links.
-     * 
+     *
      * @return  array
      */
     public function extraParams(): array
@@ -225,7 +225,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Get a content object.
-     * 
+     *
      * @param   int $id ID of content object.
      */
     public function getObject(int $id)
@@ -235,7 +235,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Return user-side pagination limit.
-     * 
+     *
      * @return  int Number of items to display on user-side pages.
      */
     public function limit(): int
@@ -245,7 +245,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Get children of a content object (collection or tag).
-     * 
+     *
      * @return  array Array of content objects.
      */
     public function listChildren()
@@ -261,7 +261,7 @@ class Listing implements \Tfish\ViewModel\Listable
             'secondaryOrder' => $this->secondaryOrder
         ];
 
-        if ($this->content->type() === 'TfTag') $params['tag'] = $this->content->id();  
+        if ($this->content->type() === 'TfTag') $params['tag'] = $this->content->id();
         if ($this->content->type() === 'TfCollection') $params['parent'] = $this->content->id();
 
         $this->children = $this->model->getObjects($params);
@@ -269,7 +269,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Get content objects matching cached filter criteria.
-     * 
+     *
      * Result is cached as $contentList property.
      */
     public function listContent()
@@ -294,9 +294,9 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Return the backUrl.
-     * 
+     *
      * If the cancel button is clicked, the user will be redirected to the backUrl.
-     * 
+     *
      * @return  string
      */
     public function backUrl(): string
@@ -306,7 +306,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Return children.
-     * 
+     *
      * @return  array Array of content objects.
      */
     public function children()
@@ -316,7 +316,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Return content object.
-     * 
+     *
      * @return  \Tfish\Content\Entity\Content
      */
     public function content()
@@ -326,7 +326,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Return content count.
-     * 
+     *
      * @return  int Number of content objects that match filtering criteria.
      */
     public function contentCount(): int
@@ -336,7 +336,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Return content list.
-     * 
+     *
      * @return  array Array of content objects.
      */
     public function contentList(): array
@@ -354,7 +354,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Return ID.
-     * 
+     *
      * @return  int ID of content object.
      */
     public function id(): int
@@ -364,7 +364,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Set ID.
-     * 
+     *
      * @param   int $id ID of content object.
      */
     public function setId(int $id)
@@ -374,7 +374,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Returns the Google Maps API key (if set) from preferences.
-     * 
+     *
      * @return  string Google Maps API key.
      */
     public function mapsApiKey(): string
@@ -384,7 +384,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Return parent of a content object.
-     * 
+     *
      * @return  \Tfish\Content\Entity\Content Parent content object.
      */
     public function parent()
@@ -394,7 +394,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Return start.
-     * 
+     *
      * @return int ID of first object to view in the set of available records.
      */
     public function start(): int
@@ -404,7 +404,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Set start.
-     * 
+     *
      * @param   int $start of first object to view in the set of available records.
      */
     public function setStart(int $start)
@@ -414,7 +414,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Return tag ID.
-     * 
+     *
      * @return  int
      */
     public function tag(): int
@@ -424,7 +424,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Set tag ID.
-     * 
+     *
      * @param   int $tag ID of tag.
      */
     public function setTag(int $tag)
@@ -434,7 +434,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Return type.
-     * 
+     *
      * @return  string Type of content object.
      */
     public function type(): string
@@ -444,9 +444,9 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Set type.
-     * 
+     *
      * Filter list by content type.
-     * 
+     *
      * @param   string $type Type of content object.
      */
     public function setType(string $type)
@@ -456,7 +456,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Return online status.
-     * 
+     *
      * @return  int Online (1) or offline (0).
      */
     public function onlineStatus(): int
@@ -466,7 +466,7 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Return the response message (success or failure) for an action.
-     * 
+     *
      * @return  string
      */
     public function response(): string
@@ -476,9 +476,9 @@ class Listing implements \Tfish\ViewModel\Listable
 
     /**
      * Set page-specific overrides of the site metadata.
-     * 
+     *
      * Overrides trait setMetadata().
-     * 
+     *
      * @param   array $metadata Metadata overrides as key-value pairs.
      */
     public function setMetadata(array $metadata = [])

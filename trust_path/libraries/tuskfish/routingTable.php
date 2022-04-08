@@ -6,7 +6,7 @@ namespace Tfish;
 
 /**
  * Stores the static routing table used by the Router class.
- * 
+ *
  * The routing table is used to select components to initialise for a given page (route).
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)

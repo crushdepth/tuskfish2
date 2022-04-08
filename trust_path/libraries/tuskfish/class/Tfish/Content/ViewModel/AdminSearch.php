@@ -6,7 +6,7 @@ namespace Tfish\Content\ViewModel;
 
 /**
  * \Tfish\Content\ViewModel\AdminSearch class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -64,7 +64,7 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
     /**
      * Constructor.
-     * 
+     *
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
@@ -92,11 +92,11 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
     /**
      * Search.
-     * 
+     *
      * Search results are cached in the property $searchResults.
      */
     public function search()
-    {        
+    {
         $searchResults = $this->model->search([
             'searchTerms' => $this->searchTerms,
             'escapedSearchTerms' => $this->escapedSearchTerms,
@@ -122,7 +122,7 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
     /**
      * Return admin-side pagination limit.
-     * 
+     *
      * @return  int Number of items to display on admin-side pages.
      */
     public function limit(): int
@@ -132,7 +132,7 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
     /**
      * Return URL to edit a content object.
-     * 
+     *
      * @param   int $id ID of content object.
      * @return  string URL of edit link.
      */
@@ -145,7 +145,7 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
     /**
      * Return content count.
-     * 
+     *
      * @return  int The number of objects that meet the search criteria.
      */
     public function contentCount(): int
@@ -155,7 +155,7 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
     /**
      * Return search results.
-     * 
+     *
      * @return  array
      */
     public function searchResults(): array
@@ -165,7 +165,7 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
     /**
      * Return start.
-     * 
+     *
      * @return int ID of first object to view in the set of available records.
      */
     public function start(): int
@@ -175,7 +175,7 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
     /**
      * Set the starting position in the set of available object.
-     * 
+     *
      * @param int $start ID of first object to view in the set of available records.
      */
     public function setStart(int $start)
@@ -185,9 +185,9 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
     /**
      * Return the action for this page.
-     * 
+     *
      * The action is usually embedded in the form, to control handling on submission (next page load).
-     * 
+     *
      * @return string
      */
     public function action(): string
@@ -197,7 +197,7 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
     /**
      * Set action.
-     * 
+     *
      * @param   string $action Action is embedded in the form, to control handling on submission (next page load)
      */
     public function setAction(string $action)
@@ -207,7 +207,7 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
     /**
      * Return search terms.
-     * 
+     *
      * @return  array
      */
     public function searchTerms(): array
@@ -217,7 +217,7 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
     /**
      * Return search terms for display in form.
-     * 
+     *
      * @return  string
      */
     public function searchTermsForForm(): string
@@ -227,7 +227,7 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
     /**
      * Set search terms.
-     * 
+     *
      * @param   string $searchTerms Search terms (keywords).
      */
     public function setSearchTerms(string $searchTerms)
@@ -246,33 +246,33 @@ class AdminSearch implements \Tfish\ViewModel\Listable
             $searchTerms = [$searchTerms];
             $escapedSearchTerms = [$escapedSearchTerms];
         }
-        
+
         // Trim search terms and discard any that are less than the minimum search length characters.
         foreach ($searchTerms as $term) {
             $term = $this->trimString($term);
-            
+
             if (!empty($term) && \mb_strlen($term, 'UTF-8') >= $this->preference->minSearchLength()) {
                 $cleanSearchTerms[] = $term;
             }
         }
-        
+
         $this->searchTerms = $cleanSearchTerms;
-        
+
         foreach ($escapedSearchTerms as $escapedTerm) {
             $escapedTerm = $this->trimString($escapedTerm);
-            
+
             if (!empty($escapedTerm) && \mb_strlen($escapedTerm, 'UTF-8')
                     >= $this->preference->minSearchLength()) {
                 $cleanEscapedSearchTerms[] = $escapedTerm;
             }
         }
-        
+
         $this->escapedSearchTerms = $cleanEscapedSearchTerms;
     }
 
     /**
      * Return search terms XSS escaped for display.
-     * 
+     *
      * @return  array
      */
     public function escapedSearchTerms(): array
@@ -282,7 +282,7 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
     /**
      * Return search type.
-     * 
+     *
      * @return  string Options are: "AND", "OR", "exact".
      */
     public function searchType(): string
@@ -292,7 +292,7 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
     /**
      * Set search type.
-     * 
+     *
      * @param   string $searchType Options are: "AND", "OR", "exact".
      */
     public function setSearchType(string $searchType)
@@ -306,7 +306,7 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
     /**
      * Return extra parameters to be included in pagination control links.
-     * 
+     *
      * @return  array
      */
     public function extraParams(): array
@@ -330,7 +330,7 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
     /**
      * Return onlineStatus
-     * 
+     *
      * @return  int Both online and offline content (0).
      */
     public function onlineStatus(): int
@@ -340,9 +340,9 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
     /**
      * Return tag ID.
-     * 
+     *
      * Not in use.
-     * 
+     *
      * @return  int
      */
     public function tag(): int
@@ -352,9 +352,9 @@ class AdminSearch implements \Tfish\ViewModel\Listable
 
     /**
      * Set tag ID.
-     * 
+     *
      * Not in use.
-     * 
+     *
      * @param   int $tag ID of tag.
      */
     public function setTag(int $tag)

@@ -7,7 +7,7 @@ namespace Tfish\Content\Model;
 
 /**
  * \Tfish\Content\Model\Rss class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -32,7 +32,7 @@ namespace Tfish\Content\Model;
  */
 
 class Rss
-{    
+{
     private $database;
     private $criteriaFactory;
     private $preference;
@@ -40,7 +40,7 @@ class Rss
 
     /**
      * Constructor.
-     * 
+     *
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.
      * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish site preferences class.
@@ -63,7 +63,7 @@ class Rss
 
     /**
      * Customise RSS feed title and description for a specific tag or collection.
-     * 
+     *
      * @param   int $id ID of a target tag or collection object.
      * @return array Array containing title and description of custom feed.
      */
@@ -85,7 +85,7 @@ class Rss
 
     /**
      * Return content objects for the feed.
-     * 
+     *
      * @param   int $parentId ID of the parent collection, if any.
      * @return  array Array of content objects.
      */
@@ -112,7 +112,7 @@ class Rss
 
     /**
      * Return content objects for a given tag.
-     * 
+     *
      * @param   int $tagId ID of the tag.
      * @return  array Array of content objects.
      */
@@ -121,7 +121,7 @@ class Rss
         if ($tagId < 1) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
         }
-        
+
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('module', 'content'));
         $criteria->add($this->criteriaFactory->item('tagId', $tagId));
@@ -137,7 +137,7 @@ class Rss
         }
 
         $sql = "SELECT * FROM `content` WHERE `id` IN (";
-        
+
         foreach ($params as $id) {
             $sql .= "?,";
         }
@@ -159,6 +159,6 @@ class Rss
         }
 
         return $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Content\Entity\Content');
-        
+
     }
 }

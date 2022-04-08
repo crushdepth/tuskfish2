@@ -8,7 +8,7 @@
   <div class="float-start">
     <figure class="figure-left">
       <a href="<?php echo xss($parent->url()); ?>">
-        <img class="image img-fluid" src="<?php echo $parent->cachedImage(150); ?>" 
+        <img class="image img-fluid" src="<?php echo $parent->cachedImage(150); ?>"
         <?php if ($parent->caption()): ?>
           title="<?php echo xss($parent->caption()); ?>" alt="<?php echo xss($parent->caption()); ?>"
         <?php else: ?>

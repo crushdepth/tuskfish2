@@ -6,7 +6,7 @@ namespace Tfish;
 
 /**
  * \Tfish\FrontController class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -17,7 +17,7 @@ namespace Tfish;
 
 /**
  * Top level controller that handles incoming requests and oversees the page generation life cycle.
- * 
+ *
  * Components are instantiated according to the a static routing table. The controller runs the
  * relevant action on the viewModel, which draws data from the model and caches it. The viewModel
  * is assigned to the template by the view. Templates access data from the viewModel directly.
@@ -44,7 +44,7 @@ class FrontController
 
     /**
      * Constructor
-     * 
+     *
      * @param   \Dice\Dice $dice DICE dependency injection container.
      * @param   \Tfish\Session $session Instance of the Tuskfish session class.
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.
@@ -87,10 +87,10 @@ class FrontController
         }
 
         \ob_start();
-        
+
         $cacheParams = $this->controller->{$action}();
         $cache->check($path, $cacheParams);
-        
+
         $this->renderLayout($metadata, $viewModel);
         $cache->save($cacheParams, \ob_get_contents());
         $database->close();
@@ -100,7 +100,7 @@ class FrontController
 
     /**
      * Check if the present route is restricted to admins.
-     * 
+     *
      * @param   \Tfish\Route $route
      */
     private function checkAdminOnly(Route $route)
@@ -113,7 +113,7 @@ class FrontController
 
     /**
      * Check if site is closed and redirect non-admins to login.
-     * 
+     *
      * @param   \Tfish\Entity\Preference $preference Tfish preference object.
      */
     private function checkSiteClosed(Entity\Preference $preference, string $path)
@@ -126,7 +126,7 @@ class FrontController
 
     /**
      * Renders the layout (main template) of a theme.
-     * 
+     *
      * @param \Tfish\Entity\Metadata $metadata Instance of the Tuskfish metadata class.
      * @param string $viewModel Instance of a viewModel class.
      */

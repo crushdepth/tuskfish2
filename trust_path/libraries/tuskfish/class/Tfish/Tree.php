@@ -35,7 +35,7 @@ namespace Tfish;
 
 /**
  * Tfish\Tree class file.
- * 
+ *
  * @copyright   XOOPS.org (https://xoops.org) 2000
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Kazumi Ono 	<onokazu@xoops.org>
@@ -47,7 +47,7 @@ namespace Tfish;
 
 /**
  * Build and manipulate a tree representing hierarchical relationships between objects.
- * 
+ *
  * Essentially this is a category tree, although collections (category analogues) are fully-fledged
  * content objects in their own right. Pass in an array of collection objects; you can choose to
  * pass in all collection objects or you can pass in a branch, in which case the tree will just
@@ -64,10 +64,10 @@ namespace Tfish;
  * @var array $_objects Array of objects to be assembled into a category tree.
  * @var string $_myId Name of the ID field used to identify objects in the tree.
  * @var string $_parentId Name of ID field used to identify an object's parent in the tree.
- * @var int $_rootId  Name of root object ID field. This is the object that will be used as 
+ * @var int $_rootId  Name of root object ID field. This is the object that will be used as
  * the base node for building a tree (or subtree) from the broader tree structure.
  * @var object $_tree Associative array that comprises the category tree.
- * 
+ *
  */
 
 class Tree
@@ -84,7 +84,7 @@ class Tree
      * @param array $objectArr Array of collection objects that the tree will be built from.
      * @param string $myId Name of the ID field used to identify objects in the tree.
      * @param string $parentId Name of ID field used to identify an object's parent in the tree.
-     * @param string $rootId Name of root object ID field. This is the object that will be used as 
+     * @param string $rootId Name of root object ID field. This is the object that will be used as
      * the base node for building a tree (or subtree) from the $objectArr.
      * */
     function __construct(array &$objectArr, string $myId, string $parentId, string $rootId = null)
@@ -92,11 +92,11 @@ class Tree
         $this->_objects = & $objectArr;
         $this->_myId = $myId;
         $this->_parentId = $parentId;
-        
+
         if (isset($rootId)) {
             $this->_rootId = $rootId;
         }
-        
+
         $this->_initialize();
     }
 
@@ -112,13 +112,13 @@ class Tree
             $key2 = $this->_objects[$i]->$parent_id_field();
             $this->_tree[$key1]['parent'] = $key2;
             $this->_tree[$key2]['child'][] = $key1;
-            
+
             if (isset($this->_rootId)) {
                 $this->_tree[$key1]['root'] = $this->_objects[$i]->getVar($this->_rootId);
             }
         }
     }
-    
+
     /**
      * Get a category tree.
      *
@@ -128,7 +128,7 @@ class Tree
     {
         return $this->_tree;
     }
-    
+
     /**
      * Returns an array of all child objects of a parental object specified by its ID.
      *
@@ -143,7 +143,7 @@ class Tree
             foreach ($this->_tree[$key]['child'] as $childkey) {
                 $ret[$childkey] = & $this->_tree[$childkey]['obj'];
                 $children = & $this->getAllChild($childkey, $ret);
-                
+
                 foreach (\array_keys($children) as $newkey) {
                     $ret[$newkey] = & $children[$newkey];
                 }
@@ -151,13 +151,13 @@ class Tree
             }
 
         }
-        
+
         return $ret;
     }
 
     /**
      * Returns an array of all parent objects.
-     * 
+     *
      * The key of returned array represents how many levels up from the specified object.
      *
      * @param string $key ID of the child object.
@@ -167,18 +167,18 @@ class Tree
      * */
     public function getAllParent(int $key, array $ret = [], int $uplevel = 1): array
     {
-        if (isset($this->_tree[$key]['parent']) 
+        if (isset($this->_tree[$key]['parent'])
                 && isset($this->_tree[$this->_tree[$key]['parent']]['obj'])) {
 
             $ret[$uplevel] = & $this->_tree[$this->_tree[$key]['parent']]['obj'];
             $parents = & $this->getAllParent($this->_tree[$key]['parent'], $ret, $uplevel + 1);
-            
+
             foreach (\array_keys($parents) as $newkey) {
                 $ret[$newkey] = & $parents[$newkey];
             }
 
         }
-        
+
         return $ret;
     }
 
@@ -202,21 +202,21 @@ class Tree
     public function getFirstChild(int $key): array
     {
         $ret = [];
-        
+
         if (isset($this->_tree[$key]['child'])) {
 
             foreach ($this->_tree[$key]['child'] as $childkey) {
                 $ret[$childkey] = & $this->_tree[$childkey]['obj'];
             }
-            
+
         }
-        
+
         return $ret;
     }
-    
+
     /**
      * Make a select box of parent collections from the tree.
-     * 
+     *
      * @param int $selected Currently selected option.
      * @param int $key ID of the object to display as root of the select options.
      * @return array Array of parent options for select box.
@@ -225,18 +225,18 @@ class Tree
     {
         $ret = [0 => TFISH_SELECT_PARENT];
         $this->_makeSelBoxOptions('title', $selected, $key, $ret, '-- ');
-        
+
         return $ret;
     }
 
     /**
      * Make select box options from the tree.
-     * 
+     *
      * Returns an indented array of options that can be used to build a HTML select box, indented
      * according to the relative hierarchy.
      *
      * @param string $name Name of the select box.
-     * @param string $fieldName Name of the member variable from the node objects that should be 
+     * @param string $fieldName Name of the member variable from the node objects that should be
      * used as the title field for the options.
      * @param string $prefix String to indent deeper levels.
      * @param int $selected Value to display as selected.
@@ -250,10 +250,10 @@ class Tree
     {
         $ret = [0 => TFISH_SELECT_BOX_ZERO_OPTION];
         $this->_makeSelBoxOptions($fieldName, $selected, $key, $ret, $prefix);
-        
+
         return $ret;
     }
-    
+
     /**
      * Make options for a select box from tree.
      *
@@ -277,7 +277,7 @@ class Tree
             $prefix_curr .= $prefix_orig;
 
         }
-        
+
         if (isset($this->_tree[$key]['child']) && !empty($this->_tree[$key]['child'])) {
 
             foreach ($this->_tree[$key]['child'] as $childkey) {
@@ -286,6 +286,6 @@ class Tree
             }
 
         }
-        
+
     }
 }

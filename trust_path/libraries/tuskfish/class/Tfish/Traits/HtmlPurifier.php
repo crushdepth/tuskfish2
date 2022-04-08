@@ -6,7 +6,7 @@ namespace Tfish\Traits;
 
 /**
  * \Tfish\Traits\HTMLPurifier trait file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -30,7 +30,7 @@ trait HtmlPurifier
 {
     /**
      * Return a configured instance of HTMLPurifier.
-     * 
+     *
      * @return \HtmlPurifier
      */
     public function getHtmlPurifier()
@@ -43,15 +43,15 @@ trait HtmlPurifier
 
     /**
      * Configure HTMLPurifier for use with Tuskfish.
-     * 
+     *
      * Tuskfish requires HTMLPurifier to use UTF-8 encoding; to allow the ID attribute in HTML,
      * which is required to provide CSS selector targets; and support for HTML5 tags.
-     * 
+     *
      * By default HTMLPurifier removes ID attributes from HTML markup, as duplicate IDs render
      * markup technically invalid. However, it is widely known that IDs are supposed to be unique
-     * and not an issue if you are doing things properly. Removing IDs breaks CSS that uses IDs as 
-     * selectors, which *is* an issue. 
-     * 
+     * and not an issue if you are doing things properly. Removing IDs breaks CSS that uses IDs as
+     * selectors, which *is* an issue.
+     *
      * @param array $configOptions HTMLPurifier configuration options (see HTMLPurifier documentation).
      * @return object HTMLPurifier configuration object.
      */
@@ -69,7 +69,7 @@ trait HtmlPurifier
                 $config->set($key, $value);
             }
         }
-        
+
         return $config;
     }
 }
