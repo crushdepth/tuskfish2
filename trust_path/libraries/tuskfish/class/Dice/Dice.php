@@ -191,8 +191,7 @@ class Dice {
 	}
 	/**
 	* Looks through the array $search for any object which can be used to fulfil $param
-	The original array $search is modifed so must be passed by reference.
-
+	* The original array $search is modifed so must be passed by reference.
 	*/
 	private function matchParam(\ReflectionParameter $param, $class, array &$search) {
 		foreach ($search as $i => $arg) {
