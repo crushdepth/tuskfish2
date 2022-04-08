@@ -6,7 +6,7 @@ namespace Tfish;
 
 /**
  * \Tfish\Cache class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -17,7 +17,7 @@ namespace Tfish;
 
 /**
  * Handles page-level caching operations.
- * 
+ *
  * Cached pages are written to the private cache directory(trust_path/cache). The cache can be
  * enabled / disabled and a expiry timer set in Tuskfish preferences.
  *
@@ -31,7 +31,7 @@ namespace Tfish;
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         \Tfish\Entity\Preference $preference An instance of the Tuskfish site preferences class.
  * @var         string $path URL path associated with this request.
- * 
+ *
  */
 class Cache
 {
@@ -40,10 +40,10 @@ class Cache
 
     private $preference;
     private $path;
-    
+
     /**
      * Constructor.
-     * 
+     *
      * @param \Tfish\Entity\Preference $preference An instance of the Tuskfish site preferences class.
      */
     function __construct(Entity\Preference $preference)
@@ -53,16 +53,16 @@ class Cache
 
     /**
      * Check if a cached page exists and has not expired, and displays it.
-     * 
+     *
      * You should only pass in parameters that you were expecting and had explicitly whitelisted
      * and have already validated. Gating the parameters in this way reduces the opportunity for
      * exploitation.
-     * 
+     *
      * If a cached page is not available controller script execution will simply proceed and the
      * FrontController will request the page be written to cache, assuming that caching is enabled.
-     * 
+     *
      * A call to check() should ALWAYS precede a call to save() in sort to set the path variable.
-     * 
+     *
      * @param string $path Path segment of requested URL, eg. parse_url($url, PHP_URL_PATH).
      * @param array $params URL Query string parameters for this page as $key => $value pairs.
      * @return string|bool Return cached page if exists, otherwise false.
@@ -78,18 +78,18 @@ class Cache
 
         // Resolve the file name.
         $fileName = $this->_getCachedFileName($params);
-    
+
         // Verify that the constructed path matches the canonical path. Exit cache if path is bad.
         $resolvedPath = \realpath(TFISH_PRIVATE_CACHE_PATH) . '/' . $fileName;
         $resolvedPath = $this->standardise($resolvedPath);
- 
+
         if ($resolvedPath != TFISH_PRIVATE_CACHE_PATH . $fileName) {
             return false;
         }
 
         // Path is good, so check if the file actually exist and has not expired. If so, flush
         // the output buffer to screen.
-        if (\file_exists($resolvedPath) && (\filemtime($resolvedPath) > 
+        if (\file_exists($resolvedPath) && (\filemtime($resolvedPath) >
                 (\time() - $this->preference->cacheLife()))) {
             echo \file_get_contents($resolvedPath);
             \ob_end_flush();
@@ -99,10 +99,10 @@ class Cache
 
     /**
      * Clear the private cache.
-     * 
+     *
      * The entire cache will be cleared. This method is called if a single object is added, edited
      * or destroyed to ensure that index pages and pagination controls stay up to date.
-     * 
+     *
      * @return bool True on success, false on failure.
      */
     public function flush(): bool
@@ -128,19 +128,19 @@ class Cache
                 }
             }
         }
-        
+
         return true;
     }
-    
+
     /**
      * Save a copy of this page to the cache directory.
-     * 
+     *
      * This function should be called after check() and before ob_end_flush(). Note that
      * warnings are suppressed when trying to open the file. The query parameters are important
      * to retrieve the precise representation of the page requested, since they change its state.
-     * 
+     *
      * To disable the cache for a particular page load, pass in empty $params array.
-     * 
+     *
      * @param array $params URL Query string parameters for this page as $key => $value pairs.
      * @param string $buffer HTML page output from ob_get_contents().
      */
@@ -155,7 +155,7 @@ class Cache
         $fileName = $this->_getCachedFileName($params);
         $filePath = \realpath(TFISH_PRIVATE_CACHE_PATH) . '/' . $fileName;
         $filePath = $this->standardise($filePath);
-        
+
         if ($filePath != TFISH_PRIVATE_CACHE_PATH . $fileName) {
             return;
         }
@@ -169,17 +169,17 @@ class Cache
 
     /**
      * Calculate the return the name of a cached file, based on query string parameters.
-     * 
+     *
      * @param array $params URL query string parameters for this page as $key => $value pairs.
      * @return string $cleanFileName Name of the cached version of a file.
      */
     private function _getCachedFileName(array $params)
     {
         $fileName = $this->path;
-        
+
         if (!empty($params)) {
 
-            foreach ($params as $key => $value) {  
+            foreach ($params as $key => $value) {
                 if ($value) {
                     $cleanKey = $this->trimString($key);
                     $cleanValue = $this->trimString($value);
@@ -188,11 +188,11 @@ class Cache
                         $fileName .= '&' . $cleanKey . '=' . $cleanValue;
                     }
                 }
-                
+
                 unset($key, $value, $cleanKey, $cleanValue);
             }
         }
-        
+
         return \mb_strtolower($fileName . '.html', "UTF-8");
     }
 

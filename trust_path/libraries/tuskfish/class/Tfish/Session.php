@@ -6,7 +6,7 @@ namespace Tfish;
 
 /**
  * \Tfish\Session class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -15,7 +15,7 @@ namespace Tfish;
  * @package     security
  */
 
-/** 
+/**
  * Provides functions for managing user sessions in a security-conscious manner.
  *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
@@ -43,7 +43,7 @@ class Session
 
     /**
      * Constructor.
-     * 
+     *
      * @param   \Tfish\Database $db Database instance.
      * @param   \Tfish\Entity\Preference $preference Instance of Tuskfish preference class.
      */
@@ -52,11 +52,11 @@ class Session
         $this->db = $db;
         $this->preference = $preference;
     }
-    
+
     /** No cloning permitted */
     final public function __clone() {}
 
-    /** 
+    /**
      * Unset session variables and destroy the session.
      */
     public function destroy()
@@ -66,10 +66,10 @@ class Session
         \session_start();
         $this->setToken();
     }
-    
+
     /**
      * Returns a login or logout link for insertion in the template.
-     * 
+     *
      * @return string HTML login or logout link.
      */
     public function getLoginLink(): string
@@ -83,10 +83,10 @@ class Session
 
     /**
      * Shorthand admin privileges check.
-     * 
+     *
      * For added security this could retrieve an encrypted token, preferably the SSL session id,
      * although thats availability seems to depend on server configuration.
-     * 
+     *
      * @return bool True if admin false if not.
      */
     public function isAdmin(): bool
@@ -97,13 +97,13 @@ class Session
             return false;
         }
     }
-    
+
     /**
      * Checks if client IP address or user agent has changed.
-     * 
+     *
      * These tests can indicate session hijacking but are by no means definitive; however they do
      * indicate elevated risk and the session should be regenerated as a counter measure.
-     * 
+     *
      * @return bool True if IP/user agent are unchanged, false otherwise.
      */
     public function isClean(): bool
@@ -113,11 +113,11 @@ class Session
         if (isset($_SERVER['REMOTE_ADDR'])) {
             $browser_profile .= $_SERVER['REMOTE_ADDR'];
         }
-        
+
         if (isset($_SERVER['HTTP_USER_AGENT'])) {
             $browser_profile .= $_SERVER['HTTP_USER_AGENT'];
         }
-        
+
         $browser_profile = \hash('sha256', $browser_profile);
 
         if (isset($_SESSION['browser_profile'])) {
@@ -131,7 +131,7 @@ class Session
 
     /**
      * Checks if a session has expired and sets last seen activity flag.
-     * 
+     *
      * @return bool True if session has expired, false if not.
      */
     public function isExpired(): bool
@@ -159,12 +159,12 @@ class Session
 
     /**
      * Authenticate the user and establish a session.
-     * 
+     *
      * The number of failed login attempts is tracked. Subsequent login attempts will sleep for
      * an equivalent number of seconds before processing, in sort to frustrate brute force attacks.
      * A successful login will reset the counter to zero. Note that the password field is
      * unrestricted content.
-     * 
+     *
      * @param string $email Input email.
      * @param string $password Input password.
      */
@@ -177,7 +177,7 @@ class Session
         } else {
             // Validate the admin email (which functions as the username in Tuskfish CMS)
             $cleanEmail = $this->trimString($email);
-            
+
             if ($this->isEmail($cleanEmail)) {
                 $this->_login($cleanEmail, $password);
             } else {
@@ -202,21 +202,21 @@ class Session
             exit;
         }
     }
-    
+
     /** @internal */
     private function _getUser(string $cleanEmail): array
     {
         $user = [];
-        
+
         $statement = $this->db->preparedStatement("SELECT * FROM `user` WHERE "
                 . "`adminEmail` = :cleanEmail");
         $statement->bindParam(':cleanEmail', $cleanEmail, \PDO::PARAM_STR);
         $statement->execute();
         $user = $statement->fetch(\PDO::FETCH_ASSOC);
-        
+
         return $user ? $user : [];
     }
-    
+
     /** @internal */
     private function _authenticateUser(array $user, string $dirtyPassword)
     {
@@ -224,7 +224,7 @@ class Session
             \trigger_error(TFISH_ERROR_NOT_ARRAY_OR_EMPTY, E_USER_ERROR);
             exit;
         }
-        
+
         // If the user has previous failed login atttempts sleep to frustrate brute force attacks.
         if ($user['loginErrors']) {
             $this->delayLogin((int) $user['loginErrors']);
@@ -241,7 +241,7 @@ class Session
 
             // Send an admim notification email.
             $this->notifyAdminLogin($user['adminEmail']);
-            
+
             // Redirect to admin page.
             \header('Location: ' . TFISH_ADMIN_URL);
             exit;
@@ -255,10 +255,10 @@ class Session
 
     /**
      * Delay login processing to frustrate brute force attacks.
-     * 
+     *
      * Login is cumulatively delayed by one second for each failed login.
      * Delay is capped at 15 seconds to prevent DOS / abuse of this feature.
-     * 
+     *
      * @param   int $seconds Number of seconds to delay the login attempt.
      */
     private function delayLogin(int $seconds)
@@ -269,36 +269,36 @@ class Session
 
     /**
      * Hashes and salts a password to harden it against dictionary attacks.
-     * 
+     *
      * Uses the default password hashing algorithm, which wa bcrypt as of PHP 7.2, with a cost
      * of 11. If logging in is too slow, you could consider reducing this to 10 (the default value).
      * Lowering it further will weaken the security of the hash.
-     * 
+     *
      * @param string $password Input password.
      * @return string Password hash, incorporating algorithm and difficulty information.
      */
     public function hashPassword(string $password): string
     {
-        $options = ['cost' => 11];        
+        $options = ['cost' => 11];
         $password = \password_hash($password, PASSWORD_DEFAULT, $options);
 
         return $password;
     }
-    
+
     /**
      * Destroys the current session on logout
-     * 
-     * @param string $urlRedirect The URL to redirect the user to on logging out. 
+     *
+     * @param string $urlRedirect The URL to redirect the user to on logging out.
      */
     public function logout(string $urlRedirect = '')
     {
         $cleanUrl = '';
-        
+
         if (!empty($urlRedirect)) {
             $urlRedirect = $this->trimString($urlRedirect);
             $cleanUrl = $this->isUrl($urlRedirect) ? $urlRedirect : '';
         }
-        
+
         $this->_logout($cleanUrl);
     }
 
@@ -317,7 +317,7 @@ class Session
 
         // Destroy the session and redirect
         \session_destroy();
-        
+
         if ($cleanUrl) {
             \header('Location: ' . $cleanUrl);
             exit;
@@ -329,8 +329,8 @@ class Session
 
     /**
      * Notify admin of login.
-     * 
-     * Sends an email to the admin email notifying that an admin login has occurred. This 
+     *
+     * Sends an email to the admin email notifying that an admin login has occurred. This
      * provides an alert if an unsanctioned login occurs.
      */
 
@@ -349,17 +349,17 @@ class Session
         $message = TFISH_LOGIN_NOTED_MESSAGE . $email . '.';
 
         mail($to, $subject, $message, $headers);
-    } 
-       
+    }
+
     /**
      * Regenerates the session ID.
-     * 
+     *
      * Called whenever there is a privilege escalation (login) or at random intervals to reduce
      * risk of session hijacking. Note that the cross-site request forgery validation token remains
      * the same, unless the session is destroyed. This is to prevent the random session ID
      * regeneration events creating false positive CSRF checks.
-     * 
-     * Note that it allows the new and  old sessions to co-exist for a short period, this is to 
+     *
+     * Note that it allows the new and  old sessions to co-exist for a short period, this is to
      * avoid headaches with flaky network connections and asynchronous (AJAX) requests, as explained
      * in the PHP Manual warning: http://php.net/manual/en/function.session-regenerate-id.php
      */
@@ -402,23 +402,23 @@ class Session
         if (isset($_SERVER['REMOTE_ADDR'])) {
             $browser_profile .= $_SERVER['REMOTE_ADDR'];
         }
-        
+
         if (isset($_SERVER['HTTP_USER_AGENT'])) {
             $browser_profile .= $_SERVER['HTTP_USER_AGENT'];
         }
-        
+
         $_SESSION['browser_profile'] = \hash('sha256', $browser_profile);
     }
 
     /**
      * Initialises a session and sets session cookie parameters to security-conscious values.
-     */    
+     */
     public function start()
     {
         // Force session to use cookies to prevent the session ID being passed in the URL.
         \ini_set('session.use_cookies', '1');
         \ini_set('session.use_only_cookies', '1');
-        
+
         // Session name. If the preference has been messed up it will assign one.
         $sessionName = !empty($this->preference->sessionName()) ? $this->preference->sessionName() : 'tfish';
 
@@ -434,7 +434,7 @@ class Session
         $domain = ltrim($_SERVER['SERVER_NAME'], 'www');
 
         // If true the cookie will only be sent over secure connections.
-        // Note: If using NGINX as reverse proxy and to terminate SSL, you should lock this to 
+        // Note: If using NGINX as reverse proxy and to terminate SSL, you should lock this to
         // true (use the commented out line as an alternative).
         $secure = isset($_SERVER['HTTPS']);
         // $secure = true;
@@ -457,7 +457,7 @@ class Session
         ];
         \session_set_cookie_params($options);
         \session_start();
-        
+
         // Set a CSRF token.
         $this->setToken();
 
@@ -477,7 +477,7 @@ class Session
 
     /**
      * Sets a token for use in cross-site request forgery checks on form submissions.
-     * 
+     *
      * A random token is generated and stored in the current session (if not already set). The value
      * of this token is included as a hidden field in forms when they are loaded by the user. This
      * allows forms to be validated via validateFormToken().
@@ -491,11 +491,11 @@ class Session
 
     /**
      * Authenticate the user with two factors and establish a session.
-     * 
+     *
      * Requires a Yubikey hardware token as the second factor. Note that the authenticator type
      * is not declared, as the desired response is to logout and redirect, rather than to throw
      * an error.
-     * 
+     *
      * @param string $dirtyPassword Input password.
      * @param string $dirtyOtp Input Yubikey one-time password.
      * @param \Yubico\Auth_yubico $yubikey Instance of the Yubico authenticator class.
@@ -508,27 +508,27 @@ class Session
             $this->logout(TFISH_URL . "login/");
             exit;
         }
-        
+
         $dirtyOtp = $this->trimString($dirtyOtp);
-        
+
         // Yubikey OTP should be 44 characters long.
         if (\mb_strlen($dirtyOtp, "UTF-8") != 44) {
             $this->logout(TFISH_URL . "login/");
             exit;
         }
-        
+
         // Yubikey OTP should be alphabetic characters only.
         if (!$this->isAlpha($dirtyOtp)) {
             $this->logout(TFISH_URL . "login/");
             exit;
         }
-        
+
         // Public ID is the first 12 characters of the OTP.
         $dirtyId = \mb_substr($dirtyOtp, 0, 12, 'UTF-8');
-        
+
         $this->_twoFactorLogin($dirtyId, $dirtyPassword, $dirtyOtp, $yubikey);
     }
-    
+
     /** @internal */
     private function _twoFactorLogin(string $dirtyId, string $dirtyPassword, string $dirtyOtp,
         \Yubico\Auth_yubico $yubikey)
@@ -536,64 +536,64 @@ class Session
         $first_factor = false;
         $second_factor = false;
         $cleanId = $this->trimString($dirtyId);
-        
+
         $user = $this->_getYubikeyUser($cleanId);
-        
+
         if (empty($user)) {
             $this->logout(TFISH_URL . "login/");
             exit;
         }
-        
+
         // If the user has previous failed login attempts sleep to frustrate brute force attacks.
         if ($user['loginErrors']) {
             $this->delayLogin((int) $user['loginErrors']);
         }
-        
-        // First factor authentication: Calculate password hash and compare to the one on file.        
+
+        // First factor authentication: Calculate password hash and compare to the one on file.
         if (\password_verify($dirtyPassword, $user['passwordHash'])) {
             $first_factor = true;
         }
-        
+
         // Second factor authentication: Submit one-time password to Yubico authentication server.
         // Sync is set to 100 (most secure), timeout for responses is 15 seconds.
         $second_factor = $yubikey->verify($dirtyOtp, null, false, 100, 15);
-        
+
         // If both checks are good regenerate session due to priviledge escalation and login.
         if ($first_factor === true && $second_factor === true) {
             $this->regenerate();
             $_SESSION['TFISH_LOGIN'] = true;
-            
+
             // Added as a handle for the password change script.
             $_SESSION['userId'] = (int) $user['id'];
-            
+
             // Reset failed login counter to zero.
             $this->db->update('user', (int) $user['id'], ['loginErrors' => 0]);
 
             // Send email notification of login to this account.
             $this->notifyAdminLogin($user['adminEmail']);
-            
+
             \header('Location: ' . TFISH_ADMIN_URL);
             exit;
         }
-        
+
         // Fail: Increment failed login counter, destroy session and redirect to the login page.
         $this->db->updateCounter((int) $user['id'], 'user', 'loginErrors');
         $this->logout(TFISH_URL . "login/");
         exit;
     }
-    
+
     /** @internal */
     private function _getYubikeyUser(string $cleanId)
     {
         $user = false;
-        
+
         $statement = $this->db->preparedStatement("SELECT * FROM user WHERE "
                 . "`yubikeyId` = :yubikeyId OR "
                 . "`yubikeyId2` = :yubikeyId");
         $statement->bindParam(':yubikeyId', $cleanId, \PDO::PARAM_STR);
         $statement->execute();
         $user = $statement->fetch(\PDO::FETCH_ASSOC);
-        
+
         return $user;
     }
 }

@@ -6,7 +6,7 @@ namespace Tfish\Controller;
 
 /**
  * \Tfish\Controller\Logout class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -40,7 +40,7 @@ class Logout
 
     /**
      * Constructor
-     * 
+     *
      * @param   object $model Instance of a model class.
      * @param   object $viewModel Instance of a viewModel class.
      * @param   \Tfish\Session $session Instance of the session management class.
@@ -56,7 +56,7 @@ class Logout
 
     /**
      * Process logout action.
-     * 
+     *
      * @return  array Empty array (the output of this action is not cached).
      */
     public function display(): array

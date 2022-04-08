@@ -6,7 +6,7 @@ namespace Tfish\Traits;
 
 /**
  * \Tfish\Traits\Taglink trait file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -30,7 +30,7 @@ trait TagLink
 {
     /**
      * Delete taglinks associated with an object.
-     * 
+     *
      * @param   int $contentId ID of content object.
      * @param   string $module Module the content belongs to.
      * @return  bool True on success, false on failure.
@@ -46,9 +46,9 @@ trait TagLink
 
     /**
      * Delete references of all content objects to a tag that is in process of deletion.
-     * 
+     *
      * Affects all modules (system wide).
-     * 
+     *
      * @param   int $id ID of tag.
      * @return  bool True on success, false on failure.
      */
@@ -64,9 +64,9 @@ trait TagLink
 
     /**
      * Get tag IDs (only) associated with a SINGLE content object.
-     * 
+     *
      * This is a helper function used in edit operations.
-     * 
+     *
      * @param   int $id ID of content object.
      * @return  array Array of tag IDs.
      */
@@ -83,15 +83,15 @@ trait TagLink
 
     /**
      * Insert the tags associated with an object.
-     * 
+     *
      * This is a helper function for  CRUD insert() operations. The $content parameter MUST include
      * 'id', 'type', 'module' and 'tags' array.
-     * 
+     *
      * Tags are stored separately in the taglinks table. Tags are assembled in one batch before
      * proceeding to insertion; so if one fails a range check all should fail. If the
      * lastInsertId could not be retrieved, then halt execution because this data
      * is necessary in sort to correctly assign taglinks to content objects.
-     * 
+     *
      * @param   int $contentId ID of the content object associated with these taglinks.
      * @param   string $contentType The type of content object.
      * @param   string $module The module this content object is associated with.
@@ -117,7 +117,7 @@ trait TagLink
             if (!$this->database->insert('taglink', $taglink)) {
                 return false;
             }
-            
+
             unset($tag, $taglink);
         }
 
@@ -126,7 +126,7 @@ trait TagLink
 
     /**
      * Update taglinks for a content object.
-     * 
+     *
      * @param   int $contentId ID of the content object associated with these taglinks.
      * @param   string $contentType The type of content object.
      * @param   string $module The module this content object is associated with.
@@ -152,7 +152,7 @@ trait TagLink
 
     /**
      * Validate tag IDs.
-     * 
+     *
      * @param   array $tags Tag IDs.
      * @return  array Validated tag IDs.
      */

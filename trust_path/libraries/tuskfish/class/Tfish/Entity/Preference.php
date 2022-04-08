@@ -6,7 +6,7 @@ namespace Tfish\Entity;
 
 /**
  * \Tfish\Entity\Preference class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -82,10 +82,10 @@ class Preference
     private $enableCache = 0; // global
     private $cacheLife = 0; // global
     private $mapsApiKey = ''; // global
-    
+
     /**
      * Constructor.
-     * 
+     *
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.
      */
     function __construct(\Tfish\Database $database)
@@ -94,18 +94,18 @@ class Preference
         $preferences = $this->readPreferences();
         $this->load($preferences);
     }
-    
+
     /**
      * Converts the preference object to an array suitable for insert/update calls to the database.
-     * 
+     *
      * Note that the output is not XSS escaped and should not be sent to display.
-     * 
+     *
      * @return array Array of object property/values.
      */
     public function getPreferencesAsArray(): array
     {
         unset($this->database);
-        
+
         $preferences = [];
 
         foreach ($this as $key => $value) {
@@ -114,16 +114,16 @@ class Preference
 
         return $preferences;
     }
-    
+
     /**
      * Update the preference object from an external data source (eg. form submission).
-     * 
+     *
      * The preference object will conduct its own internal data type validation and range checks.
-     * 
+     *
      * @param array $input Usually $_REQUEST data.
      */
     public function load(array $input)
-    {        
+    {
         $this->setSiteName($input['siteName'] ?? '');
         $this->setSiteDescription($input['siteDescription'] ?? '');
         $this->setSiteAuthor($input['siteAuthor'] ?? '');
@@ -151,14 +151,14 @@ class Preference
 
     /**
      * Read out the site preferences into an array.
-     * 
+     *
      * @return array Array of site preferences.
      */
     public function readPreferences(): array
     {
         $preferences = [];
         $result = $this->database->select('preference');
-        
+
         while ($row = $result->fetch(\PDO::FETCH_ASSOC)) {
             $preferences[$row['title']] = $row['value'];
         }
@@ -172,20 +172,20 @@ class Preference
     }
 
     /**
-     * Set the number of objects to display in a single admin page view. 
-     * 
+     * Set the number of objects to display in a single admin page view.
+     *
      * @param int $value Number of objects to view on a single page.
      */
     public function setAdminPagination(int $value)
-    {        
+    {
         if ($value < 1) \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
 
         $this->adminPagination = $value;
     }
-    
+
     /**
      * Return site author
-     * 
+     *
      * @return string Name of the site author.
      */
     public function siteAuthor(): string
@@ -195,17 +195,17 @@ class Preference
 
     /**
      * Set the name of the site author. Used to population page meta author tag.
-     * 
+     *
      * @param string $value Name of the site author.
      */
     public function setSiteAuthor(string $value)
     {
         $this->siteAuthor = $this->trimString($value);
     }
-    
+
     /**
      * Return cache life.
-     * 
+     *
      * @return int Cache life in seconds.
      */
     public function cacheLife(): int
@@ -215,22 +215,22 @@ class Preference
 
     /**
      * Set life of items in cache (seconds).
-     * 
+     *
      * Items that expire will be rebuilt and re-written to the cache the next time the page is
      * requested.
-     * 
+     *
      * @param int $value Expiry timer on cached items (seconds).
      */
     public function setCacheLife(int $value)
-    {        
+    {
         if ($value < 0) \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
 
         $this->cacheLife = $value;
     }
-    
+
     /**
      * Return the value of the site closed preference.
-     * 
+     *
      * @return int Open (0) or closed (1).
      */
     public function closeSite(): int
@@ -240,7 +240,7 @@ class Preference
 
     /**
      * Open our close the site.
-     * 
+     *
      * @param int $value Site open (0) or closed (1).
      */
     public function setCloseSite(int $value)
@@ -251,10 +251,10 @@ class Preference
 
         $this->closeSite = $value;
     }
-    
+
     /**
      * Return date format.
-     * 
+     *
      * @return string  Ttemplate as per the PHP date() function.
      */
     public function dateFormat(): string
@@ -264,19 +264,19 @@ class Preference
 
     /**
      * Set the date format, used to convert timestamps to human readable form.
-     * 
+     *
      * See the PHP manual for date formatting templates: http://php.net/manual/en/function.date.php
-     * 
+     *
      * @param string $value Template for formatting dates.
      */
     public function setDateFormat(string $value)
     {
         $this->dateFormat = $this->trimString($value);
     }
-    
+
     /**
      * Return default language.
-     * 
+     *
      * @return  string Two-letter ISO language code.
      */
     public function defaultLanguage(): string
@@ -286,13 +286,13 @@ class Preference
 
     /**
      * Set the default language for this Tuskfish installation.
-     * 
+     *
      * @param string $value ISO 639-1 two-letter language codes.
      */
     public function setDefaultLanguage(string $value)
     {
         $value = $this->trimString($value);
-        
+
         if (!$this->isAlpha($value)) {
             \trigger_error(TFISH_ERROR_NOT_ALPHA, E_USER_ERROR);
         }
@@ -305,10 +305,10 @@ class Preference
 
         $this->defaultLanguage = $value;
     }
-    
+
     /**
      * Return site description.
-     * 
+     *
      * @return  string
      */
     public function siteDescription(): string
@@ -318,17 +318,17 @@ class Preference
 
     /**
      * Set the site description. Used in meta description tag.
-     * 
+     *
      * @param string $value Site description.
      */
     public function setSiteDescription(string $value)
     {
         $this->siteDescription = $this->trimString($value);
     }
-    
+
     /**
      * Return site email.
-     * 
+     *
      * @return  string
      */
     public function siteEmail(): string
@@ -338,9 +338,9 @@ class Preference
 
     /**
      * Set the admin email address for the site.
-     * 
+     *
      * Used in RSS feeds to populate the managingEditor and webmaster tags.
-     * 
+     *
      * @param string $value Email address.
      */
     public function setSiteEmail(string $value)
@@ -350,13 +350,13 @@ class Preference
         if (!$this->emailIsValid($value)) {
             \trigger_error(TFISH_ERROR_NOT_EMAIL, E_USER_ERROR);
         }
-        
+
         $this->siteEmail = $value;
     }
 
     /**
      * Validate email address meets specification.
-     * 
+     *
      * @return bool True if valid, false if invalid.
      */
     private function emailIsValid(string $email)
@@ -370,47 +370,47 @@ class Preference
 
     /**
      * Return enableCache.
-     * 
+     *
      * @return int Enabled (1) or disabled (0).
      */
     public function enableCache(): int
     {
         return $this->enableCache;
     }
-    
+
     /**
      * Enable or disable the cache.
-     * 
+     *
      * @param int $value Enabled (1) or disabled (0).
      */
     public function setEnableCache(int $value)
-    {        
+    {
         if ($value !== 0 && $value !== 1) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
         }
 
         $this->enableCache = $value;
     }
-    
+
     /**
      * Return gallery pagination.
-     * 
+     *
      * @return int Number of objects to display on a single page view.
      */
-    public function galleryPagination(): int 
+    public function galleryPagination(): int
     {
         return $this->galleryPagination;
     }
 
     /**
      * Set number of objects to display on the gallery page.
-     * 
+     *
      * @param int $value Number of objects to display on a single page view.
      */
     public function setGalleryPagination(int $value)
-    {        
+    {
         if ($value < 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR); 
+            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
         }
 
         $this->galleryPagination = $value;
@@ -424,41 +424,41 @@ class Preference
     public function setMapsApiKey(string $value)
     {
         $value = $this->trimString($value);
-        
+
         $this->mapsApiKey = $value;
     }
 
     /**
      * Return minimum search length.
-     * 
+     *
      * @return  int Number of characters in a search term.
      */
     public function minSearchLength(): int
     {
         return $this->minSearchLength;
     }
-    
+
     /**
      * Set the minimum length of search terms (characters).
-     * 
+     *
      * Search terms less than this number of characters will be discarded. It is usually best to
      * allow a minimum length of 3 characters; this allows searching for common acronyms without
      * returning massive numbers of hits.
-     * 
+     *
      * @param int $value Minimum number of characters.
      */
     public function setMinSearchLength(int $value)
-    {        
+    {
         if ($value < 3) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
         }
 
         $this->minSearchLength = $value;
     }
-    
+
     /**
      * Return number of elements in a pagination control.
-     * 
+     *
      * @return int
      */
     public function paginationElements(): int
@@ -468,13 +468,13 @@ class Preference
 
     /**
      * Set the default number of page slots to display in pagination elements.
-     * 
+     *
      * Can be overridden manually in PaginationControl.
-     * 
+     *
      * @param int $value Number of page slots to display in pagination control.
      */
     public function setPaginationElements(int $value)
-    {        
+    {
         if ($value < 3) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
         }
@@ -509,31 +509,31 @@ class Preference
 
     /**
      * Return the number of items to include in a RSS feed.
-     * 
+     *
      * @return int
      */
     public function rssPosts(): int
     {
         return $this->rssPosts;
     }
-    
+
     /**
      * Set number of items to display in RSS feeds.
-     * 
+     *
      * @param int $value Number of items to include in feed.
      */
     public function setRssPosts(int $value)
-    {        
+    {
         if ($value < 1) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
         }
 
         $this->rssPosts = $value;
     }
-    
+
     /**
      * Number of items to include in a search page view.
-     * 
+     *
      * @return int
      */
     public function searchPagination(): int
@@ -543,11 +543,11 @@ class Preference
 
     /**
      * Set number of results to display on a search page view.
-     * 
+     *
      * @param int $value Number of objects to display in a single page view.
      */
     public function setSearchPagination(int $value)
-    {        
+    {
         if ($value < 1) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
         }
@@ -557,27 +557,27 @@ class Preference
 
     /**
      * Return server timezone.
-     * 
+     *
      * @return  int
      */
     public function serverTimezone(): int
     {
         return (int) $this->serverTimezone;
     }
-    
+
     /**
      * Set the server timezone.
-     * 
+     *
      * @param string $value Timezone.
      */
     public function setServerTimezone(int $value)
     {
         $this->serverTimezone = $value;
     }
-    
+
     /**
      * Return session life (minutes).
-     * 
+     *
      * @return  int
      */
     public function sessionLife(): int
@@ -587,13 +587,13 @@ class Preference
 
     /**
      * Set the life of an idle session.
-     * 
+     *
      * User will be logged out after being idle for this many minutes.
-     * 
+     *
      * @param int $value Session life (minutes).
      */
     public function setSessionLife(int $value)
-    {        
+    {
         if ($value < 0) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
         }
@@ -603,19 +603,19 @@ class Preference
 
     /**
      * Return session name.
-     * 
+     *
      * @return string
      */
     public function sessionName(): string
     {
         return $this->sessionName;
     }
-    
+
     /**
      * Set the name (prefix) used to identify Tuskfish sessions.
-     * 
+     *
      * If you change it, use something unpredictable.
-     * 
+     *
      * @param string $value Session name.
      */
     public function setSessionName(string $value)
@@ -628,10 +628,10 @@ class Preference
 
         $this->sessionName = $value;
     }
-    
+
     /**
      * Return site copyright.
-     * 
+     *
      * @return  string
      */
     public function siteCopyright(): string
@@ -641,45 +641,45 @@ class Preference
 
     /**
      * Set the site meta copyright.
-     * 
+     *
      * Used to populate the dcterms.rights meta tag in the theme. Can be overridden in the
      * theme.html file.
-     * 
+     *
      * @param string $value Copyright statement.
      */
     public function setSiteCopyright(string $value)
     {
         $this->siteCopyright = $this->trimString($value);
     }
-    
+
     /**
      * Return site name.
-     * 
+     *
      * @return  string
      */
-    public function siteName(): string 
+    public function siteName(): string
     {
         return $this->siteName;
     }
 
     /**
      * Set the title of the page.
-     * 
+     *
      * Used to populate the meta title tag. Usually each page / object will specify a title, but
      * if none is set this value will be used as the default. The title can be manually overriden
      * on each page using the Metadata object (see comments at the bottom of controller
      * scripts).
-     * 
+     *
      * @param string $value
      */
     public function setSiteName(string $value)
     {
         $this->siteName = $this->trimString($value);
     }
-    
+
     /**
      * Return site timezone.
-     * 
+     *
      * @return string
      */
     public function siteTimezone(): int
@@ -689,34 +689,34 @@ class Preference
 
     /**
      * Set the site timezone.
-     * 
+     *
      * This is normally the timezone for your principal target audience.
-     * 
+     *
      * @param int $value Timezone.
      */
     public function setSiteTimezone(int $value)
     {
         $this->siteTimezone = $value;
     }
-    
+
     /**
      * Number of items to display on a single user-side page.
-     * 
+     *
      * @return  int
      */
     public function userPagination(): int
     {
         return $this->userPagination;
     }
-    
+
     /**
      * Set the number of objects to display in a single page view on the public facing side of the
      * site.
-     * 
+     *
      * @param int $value Number of objects to display.
      */
     public function setUserPagination(int $value)
-    {        
+    {
         if ($value < 1) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
         }

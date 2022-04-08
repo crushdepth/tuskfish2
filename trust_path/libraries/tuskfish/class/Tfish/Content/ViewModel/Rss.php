@@ -6,7 +6,7 @@ namespace Tfish\Content\ViewModel;
 
 /**
  * \Tfish\Content\ViewModelModel\Rss class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -39,7 +39,7 @@ class Rss implements \Tfish\ViewModel\Viewable
     use \Tfish\Traits\Mimetypes;
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;
-    
+
     private $model;
     private $id = 0;
     private $tag = 0;
@@ -48,7 +48,7 @@ class Rss implements \Tfish\ViewModel\Viewable
 
     /**
      * Constructor.
-     * 
+     *
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
@@ -65,7 +65,7 @@ class Rss implements \Tfish\ViewModel\Viewable
 
     /**
      * Return content objects for the feed.
-     * 
+     *
      * @return  array Array of content objects.
      */
     public function listContent()
@@ -75,7 +75,7 @@ class Rss implements \Tfish\ViewModel\Viewable
 
     /**
      * Return content objects for a given tag.
-     * 
+     *
      * @return  array Array of content objects.
      */
     public function listContentForTag()
@@ -87,7 +87,7 @@ class Rss implements \Tfish\ViewModel\Viewable
 
     /**
      * Customise RSS feed title description for a specific tag or collection.
-     * 
+     *
      * @param int $id ID of the tag or collection to customise feed for.
      */
     private function customFeed(int $id)
@@ -101,7 +101,7 @@ class Rss implements \Tfish\ViewModel\Viewable
 
     /**
      * Return site (feed) copyright.
-     * 
+     *
      * @return  string
      */
     public function copyright(): string
@@ -123,7 +123,7 @@ class Rss implements \Tfish\ViewModel\Viewable
 
     /**
      * Return items for the feed.
-     * 
+     *
      * @return  array Array of content objects.
      */
     public function items(): array
@@ -133,7 +133,7 @@ class Rss implements \Tfish\ViewModel\Viewable
 
     /**
      * Return link to RSS feed.
-     * 
+     *
      * @return  string URL.
      */
     public function link()
@@ -151,7 +151,7 @@ class Rss implements \Tfish\ViewModel\Viewable
 
     /**
      * Set collection ID.
-     * 
+     *
      * @param   int $id ID of collection.
      */
     public function setCollection(int $id)
@@ -159,21 +159,21 @@ class Rss implements \Tfish\ViewModel\Viewable
         $this->id = $id;
         $this->customFeed($id);
     }
-    
+
     /**
      * Set tag ID.
-     * 
+     *
      * @param   int $tag ID of tag.
      */
     public function setTag(int $tag)
-    {        
+    {
         $this->tag = $tag;
         $this->customFeed($tag);
     }
 
     /**
      * Return site administrative email address.
-     * 
+     *
      * @return  string Email address.
      */
     public function siteEmail(): string
@@ -183,7 +183,7 @@ class Rss implements \Tfish\ViewModel\Viewable
 
     /**
      * Return site (feed) title.
-     * 
+     *
      * @return  string Title, as set in site preferences.
      */
     public function title(): string
@@ -197,7 +197,7 @@ class Rss implements \Tfish\ViewModel\Viewable
 
     /**
      * Return site webmaster's email address.
-     * 
+     *
      * @return  string Email address.
      */
     public function webMaster(): string

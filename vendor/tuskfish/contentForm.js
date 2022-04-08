@@ -2,13 +2,13 @@
 $(document).ready(function() {
     // Show or hide content properties as appropriate for this content type.
     showHide();
-    
+
     // Check the media when form loads. The warning displays faster if initiated from this position.
     checkMedia();
 
     // Populate the template options.
     loadTemplateOptions();
-    
+
     $("#type").change(function () {
         showHide();
         checkMedia();
@@ -39,12 +39,12 @@ $(document).ready(function() {
     // Set flag that media file should be deleted from server.
     $('#media').on('fileclear', function(tf_deleteMedia) {
         document.getElementById("format").value="";
-        
+
         // Not required on data entry form as no media has been uploaded.
         if (document.getElementById("deleteMedia")) {
             document.getElementById("deleteMedia").value = "1";
         }
- 
+
         checkMedia();
     });
 
@@ -54,12 +54,12 @@ $(document).ready(function() {
         var extension = getFileExtension(filename);
         var mimeType = '';
         var allMimeTypes = getAllMimeType();
-        
+
         if (allMimeTypes[extension]) {
             mimeType = allMimeTypes[extension];
         }
 
-        var format = document.getElementById("format");                    
+        var format = document.getElementById("format");
         document.getElementById("format").value = mimeType;
         checkMedia();
     });
@@ -71,13 +71,13 @@ $(document).ready(function() {
 function checkMedia() {
     var mimeTypes = {};
     var mediaMimeType = $('#format').val() ? $('#format').val() : '';
-    
+
     // If there is no media attachment then no need to show file type warnings.
     if (mediaMimeType === '') {
         hideAlerts();
         return;
     }
-    
+
     // Get a list of mime types appropriate for this content type.
     switch($("#type").val()) {
         case 'TfAudio':
@@ -100,12 +100,12 @@ function checkMedia() {
             mimeTypes = getAllMimeType();
             break;
     }
-    
+
     // You'd think Javascript would have a standard way to find values in objects, but you'd be wrong.
     var typeList = $.map(mimeTypes, function(value, index) {
         return [value];
     });
-    
+
     // Show or hide the mimetype warning.
     if ($.inArray(mediaMimeType, typeList) === -1) {
         showAlerts(); // Mimetype is bad.
@@ -124,7 +124,7 @@ function loadTemplateOptions() {
 
     var templateList = {
         "TfArticle":
-            {"article": "Center image", "article-left": "Left image", "article-right": "Right image"},            
+            {"article": "Center image", "article-left": "Left image", "article-right": "Right image"},
         "TfAudio":
             {"audio": "Audio"},
         "TfBlock":
@@ -158,7 +158,7 @@ function loadTemplateOptions() {
 // Read the file type and set an appropriate preview type for Bootstrap-fileinput. Somehow it knows
 // what preview to use when a file is uploaded, but needs it explicitly set on edit.
 function setPreviewType(mimetype) {
-   
+
     var preview = '';
 
     switch(mimetype) {
@@ -222,24 +222,24 @@ function getFileExtension(filename) {
 
 // Get an audio mimetype.
 function getAudioMimeType() {
-    var audioMimeType = {}; 
-    
+    var audioMimeType = {};
+
     audioMimeType.mp3 = "audio/mpeg";
     audioMimeType.oga = "audio/ogg";
     audioMimeType.ogg = "audio/ogg";
     audioMimeType.wav = "audio/x-wav";
-    
+
     return audioMimeType;
 }
 
 // Get an image mimetype.
 function getImageMimeType() {
     var imageMimeType = {};
-    
+
     imageMimeType.gif = "image/gif";
     imageMimeType.jpg = "image/jpeg";
     imageMimeType.png = "image/png";
-    
+
     return imageMimeType;
 }
 
@@ -256,11 +256,11 @@ function getTrackMimeType() {
 // Get a video mimetype.
 function getVideoMimeType() {
     var videoMimeType = {};
-    
+
     videoMimeType.mp4 = "video/mp4";
     videoMimeType.ogv = "video/ogg";
     videoMimeType.webm = "video/webm";
-    
+
     return videoMimeType;
 }
 
@@ -270,7 +270,7 @@ function getAllMimeType() {
     var imageMimeTypes = getImageMimeType();
     var trackMimeTypes = getTrackMimeType();
     var videoMimeTypes = getVideoMimeType();
-    
+
     var allMimeTypes = Object.assign({}, audioMimeTypes, imageMimeTypes, trackMimeTypes, videoMimeTypes);
 
     // Add documents.

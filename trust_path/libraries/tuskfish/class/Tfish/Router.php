@@ -6,7 +6,7 @@ namespace Tfish;
 
 /**
  * \Tfish\Router class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -17,7 +17,7 @@ namespace Tfish;
 
 /**
  * Generates route objects containing MVVM component class names relevant to incoming requests.
- * 
+ *
  * A static routing table is used to return route objects configured to instantiate the relevant
  * view, model, viewModel and controller components for this page.
  *
@@ -36,8 +36,8 @@ class Router
 
     /**
      * Constructor
-     * 
-     * @param   array $routingTable Array of routes and components required to initialise them. 
+     *
+     * @param   array $routingTable Array of routes and components required to initialise them.
      */
     public function __construct(array $routingTable)
     {
@@ -46,7 +46,7 @@ class Router
 
     /**
      * Returns a route object containing the classnames of the MVVMC components required for this route.
-     * 
+     *
      * @param   string $path The path component of the URL associated with this request.
      * @return  \Tfish\Route Route object.
      */

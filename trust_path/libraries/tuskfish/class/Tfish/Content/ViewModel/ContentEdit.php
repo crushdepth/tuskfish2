@@ -6,7 +6,7 @@ namespace Tfish\Content\ViewModel;
 
 /**
  * \Tfish\Content\ViewModel\ContentEdit class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -34,7 +34,7 @@ namespace Tfish\Content\ViewModel;
  * @var         \Tfish\Content\Entity\Content $content Content object to be edited.
  * @var         array $parentOptions A list of parents (collections) IDs and titles.
  * @var         string $action Action to be embedded in the form and executed after next submission.
- * @var         string $response Message to display to the user after processing action (success/failure). 
+ * @var         string $response Message to display to the user after processing action (success/failure).
  * @var         string $backUrl $backUrl URL to return to if the user cancels the action.
  */
 class ContentEdit implements \Tfish\ViewModel\Viewable
@@ -55,7 +55,7 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Constructor.
-     * 
+     *
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
@@ -91,7 +91,7 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
         \header('Location: ' . TFISH_ADMIN_URL);
         exit;
     }
-    
+
     /**
      * Display edit content form.
      */
@@ -136,7 +136,7 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
                 $this->response = TFISH_OBJECT_INSERTION_FAILED;
             }
         }
-        
+
         if (!empty($id)) {
 
             if ($this->model->update()) {
@@ -156,7 +156,7 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Returns the date template as per the date() function of PHP.
-     * 
+     *
      * @return  string
      */
     public function dateFormat(): string
@@ -166,17 +166,17 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Returns the default language preference.
-     * 
+     *
      * @return  string Default language as two-letter ISO code.
      */
-    public function defaultLanguage(): string 
+    public function defaultLanguage(): string
     {
         return $this->preference->defaultLanguage();
     }
 
     /**
      * Returns a list of options for the tag select box.
-     * 
+     *
      * @return  array Array of tag IDs and titles as key-value pairs.
      */
     public function listTags(): array
@@ -186,20 +186,20 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Returns a list of options for the parent select box.
-     * 
+     *
      * @return  array Array of parent (collection) IDs and titles as key-value pairs.
      */
     public function parentOptions()
     {
         $collections = $this->model->collections();
         $parentTree = new \Tfish\Tree($collections, 'id', 'parent');
-        
+
         return $parentTree->makeParentSelectBox();
     }
 
     /**
      * Return the site author preference.
-     * 
+     *
      * @return  string
      */
     public function siteAuthor(): string
@@ -211,9 +211,9 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Return the action for this page.
-     * 
+     *
      * The action is usually embedded in the form, to control handling on submission (next page load).
-     * 
+     *
      * @return string
      */
     public function action(): string
@@ -223,9 +223,9 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Return the backUrl.
-     * 
+     *
      * If the cancel button is clicked, the user will be redirected to the backUrl.
-     * 
+     *
      * @return  string
      */
     public function backUrl(): string
@@ -235,7 +235,7 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Return a content object.
-     * 
+     *
      * @return \Tfish\Content\Entity\Content
      */
     public function content(): \Tfish\Content\Entity\Content
@@ -245,7 +245,7 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Set content.
-     * 
+     *
      * @param   \Tfish\Content\Entity\Content $content Content object to be edited.
      */
     public function setContent(\Tfish\Content\Entity\Content $content)
@@ -255,7 +255,7 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Return ID.
-     * 
+     *
      * @return  int ID of content object.
      */
     public function id(): int
@@ -265,7 +265,7 @@ class ContentEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Return the response message (success or failure) for an action.
-     * 
+     *
      * @return  string
      */
     public function response(): string

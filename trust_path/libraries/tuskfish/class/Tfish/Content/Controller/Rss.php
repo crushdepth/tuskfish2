@@ -6,7 +6,7 @@ namespace Tfish\Content\Controller;
 
 /**
  * \Tfish\Content\Controller\Rss class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -17,7 +17,7 @@ namespace Tfish\Content\Controller;
 
 /**
  * Generates route objects relevant to incoming requests.
- * 
+ *
  * A static routing table is used to return route objects configured to instantiate the relevant
  * view, model, viewModel and controller components.
  *
@@ -41,7 +41,7 @@ class Rss
 
     /**
      * Constructor.
-     * 
+     *
      * @param   object $model Instance of a model class.
      * @param   object $viewModel Instance of a viewModel class.
      */
@@ -55,7 +55,7 @@ class Rss
 
     /**
      * Display RSS feed, optionally for tag or collection.
-     * 
+     *
      * @return  array Cache parameters used to locate a cached copy of the feed.
      */
     public function display(): array

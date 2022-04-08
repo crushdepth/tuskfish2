@@ -6,7 +6,7 @@ namespace Tfish\ViewModel;
 
 /**
  * \Tfish\ViewModelModel\PreferenceEdit class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -54,7 +54,7 @@ class PreferenceEdit implements Viewable
 
     /**
      * Constructor
-     * 
+     *
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tfish site preference class.
      */
@@ -79,8 +79,8 @@ class PreferenceEdit implements Viewable
     }
 
     /**
-     * Display the edit preferences form. 
-     */    
+     * Display the edit preferences form.
+     */
     public function displayEdit()
     {
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
@@ -96,7 +96,7 @@ class PreferenceEdit implements Viewable
     {
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
-        
+
         if ($this->model->update()) {
             $this->response = TFISH_PREFERENCES_WERE_UPDATED;
             $this->backUrl = TFISH_PREFERENCE_URL;
@@ -112,9 +112,9 @@ class PreferenceEdit implements Viewable
 
     /**
      * Return the backUrl.
-     * 
+     *
      * If the cancel button is clicked, the user will be redirected to the backUrl.
-     * 
+     *
      * @return  string
      */
     public function backUrl(): string
@@ -124,7 +124,7 @@ class PreferenceEdit implements Viewable
 
     /**
      * Return an instance of the site preferences class.
-     * 
+     *
      * @return  \Tfish\Entity\Preference
      */
     public function preference(): \Tfish\Entity\Preference
@@ -134,7 +134,7 @@ class PreferenceEdit implements Viewable
 
     /**
      * Return the response message (success or failure) for an action.
-     * 
+     *
      * @return  string
      */
     public function response(): string

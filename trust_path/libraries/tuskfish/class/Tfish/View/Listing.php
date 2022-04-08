@@ -6,7 +6,7 @@ namespace Tfish\View;
 
 /**
  * \Tfish\View\Listing class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -37,7 +37,7 @@ class Listing
 
     /**
      * Constructor
-     * 
+     *
      * @param   \Tfish\ViewModel\Listable $viewModel Instance of the viewModel required by this route.
      * @param   \Tfish\Pagination Instance of the Tuskfish pagination class.
      */
@@ -49,7 +49,7 @@ class Listing
 
     /**
      * Render the pagination control.
-     * 
+     *
      * @return  string Pagination control output as HTML.
      */
     public function pagination()
@@ -59,13 +59,13 @@ class Listing
         $this->pagination->setStart($this->viewModel->start());
         $this->pagination->setTag($this->viewModel->tag());
         $this->pagination->setExtraParams($this->viewModel->extraParams());
-        
+
         return $this->pagination->renderPaginationControl();
     }
 
     /**
      * Render the template used by this page.
-     * 
+     *
      * @return  string Template output as HTML.
      */
     public function render(): string
@@ -73,7 +73,7 @@ class Listing
         $this->template = $this->viewModel->template();
         $this->template->assign('viewModel', $this->viewModel);
         $this->template->assign('pagination', $this->pagination());
-        
+
         return $this->template->render();
     }
 }

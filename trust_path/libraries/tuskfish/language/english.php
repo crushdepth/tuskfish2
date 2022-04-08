@@ -6,7 +6,7 @@ namespace Tfish;
 
 /**
  * Tuskfish core language constants (English).
- * 
+ *
  * Translate this file to convert Tuskfish to another language. To actually use a translated language
  * file, edit /trust_path/masterfile.php and change the TFISH_DEFAULT_LANGUAGE constant to point at
  * your translated language file.
@@ -109,7 +109,7 @@ namespace Tfish;
 \define("TFISH_PREFERENCE_MINIMUM_VIEWS", "Minimum views to display counter");
 \define("TFISH_PREFERENCE_SESSION_NAME", "Session name");
 \define("TFISH_PREFERENCE_DEFAULT_LANGUAGE", "Default language");
-\define("TFISH_PREFERENCE_DATE_FORMAT", 
+\define("TFISH_PREFERENCE_DATE_FORMAT",
         "<a href=\"http://php.net/manual/en/function.date.php\">Date format</a>");
 \define("TFISH_PREFERENCE_PAGINATION_ELEMENTS", "Max. pagination elements");
 \define("TFISH_PREFERENCE_USER_PAGINATION", "User-side pagination");
@@ -213,8 +213,8 @@ namespace Tfish;
 
 // Token errors.
 \define("TFISH_INVALID_TOKEN", "Invalid token error");
-\define("TFISH_SORRY_INVALID_TOKEN", "Sorry, the token accompanying your request was invalid. This 
-    is usually caused by your session timing out, but it can be an indication of a cross-site 
+\define("TFISH_SORRY_INVALID_TOKEN", "Sorry, the token accompanying your request was invalid. This
+    is usually caused by your session timing out, but it can be an indication of a cross-site
     request forgery. As a precaution, your request has not been processed. Please try again.");
 
 // File upload error messages.

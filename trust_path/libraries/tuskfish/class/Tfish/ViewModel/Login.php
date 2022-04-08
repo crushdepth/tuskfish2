@@ -6,7 +6,7 @@ namespace Tfish\ViewModel;
 
 /**
  * \Tfish\ViewModelModel\Login class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -36,12 +36,12 @@ class Login implements Viewable
 {
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;
-    
+
     private $model;
 
     /**
      * Constructor
-     * 
+     *
      * @param   object $model Instance of a model class.
      * @param   string $pageTitle Title of this page.
      * @param   array $metadata Page-specific metadata overrides.

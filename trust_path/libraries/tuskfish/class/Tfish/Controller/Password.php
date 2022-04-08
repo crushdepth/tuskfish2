@@ -6,7 +6,7 @@ namespace Tfish\Controller;
 
 /**
  * \Tfish\Controller\Password class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -35,7 +35,7 @@ class Password
 
     /**
      * Constructor
-     * 
+     *
      * @param   object $model Instance of a model class.
      * @param   object $viewModel Instance of a viewModel class.
      */
@@ -49,7 +49,7 @@ class Password
 
     /**
      * Display the change password form.
-     * 
+     *
      * @return  array Empty array (the output of this action is not cached).
      */
     public function display(): array
@@ -61,14 +61,14 @@ class Password
 
     /**
      * Process the change password submission.
-     * 
+     *
      * @return  array Empty array (the output of this action is not cached).
      */
     public function submit(): array
     {
         $this->viewModel->setPassword($_POST['password'] ?? '');
         $this->viewModel->setConfirm($_POST['confirm'] ?? '');
-        
+
         $this->viewModel->displaySetPassword();
 
         return [];

@@ -6,7 +6,7 @@ namespace Tfish\Entity;
 
 /**
  * \Tfish\Entity\Template class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -43,7 +43,7 @@ class Template
 
     /**
      * Constructor
-     * 
+     *
      * @param   string $template Name of the template to render for this page.
      * @param   string $theme Name of the theme to use for this page.
      */
@@ -56,9 +56,9 @@ class Template
 
     /**
      * Assign a variable (value) to the template.
-     * 
+     *
      * Assigned variabless are extracted for insertion in the template on render.
-     * 
+     *
      * @param   string $key Variable name.
      * @param   mixed $value Variable value.
      */
@@ -71,7 +71,7 @@ class Template
 
     /**
      * Render the template.
-     * 
+     *
      * Variables assigned to the template are extracted to make them available for use in the
      * template.
      */

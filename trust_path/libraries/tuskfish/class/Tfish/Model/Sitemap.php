@@ -6,7 +6,7 @@ namespace Tfish\Model;
 
 /**
  * \Tfish\Model\Sitemap class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -61,12 +61,12 @@ class Sitemap
         $criteria->add($this->criteriaFactory->item('type', 'TfBlock', '!='));
         $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
         $statement = $this->database->select('content', $criteria, ['id', 'title']);
-        
+
         $content = $statement->fetchAll(\PDO::FETCH_ASSOC);
 
         // Remove any existing sitemap.
         \clearstatcache();
-        if (\file_exists($sitemap) 
+        if (\file_exists($sitemap)
                 && \unlink($sitemap) === false) {
             return false;
         }
