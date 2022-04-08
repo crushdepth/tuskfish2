@@ -282,7 +282,7 @@ class FileHandler
         if ($filepath && \file_exists($filepath)) {
             try {
                 \unlink($filepath);
-            } catch (Exeption $e) {
+            } catch (\Exception $e) {
                 \trigger_error(TFISH_ERROR_FAILED_TO_DELETE_FILE, E_USER_NOTICE);
             }
         } else {

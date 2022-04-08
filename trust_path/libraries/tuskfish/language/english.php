@@ -210,6 +210,7 @@ namespace Tfish;
 \define("TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE", "File path contains a traversal or null byte (illegal "
         . "value).");
 \define("TFISH_ERROR_BAD_ACTION", "Bad action submitted to front controller, high probability attempted abuse.");
+\define("TFISH_ERROR_UNSPECIFIED", "Unspecified error.");
 
 // Token errors.
 \define("TFISH_INVALID_TOKEN", "Invalid token error");
