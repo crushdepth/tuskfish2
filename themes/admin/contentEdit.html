@@ -25,12 +25,12 @@
 <div class="row">
   <div class="col">
 
-  <form class="form-horizontal" action="<?php echo TFISH_ADMIN_URL . 'content/'; ?>" method="post" enctype="multipart/form-data" role="form" accept-charset="UTF-8">  
+  <form class="form-horizontal" action="<?php echo TFISH_ADMIN_URL . 'content/'; ?>" method="post" enctype="multipart/form-data" role="form" accept-charset="UTF-8">
     <div class="row">
-      
+
       <!-- ID -->
       <input type="hidden" name="content[id]" value="<?php echo xss($content->id()); ?>">
-      
+
       <!-- Media file type compatibility alert -->
       <div class="col-12">
         <div class="mb-3 alert alert-danger alert-dismissible fade d-none" role="alert">
@@ -40,7 +40,7 @@
           </button>
         </div>
       </div>
-      
+
       <!-- Type -->
       <div class="col-md-6 col-lg-3 mb-3 text-left" id="typeContainer">
         <label for="type"><strong><?php echo TFISH_TYPE; ?></strong></label>
@@ -128,7 +128,7 @@
         <label for="publisher"><strong><?php echo TFISH_PUBLISHER; ?></strong></label>
         <input type="text" class="form-control" name="content[publisher]" id="publisher" <?php if (!empty($content->publisher())) echo 'value="' . xss($content->publisher()) . '"'; ?>>
       </div>
-      
+
       <!-- Parent -->
       <div class="col-12 mb-3 text-left" id="parentContainer">
         <label for="parent"><strong><?php echo TFISH_PARENT; ?></strong></label>
@@ -140,7 +140,7 @@
             <option value="<?php echo xss($key); ?>" selected><?php echo xss($option); ?></option>
           <?php else: ?>
             <option value="<?php echo xss($key); ?>"><?php echo xss($option); ?></option>
-          <?php endif; ?> 
+          <?php endif; ?>
         <?php endforeach; ?>
         </select>
       </div>
@@ -178,10 +178,10 @@
         });
       });
       </script>
-      
+
       <!-- Delete image -->
       <input type="hidden" name="deleteImage" id="deleteImage" value="0">
-      
+
       <!-- Media -->
       <?php if (!empty($content->media())): ?>
       <div class="col-md-6 mb-4 text-left" id="mediaContainer">
@@ -213,17 +213,17 @@
               'showDrag': false,
               'showRemove': false},
           'theme': "fa"});
-        
+
         $('#media').on('fileclear', function(tf_deleteMedia) {
             document.getElementById("deleteMedia").value = "1";
         });
-        
+
       });
       </script>
 
       <!-- Delete media -->
       <input type="hidden" name="deleteMedia" id="deleteMedia" value="0">
-      
+
       <!-- External media -->
       <div class="col-md-12 mb-3 text-left" id="externalMediaContainer">
         <label for="externalMedia"><strong><?php echo TFISH_EXTERNAL_MEDIA; ?></strong></label>
@@ -280,7 +280,7 @@
             <label class="form-check-label" for="offline"><?php echo TFISH_OFFLINE; ?></label>
           </div>
       </div>
-      
+
       <!-- Counter -->
       <?php if ($content->counter()): ?>
       <input type="hidden" id="counter" name="content[counter]" value="<?php echo xss($content->counter()); ?>" />
@@ -297,7 +297,7 @@
       <?php if ($content->fileSize()): ?>
       <input type="hidden" id="fileSize" name="content[fileSize]" value="<?php echo xss($content->fileSize()); ?>" />
       <?php endif; ?>
-      
+
       <div class="col-md-12" id="metaHeader">
         <h2><?php echo TFISH_META_TAGS; ?></h2>
         <hr>
@@ -323,7 +323,7 @@
 
       <!-- Meta description counter -->
       <div class="col-12 mb-3 text-left" id="metaCounter"></div>
-    
+
     </div><!-- /row -->
 
     <!-- Action buttons -->
@@ -336,7 +336,7 @@
 
     <input type="hidden" name="content[submissionTime]" id="submissionTime" value="<?php echo xss($content->submissionTime()); ?>" />
     <input type="hidden" name="action" id="action" value="<?php echo xss($viewModel->action()); ?>" />
-    
+
     <!-- CSRF validation token -->
     <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
 

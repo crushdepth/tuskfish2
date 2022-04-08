@@ -5,13 +5,13 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">    
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="<?php echo xss($metadata->description); ?>">
     <meta name="author" content="<?php echo xss($metadata->author); ?>">
     <meta name="dcterms.rights" content="<?php echo xss($metadata->copyright); ?>">
     <meta name="robots" content="<?php echo xss($metadata->robots); ?>">
     <link rel="schema.dcterms" href="http://purl.org/dc/terms/">
-    
+
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="<?php echo TFISH_URL . 'apple-touch-icon.png'; ?>">
     <link rel="icon" type="image/png" sizes="32x32" href="<?php echo TFISH_URL . 'favicon-32x32.png'; ?>">
@@ -22,14 +22,14 @@
     <meta name="theme-color" content="#ffffff">
 
     <title><?php echo xss($metadata->title); ?></title>
-    
+
     <!-- jQuery -->
     <script src="<?php echo TFISH_VENDOR_URL . 'jquery/jquery.min.js'; ?>"></script>
-    
+
     <!-- Bootstrap -->
     <link href="<?php echo TFISH_VENDOR_URL . 'bootstrap/css/bootstrap.min.css'; ?>" rel="stylesheet">
     <script src="<?php echo TFISH_VENDOR_URL . 'bootstrap/js/bootstrap.bundle.min.js'; ?>"></script>
-    
+
     <!-- Font Awesome -->
     <script defer src="<?php echo TFISH_VENDOR_URL . 'fontawesome/fontawesome.min.js'; ?>"></script>
     <script defer src="<?php echo TFISH_VENDOR_URL . 'fontawesome/icons-in-use.js'; ?>"></script>
@@ -40,10 +40,10 @@
 
   <!-- Main page -->
   <body>
-  
+
   <?php if ($page ?? null): ?>
   <?php echo $page; ?>
   <?php endif; ?>
-    
+
   </body>
 </html>

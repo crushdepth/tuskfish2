@@ -20,7 +20,7 @@
   <div class="col">
     <form class="form-horizontal" action="<?php echo TFISH_ADMIN_URL . 'content/'; ?>" method="post" enctype="multipart/form-data" role="form" accept-charset="UTF-8">
       <div class="row">
-            
+
       <!-- Media file type compatibility alert -->
       <div class="col-12">
         <div class="mb-3 alert alert-danger alert-dismissible fade d-none" role="alert">
@@ -67,7 +67,7 @@
         $('#date').datepicker('update');
       });
       </script>
-      
+
       <!-- Tags -->
       <div class="col-md-6 col-lg-3 mb-3 text-left" id="tagsContainer">
         <label for="tags"><strong><?php echo TFISH_TAGS; ?></strong></label>
@@ -126,7 +126,7 @@
           <input id="image" name="content[image]" type="file" data-preview-file-type="text">
         </div>
         <script>
-        $(document).ready(function() {    
+        $(document).ready(function() {
           $("#image").fileinput({
           'showUpload': false,
           'showRemove': true,
@@ -205,7 +205,7 @@
             <label class="form-check-label" for="offline"><?php echo TFISH_OFFLINE; ?></label>
           </div>
         </div>
-        
+
         <!-- Format -->
         <input type="hidden" id="format" name="content[format]" value="" />
 
@@ -231,12 +231,12 @@
           <label for="metaDescription"><strong><?php echo TFISH_META_DESCRIPTION; ?></strong></label>
           <input type="text" class="form-control" name="content[metaDescription]" id="metaDescription">
         </div>
-        
+
         <!-- Meta description counter -->
         <div class="col-12 mb-3 text-left" id="metaCounter"></div>
-      
+
       </div> <!-- /row -->
-      
+
       <!-- Action buttons -->
       <div class="float-start clearfix">
         <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />

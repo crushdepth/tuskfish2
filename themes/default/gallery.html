@@ -14,7 +14,7 @@
   <div class="col-sm-6 col-md-6 col-lg-4 mx-auto select-filters">
     <form class="form-horizontal" name="selectFilters" method="get">
       <div class="row">
-      
+
           <select class="form-control custom-select" name="tag" id="tag" onchange="this.form.submit()">
           <?php foreach ($viewModel->activeTagOptions() as $key => $value) {
             echo ($key === $viewModel->tag()) ?
@@ -46,7 +46,7 @@
     <a href="<?php echo xss($content->url()); ?>">
       <img class="img-thumbnail img-responsive" src="<?php echo $content->cachedImage(400); ?>"
       <?php if ($content->caption()): ?>
-        alt="<?php echo xss($content->caption()); ?>" 
+        alt="<?php echo xss($content->caption()); ?>"
         title="<?php echo xss($content->caption()); ?>" />
       <?php else: ?>
         alt="<?php echo xss($content->title()); ?>" />
