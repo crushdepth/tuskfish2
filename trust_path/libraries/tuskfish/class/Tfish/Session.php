@@ -247,7 +247,10 @@ class Session
             exit;
         } else {
             // Increment failed login counter, destroy session and redirect to the login page.
-            $this->db->updateCounter((int) $user['id'], 'user', 'loginErrors');
+            if ((int) $user['loginErrors'] < 30) {
+                $this->db->updateCounter((int) $user['id'], 'user', 'loginErrors');
+            }
+
             $this->logout(TFISH_URL . "login/");
             exit;
         }
