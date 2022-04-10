@@ -82,6 +82,7 @@ class Listing implements \Tfish\ViewModel\Listable
         $this->model = $model;
         $this->preference = $preference;
         $this->theme = 'default';
+        $this->pageTitle = TFISH_LATEST_POSTS;
     }
 
     /** Actions */
@@ -91,7 +92,6 @@ class Listing implements \Tfish\ViewModel\Listable
      */
     public function displayList()
     {
-        $this->pageTitle = TFISH_LATEST_POSTS;
         $this->template = 'listView';
         $this->listContent();
         $this->countContent();
