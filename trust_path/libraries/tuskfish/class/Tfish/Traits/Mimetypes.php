@@ -7,7 +7,7 @@ namespace Tfish\Traits;
 /**
  * \Tfish\Traits\Mimetypes trait file.
  *
- * Provides a list of common (permitted) mimetypes for file uploads.
+ * Returns a list of common (permitted) mimetypes for file uploads.
  *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -33,7 +33,7 @@ trait Mimetypes
      *
      * @return  array
      */
-    public function listAudioMimetypes()
+    public function listAudioMimetypes(): array
     {
         return [
             "mp3" => "audio/mpeg",
@@ -48,7 +48,7 @@ trait Mimetypes
      *
      * @return  array
      */
-    public function listImageMimetypes()
+    public function listImageMimetypes(): array
     {
         return [
             "gif" => "image/gif",
@@ -62,7 +62,7 @@ trait Mimetypes
      *
      * @return  array
      */
-    public function listVideoMimetypes()
+    public function listVideoMimetypes(): array
     {
         return [
             "mp4" => "video/mp4",
@@ -82,7 +82,7 @@ trait Mimetypes
      * @return array Array of permitted mimetypes and extensions.
      *
      */
-    public function listMimetypes()
+    public function listMimetypes(): array
     {
         return [
             "doc" => "application/msword", // Documents.
