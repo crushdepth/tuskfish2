@@ -60,7 +60,7 @@ class Sitemap
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('type', 'TfBlock', '!='));
         $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
-        $statement = $this->database->select('content', $criteria, ['id', 'title', 'metaSeo']);
+        $statement = $this->database->select('content', $criteria, ['id', 'title']);
 
         $content = $statement->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -79,15 +79,7 @@ class Sitemap
         }
 
         foreach ($content as $item) {
-            $value = TFISH_PERMALINK_URL . '?id=' . (string) $item['id'];
-
-            if (!empty($item['metaSeo'])) {
-                $value .= '&amp;title=' . $item['metaSeo'];
-            }
-
-            $value .= "\n";
-
-            \fwrite($fileHandle, $value);
+            \fwrite($fileHandle, TFISH_PERMALINK_URL . '?id=' . (string) $item['id'] . "\n");
         }
 
         \fclose($fileHandle);
