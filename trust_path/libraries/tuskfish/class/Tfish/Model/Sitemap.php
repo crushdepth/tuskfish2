@@ -60,7 +60,7 @@ class Sitemap
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('type', 'TfBlock', '!='));
         $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
-        $statement = $this->database->select('content', $criteria, ['id', 'title', 'metaSeo']);
+        $statement = $this->database->select('content', $criteria, ['id', 'title']);
 
         $content = $statement->fetchAll(\PDO::FETCH_ASSOC);
 
