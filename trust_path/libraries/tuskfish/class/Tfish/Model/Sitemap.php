@@ -78,8 +78,8 @@ class Sitemap
             return false;
         }
 
-        foreach ($content as $value) {
-            \fwrite($fileHandle, TFISH_URL . '?id=' . (string) $value['id'] . "\n");
+        foreach ($content as $item) {
+            \fwrite($fileHandle, TFISH_PERMALINK_URL . '?id=' . (string) $item['id'] . "\n");
         }
 
         \fclose($fileHandle);
