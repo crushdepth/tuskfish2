@@ -28,8 +28,6 @@ namespace Tfish\Expert\Entity;
 
 class Expert
 {
-
-    use \Tfish\Expert\Traits\Options;
     use \Tfish\Traits\EmailCheck;
     use \Tfish\Traits\Language;
     use \Tfish\Traits\Metadata;

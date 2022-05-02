@@ -38,6 +38,7 @@ namespace Tfish\Expert\ViewModel;
  */
 class ExpertEdit implements \Tfish\ViewModel\Viewable
 {
+    use \Tfish\Expert\Traits\Options;
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
     use \Tfish\Traits\Viewable;

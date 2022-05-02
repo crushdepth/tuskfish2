@@ -6,7 +6,7 @@ namespace Tfish\Expert\Traits;
 
 /**
  * \Tfish\Expert\Traits\Options trait file.
- * 
+ *
  * @copyright   Simon Wilkinson 2018+(https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -27,7 +27,7 @@ namespace Tfish\Expert\Traits;
  */
 trait Options
 {
-    
+
     public function countryList()
     {
         return [
@@ -52,10 +52,10 @@ trait Options
             18 => "Vietnam"
         ];
     }
-    
+
     /**
      * Returns an array of known / permitted genders.
-     * 
+     *
      * @return array List of genders.
      */
     public function genderList()
@@ -65,10 +65,10 @@ trait Options
             1 => "Male"
         ];
     }
-    
+
     /**
      * Returns an array of known / permitted salutations.
-     * 
+     *
      * @return array List of salutations as key => value pairs.
      */
     public function salutationList()

@@ -139,6 +139,9 @@ namespace Tfish;
 \define("TFISH_PAGINATION_FIRST", "First");
 \define("TFISH_PAGINATION_LAST", "Last");
 
+// Utilities
+\define("TFISH_STATE", "State");
+
 // Base intellectual property licenses.
 \define("TFISH_RIGHTS_COPYRIGHT", "Copyright, all rights reserved.");
 \define("TFISH_RIGHTS_ATTRIBUTION", "Creative Commons Attribution.");
@@ -279,4 +282,17 @@ namespace Tfish;
 \define("TFISH_EXPERTS_EMAIL", "Email");
 \define("TFISH_EXPERTS_SALUTATION", "Salutation");
 \define("TFISH_EXPERTS_NAME", "Name");
-\define("TFISH_STATE", "State");
+\define("TFISH_EXPERTS_FIRST_NAME", "First name");
+\define("TFISH_EXPERTS_MID_NAME", "Middle name(s)");
+\define("TFISH_EXPERTS_LAST_NAME", "Last name");
+\define("TFISH_EXPERTS_JOB", "Job");
+\define("TFISH_EXPERTS_BUSINESS_UNIT", "Business unit");
+\define("TFISH_EXPERTS_ORGANISATION", "Organisation");
+\define("TFISH_EXPERTS_PROFILE_URL", "Profile URL");
+\define("TFISH_EXPERTS_GENDER", "Gender");
+\define("TFISH_EXPERTS_MALE", "Male");
+\define("TFISH_EXPERTS_FEMALE", "Female");
+\define("TFISH_EXPERTS_EXPERIENCE", "Experience");
+\define("TFISH_EXPERTS_PROJECTS", "Projects");
+\define("TFISH_EXPERTS_PUBLICATIONS", "Publications");
+\define("TFISH_EXPERTS_ADDRESS", "Address");
