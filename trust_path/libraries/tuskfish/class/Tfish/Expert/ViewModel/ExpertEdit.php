@@ -6,7 +6,7 @@ namespace Tfish\Expert\ViewModel;
 
 /**
  * \Tfish\Content\ViewModel\ContentEdit class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -53,7 +53,7 @@ class ExpertEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Constructor.
-     * 
+     *
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
@@ -89,7 +89,7 @@ class ExpertEdit implements \Tfish\ViewModel\Viewable
         \header('Location: ' . TFISH_ADMIN_URL);
         exit;
     }
-    
+
     /**
      * Display edit expert form.
      */
@@ -134,7 +134,7 @@ class ExpertEdit implements \Tfish\ViewModel\Viewable
                 $this->response = TFISH_OBJECT_INSERTION_FAILED;
             }
         }
-        
+
         if (!empty($id)) {
 
             if ($this->model->update()) {
@@ -154,7 +154,7 @@ class ExpertEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Returns the date template as per the date() function of PHP.
-     * 
+     *
      * @return  string
      */
     public function dateFormat(): string
@@ -164,10 +164,10 @@ class ExpertEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Returns the default language preference.
-     * 
+     *
      * @return  string Default language as two-letter ISO code.
      */
-    public function defaultLanguage(): string 
+    public function defaultLanguage(): string
     {
         return $this->preference->defaultLanguage();
     }
@@ -184,7 +184,7 @@ class ExpertEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Return the site author preference.
-     * 
+     *
      * @return  string
      */
     public function siteAuthor(): string
@@ -196,9 +196,9 @@ class ExpertEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Return the action for this page.
-     * 
+     *
      * The action is usually embedded in the form, to control handling on submission (next page load).
-     * 
+     *
      * @return string
      */
     public function action(): string
@@ -208,9 +208,9 @@ class ExpertEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Return the backUrl.
-     * 
+     *
      * If the cancel button is clicked, the user will be redirected to the backUrl.
-     * 
+     *
      * @return  string
      */
     public function backUrl(): string
@@ -220,7 +220,7 @@ class ExpertEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Return a expert object.
-     * 
+     *
      * @return \Tfish\Expert\Entity\Expert
      */
     public function expert(): \Tfish\Expert\Entity\Expert
@@ -230,7 +230,7 @@ class ExpertEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Set expert.
-     * 
+     *
      * @param   \Tfish\Expert\Entity\Expert $content Expert object to be edited.
      */
     public function setContent(\Tfish\Expert\Entity\Expert $content)
@@ -240,7 +240,7 @@ class ExpertEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Return ID.
-     * 
+     *
      * @return  int ID of expert object.
      */
     public function id(): int
@@ -250,7 +250,7 @@ class ExpertEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Return the response message (success or failure) for an action.
-     * 
+     *
      * @return  string
      */
     public function response(): string

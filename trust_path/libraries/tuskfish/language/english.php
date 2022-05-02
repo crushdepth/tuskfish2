@@ -279,3 +279,4 @@ namespace Tfish;
 \define("TFISH_EXPERTS_EMAIL", "Email");
 \define("TFISH_EXPERTS_SALUTATION", "Salutation");
 \define("TFISH_EXPERTS_NAME", "Name");
+\define("TFISH_STATE", "State");

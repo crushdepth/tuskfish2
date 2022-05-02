@@ -6,7 +6,7 @@ namespace Tfish\Expert\Entity;
 
 /**
  * \Tfish\Expert\Entity\Expert class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2018+(https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -28,7 +28,7 @@ namespace Tfish\Expert\Entity;
 
 class Expert
 {
-    
+
     use \Tfish\Expert\Traits\Options;
     use \Tfish\Traits\EmailCheck;
     use \Tfish\Traits\Language;
@@ -39,7 +39,7 @@ class Expert
     use \Tfish\Traits\TraversalCheck;
     use \Tfish\Traits\UrlCheck;
     use \Tfish\Traits\ValidateString;
-    
+
     private $id = 0;
     private $salutation = 0;
     private $firstName = '';
@@ -68,9 +68,9 @@ class Expert
 
     /**
      * Load properties.
-     * 
+     *
      * Parameters are validated by the respective setters.
-     * 
+     *
      * @param   array $row Data to load into properties.
      * @param   bool $convertUrlToConstant Convert the TFISH_LINK constant to a URL and vice-versa
      * to aid portability.
@@ -104,30 +104,30 @@ class Expert
         $this->setMetaTitle((string) ($row['metaTitle'] ?? ''));
         $this->setMetaDescription((string) ($row['metaDescription'] ?? ''));
         $this->setMetaSeo((string) ($row['metaSeo'] ?? ''));
-        
+
         // Convert URLs back to TFISH_LINK for insertion or update, to aid portability.
         // Convert base url to TFISH_LINK (true) or TFISH_LINK to base url (false).
         if (isset($this->experience) && !empty($row['experience'])) {
-            $experience = $this->convertBaseUrlToConstant($row['experience'], $convertUrlToConstant);            
+            $experience = $this->convertBaseUrlToConstant($row['experience'], $convertUrlToConstant);
             $this->setExperience($experience);
         }
 
         if (isset($this->projects) && !empty($row['projects'])) {
-            $projects = $this->convertBaseUrlToConstant($row['projects'], $convertUrlToConstant);            
+            $projects = $this->convertBaseUrlToConstant($row['projects'], $convertUrlToConstant);
             $this->setProjects($projects);
-        } 
+        }
 
         if (isset($this->publications) && !empty($row['publications'])) {
-            $publications = $this->convertBaseUrlToConstant($row['publications'], $convertUrlToConstant);            
+            $publications = $this->convertBaseUrlToConstant($row['publications'], $convertUrlToConstant);
             $this->setPublications($publications);
-        }               
+        }
     }
 
     /** Getters and setters **/
 
     /**
      * Return ID.
-     * 
+     *
      * @return int
      */
     public function id(): int
@@ -137,7 +137,7 @@ class Expert
 
     /**
      * Set ID
-     * 
+     *
      * @param   int $id ID of content object.
      */
     public function setId(int $id)
@@ -151,7 +151,7 @@ class Expert
 
     /**
      * Return salutation.
-     * 
+     *
      * @return int
      */
     public function salutation(): int
@@ -161,7 +161,7 @@ class Expert
 
     /**
      * Set Salutation
-     * 
+     *
      * @param   int $salutation Salutation of expert.
      */
     public function setSalutation(int $salutation)
@@ -172,7 +172,7 @@ class Expert
 
         $this->salutation = $salutation;
     }
-    
+
     /**
      * Return first name.
      *
@@ -238,7 +238,7 @@ class Expert
 
     /**
      * Return gender.
-     * 
+     *
      * @return int
      */
     public function gender(): int
@@ -248,7 +248,7 @@ class Expert
 
     /**
      * Set gender
-     * 
+     *
      * @param   int $gender Gender of expert.
      */
     public function setGender(int $gender)
@@ -283,7 +283,7 @@ class Expert
 
     /**
      * Return experience.
-     * 
+     *
      * This is a HTML field. It has been input-validated but should not be output escaped.
      *
      * @return string
@@ -295,7 +295,7 @@ class Expert
 
     /**
      * Return experience with TFISH_LINK constant coverted to URL.
-     * 
+     *
      * This is a HTML field. It has been input-validated but should not be output escaped.
      *
      * @return string
@@ -319,7 +319,7 @@ class Expert
 
     /**
      * Return projects.
-     * 
+     *
      * This is a HTML field. It has been input-validated but should not be output escaped.
      *
      * @return string
@@ -331,7 +331,7 @@ class Expert
 
     /**
      * Return projects with TFISH_LINK constant coverted to URL.
-     * 
+     *
      * This is a HTML field. It has been input-validated but should not be output escaped.
      *
      * @return string
@@ -355,7 +355,7 @@ class Expert
 
     /**
      * Return publications.
-     * 
+     *
      * This is a HTML field. It has been input-validated but should not be output escaped.
      *
      * @return string
@@ -367,7 +367,7 @@ class Expert
 
     /**
      * Return publications with TFISH_LINK constant coverted to URL.
-     * 
+     *
      * This is a HTML field. It has been input-validated but should not be output escaped.
      *
      * @return string
@@ -454,7 +454,7 @@ class Expert
 
     /**
      * Return country.
-     * 
+     *
      * @return int
      */
     public function country(): int
@@ -464,7 +464,7 @@ class Expert
 
     /**
      * Set country
-     * 
+     *
      * @param   int $country Country of expert.
      */
     public function setCountry(int $country)
@@ -478,7 +478,7 @@ class Expert
 
     /**
      * Return online status.
-     * 
+     *
      * @return int 0 if offline, 1 if online.
      */
     public function onlineStatus(): int
@@ -488,7 +488,7 @@ class Expert
 
     /**
      * Set online status.
-     * 
+     *
      * @param   int $status 0 for offline, 1 for online.
      */
     public function setOnlineStatus(int $status)
@@ -502,7 +502,7 @@ class Expert
 
     /**
      * Return submission time.
-     * 
+     *
      * @return int Timestamp.
      */
     public function submissionTime(): int
@@ -512,13 +512,13 @@ class Expert
 
     /**
      * Set submission time.
-     * 
+     *
      * @param   int $timestamp
      */
     public function setSubmissionTime(int $timestamp)
     {
         if ($timestamp < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR); 
+            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
         }
 
         $this->submissionTime = $timestamp;
@@ -526,7 +526,7 @@ class Expert
 
     /**
      * Return last modification time.
-     * 
+     *
      * @return int $timestamp
      */
     public function lastUpdated(): int
@@ -536,7 +536,7 @@ class Expert
 
     /**
      * Set last updated time.
-     * 
+     *
      * @param   int $timestamp
      */
     public function setLastUpdated(int $timestamp)
@@ -550,9 +550,9 @@ class Expert
 
     /**
      * Return expiry date.
-     * 
+     *
      * Expiry date is not yet implemented.
-     * 
+     *
      * @return int $timestamp
      */
     public function expiresOn(): int
@@ -562,7 +562,7 @@ class Expert
 
     /**
      * Set expiry time.
-     * 
+     *
      * @param   int $timestamp
      */
     public function setExpiresOn(int $timestamp)
@@ -570,7 +570,7 @@ class Expert
         if ($timestamp < 0) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
         }
-        
+
         $this->expiresOn = $timestamp;
     }
 
@@ -699,7 +699,7 @@ class Expert
 
     /**
      * Return image name.
-     * 
+     *
      * @return string
      */
     public function image(): string
@@ -709,36 +709,36 @@ class Expert
 
     /**
      * Set image.
-     * 
+     *
      * @param   string $filename Name of image file.
      */
     public function setImage(string $filename)
     {
         $filename = $this->trimString($filename);
-        
+
         if ($this->hasTraversalorNullByte($filename)) {
             \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
             exit; // Hard stop due to high probability of abuse.
         }
-        
+
         $whitelist = $this->listImageMimetypes();
         $extension = \mb_strtolower(pathinfo($filename, PATHINFO_EXTENSION), 'UTF-8');
-        
+
         if (!empty($extension) && !\array_key_exists($extension, $whitelist)) {
             $this->image = '';
             \trigger_error(TFISH_ERROR_ILLEGAL_MIMETYPE, E_USER_ERROR);
         } else {
             $this->image = $filename;
-        }  
+        }
     }
 
     /**
      * Convert the site base URL to the TFISH_LINK constant and vice versa.
-     * 
+     *
      * This aids site portability. The URL is stored as a constant in the database,
      * but is converted to actual URL on display. If the domain changes at some point
      * all the references to TFISH_LINK will update automatically.
-     * 
+     *
      * @param   string $html HTML field to search and replace.
      * @param   bool $convertToConstant
      */
@@ -749,13 +749,13 @@ class Expert
         } else {
                 $html = \str_replace('TFISH_LINK', TFISH_LINK, $html);
         }
-        
+
         return $html;
     }
 
     /**
      * Unset properties that are not stored in the database.
-     * 
+     *
      * @param   array $keyValues Content object as associative array.
      * @return  array Content object with non-persistent properties unset.
      */
@@ -765,26 +765,26 @@ class Expert
             $keyValues['tags'],
             $keyValues['module']
             );
-    
+
         return $keyValues;
     }
 
     /**
      * Return a URL (permalink) to a content object.
-     * 
+     *
      * @param   string $customRoute Override to customise the URL.
      * @return  string $url.
      */
     public function url(string $customRoute = ''): string
     {
         $url = empty($customRoute) ? TFISH_PERMALINK_URL : TFISH_URL;
-        
+
         if (!empty($customRoute)) {
             $url .= $this->trimString($customRoute);
         }
 
         $url .= '?id=' . $this->id;
-        
+
         if (!empty($this->metaSeo)) {
             $url .= '&amp;title=' . $this->encodeQueryString($this->metaSeo);
         }
@@ -794,7 +794,7 @@ class Expert
 
     /**
      * Url-encode the query string segment of a URL.
-     * 
+     *
      * @param   string $url Query string to encode.
      * @return  string Encoded URL.
      */
@@ -802,98 +802,98 @@ class Expert
     {
         $url = $this->trimString($url); // Trim control characters, verify UTF-8 character set.
         return \rawurlencode($url); // Encode characters to make them URL safe.
-    }    
-   
+    }
+
     public function getName()
     {
         $salutationList = $this->salutationList();
-        
+
         $name = '';
-        
+
         if ($this->salutation) $name .= $salutationList[$this->salutation] . ' ';
         if ($this->firstName) $name .= $this->firstName . ' ';
         if ($this->midName) $name .= $this->midName . ' ';
         if ($this->lastName) $name .= $this->lastName;
-        
+
         return $name;
     }
-    
+
     /**
      * Returns full name and job title, comma seperated, XSS escaped for display.
-     * 
+     *
      * @return string Name and job title.
      */
     public function getNameAndJob()
     {
         $nameAndJob = '';
-        
+
         $name = $this->getName();
         $job = $this->job();
-        
+
         $nameAndJob .= $name;
-        
+
         if ($name && $job) {
             $nameAndJob .= ', ';
         }
-        
+
         $nameAndJob .= $job;
-        
+
         return $nameAndJob;
     }
-    
+
     /**
      * Returns the affiliation of this expert (business unit and organisation) XSS escaped for display.
-     * 
+     *
      * @return string Affiliation.
      */
     public function getAffiliation()
     {
         $affiliation = '';
-        
+
         $businessUnit = $this->businessUnit();
         $organisation = $this->organisation();
-        
+
         $affiliation = $businessUnit;
-        
+
         if ($businessUnit && $organisation) {
             $affiliation .= ', ';
         }
-        
+
         $affiliation .= $organisation;
-        
+
         return $affiliation;
     }
-    
+
     /**
      * Return the full contact details for this expert XSS escaped for display.
-     * 
+     *
      * Includes address, phone, fax and email.
-     * 
+     *
      * @return string Contact details.
      */
     public function getContactDetails()
     {
         $contactDetails = array();
-        
+
         if ($this->address) {
             $contactDetails[] = nl2br($this->address);
         }
-        
+
         if ($this->mobile) {
             $contactDetails[] = TFISH_EXPERTS_MOBILE . ': ' . $this->mobile; 
         }
-        
+
         if ($this->fax) {
             $contactDetails[] = TFISH_EXPERTS_FAX . ': ' . $this->fax;
         }
-        
+
         if ($this->email) {
             $contactDetails[] = TFISH_EXPERTS_EMAIL . ': ' . $this->email;
         }
-        
+
         $contactDetails = implode('<br>', $contactDetails);
-        
+
         return $contactDetails;
     }
-    
+
 }

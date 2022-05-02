@@ -131,13 +131,13 @@ return [
         '\\Tfish\\View\\Single',
         '\\Tfish\\Controller\\Error',
         false),
-    '/admin/expert/' => new Route(
+    '/admin/experts/' => new Route(
         '\\Tfish\\Expert\\Model\\Admin',
         '\\Tfish\\Expert\\ViewModel\\Admin',
         '\\Tfish\\View\\Listing',
         '\\Tfish\\Expert\\Controller\\Admin',
         true),
-    '/admin/expert/edit/' => new Route(
+    '/admin/experts/edit/' => new Route(
         '\\Tfish\\Expert\\Model\\ExpertEdit',
         '\\Tfish\\Expert\\ViewModel\\ExpertEdit',
         '\\Tfish\\View\\Single',
