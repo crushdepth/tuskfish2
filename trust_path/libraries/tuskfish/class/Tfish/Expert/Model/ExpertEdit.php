@@ -6,7 +6,7 @@ namespace Tfish\Expert\Model;
 
 /**
  * \Tfish\Expert\Model\ExpertEdit class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -15,7 +15,7 @@ namespace Tfish\Expert\Model;
  * @package     expert
  */
 
-/** 
+/**
  * Model for editing expert objects.
  *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
@@ -36,7 +36,7 @@ namespace Tfish\Expert\Model;
  * @var         \Tfish\CriteriaFactory $criteriaFactory A factory class that returns instances of Criteria and CriteriaItem.
  * @var         \Tfish\Entity\Preference Instance of the Tfish site preferences class.
  * @var         \Tfish\Cache Instance of the Tfish cache class.
- * @var         \HTMLPurifier Instance of HTMLPurifier class. 
+ * @var         \HTMLPurifier Instance of HTMLPurifier class.
  * @var         \Tfish\FileHandler Instance of the Tfish filehandler class.
  */
 class ExpertEdit
@@ -59,7 +59,7 @@ class ExpertEdit
 
     /**
      * Constructor.
-     * 
+     *
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.
      * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
      * @param   \Tfish\Cache $cache Instance of the Tuskfish cache class.
@@ -86,7 +86,7 @@ class ExpertEdit
 
     /**
      * Edit expert object.
-     * 
+     *
      * @param   int $id ID of expert object.
      * @return  array Expert object data as associative array.
      */
@@ -105,7 +105,7 @@ class ExpertEdit
 
     /**
      * Insert an expert object into the database.
-     * 
+     *
      * @return  bool True on success, false on failure.
      */
     public function insert(): bool
@@ -140,11 +140,11 @@ class ExpertEdit
 
     /**
      * Update an expert object in the database.
-     * 
+     *
      * @return True on success, false on failure.
      */
     public function update(): bool
-    {        
+    {
         $content = $this->validateForm($_POST['content']);
         $tags = $this->validateTags($_POST['tags'] ?? []);
 
@@ -186,13 +186,13 @@ class ExpertEdit
 
         // Properties that are used within attributes must have quotes encoded.
         $fieldsToDecode = ['metaTitle', 'metaSeo', 'metaDescription'];
-        
+
         foreach ($fieldsToDecode as $field) {
             if (isset($content[$field])) {
                 $content[$field] = htmlspecialchars_decode($content[$field], ENT_QUOTES);
             }
         }
-        
+
         return $this->database->update('expert', $id, $content);
     }
 
@@ -200,7 +200,7 @@ class ExpertEdit
 
     /**
      * Get a single expert object as an associative array.
-     * 
+     *
      * @param   int $id ID of expert object.
      * @return  array
      */
@@ -217,7 +217,7 @@ class ExpertEdit
 
     /**
      * Move an uploaded image from temporary to permanent storage location.
-     * 
+     *
      * @param   array $expert Content object as associative array.
      */
     private function uploadImage(array & $content)
@@ -225,7 +225,7 @@ class ExpertEdit
         if (!empty($_FILES['content']['name']['image'])) {
             $filename = $this->trimString($_FILES['content']['name']['image']);
             $cleanFilename = $this->fileHandler->uploadFile($filename, 'image');
-            
+
             if ($cleanFilename) {
                 $content['image'] = $cleanFilename;
             }
@@ -234,7 +234,7 @@ class ExpertEdit
 
     /**
      * Validate submitted form data for expert object.
-     * 
+     *
      * @param   array $form Submitted form data.
      * @return  array Validated form data.
      */
@@ -242,25 +242,9 @@ class ExpertEdit
     {
         $clean = [];
 
-        $type = $this->trimString($form['type'] ?? '');
-
-        if (!\array_key_exists($type, $this->listTypes())) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
-        }
-
-        $clean['type'] = $type;
-
-        $template = $this->trimString($form['template'] ?? '');
-
-        if (!\in_array($template, $this->listTemplates()[$clean['type']])) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_TEMPLATE, E_USER_ERROR);
-        }
-
-        $clean['template'] = $template;
-
         $id = ((int) ($form['id'] ?? 0));
         if ($id > 0) $clean['id'] = $id;
-        
+
         $clean['title'] = $this->trimString($form['title'] ?? '');
 
         // Validate HTML fields.
@@ -286,17 +270,9 @@ class ExpertEdit
 
         $clean['image'] = $image;
 
-        $clean['caption'] = $this->trimString($form['caption'] ?? '');
-        $clean['date'] = (string) ($form['date'] ?? 0);
         $clean['submissionTime'] = (int) ($form['submissionTime'] ?? 0);
         $clean['lastUpdated'] = (int) ($form['lastUpdated'] ?? 0);
-        $clean['expiresOn'] = (int) ($form['expiresOn'] ?? 0);
-        $clean['counter'] = (int) ($form['counter'] ?? 0);
         $clean['onlineStatus'] = (int) ($form['onlineStatus'] ?? 0);
-        $clean['parent'] = (int) ($form['parent'] ?? 0);
-        $clean['language'] = $this->trimString($form['language'] ?? '');
-        $clean['rights'] = (int) ($form['rights'] ?? 0);
-        $clean['publisher'] = $this->trimString($form['publisher'] ?? '');
         $clean['metaTitle'] = $this->trimString($form['metaTitle'] ?? '');
         $clean['metaDescription'] = $this->trimString($form['metaDescription'] ?? '');
         $clean['metaSeo'] = $this->trimString($form['metaSeo'] ?? '');

@@ -178,9 +178,9 @@
       <!-- Tags -->
       <div class="col-md-6 mb-3 text-left" id="tagsContainer">
         <label for="tags"><strong><?php echo TFISH_TAGS; ?></strong></label>
-        <select multiple class="form-control custom-select" size="7"  name="tags[]" id="tags">
+        <select multiple class="form-control custom-select" size="5"  name="tags[]" id="tags">
             <?php
-                foreach ($tagList as $tagId => $tagTitle) {
+                foreach ($viewModel->listTags() as $tagId => $tagTitle) {
                     echo '<option value="' . xss($tagId) . '">' . xss($tagTitle) . '</option>';
                 }
             ?>

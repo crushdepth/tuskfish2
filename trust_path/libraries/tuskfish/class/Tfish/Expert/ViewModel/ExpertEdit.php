@@ -175,7 +175,7 @@ class ExpertEdit implements \Tfish\ViewModel\Viewable
 
     /**
      * Returns a list of options for the tag select box.
-     * 
+     *
      * @return  array Array of tag IDs and titles as key-value pairs.
      */
     public function listTags(): array
