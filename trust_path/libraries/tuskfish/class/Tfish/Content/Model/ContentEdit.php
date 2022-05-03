@@ -253,11 +253,11 @@ class ContentEdit
 
     /**
      * Get all colllection-type content objects.
-     * 
+     *
      * @return  array Array of collections.
      */
     public function collections()
-    {        
+    {
         $criteria = $this->criteriaFactory->criteria();
 
         $criteria->add($this->criteriaFactory->item('type', 'TfCollection'));
@@ -359,7 +359,7 @@ class ContentEdit
 
         $id = ((int) ($form['id'] ?? 0));
         if ($id > 0) $clean['id'] = $id;
-        
+
         $clean['title'] = $this->trimString($form['title'] ?? '');
 
         // Validate HTML fields.
@@ -382,7 +382,7 @@ class ContentEdit
         }
 
         $format = $this->trimString($form['format'] ?? '');
-        
+
         if (!empty($format) && !\in_array($format, $this->listMimetypes())) {
             \trigger_error(TFISH_ERROR_ILLEGAL_MIMETYPE, E_USER_ERROR);
         }

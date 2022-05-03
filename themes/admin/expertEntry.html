@@ -24,7 +24,7 @@
       <!-- Salutation -->
       <div class="col-md-2 mb-3 text-left" id="salutationContainer">
         <label for="salutation"><strong><?php echo TFISH_EXPERTS_SALUTATION; ?></strong></label>
-        <select class="form-control custom-select" name="salutation" id="salutation">
+        <select class="form-control custom-select" name="content[salutation]" id="salutation">
           <?php
               foreach ($viewModel->salutationList() as $key => $salutation) {
                   echo '<option value="' . xss($key) . '">'
@@ -37,49 +37,49 @@
       <!-- First name -->
       <div class="col-md-3 mb-3 text-left" id="firstNameContainer">
         <label for="firstName"><strong><?php echo TFISH_EXPERTS_FIRST_NAME; ?></strong></label>
-        <input type="text" class="form-control" name="firstName" id="firstName">
+        <input type="text" class="form-control" name="content[firstName]" id="firstName">
       </div>
 
       <!-- Mid name -->
       <div class="col-md-3 mb-3 text-left" id="midNameContainer">
         <label for="midName"><strong><?php echo TFISH_EXPERTS_MID_NAME; ?></strong></label>
-        <input type="text" class="form-control" name="midName" id="midName">
+        <input type="text" class="form-control" name="content[midName]" id="midName">
       </div>
 
       <!-- Last name -->
       <div class="col-md-4 mb-3 text-left" id="lastNameContainer">
         <label for="lastName"><strong><?php echo TFISH_EXPERTS_LAST_NAME; ?></strong></label>
-        <input type="text" class="form-control" name="lastName" id="lastName">
+        <input type="text" class="form-control" name="content[lastName]" id="lastName">
       </div>
 
       <!-- Job -->
       <div class="col-md-4 mb-3 text-left" id="jobContainer">
         <label for="job"><strong><?php echo TFISH_EXPERTS_JOB; ?></strong></label>
-        <input type="text" class="form-control" name="job" id="job">
+        <input type="text" class="form-control" name="content[job]" id="job">
       </div>
 
       <!-- Business unit -->
       <div class="col-md-4 mb-3 text-left" id="businessUnitContainer">
         <label for="businessUnit"><strong><?php echo TFISH_EXPERTS_BUSINESS_UNIT; ?></strong></label>
-        <input type="text" class="form-control" name="businessUnit" id="businessUnit">
+        <input type="text" class="form-control" name="content[businessUnit]" id="businessUnit">
       </div>
 
       <!-- Organisation -->
       <div class="col-md-4 mb-3 text-left" id="organisationContainer">
         <label for="organisation"><strong><?php echo TFISH_EXPERTS_ORGANISATION; ?></strong></label>
-        <input type="text" class="form-control" name="organisation" id="organisation">
+        <input type="text" class="form-control" name="content[organisation]" id="organisation">
       </div>
 
       <!-- Email -->
       <div class="col-md-4 mb-3 text-left" id="emailContainer">
         <label for="email"><strong><?php echo TFISH_EXPERTS_EMAIL; ?></strong></label>
-        <input type="text" class="form-control" name="email" id="email">
+        <input type="email" class="form-control" name="content[email]" id="email">
       </div>
 
       <!-- Profile link -->
       <div class="col-md-4 mb-3 text-left" id="profileUrlContainer">
         <label for="profileUrl"><strong><?php echo TFISH_EXPERTS_PROFILE_URL; ?></strong></label>
-        <input type="text" class="form-control" name="profileLink" id="profileUrl">
+        <input type="url" class="form-control" name="content[profileLink]" id="profileUrl">
       </div>
 
       <!-- Gender -->
@@ -109,33 +109,33 @@
       </div>
 
       <!-- Experience -->
-    <div class="col-12 mb-3 text-left" id="experienceContainer">
+      <div class="col-12 mb-3 text-left" id="experienceContainer">
         <label for="experience"><strong><?php echo TFISH_EXPERTS_EXPERIENCE; ?></strong></label>
-        <textarea id="experience" name="experience" class="form-control text-left"></textarea>
+        <textarea id="experience" name="content[experience]" class="form-control text-left"></textarea>
       </div>
 
       <!-- Projects -->
       <div class="col-12 mb-3 text-left" id="projectsContainer">
         <label for="projects"><strong><?php echo TFISH_EXPERTS_PROJECTS; ?></strong></label>
-        <textarea id="projects" name="projects" class="form-control text-left"></textarea>
+        <textarea id="projects" name="content[projects]" class="form-control text-left"></textarea>
       </div>
 
       <!-- Publications -->
       <div class="col-12 mb-3 text-left" id="publicationsContainer">
         <label for="publications"><strong><?php echo TFISH_EXPERTS_PUBLICATIONS; ?></strong></label>
-        <textarea id="publications" name="publications" class="form-control text-left"></textarea>
+        <textarea id="publications" name="content[publications]" class="form-control text-left"></textarea>
       </div>
 
       <!-- Address -->
       <div class="col-12 mb-3 text-left" id="addressContainer">
         <label for="address"><strong><?php echo TFISH_EXPERTS_ADDRESS; ?></strong></label>
-        <textarea id="address" name="address" rows="5" class="form-control text-left"></textarea>
+        <textarea id="address" name="content[address]" rows="5" class="form-control text-left"></textarea>
       </div>
 
       <!-- Country -->
       <div class="col-md-4 mb-3 text-left" id="countryContainer">
         <label for="country"><strong><?php echo TFISH_STATE; ?></strong></label>
-        <select class="form-control custom-select" name="country" id="country" required>
+        <select class="form-control custom-select" name="content[country]" id="country" required>
           <?php
               foreach ($viewModel->countryList() as $key => $country) {
                   echo '<option value="' . xss($key) . '">'
@@ -148,13 +148,13 @@
       <!-- Mobile -->
       <div class="col-md-4 mb-3 text-left" id="mobileContainer">
         <label for="mobile"><strong><?php echo TFISH_EXPERTS_MOBILE; ?></strong></label>
-        <input type="text" class="form-control" name="mobile" id="mobile">
+        <input type="tel" class="form-control" name="content[mobile]" id="mobile">
       </div>
 
       <!-- Fax -->
       <div class="col-md-4 mb-3 text-left" id="faxContainer">
         <label for="fax"><strong><?php echo TFISH_EXPERTS_FAX; ?></strong></label>
-        <input type="text" class="form-control" name="fax" id="fax">
+        <input type="tel" class="form-control" name="content[fax]" id="fax">
       </div>
 
       <!-- Image -->

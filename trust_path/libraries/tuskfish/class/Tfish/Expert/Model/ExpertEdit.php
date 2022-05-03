@@ -24,7 +24,8 @@ namespace Tfish\Expert\Model;
  * @version     Release: 2.0
  * @since       1.1
  * @package     expert
- * @uses        trait \Tfish\Traits\Content\ContentTypes Provides definition of permitted expert object types.
+ * @uses        trait \Tfish\Traits\Experts\Options Provides whitelists of common options to populate controls.
+ * @uses        trait \Tfish\Traits\UrlCheck Validate that a URL meets the specification.
  * @uses        trait \Tfish\Traits\HtmlPurifier Includes HTMLPurifier library.
  * @uses        trait \Tfish\Traits\Mimetypes Provides a list of common (permitted) mimetypes for file uploads.
  * @uses        trait \Tfish\Traits\Taglink Manage object-tag associations via taglinks.
@@ -41,7 +42,8 @@ namespace Tfish\Expert\Model;
  */
 class ExpertEdit
 {
-    use \Tfish\Content\Traits\ContentTypes;
+    use \Tfish\Expert\Traits\Options;
+    use \Tfish\Traits\EmailCheck;
     use \Tfish\Traits\HtmlPurifier;
     use \Tfish\Traits\Mimetypes;
     use \Tfish\Traits\Taglink;
@@ -116,7 +118,6 @@ class ExpertEdit
         $content['submissionTime'] = \time();
         $content['lastUpdated'] = 0;
         $content['expiresOn'] = 0;
-        $content['counter'] = 0;
 
         // Upload image/media files and update the file names in $content.
         $this->uploadImage($content);
@@ -128,7 +129,7 @@ class ExpertEdit
 
         // Insert the taglinks, which requires knowledge of the ID.
         $contentId = $this->database->lastInsertId();
-        if (!$this->saveTaglinks($contentId, $content['type'], 'expert', $tags)) {
+        if (!$this->saveTaglinks($contentId, 'TfExpert', 'expert', $tags)) {
             return false;
         }
 
@@ -242,21 +243,92 @@ class ExpertEdit
     {
         $clean = [];
 
-        $id = ((int) ($form['id'] ?? 0));
+        $id = (int) ($form['id'] ?? 0);
         if ($id > 0) $clean['id'] = $id;
 
-        $clean['title'] = $this->trimString($form['title'] ?? '');
+        // Validate whitelisted fields.
+        $salutation = (int) $form['salutation'];
+
+        if (!\array_key_exists($salutation, $this->salutationList())) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        }
+
+        $clean['salutation'] = $salutation;
+
+        $country = (int) ($form['country'] ?? 0);
+
+        if (!\array_key_exists($country, $this->countryList())) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        }
+
+        $clean['country'] = $country;
+
+        $gender = (int) $form['gender'];
+
+        if (!\array_key_exists($gender, $this->genderList())) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        }
+
+        $clean['gender'] = $gender;
+
+        $onlineStatus = (int) $form['onlineStatus'];
+
+        if ($onlineStatus < 0 || $onlineStatus > 1) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        }
+
+        $clean['onlineStatus'] = $onlineStatus;
+
+        // Validate plain text fields.
+        $textFields = [
+            'firstName',
+            'midName',
+            'lastName',
+            'job',
+            'businessUnit',
+            'organisation',
+            'address',
+            'mobile',
+            'fax',
+            'metaTitle',
+            'metaSeo',
+            'metaDescription'
+        ];
+
+        foreach ($textFields as $field) {
+            $clean[$field] = $this->trimString($form[$field] ?? '');
+        }
 
         // Validate HTML fields.
-        $teaser = $this->trimString($form['teaser'] ?? '');
-        $teaser = \str_replace(TFISH_LINK, 'TFISH_LINK', $teaser);
-        $clean['teaser'] = $this->htmlPurifier->purify($teaser);
+        $experience = $this->trimString($form['experience'] ?? '');
+        $experience = \str_replace(TFISH_LINK, 'TFISH_LINK', $experience);
+        $clean['experience'] = $this->htmlPurifier->purify($experience);
 
-        $description = $this->trimString($form['description'] ?? '');
-        $description = \str_replace(TFISH_LINK, 'TFISH_LINK', $description);
-        $clean['description'] = $this->htmlPurifier->purify($description);
+        $projects = $this->trimString($form['projects'] ?? '');
+        $projects = \str_replace(TFISH_LINK, 'TFISH_LINK', $projects);
+        $clean['projects'] = $this->htmlPurifier->purify($projects);
 
-        $clean['creator'] = $this->trimString($form['creator'] ?? '');
+        $publications = $this->trimString($form['publications'] ?? '');
+        $publications = \str_replace(TFISH_LINK, 'TFISH_LINK', $publications);
+        $clean['publications'] = $this->htmlPurifier->purify($publications);
+
+        // Validate email.
+        $email = $form['email'] ?? '';
+
+        if (!empty($email) && !$this->isEmail($email)) {
+            \trigger_error(TFISH_ERROR_NOT_EMAIL, E_USER_ERROR);
+        }
+
+        $clean['email'] = $email;
+
+        // Validate profileUrl.
+        $profileUrl = $form['profileUrl'] ?? '';
+
+        if (!empty($profileUrl) && !$this->isUrl($profileUrl)) {
+            \trigger_error(TFISH_ERROR_NOT_URL, E_USER_ERROR);
+        }
+
+        $clean['profileUrl'] = $profileUrl;
 
         $image = $this->trimString($form['image'] ?? '');
 
@@ -272,10 +344,6 @@ class ExpertEdit
 
         $clean['submissionTime'] = (int) ($form['submissionTime'] ?? 0);
         $clean['lastUpdated'] = (int) ($form['lastUpdated'] ?? 0);
-        $clean['onlineStatus'] = (int) ($form['onlineStatus'] ?? 0);
-        $clean['metaTitle'] = $this->trimString($form['metaTitle'] ?? '');
-        $clean['metaDescription'] = $this->trimString($form['metaDescription'] ?? '');
-        $clean['metaSeo'] = $this->trimString($form['metaSeo'] ?? '');
 
         return $clean;
     }

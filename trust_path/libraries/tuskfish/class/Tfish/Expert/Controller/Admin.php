@@ -64,7 +64,7 @@ class Admin
 
     /**
      * Display the confirm delete expert page.
-     * 
+     *
      * @return  array Empty array (the output of this action is not cached).
      */
     public function confirmDelete(): array
@@ -80,14 +80,14 @@ class Admin
 
     /**
      * Delete an expert.
-     * 
+     *
      * @return  array Empty array (the output of this action is not cached).
      */
     public function delete(): array
     {
         $id = (int) ($_POST['id'] ?? 0);
         $this->viewModel->setId($id);
-        
+
         $this->viewModel->displayDelete();
 
         return [];
@@ -95,7 +95,7 @@ class Admin
 
     /**
      * Display the summary table of experts.
-     * 
+     *
      * @return  array Empty array (the output of this action is not cached).
      */
     public function display(): array
@@ -124,7 +124,7 @@ class Admin
 
     /**
      * Toggle an expert object online or offline.
-     * 
+     *
      * @return  array Empty array (the output of this action is not cached).
      */
     public function toggle(): array

@@ -6,13 +6,13 @@ namespace Tfish\Expert\Model;
 
 /**
  * \Tfish\Expert\Model\Admin class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0
  * @since       2.0
- * @package     content
+ * @package     expert
  */
 
 /**
@@ -23,7 +23,8 @@ namespace Tfish\Expert\Model;
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0
  * @since       2.0
- * @package     content
+ * @package     experts
+ * @uses        trait \Tfish\Traits\Experts\Options Provides whitelists of common options to populate controls.
  * @uses        trait \Tfish\Traits\Taglink Manage object-tag associations via taglinks.
  * @uses        trait \Tfish\Traits\TagRead Retrieve tag information for display.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
@@ -36,10 +37,11 @@ namespace Tfish\Expert\Model;
 
 class Admin
     {
+    use \Tfish\Expert\Traits\Options;
     use \Tfish\Traits\Taglink;
     use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
-    
+
     private $database;
     private $criteriaFactory;
     private $preference;
@@ -48,7 +50,7 @@ class Admin
 
     /**
      * Constructor.
-     * 
+     *
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.
      * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish site preferences class.
@@ -73,8 +75,8 @@ class Admin
 
     /**
      * Delete expert object.
-     * 
-     * @param   int $id ID of content object.
+     *
+     * @param   int $id ID of expert object.
      * @return  bool True on success, false on failure.
      */
     public function delete(int $id): bool
@@ -95,7 +97,7 @@ class Admin
         }
 
         // Delete outbound taglinks owned by this content.
-        if ($row['type'] !== 'TfTag' && !$this->deleteTaglinks($id, 'expert')) {
+        if (!$this->deleteTaglinks($id, 'expert')) {
             return false;
         }
 
@@ -110,7 +112,7 @@ class Admin
 
     /**
      * Get expert objects.
-     * 
+     *
      * @param   array $params Filter criteria.
      * @return  array Array of expert objects.
      */
@@ -119,12 +121,12 @@ class Admin
         $cleanParams = $this->validateParams($params);
         $criteria = $this->setCriteria($cleanParams);
 
-        return $this->runQuery($criteria);        
+        return $this->runQuery($criteria);
     }
 
     /**
      * Toggle an expert object online or offline.
-     * 
+     *
      * @param   int $id ID of content object.
      * @return  bool True on success, false on failure.
      */
@@ -166,7 +168,7 @@ class Admin
 
     /**
      * Return a list of options to build a select box.
-     * 
+     *
      * @param   array $params Filter criteria.
      * @param   array $columns Columns to select to build the options.
      * @return  array
@@ -192,7 +194,7 @@ class Admin
 
     /**
      * Return certain columns from an expert object required to aid its deletion.
-     * 
+     *
      * @param   int $id ID of content object.
      * @return  array Associative array containing type, id, image and media values.
      */
@@ -209,10 +211,10 @@ class Admin
         return $this->database->select('expert', $criteria, ['id', 'image'])
             ->fetch(\PDO::FETCH_ASSOC);
     }
-    
+
     /**
      * Deletes an uploaded image file associated with an expert object.
-     * 
+     *
      * @param string $filename Name of file.
      * @return bool True on success, false on failure.
      */
@@ -225,7 +227,7 @@ class Admin
 
     /**
      * Return the title of a given expert object.
-     * 
+     *
      * @param   int $id ID of expert object.
      * @return  string Title of expert object.
      */
@@ -234,14 +236,14 @@ class Admin
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
 
-        $statement = $this->database->select('content', $criteria, ['title']);
+        $statement = $this->database->select('expert', $criteria, ['lastname']);
 
         return $statement->fetch(\PDO::FETCH_COLUMN);
     }
 
     /**
      * Run the count query.
-     * 
+     *
      * @param   \Tfish\Criteria $criteria Filter criteria.
      * @return  int Count.
      */
@@ -252,7 +254,7 @@ class Admin
 
     /**
      * Run the select query.
-     * 
+     *
      * @param   \Tfish\Criteria $criteria Filter criteria.
      * @param   array $columns Columns to select.
      * @return  array Array of content objects.
@@ -266,7 +268,7 @@ class Admin
 
     /**
      * Set filter criteria on queries.
-     * 
+     *
      * @param   array $cleanParams Parameters to filter the query.
      * @return  \Tfish\Criteria
      */
@@ -310,7 +312,7 @@ class Admin
 
     /**
      * Validate criteria used to filter query.
-     * 
+     *
      * @param   array $params Filter criteria.
      * @return  array Validated filter criteria.
      */
@@ -323,7 +325,7 @@ class Admin
 
         if ($params['start'] ?? 0)
             $cleanParams['start'] = (int) $params['start'];
-        
+
         if ($params['tag'] ?? 0)
             $cleanParams['tag'] = (int) ($params['tag']);
 
@@ -340,7 +342,7 @@ class Admin
         }
 
         if (isset($params['order'])) {
-            
+
             if ($params['order'] === 'ASC') {
                 $cleanParams['order'] = 'ASC';
             } else {
@@ -353,7 +355,7 @@ class Admin
         }
 
         if (isset($params['secondaryOrder'])) {
-            
+
             if ($params['secondaryOrder'] === 'ASC') {
                 $cleanParams['secondaryOrder'] = 'ASC';
             } else {

@@ -6,7 +6,7 @@ namespace Tfish\Content\ViewModel;
 
 /**
  * \Tfish\Content\ViewModel\Admin class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -31,11 +31,11 @@ namespace Tfish\Content\ViewModel;
  * @var         object $model Classname of the model used to display this page.
  * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  * @var         string $contentTitle Name of content object to display in confirm delete request.
- * @var         array $contentList An array of content objects to be displayed in this page view. 
- * @var         int $contentCount The number of content objects that match filtering criteria. Used to build pagination control. 
+ * @var         array $contentList An array of content objects to be displayed in this page view.
+ * @var         int $contentCount The number of content objects that match filtering criteria. Used to build pagination control.
  * @var         int $id ID of a single content object to be displayed.
  * @var         int $start Position in result set to retrieve objects from.
- * @var         int $tag Filter search results by tag ID. 
+ * @var         int $tag Filter search results by tag ID.
  * @var         string $type Filter search results by content type.
  * @var         int $onlineStatus Filter search results by online (1) or offline (0) status.
  * @var         string $backUrl $backUrl URL to return to if the user cancels the action.
@@ -48,7 +48,7 @@ class Admin implements \Tfish\ViewModel\Listable
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
-    
+
     private $model;
     private $preference;
     private $contentTitle = '';
@@ -65,7 +65,7 @@ class Admin implements \Tfish\ViewModel\Listable
 
     /**
      * Constructor.
-     * 
+     *
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
@@ -110,7 +110,7 @@ class Admin implements \Tfish\ViewModel\Listable
     {
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
-        
+
         if ($this->model->delete($this->id)) {
             $this->pageTitle = TFISH_SUCCESS;
             $this->response = TFISH_OBJECT_WAS_DELETED;
@@ -125,7 +125,7 @@ class Admin implements \Tfish\ViewModel\Listable
 
     /**
      * Display the admin summary table.
-     * 
+     *
      * Table a list of content and links to view, edit and delete items.
      */
     public function displayTable()
@@ -174,7 +174,7 @@ class Admin implements \Tfish\ViewModel\Listable
 
     /**
      * Return extra parameters to be included in pagination control links.
-     * 
+     *
      * @return  array
      */
     public function extraParams(): array
@@ -188,10 +188,10 @@ class Admin implements \Tfish\ViewModel\Listable
 
         return $extraParams;
     }
-    
+
     /**
      * Get content objects matching cached filter criteria.
-     * 
+     *
      * Result is cached as $contentList property.
      */
     public function listContent()
@@ -215,17 +215,17 @@ class Admin implements \Tfish\ViewModel\Listable
 
     /**
      * Return admin-side pagination limit.
-     * 
+     *
      * @return  int Number of items to display on admin-side pages.
      */
     public function limit(): int
     {
         return $this->preference->adminPagination();
     }
-    
+
     /**
      * Return options for tag select box control.
-     * 
+     *
      * @param   string $zeroOption Text to display as default select box option.
      * @return  array IDs and titles as key-value pairs.
      */
@@ -250,7 +250,7 @@ class Admin implements \Tfish\ViewModel\Listable
 
     /**
      * Return options for type select box control.
-     * 
+     *
      * @param   string $zeroOption Text to display as default select box option.
      * @return  array IDs and content types as key-value pairs.
      */
@@ -263,7 +263,7 @@ class Admin implements \Tfish\ViewModel\Listable
 
     /**
      * Return options for tag online status select box control.
-     * 
+     *
      * @param   string $defaultOption Text to display as default select box option.
      * @return  array Online (1), offline (0) or both (2).
      */
@@ -278,9 +278,9 @@ class Admin implements \Tfish\ViewModel\Listable
 
     /**
      * Return the action for this page.
-     * 
+     *
      * The action is usually embedded in the form, to control handling on submission (next page load).
-     * 
+     *
      * @return string
      */
     public function action(): string
@@ -290,9 +290,9 @@ class Admin implements \Tfish\ViewModel\Listable
 
     /**
      * Return the backUrl.
-     * 
+     *
      * If the cancel button is clicked, the user will be redirected to the backUrl.
-     * 
+     *
      * @return  string
      */
     public function backUrl(): string
@@ -302,7 +302,7 @@ class Admin implements \Tfish\ViewModel\Listable
 
     /**
      * Return content count.
-     * 
+     *
      * @return  int Number of content objects that match filtering criteria.
      */
     public function contentCount(): int
@@ -312,7 +312,7 @@ class Admin implements \Tfish\ViewModel\Listable
 
     /**
      * Return content list.
-     * 
+     *
      * @return  array Array of content objects.
      */
     public function contentList(): array
@@ -322,7 +322,7 @@ class Admin implements \Tfish\ViewModel\Listable
 
     /**
      * Return ID.
-     * 
+     *
      * @return  int ID of content object.
      */
     public function id(): int
@@ -332,7 +332,7 @@ class Admin implements \Tfish\ViewModel\Listable
 
     /**
      * Set ID.
-     * 
+     *
      * @param   int $id ID of content object.
      */
     public function setId(int $id)
@@ -358,7 +358,7 @@ class Admin implements \Tfish\ViewModel\Listable
 
     /**
      * Return online status.
-     * 
+     *
      * @return  int Online (1) or offline (0).
      */
     public function onlineStatus(): int
@@ -368,7 +368,7 @@ class Admin implements \Tfish\ViewModel\Listable
 
     /**
      * Set online status.
-     * 
+     *
      * @param   int $onlineStatus Online (1) or offline (0).
      */
     public function setOnlineStatus(int $onlineStatus)
@@ -378,17 +378,17 @@ class Admin implements \Tfish\ViewModel\Listable
 
     /**
      * Return the response message (success or failure) for an action.
-     * 
+     *
      * @return  string
      */
     public function response(): string
     {
         return $this->response;
-    } 
+    }
 
     /**
      * Return start.
-     * 
+     *
      * @return int ID of first object to view in the set of available records.
      */
     public function start(): int
@@ -398,9 +398,9 @@ class Admin implements \Tfish\ViewModel\Listable
 
     /**
      * Set start ID.
-     * 
+     *
      * First record to return from result set.
-     * 
+     *
      * @param int $start ID of first object to return in the set of available records.
      */
     public function setStart(int $start)
@@ -410,7 +410,7 @@ class Admin implements \Tfish\ViewModel\Listable
 
     /**
      * Return ID of tag filter.
-     * 
+     *
      * @return  int
      */
     public function tag(): int
@@ -420,7 +420,7 @@ class Admin implements \Tfish\ViewModel\Listable
 
     /**
      * Set tag ID.
-     * 
+     *
      * @param   int $tag ID of tag.
      */
     public function setTag(int $tag)
@@ -430,7 +430,7 @@ class Admin implements \Tfish\ViewModel\Listable
 
     /**
      * Return type.
-     * 
+     *
      * @return  string Type of content object.
      */
     public function type(): string
@@ -440,9 +440,9 @@ class Admin implements \Tfish\ViewModel\Listable
 
     /**
      * Set type.
-     * 
+     *
      * Filter list by content type.
-     * 
+     *
      * @param   string $type Type of content object.
      */
     public function setType(string $type)
