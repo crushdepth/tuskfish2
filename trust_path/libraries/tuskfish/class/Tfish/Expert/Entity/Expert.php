@@ -28,6 +28,7 @@ namespace Tfish\Expert\Entity;
 
 class Expert
 {
+    use \Tfish\Expert\Traits\Options;
     use \Tfish\Traits\EmailCheck;
     use \Tfish\Traits\Language;
     use \Tfish\Traits\Metadata;
@@ -98,7 +99,7 @@ class Expert
         $this->setSubmissionTime((int) ($row['submissionTime'] ?? 0));
         $this->setLastUpdated((int) ($row['lastUpdated'] ?? 0));
         $this->setExpiresOn((int) ($row['expiresOn'] ?? 0));
-        $this->setTemplate((string) ($row['template'] ?? ''));
+        $this->setTags($row['tags'] ?? []);
         $this->setMetaTitle((string) ($row['metaTitle'] ?? ''));
         $this->setMetaDescription((string) ($row['metaDescription'] ?? ''));
         $this->setMetaSeo((string) ($row['metaSeo'] ?? ''));
@@ -218,7 +219,7 @@ class Expert
      *
      * @return string
      */
-    public function LastName(): string
+    public function lastName(): string
     {
         return $this->lastName;
     }
@@ -231,7 +232,7 @@ class Expert
      */
     public function setLastName(string $name)
     {
-        $this->LastName = $this->trimString($name);
+        $this->lastName = $this->trimString($name);
     }
 
     /**
@@ -312,7 +313,7 @@ class Expert
      */
     public function setExperience(string $experience)
     {
-        $experience = $this->trimString($experience);
+        $this->experience = $this->trimString($experience);
     }
 
     /**
@@ -348,7 +349,7 @@ class Expert
      */
     public function setProjects(string $projects)
     {
-        $projects = $this->trimString($projects);
+        $this->projects = $this->trimString($projects);
     }
 
     /**
@@ -384,7 +385,7 @@ class Expert
      */
     public function setPublications(string $publications)
     {
-        $publications = $this->trimString($publications);
+        $this->publications = $this->trimString($publications);
     }
 
     /**
@@ -619,7 +620,7 @@ class Expert
     {
         $email = $this->trimString($email);
 
-        if (!$this->isEmail($email)) {
+        if (!empty($email) && !$this->isEmail($email)) {
             \trigger_error(TFISH_ERROR_NOT_EMAIL, E_USER_ERROR);
         }
 
@@ -688,11 +689,11 @@ class Expert
     {
         $url = $this->trimString($url);
 
-        if (!$this->isUrl($url)) {
+        if (!empty($url) && !$this->isUrl($url)) {
             \trigger_error(TFISH_ERROR_NOT_URL, E_USER_ERROR);
         }
 
-        $this->url = $url;
+        $this->profileUrl = $url;
     }
 
     /**

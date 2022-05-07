@@ -71,7 +71,7 @@
           <?php else: ?>
           <td class="text-center"><a class="text-danger" href="<?php echo TFISH_EXPERTS_ADMIN_URL . '?action=toggle&amp;id=' . xss($row['id']); ?>"><i class="fas fa-times"></i></a></td>
           <?php endif; ?>
-          <td class="text-center"><a href="<?php echo TFISH_EXPERTS_ADMIN_URL . '?action=edit&amp;id=' . xss($row['id']); ?>"><i class="fas fa-edit"></i></a></td>
+          <td class="text-center"><a href="<?php echo TFISH_EXPERTS_ADMIN_URL . 'edit/?action=edit&amp;id=' . xss($row['id']); ?>"><i class="fas fa-edit"></i></a></td>
           <td class="text-center"><a href="<?php echo TFISH_EXPERTS_ADMIN_URL . '?action=confirmDelete&amp;id=' . xss($row['id']); ?>"><i class="fas fa-trash-alt"></i></a></td>
           <?php unset($row); ?>
         </tr>

@@ -210,7 +210,7 @@ class ExpertEdit
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
 
-        $row = $this->database->select('exp[ert', $criteria)
+        $row = $this->database->select('expert', $criteria)
             ->fetch(\PDO::FETCH_ASSOC);
 
         return !empty($row) ? $row : [];
