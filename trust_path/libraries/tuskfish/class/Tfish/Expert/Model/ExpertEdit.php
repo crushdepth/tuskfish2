@@ -171,7 +171,7 @@ class ExpertEdit
         $this->uploadImage($content);
 
         // Update taglinks.
-        $this->updateTaglinks($id, $content['type'], 'expert', $tags);
+        $this->updateTaglinks($id, 'TfExpert', 'expert', $tags);
 
         // Flush cache.
         $this->cache->flush();

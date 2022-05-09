@@ -162,6 +162,8 @@ class FileHandler
             if ($testPath === $resolvedPath) {
                 return $filepath; // Path is good.
             } else {
+                echo 'test: ' . $testPath . '<br>';
+                echo 'reso: ' . $resolvedPath;
                 \trigger_error(TFISH_ERROR_BAD_PATH, E_USER_NOTICE);
                 return false; // Path is bad.
             }

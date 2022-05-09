@@ -87,7 +87,7 @@ class ExpertEdit implements \Tfish\ViewModel\Viewable
      */
     public function displayCancel()
     {
-        \header('Location: ' . TFISH_ADMIN_URL);
+        \header('Location: ' . TFISH_EXPERTS_ADMIN_URL);
         exit;
     }
 
@@ -148,7 +148,7 @@ class ExpertEdit implements \Tfish\ViewModel\Viewable
         }
 
         $this->template = 'response';
-        $this->backUrl = TFISH_ADMIN_URL;
+        $this->backUrl = TFISH_EXPERTS_ADMIN_URL;
     }
 
     /** Utilities */

@@ -27,6 +27,9 @@
     <form class="form-horizontal" action="<?php echo TFISH_EXPERTS_ADMIN_URL . 'edit/'; ?>" method="post" enctype="multipart/form-data" role="form" accept-charset="UTF-8">
       <div class="row">
 
+      <!-- ID -->
+      <input type="hidden" name="content[id]" value="<?php echo xss($content->id()); ?>">
+
       <!-- Salutation -->
       <div class="col-md-2 mb-3 text-left" id="salutationContainer">
         <label for="salutation"><strong><?php echo TFISH_EXPERTS_SALUTATION; ?></strong></label>
@@ -88,7 +91,7 @@
       <!-- Profile link -->
       <div class="col-md-4 mb-3 text-left" id="profileUrlContainer">
         <label for="profileUrl"><strong><?php echo TFISH_EXPERTS_PROFILE_URL; ?></strong></label>
-        <input type="url" class="form-control" name="content[profileLink]" id="profileUrl" value="<?php echo xss($content->profileUrl()); ?>">
+        <input type="url" class="form-control" name="content[profileUrl]" id="profileUrl" value="<?php echo xss($content->profileUrl()); ?>">
       </div>
 
       <!-- Gender -->
@@ -145,12 +148,6 @@
       <div class="col-md-4 mb-3 text-left" id="countryContainer">
         <label for="country"><strong><?php echo TFISH_STATE; ?></strong></label>
         <select class="form-control custom-select" name="content[country]" id="country" required>
-          <?php
-              foreach ($viewModel->countryList() as $key => $country) {
-                  echo '<option value="' . xss($key) . '">'
-                      . xss($country) . '</option>';
-              }
-          ?>
           <?php
             foreach ($viewModel->countryList() as $key => $country) {
               if ($content->country() === $key) {
@@ -257,10 +254,15 @@
     </div> <!-- /row -->
 
       <!-- Action buttons -->
-      <div class="float-start clearfix">
-        <button name="action" value="save" type="submit" class="btn btn-primary"><?php echo TFISH_SUBMIT; ?></button>
-        <button name="action" value="cancel" type="submit" class="btn btn-primary" formnovalidate><?php echo TFISH_CANCEL; ?></button>
+    <div class="float-left clearfix">
+        <button class="btn btn-primary" onclick="this.form.elements.action.value = 'save';
+            submit()"><?php echo TFISH_UPDATE;?></button>
+        <button class="btn btn-primary" onclick="this.form.elements.action.value = 'cancel';
+            submit()" formnovalidate><?php echo TFISH_CANCEL; ?></button>
       </div>
+
+      <input type="hidden" name="content[submissionTime]" id="submissionTime" value="<?php echo xss($content->submissionTime()); ?>" />
+      <input type="hidden" name="action" id="action" value="<?php echo xss($viewModel->action()); ?>" />
 
       <!-- CSRF validation token -->
       <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
