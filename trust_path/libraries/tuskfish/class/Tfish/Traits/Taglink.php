@@ -68,14 +68,19 @@ trait TagLink
      * This is a helper function used in edit operations.
      * 
      * @param   int $id ID of content object.
+     * @param   string $module Name of module (disambiguate content ID).
      * @return  array Array of tag IDs.
      */
-    private function getTagIds(int $id): array
+    private function getTagIds(int $id, string $module = 'content'): array
     {
+        if ($module !== 'content' && $module !== 'expert') {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        }
+
         $columns = ['tagId'];
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('contentId', $id));
-        $criteria->add($this->criteriaFactory->item('module', 'content'));
+        $criteria->add($this->criteriaFactory->item('module', $module));
 
         return $this->database->select('taglink', $criteria, $columns)
             ->fetchAll(\PDO::FETCH_COLUMN);

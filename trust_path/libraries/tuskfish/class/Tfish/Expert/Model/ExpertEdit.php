@@ -100,7 +100,7 @@ class ExpertEdit
             return [];
         }
 
-        $row['tags'] = $this->getTagIds($id);
+        $row['tags'] = $this->getTagIds($id, 'expert');
 
         return $row;
     }
