@@ -14,7 +14,7 @@
   <div class="col-sm-6 col-md-6 col-lg-4 mx-auto select-filters">
     <form class="form-horizontal" name="selectFilters" method="get">
       <div class="row">
-      
+
           <select class="form-control custom-select" name="tag" id="tag" onchange="this.form.submit()">
           <?php foreach ($viewModel->activeTagOptions() as $key => $value) {
             echo ($key === $viewModel->tag()) ?

@@ -122,6 +122,179 @@ class Expert
         }
     }
 
+    /** Composite properties **/
+
+    /**
+     * Returns the affiliation of this expert (business unit and organisation) XSS escaped for display.
+     *
+     * @return string Affiliation.
+     */
+    public function affiliation()
+    {
+        $affiliation = '';
+
+        $businessUnit = $this->businessUnit();
+        $organisation = $this->organisation();
+
+        $affiliation = $businessUnit;
+
+        if ($businessUnit && $organisation) {
+            $affiliation .= ', ';
+        }
+
+        $affiliation .= $organisation;
+
+        return $affiliation;
+    }
+
+    /**
+     * Return the full contact details for this expert XSS escaped for display.
+     *
+     * Includes address, phone, fax and email.
+     *
+     * @return string Contact details.
+     */
+    public function contactDetails()
+    {
+        $contactDetails = array();
+
+        if ($this->address) {
+            $contactDetails[] = nl2br($this->address);
+        }
+
+        if ($this->mobile) {
+            $contactDetails[] = TFISH_EXPERTS_MOBILE . ': ' . $this->mobile; 
+        }
+
+        if ($this->fax) {
+            $contactDetails[] = TFISH_EXPERTS_FAX . ': ' . $this->fax;
+        }
+
+        if ($this->email) {
+            $contactDetails[] = TFISH_EXPERTS_EMAIL . ': ' . $this->email;
+        }
+
+        $contactDetails = implode('<br>', $contactDetails);
+
+        return $contactDetails;
+    }
+
+    /**
+     * Return the full name and salutation of expert.
+     *
+     * @return string
+     */
+    public function name(): string
+    {
+        $salutationList = $this->salutationList();
+
+        $name = '';
+
+        if ($this->salutation) $name .= $salutationList[$this->salutation] . ' ';
+        if ($this->firstName) $name .= $this->firstName . ' ';
+        if ($this->midName) $name .= $this->midName . ' ';
+        if ($this->lastName) $name .= $this->lastName;
+
+        return $name;
+    }
+
+    /**
+     * Returns full name and job title, comma seperated, XSS escaped for display.
+     *
+     * @return string Name and job title.
+     */
+    public function nameAndJob()
+    {
+        $nameAndJob = '';
+
+        $name = $this->name();
+        $job = $this->job();
+
+        $nameAndJob .= $name;
+
+        if ($name && $job) {
+            $nameAndJob .= ', ';
+        }
+
+        $nameAndJob .= $job;
+
+        return $nameAndJob;
+    }
+
+    /** Utilities **/
+
+    /**
+     * Convert the site base URL to the TFISH_LINK constant and vice versa.
+     *
+     * This aids site portability. The URL is stored as a constant in the database,
+     * but is converted to actual URL on display. If the domain changes at some point
+     * all the references to TFISH_LINK will update automatically.
+     *
+     * @param   string $html HTML field to search and replace.
+     * @param   bool $convertToConstant
+     */
+    private function convertBaseUrlToConstant(string $html, bool $convertToConstant = false)
+    {
+        if ($convertToConstant === true) {
+            $html = \str_replace(TFISH_LINK, 'TFISH_LINK', $html);
+        } else {
+                $html = \str_replace('TFISH_LINK', TFISH_LINK, $html);
+        }
+
+        return $html;
+    }
+
+    /**
+     * Url-encode the query string segment of a URL.
+     *
+     * @param   string $url Query string to encode.
+     * @return  string Encoded URL.
+     */
+    private function encodeQueryString(string $url): string
+    {
+        $url = $this->trimString($url); // Trim control characters, verify UTF-8 character set.
+        return \rawurlencode($url); // Encode characters to make them URL safe.
+    }
+
+    /**
+     * Unset properties that are not stored in the database.
+     *
+     * @param   array $keyValues Content object as associative array.
+     * @return  array Content object with non-persistent properties unset.
+     */
+    private function unsetNonPersistent(array $keyValues): array
+    {
+        unset(
+            $keyValues['tags'],
+            $keyValues['module']
+            );
+
+        return $keyValues;
+    }
+
+    /**
+     * Return a URL (permalink) to an expert object.
+     *
+     * @param   string $customRoute Override to customise the URL.
+     * @return  string $url.
+     */
+    public function url(string $customRoute = ''): string
+    {
+        $url = empty($customRoute) ? TFISH_EXPERTS_URL : TFISH_URL;
+
+        if (!empty($customRoute)) {
+            $url .= $this->trimString($customRoute);
+        }
+
+        $url .= '?id=' . $this->id;
+
+        if (!empty($this->metaSeo)) {
+            $url .= '&amp;title=' . $this->encodeQueryString($this->metaSeo);
+        }
+
+        return $url;
+    }
+
     /** Getters and setters **/
 
     /**
@@ -730,169 +903,4 @@ class Expert
             $this->image = $filename;
         }
     }
-
-    /**
-     * Convert the site base URL to the TFISH_LINK constant and vice versa.
-     *
-     * This aids site portability. The URL is stored as a constant in the database,
-     * but is converted to actual URL on display. If the domain changes at some point
-     * all the references to TFISH_LINK will update automatically.
-     *
-     * @param   string $html HTML field to search and replace.
-     * @param   bool $convertToConstant
-     */
-    private function convertBaseUrlToConstant(string $html, bool $convertToConstant = false)
-    {
-        if ($convertToConstant === true) {
-            $html = \str_replace(TFISH_LINK, 'TFISH_LINK', $html);
-        } else {
-                $html = \str_replace('TFISH_LINK', TFISH_LINK, $html);
-        }
-
-        return $html;
-    }
-
-    /**
-     * Unset properties that are not stored in the database.
-     *
-     * @param   array $keyValues Content object as associative array.
-     * @return  array Content object with non-persistent properties unset.
-     */
-    private function unsetNonPersistent(array $keyValues): array
-    {
-        unset(
-            $keyValues['tags'],
-            $keyValues['module']
-            );
-
-        return $keyValues;
-    }
-
-    /**
-     * Return a URL (permalink) to a content object.
-     *
-     * @param   string $customRoute Override to customise the URL.
-     * @return  string $url.
-     */
-    public function url(string $customRoute = ''): string
-    {
-        $url = empty($customRoute) ? TFISH_PERMALINK_URL : TFISH_URL;
-
-        if (!empty($customRoute)) {
-            $url .= $this->trimString($customRoute);
-        }
-
-        $url .= '?id=' . $this->id;
-
-        if (!empty($this->metaSeo)) {
-            $url .= '&amp;title=' . $this->encodeQueryString($this->metaSeo);
-        }
-
-        return $url;
-    }
-
-    /**
-     * Url-encode the query string segment of a URL.
-     *
-     * @param   string $url Query string to encode.
-     * @return  string Encoded URL.
-     */
-    private function encodeQueryString(string $url): string
-    {
-        $url = $this->trimString($url); // Trim control characters, verify UTF-8 character set.
-        return \rawurlencode($url); // Encode characters to make them URL safe.
-    }
-
-    public function getName()
-    {
-        $salutationList = $this->salutationList();
-
-        $name = '';
-
-        if ($this->salutation) $name .= $salutationList[$this->salutation] . ' ';
-        if ($this->firstName) $name .= $this->firstName . ' ';
-        if ($this->midName) $name .= $this->midName . ' ';
-        if ($this->lastName) $name .= $this->lastName;
-
-        return $name;
-    }
-
-    /**
-     * Returns full name and job title, comma seperated, XSS escaped for display.
-     *
-     * @return string Name and job title.
-     */
-    public function getNameAndJob()
-    {
-        $nameAndJob = '';
-
-        $name = $this->getName();
-        $job = $this->job();
-
-        $nameAndJob .= $name;
-
-        if ($name && $job) {
-            $nameAndJob .= ', ';
-        }
-
-        $nameAndJob .= $job;
-
-        return $nameAndJob;
-    }
-
-    /**
-     * Returns the affiliation of this expert (business unit and organisation) XSS escaped for display.
-     *
-     * @return string Affiliation.
-     */
-    public function getAffiliation()
-    {
-        $affiliation = '';
-
-        $businessUnit = $this->businessUnit();
-        $organisation = $this->organisation();
-
-        $affiliation = $businessUnit;
-
-        if ($businessUnit && $organisation) {
-            $affiliation .= ', ';
-        }
-
-        $affiliation .= $organisation;
-
-        return $affiliation;
-    }
-
-    /**
-     * Return the full contact details for this expert XSS escaped for display.
-     *
-     * Includes address, phone, fax and email.
-     *
-     * @return string Contact details.
-     */
-    public function getContactDetails()
-    {
-        $contactDetails = array();
-
-        if ($this->address) {
-            $contactDetails[] = nl2br($this->address);
-        }
-
-        if ($this->mobile) {
-            $contactDetails[] = TFISH_EXPERTS_MOBILE . ': ' . $this->mobile; 
-        }
-
-        if ($this->fax) {
-            $contactDetails[] = TFISH_EXPERTS_FAX . ': ' . $this->fax;
-        }
-
-        if ($this->email) {
-            $contactDetails[] = TFISH_EXPERTS_EMAIL . ': ' . $this->email;
-        }
-
-        $contactDetails = implode('<br>', $contactDetails);
-
-        return $contactDetails;
-    }
-
 }

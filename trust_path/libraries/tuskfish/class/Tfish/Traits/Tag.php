@@ -33,17 +33,17 @@ trait Tag
 
     /**
      * Return tags.
-     * 
+     *
      * @return array IDs of tags.
      */
     public function tags(): array
     {
         return $this->tags;
     }
-    
+
     /**
      * Set tags.
-     * 
+     *
      * @param   array $tags Tag IDs.
      */
     public function setTags(array $tags)

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Tfish\Content\ViewModel;
+namespace Tfish\Expert\ViewModel;
 
 /**
- * \Tfish\Content\ViewModelModel\Search class file.
+ * \Tfish\Expert\ViewModelModel\Search class file.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -16,7 +16,7 @@ namespace Tfish\Content\ViewModel;
  */
 
 /**
- * ViewModel for free text searches of content objects.
+ * ViewModel for free text searches of expert objects.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -33,7 +33,6 @@ namespace Tfish\Content\ViewModel;
  * @var         string $action Action to be embedded in the form and executed after next submission.
  * @var         array $searchTerms Search terms entered by user.
  * @var         array $escapedSearchTerms Search terms entered by user XSS-escaped for display.
- * @var         string $searchType Type of search (AND, OR, exact).
  * @var         int $start Position in result set to retrieve objects from.
  * @var         int $limit Number of search results to actually retrieve for display on this page view.
  * @var         int $tag Tag ID (not in use).
@@ -42,6 +41,7 @@ namespace Tfish\Content\ViewModel;
 
 class Search implements \Tfish\ViewModel\Listable
 {
+    use \Tfish\Expert\Traits\Options;
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\ValidateString;
 
@@ -53,7 +53,6 @@ class Search implements \Tfish\ViewModel\Listable
     private $action = '';
     private $searchTerms = [];
     private $escapedSearchTerms = [];
-    private $searchType = '';
     private $start = 0;
     private $limit = 0;
     private $tag = 0;
@@ -61,16 +60,16 @@ class Search implements \Tfish\ViewModel\Listable
 
     /**
      * Constructor.
-     * 
+     *
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
     public function __construct($model, \Tfish\Entity\Preference $preference)
     {
-        $this->pageTitle = TFISH_SEARCH;
+        $this->pageTitle = TFISH_EXPERTS;
         $this->model = $model;
         $this->preference = $preference;
-        $this->template = 'search';
+        $this->template = 'experts';
         $this->theme = 'default';
         $this->sort = 'date';
         $this->order = 'DESC';
@@ -89,15 +88,14 @@ class Search implements \Tfish\ViewModel\Listable
 
     /**
      * Search.
-     * 
+     *
      * Search results are cached in the property $searchResults.
      */
     public function search()
-    {        
+    {
         $searchResults = $this->model->search([
             'searchTerms' => $this->searchTerms,
             'escapedSearchTerms' => $this->escapedSearchTerms,
-            'searchType' => $this->searchType,
             'start' => $this->start,
             'limit' => $this->limit(),
             'onlineStatus' => $this->onlineStatus
@@ -108,10 +106,24 @@ class Search implements \Tfish\ViewModel\Listable
     }
 
     /** Utilities. */
-    
+
+    /**
+     * Return IDs and titles of tags that are actually in use with content objects.
+     *
+     * @param   string $zeroOption Text for the default (unselected) option.
+     * @return  array IDs and titles as key-value pairs.
+     */
+    public function activeTagOptions(string $zeroOption = TFISH_SELECT_TAGS): array
+    {
+        $zeroOption = $this->trimString($zeroOption);
+        $rows = $this->model->activeTagOptions('experts');
+
+        return $this->selectBoxOptions($zeroOption, $rows);
+    }
+
     /**
      * Return limit.
-     * 
+     *
      * @return  int The number of  search results to retrieve.
      */
     public function limit(): int
@@ -123,7 +135,7 @@ class Search implements \Tfish\ViewModel\Listable
 
     /**
      * Return content count.
-     * 
+     *
      * @return  int The number of objects that meet the search criteria.
      */
     public function contentCount(): int
@@ -133,7 +145,7 @@ class Search implements \Tfish\ViewModel\Listable
 
     /**
      * Return search results.
-     * 
+     *
      * @return  array
      */
     public function searchResults(): array
@@ -143,7 +155,7 @@ class Search implements \Tfish\ViewModel\Listable
 
     /**
      * Return start.
-     * 
+     *
      * @return int ID of first object to view in the set of available records.
      */
     public function start(): int
@@ -153,7 +165,7 @@ class Search implements \Tfish\ViewModel\Listable
 
     /**
      * Set the starting position in the set of available object.
-     * 
+     *
      * @param int $start ID of first object to view in the set of available records.
      */
     public function setStart(int $start)
@@ -163,9 +175,9 @@ class Search implements \Tfish\ViewModel\Listable
 
     /**
      * Return the action for this page.
-     * 
+     *
      * The action is usually embedded in the form, to control handling on submission (next page load).
-     * 
+     *
      * @return string
      */
     public function action(): string
@@ -175,7 +187,7 @@ class Search implements \Tfish\ViewModel\Listable
 
     /**
      * Set action.
-     * 
+     *
      * @param   string $action Action is embedded in the form, to control handling on submission (next page load)
      */
     public function setAction(string $action)
@@ -184,12 +196,12 @@ class Search implements \Tfish\ViewModel\Listable
             \trigger_error(TFISH_ERROR_BAD_ACTION, E_USER_NOTICE);
         }
 
-        $this->action = $this->trimString($action);        
+        $this->action = $this->trimString($action);
     }
 
     /**
      * Return search terms.
-     * 
+     *
      * @return  array
      */
     public function searchTerms(): array
@@ -199,17 +211,17 @@ class Search implements \Tfish\ViewModel\Listable
 
     /**
      * Return search terms for display in form.
-     * 
+     *
      * @return  string
      */
     public function searchTermsForForm(): string
     {
         return \implode(" ", $this->searchTerms);
     }
-    
+
     /**
      * Set search terms.
-     * 
+     *
      * @param   string $searchTerms Search terms (keywords).
      */
     public function setSearchTerms(string $searchTerms)
@@ -221,41 +233,35 @@ class Search implements \Tfish\ViewModel\Listable
         // Create an escaped copy that will be used to search the HTML teaser and description fields.
         $escapedSearchTerms = \htmlspecialchars($searchTerms, ENT_NOQUOTES, "UTF-8");
 
-        if ($this->searchType !== 'exact') {
-            $searchTerms = \explode(" ", $searchTerms);
-            $escapedSearchTerms = \explode(" ", $escapedSearchTerms);
-        } else {
-            $searchTerms = [$searchTerms];
-            $escapedSearchTerms = [$escapedSearchTerms];
-        }
-        
-        
+        $searchTerms = \explode(" ", $searchTerms);
+        $escapedSearchTerms = \explode(" ", $escapedSearchTerms);
+
         // Trim search terms and discard any that are less than the minimum search length characters.
         foreach ($searchTerms as $term) {
             $term = $this->trimString($term);
-            
+
             if (!empty($term) && \mb_strlen($term, 'UTF-8') >= $this->preference->minSearchLength()) {
                 $cleanSearchTerms[] = $term;
             }
         }
-        
+
         $this->searchTerms = $cleanSearchTerms;
-        
+
         foreach ($escapedSearchTerms as $escapedTerm) {
             $escapedTerm = $this->trimString($escapedTerm);
-            
+
             if (!empty($escapedTerm) && \mb_strlen($escapedTerm, 'UTF-8')
                     >= $this->preference->minSearchLength()) {
                 $cleanEscapedSearchTerms[] = (string) $escapedTerm;
             }
         }
-        
+
         $this->escapedSearchTerms = $cleanEscapedSearchTerms;
     }
 
     /**
      * Return search terms XSS escaped for display.
-     * 
+     *
      * @return  array
      */
     public function escapedSearchTerms(): array
@@ -264,32 +270,8 @@ class Search implements \Tfish\ViewModel\Listable
     }
 
     /**
-     * Return search type.
-     * 
-     * @return  string Options are: "AND", "OR", "exact".
-     */
-    public function searchType(): string
-    {
-        return $this->searchType;
-    }
-
-    /**
-     * Set search type.
-     * 
-     * @param   string $searchType Options are: "AND", "OR", "exact".
-     */
-    public function setSearchType(string $searchType)
-    {
-        if (!\in_array($searchType, ['AND', 'OR', 'exact'], true)) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
-        }
-
-        $this->searchType = $this->trimString($searchType);
-    }
-
-    /**
      * Return extra parameters to be included in pagination control links.
-     * 
+     *
      * @return  array
      */
     public function extraParams(): array
@@ -298,10 +280,6 @@ class Search implements \Tfish\ViewModel\Listable
 
         if (!empty($this->action)) {
             $extraParams['action'] = $this->action();
-        }
-
-        if (!empty($this->searchType())) {
-            $extraParams['searchType'] = $this->searchType();
         }
 
         if (!empty($this->searchTerms())) {
@@ -313,7 +291,7 @@ class Search implements \Tfish\ViewModel\Listable
 
     /**
      * Return onlineStatus
-     * 
+     *
      * @return  int Online content only (1).
      */
     public function onlineStatus(): int
@@ -323,7 +301,7 @@ class Search implements \Tfish\ViewModel\Listable
 
     /**
      * Return tag ID.
-     * 
+     *
      * @return  int
      */
     public function tag(): int
@@ -333,7 +311,7 @@ class Search implements \Tfish\ViewModel\Listable
 
     /**
      * Set tag ID.
-     * 
+     *
      * @param   int $tag ID of tag.
      */
     public function setTag(int $tag)

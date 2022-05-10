@@ -131,6 +131,12 @@ return [
         '\\Tfish\\View\\Single',
         '\\Tfish\\Controller\\Error',
         false),
+    '/experts/' => new Route(
+        '\\Tfish\\Expert\\Model\\Search',
+        '\\Tfish\\Expert\\ViewModel\\Search',
+        '\\Tfish\\View\\Listing',
+        '\\Tfish\\Expert\\Controller\\Search',
+        false),
     '/admin/experts/' => new Route(
         '\\Tfish\\Expert\\Model\\Admin',
         '\\Tfish\\Expert\\ViewModel\\Admin',
