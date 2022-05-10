@@ -6,7 +6,7 @@ namespace Tfish\Model;
 
 /**
  * PreferenceModel class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -15,7 +15,7 @@ namespace Tfish\Model;
  * @package     core
  */
 
-/** 
+/**
  * Read and write site preferences to the database.
  *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
@@ -37,7 +37,7 @@ class Preference
 
     /**
      * Constructor.
-     * 
+     *
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.
      * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish site preferences class.
@@ -60,42 +60,42 @@ class Preference
 
     /**
      * Update site preferences.
-     * 
+     *
      * @return  bool True on success, false on failure.
      */
     public function update()
     {
         $this->preference->load($_POST['preference']);
- 
+
         return $this->writePreferences();
     }
 
     /**
      * Updates the site preferences in the database.
-     * 
+     *
      * @param \Tfish\Entity\Preference $preference Instance of the Tuskfish site preference class.
      * @return bool True on success false on failure.
      */
     private function writePreferences(): bool
     {
         $keyValues = $this->preference->getPreferencesAsArray();
- 
+
         foreach ($keyValues as $key => $value) {
             $sql = "UPDATE `preference` SET `value` = :value WHERE `title` = :title";
             $statement = $this->database->preparedStatement($sql);
             $statement->bindValue(':title', $key, $this->database->setType($key));
             $statement->bindValue(':value', $value, $this->database->setType($value));
-  
+
             unset($sql, $key, $value);
-            
+
             $result = $this->database->executeTransaction($statement);
-            
+
             if (!$result) {
                 \trigger_error(TFISH_ERROR_INSERTION_FAILED, E_USER_ERROR);
                 return false;
             }
         }
-        
+
         return true;
     }
 }

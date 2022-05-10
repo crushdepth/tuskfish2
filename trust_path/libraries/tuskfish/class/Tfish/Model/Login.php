@@ -6,7 +6,7 @@ namespace Tfish\Model;
 
 /**
  * \Tfish\Model\Login class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -36,9 +36,9 @@ class Login
 
     /**
      * Process admin login.
-     * 
+     *
      * Note that email validation is handled by the Session class.
-     * 
+     *
      * @param   string $email Email address.
      * @param   string $password Password.
      */
@@ -58,9 +58,9 @@ class Login
 
     /**
      * Set the session object.
-     * 
+     *
      * This will be deprecated when the DICE dependency injection container is adopted.
-     * 
+     *
      * @param   \Tfish\Session $session Instance of the session management class.
      */
     public function setSession(\Tfish\Session $session)

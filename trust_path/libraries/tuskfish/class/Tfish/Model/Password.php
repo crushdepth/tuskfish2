@@ -6,7 +6,7 @@ namespace Tfish\Model;
 
 /**
  * \Tfish\Model\Password class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -35,7 +35,7 @@ class Password
 
     /**
      * Constructor.
-     * 
+     *
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.
      * @param   \Tfish\Session $session Instance of the Tuskfish session manager class.
      */
@@ -47,7 +47,7 @@ class Password
 
     /**
      * Change the admin password.
-     * 
+     *
      * @param   string $password
      * @param   string $confirm Confirmation password.
      * @return  bool True on success, false on failure.
@@ -57,7 +57,7 @@ class Password
         if ($this->passwordIsNotValid($password, $confirm)) {
             return false;
         }
-        
+
         return $this->updatePassword($password);
     }
 
@@ -65,7 +65,7 @@ class Password
      * Validate that password meets minimum length and UTF-8 coding requirements.
      * Minimum length is hardcoded at 15 characters. Any less and it doesn't matter
      * what your password is, the entire keyspace can be searched.
-     * 
+     *
      * @param   string $password
      * @param   string $confirm Confirmation password.
      * @return  bool True if valid, false if invalid.
@@ -81,7 +81,7 @@ class Password
 
     /**
      * Update password in database.
-     * 
+     *
      * @param   string $password
      * @return  bool True on success, false on failure.
      */
@@ -94,7 +94,7 @@ class Password
         }
 
         $hash = $this->session->hashPassword($password);
-        
+
         return $this->database->update('user', $userId, ['passwordHash' => $hash]);
-    }     
+    }
 }

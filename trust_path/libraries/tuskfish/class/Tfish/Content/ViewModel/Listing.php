@@ -261,7 +261,7 @@ class Listing implements \Tfish\ViewModel\Listable
             'secondaryOrder' => $this->secondaryOrder
         ];
 
-        if ($this->content->type() === 'TfTag') $params['tag'] = $this->content->id();  
+        if ($this->content->type() === 'TfTag') $params['tag'] = $this->content->id();
         if ($this->content->type() === 'TfCollection') $params['parent'] = $this->content->id();
 
         $this->children = $this->model->getObjects($params);

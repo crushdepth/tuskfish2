@@ -6,7 +6,7 @@ namespace Tfish\View;
 
 /**
  * \Tfish\View\Single class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -35,7 +35,7 @@ class Single
 
     /**
      * Constructor
-     * 
+     *
      * @param   object $viewModel Instance of the viewModel required by this route.
      */
     public function __construct(\Tfish\ViewModel\Viewable $viewModel)
@@ -45,7 +45,7 @@ class Single
 
     /**
      * Render the template used by this page.
-     * 
+     *
      * @return  string Template output as HTML.
      */
     public function render(): string

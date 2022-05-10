@@ -6,7 +6,7 @@ namespace Tfish;
 
 /**
  * \Tfish\CriteriaFactory class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -17,7 +17,7 @@ namespace Tfish;
 
 /**
  * Factory for instantiating Criteria objects and injecting dependencies.
- * 
+ *
  * Use this class to delegate construction of Criteria objects. See the Tuskfish Developer Guide
  * for a full explanation and examples.
  *
@@ -29,20 +29,20 @@ namespace Tfish;
  * @package     database
  */
 class CriteriaFactory
-{    
+{
     /**
      * Factory method to instantiate and return a Criteria object.
-     * 
+     *
      * @return \Tfish\Criteria Instance of a \Tfish\Criteria object.
      */
     public function criteria(): Criteria
     {
         return new Criteria();
     }
-    
+
     /**
      * Factory method to instantiate and return a Tfish\CriteriaItem object.
-     * 
+     *
      * @param string $column Name of column in database table. Alphanumeric and underscore
      * characters only.
      * @param mixed $value Value of the column.

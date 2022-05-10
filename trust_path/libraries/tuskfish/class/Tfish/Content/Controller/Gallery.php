@@ -6,7 +6,7 @@ namespace Tfish\Content\Controller;
 
 /**
  * \Tfish\Content\Controller\Gallery class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -35,7 +35,7 @@ class Gallery
 
     /**
      * Constructor.
-     * 
+     *
      * @param   object $model Instance of a model class.
      * @param   object $viewModel Instance of a viewModel class.
      */
@@ -49,7 +49,7 @@ class Gallery
 
     /**
      * Display a list of images.
-     * 
+     *
      * @return  array Cache parameters used to locate cached copies of a given page view.
      */
     public function display(): array
@@ -62,7 +62,7 @@ class Gallery
         if (!empty($id)) $cacheParams['id'] = $id;
 
         $start = (int) ($_GET['start'] ?? 0);
-        
+
         $this->viewModel->setStart($start);
         if (!empty($start)) $cacheParams['start'] = $start;
 
@@ -73,7 +73,7 @@ class Gallery
 
         $type = 'TfImage';
 
-        $this->viewModel->setType($type); 
+        $this->viewModel->setType($type);
         $cacheParams['type'] = $type;
 
         $this->viewModel->setSort('date');

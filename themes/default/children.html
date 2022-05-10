@@ -20,7 +20,7 @@
       <div class="float-start">
         <figure class="figure-left">
         <a href="<?php echo xss($child->url()); ?>">
-        <img class="image img-fluid" src="<?php echo $child->cachedImage(150); ?>" 
+        <img class="image img-fluid" src="<?php echo $child->cachedImage(150); ?>"
         <?php if ($child->caption()): ?>
             title="<?php echo xss($child->caption()); ?>" alt="<?php echo xss($child->caption()); ?>"
         <?php else: ?>
@@ -33,7 +33,7 @@
       <?php echo $child->teaserForDisplay(); ?>
     </div>
   </div>
-  <?php endforeach; ?>    
+  <?php endforeach; ?>
 </div>
 
 <!-- Intra-collection pagination -->

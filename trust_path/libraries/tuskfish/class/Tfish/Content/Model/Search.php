@@ -6,7 +6,7 @@ namespace Tfish\Content\Model;
 
 /**
  * \Tfish\Content\Model\Search class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -42,7 +42,7 @@ class Search
 
     /**
      * Constructor.
-     * 
+     *
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.
      * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish site preferences class.
@@ -63,7 +63,7 @@ class Search
 
     /**
      * Search content objects.
-     * 
+     *
      * @param   array $params Filtering criteria (keywords, limit, offset etc).
      */
     public function search(array $params): array
@@ -77,7 +77,7 @@ class Search
 
     /**
      * Return onlineStatus.
-     * 
+     *
      * @return  int Retrieve all content (0) or only online content (1).
      */
     public function onlineStatus(): int
@@ -87,7 +87,7 @@ class Search
 
     /**
      * Set onlineStatus.
-     * 
+     *
      * @param   int $onlineStatus Retrieve all content (0) or only online content (1).
      */
     public function setOnlineStatus(int $onlineStatus)
@@ -99,7 +99,7 @@ class Search
 
     /**
      * Run search query.
-     * 
+     *
      * @param   \Tfish\Criteria $criteria Filtering criteria.
      * @return  array Array of content objects.
      */
@@ -112,10 +112,10 @@ class Search
 
     /**
      * Search content objects.
-     * 
+     *
      * The first element of the returned results is a count of the total number of objects matching the
      * search criteria. This is a bit of a hack that should probably be done away with in due course.
-     * 
+     *
      * @param   array $params Search criteria.
      * @return  array Array of content objects matching search criteria, with content count as first element.
      */
@@ -128,26 +128,26 @@ class Search
         $searchType = $this->trimString(($params['searchType'] ?? ''));
         $whitelist = ["AND", "OR", "exact"];
         $position = \array_search($searchType, $whitelist, true);
-        
+
         if ($position === false) {
             \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
             exit;
         }
 
         $cleanSearchType = $whitelist[$position];
-        
+
         $sqlCount = "SELECT count(*) ";
         $sqlSearch = "SELECT * ";
         $sql = "FROM `content` ";
         $count = \count($params['searchTerms']);
-        
+
         // If there are no legal search terms, return nil result.
         if ($count === 0) {
             return [];
         }
 
         $sql .= "WHERE ";
-        
+
         for ($i = 0; $i < $count; $i++) {
             $searchTermPlaceholders[$i] = ':searchTerm' . (string) $i;
             $escapedTermPlaceholders[$i] = ':escapedSearchTerm' . (string) $i;
@@ -159,12 +159,12 @@ class Search
             $sql .= "`creator` LIKE " . $searchTermPlaceholders[$i] . " OR ";
             $sql .= "`publisher` LIKE " . $searchTermPlaceholders[$i];
             $sql .= ")";
-            
+
             if ($i != ($count - 1)) {
                $sql .= " " . $cleanSearchType . " ";
             }
         }
-        
+
         if ($params['onlineStatus'] !== 0) {
             $sql .= " AND `onlineStatus` = :onlineStatus";
         }
@@ -172,12 +172,12 @@ class Search
         $sql .= " AND `type` != 'TfBlock' ";
         $sqlCount .= $sql;
         $sql .= "ORDER BY `date` DESC, `submissionTime` DESC ";
-        
+
         // Bind the search term values and execute the statement.
         $statement = $this->database->preparedStatement($sqlCount);
 
         if ($statement) {
-            
+
             for ($i = 0; $i < $count; $i++) {
                 $statement->bindValue($searchTermPlaceholders[$i], "%" . $params['searchTerms'][$i] . "%", \PDO::PARAM_STR);
                 $statement->bindValue($escapedTermPlaceholders[$i], "%" . $params['escapedSearchTerms'][$i] . "%", \PDO::PARAM_STR);
@@ -197,9 +197,9 @@ class Search
         $contentCount = \reset($row);
         unset($statement, $row);
 
-        // Retrieve the subset of objects actually required.        
+        // Retrieve the subset of objects actually required.
         $sql .= "LIMIT :limit ";
-        
+
         if (isset($params['start'])) {
           $sql .= "OFFSET :offset ";
         }
@@ -214,7 +214,7 @@ class Search
                 $statement->bindValue($searchTermPlaceholders[$i], "%" . $params['searchTerms'][$i] . "%", \PDO::PARAM_STR);
                 $statement->bindValue($escapedTermPlaceholders[$i], "%" . $params['escapedSearchTerms'][$i] . "%", \PDO::PARAM_STR);
                 $statement->bindValue(":limit", (int) $params['limit'], \PDO::PARAM_INT);
-                
+
                 if (isset($params['start'])) {
                     $statement->bindValue(":offset", (int) $params['start'], \PDO::PARAM_INT);
                 }
@@ -223,7 +223,7 @@ class Search
             if ($params['onlineStatus'] !== 0) {
                 $statement->bindValue(":onlineStatus", $params['onlineStatus'], \PDO::PARAM_INT);
             }
-            
+
         } else {
             return false;
         }
@@ -239,9 +239,9 @@ class Search
 
     /**
      * Validate search parameters.
-     * 
+     *
      * @param   array $params Search parameters.
-     * @return  array Validated search parameters. 
+     * @return  array Validated search parameters.
      */
     private function validateParams(array $params): array
     {
@@ -289,7 +289,7 @@ class Search
         }
 
         if (isset($params['order'])) {
-            
+
             if ($params['order'] === 'ASC') {
                 $cleanParams['order'] = 'ASC';
             } else {
@@ -302,7 +302,7 @@ class Search
         }
 
         if (isset($params['secondaryOrder'])) {
-            
+
             if ($params['secondaryOrder'] === 'ASC') {
                 $cleanParams['secondaryOrder'] = 'ASC';
             } else {

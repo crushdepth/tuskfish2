@@ -6,7 +6,7 @@ namespace Tfish\ViewModel;
 
 /**
  * \Tfish\ViewModelModel\Password class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -38,7 +38,7 @@ class Password implements Viewable
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
     use \Tfish\Traits\Viewable;
-    
+
     private $model;
     private $password = '';
     private $confirm = '';
@@ -47,7 +47,7 @@ class Password implements Viewable
 
     /**
      * Constructor
-     * 
+     *
      * @param   object $model Instance of a model class.
      */
     public function __construct($model)
@@ -60,7 +60,7 @@ class Password implements Viewable
             'robots' => 'noindex,nofollow'
             ]);
     }
-    
+
     /** Actions */
 
     /**
@@ -93,9 +93,9 @@ class Password implements Viewable
 
     /**
      * Return the backUrl.
-     * 
+     *
      * If the cancel button is clicked, the user will be redirected to the backUrl.
-     * 
+     *
      * @return  string
      */
     public function backUrl(): string
@@ -105,7 +105,7 @@ class Password implements Viewable
 
     /**
      * Set password confirmation.
-     * 
+     *
      * @param   string $confirm Second entry of the new password to validate first was correct.
      */
     public function setConfirm(string $confirm)
@@ -115,7 +115,7 @@ class Password implements Viewable
 
     /**
      * Set password.
-     * 
+     *
      * @param   string $password The new password.
      */
     public function setPassword(string $password)
@@ -125,7 +125,7 @@ class Password implements Viewable
 
     /**
      * Return the response message (success or failure) for an action.
-     * 
+     *
      * @return  string
      */
     public function response(): string

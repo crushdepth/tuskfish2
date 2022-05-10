@@ -6,7 +6,7 @@ namespace Tfish\ViewModel;
 
 /**
  * \Tfish\ViewModelModel\Sitemap class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -39,7 +39,7 @@ class Sitemap implements Viewable
 
     /**
      * Constructor
-     * 
+     *
      * @param   object $model Instance of a model class.
      */
     public function __construct($model)
@@ -50,7 +50,7 @@ class Sitemap implements Viewable
         $this->template = 'sitemap';
         $this->setMetadata(['robots' => 'noindex,nofollow']);
     }
-    
+
     /** Actions. */
 
     /**
@@ -79,7 +79,7 @@ class Sitemap implements Viewable
             $this->pageTitle = TFISH_FAILED;
             $this->response = TFISH_SITEMAP_UPDATE_FAILED;
         }
-        
+
         $this->template ='response';
         $this->action = 'generate';
         $this->backUrl = TFISH_ADMIN_URL;
@@ -98,9 +98,9 @@ class Sitemap implements Viewable
 
     /**
      * Return the action for this page.
-     * 
+     *
      * The action is usually embedded in the form, to control handling on submission (next page load).
-     * 
+     *
      * @return string
      */
     public function action(): string
@@ -110,9 +110,9 @@ class Sitemap implements Viewable
 
     /**
      * Return the backUrl.
-     * 
+     *
      * If the cancel button is clicked, the user will be redirected to the backUrl.
-     * 
+     *
      * @return  string
      */
     public function backUrl(): string
@@ -122,7 +122,7 @@ class Sitemap implements Viewable
 
     /**
      * Return the response message (success or failure) for an action.
-     * 
+     *
      * @return  string
      */
     public function response(): string

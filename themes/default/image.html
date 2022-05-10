@@ -43,7 +43,7 @@
     <?php if ($content->media()): ?>
 
     <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>">
-      <img class="image img-fluid" src="<?php echo $content->cachedImage(1170); ?>" 
+      <img class="image img-fluid" src="<?php echo $content->cachedImage(1170); ?>"
       <?php if ($content->caption()): ?>
         title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"/>
       <?php else: ?>
@@ -54,7 +54,7 @@
 
     <?php else: ?>
 
-      <img class="image img-fluid" src="<?php echo $content->cachedImage(1170); ?>" 
+      <img class="image img-fluid" src="<?php echo $content->cachedImage(1170); ?>"
       <?php if ($content->caption()): ?>
         title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"/>
         <figcaption><em><?php echo xss($content->caption()); ?></em></figcaption>

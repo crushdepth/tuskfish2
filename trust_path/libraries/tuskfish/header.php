@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Tuskfish header script, must be included on every page.
- * 
+ *
  * Establishes connection with database and initialises dependencies.
  *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
@@ -51,15 +51,15 @@ $logger = $dice->create('\\Tfish\\Logger');
 
 /**
  * Universal XSS output escape function for use in templates.
- * 
+ *
  * Encodes entities (but does not double encode). Do not use on HTML markup,
- * only on plain text (HTML should be input filtered with HTMLPurifier). 
- * 
+ * only on plain text (HTML should be input filtered with HTMLPurifier).
+ *
  * @param   string $value Unescaped output.
  * @return  string XSS-escaped output safe for display.
  */
 function xss($value): string
 {
     $value = (string) $value;
-    return \htmlspecialchars($value, ENT_QUOTES, 'UTF-8', false); 
+    return \htmlspecialchars($value, ENT_QUOTES, 'UTF-8', false);
 }

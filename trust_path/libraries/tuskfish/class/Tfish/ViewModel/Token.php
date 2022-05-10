@@ -6,7 +6,7 @@ namespace Tfish\ViewModel;
 
 /**
  * \Tfish\ViewModelModel\Token class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -17,7 +17,7 @@ namespace Tfish\ViewModel;
 
 /**
  * ViewModel for displaying token errors.
- * 
+ *
  * Token checks are used to validate that a form submission was a deliberate action from the user, and not
  * a forgery that was sent while the user was logged in.
  *
@@ -43,7 +43,7 @@ class Token implements Viewable
 
     /**
      * Constructor
-     * 
+     *
      * @param   object $model Instance of a model class.
      * @param   string $theme Name of the theme to use on this page.
      */

@@ -4,7 +4,7 @@ namespace Tfish\Traits;
 
 /**
  * \Tfish\Traits\Viewable trait file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -38,7 +38,7 @@ trait Viewable
 
     /**
      * Return title of this page.
-     * 
+     *
      * @return  string
      */
     public function pageTitle(): string
@@ -48,17 +48,17 @@ trait Viewable
 
     /**
      * Set the title of this page.
-     * 
+     *
      * @param   string $pageTitle Title of this page.
      */
     public function setPageTitle(string $pageTitle)
     {
         $this->pageTitle = $this->trimString($pageTitle);
     }
-    
+
     /**
      * Return the template object required by this page.
-     * 
+     *
      * @return  \Tfish\Entity\Template
      */
     public function template(): \Tfish\Entity\Template
@@ -68,7 +68,7 @@ trait Viewable
 
     /**
      * Set the template used by this page.
-     * 
+     *
      * @param   string $template Name of template without extension (alphanumeric and underscore characters only).
      */
     public function setTemplate(string $template)
@@ -85,7 +85,7 @@ trait Viewable
 
     /**
      * Return the layout file name for this page view, without the extension.
-     * 
+     *
      * @return  string
      */
     public function layout(): string
@@ -95,7 +95,7 @@ trait Viewable
 
     /**
      * Set an alternative layout file for this page view.
-     * 
+     *
      * @param   string $layout Name of HTML template, without the file extension, (alphanumeric and underscore characters only).
      */
     public function setLayout(string $layout)
@@ -109,22 +109,22 @@ trait Viewable
 
         $this->layout = $layout;
     }
-    
+
     /**
      * Return the theme used by this page.
-     * 
+     *
      * @return  string
      */
-    public function theme(): string 
+    public function theme(): string
     {
         return $this->theme;
     }
 
     /**
      * Set (change) the theme.
-     * 
+     *
      * You must ensure that the new theme directory contains the HTML template files that you need.
-     * 
+     *
      * @param   string $theme Name of theme directory (alphanumeric and underscores only).
      */
     public function setTheme(string $theme)
@@ -141,7 +141,7 @@ trait Viewable
 
     /**
      * Return page-specific metadata overrides.
-     * 
+     *
      * @return  array
      */
     public function metadata(): array
@@ -151,7 +151,7 @@ trait Viewable
 
     /**
      * Set page-specific overrides of the site metadata.
-     * 
+     *
      * @param   array $metadata Array of metadata as key => value pairs.
      */
     public function setMetadata(array $metadata)

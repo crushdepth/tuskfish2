@@ -6,7 +6,7 @@ namespace Tfish\Traits;
 
 /**
  * \Tfish\Traits\Timezones trait file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -30,7 +30,7 @@ trait Timezones
 {
     /**
      * Provide a list of timezone offsets.
-     * 
+     *
      * @return array Array of timezone offsets.
      */
     public function listTimezones(): array

@@ -6,7 +6,7 @@ namespace Tfish\ViewModel;
 
 /**
  * \Tfish\ViewModelModel\Error class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -37,7 +37,7 @@ class Error implements Viewable
 
     /**
      * Constructor
-     * 
+     *
      * @param   object $model Instance of a model class.
      */
     public function __construct($model)
@@ -48,7 +48,7 @@ class Error implements Viewable
         $this->template = 'error';
         $this->setMetadata(['robots' => 'noindex,nofollow']);
     }
-    
+
     /** Actions. */
 
     /**

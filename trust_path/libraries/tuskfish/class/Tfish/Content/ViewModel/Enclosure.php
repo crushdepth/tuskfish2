@@ -6,7 +6,7 @@ namespace Tfish\Content\ViewModel;
 
 /**
  * \Tfish\Content\ViewModel\Enclosure class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -40,7 +40,7 @@ class Enclosure implements \Tfish\ViewModel\Viewable
 
     /**
      * Constructor.
-     * 
+     *
      * @param   object $model Instance of a model class.
      */
     public function __construct($model)
@@ -64,7 +64,7 @@ class Enclosure implements \Tfish\ViewModel\Viewable
 
     /**
      * Set ID.
-     * 
+     *
      * @param   int $id ID of content object.
      */
     public function setId(int $id)

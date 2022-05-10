@@ -6,7 +6,7 @@ namespace Tfish\Content\Controller;
 
 /**
  * \Tfish\Content\Controller\Listing class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -38,7 +38,7 @@ class Listing
 
     /**
      * Constructor.
-     * 
+     *
      * @param   object $model Instance of a model class.
      * @param   object $viewModel Instance of a viewModel class.
      */
@@ -52,7 +52,7 @@ class Listing
 
     /**
      * Display a list of content objects.
-     * 
+     *
      * @return  array Cache parameters used to locate cached copies of a given page view.
      */
     public function display(): array
@@ -70,7 +70,7 @@ class Listing
         if (!empty($tag)) $cacheParams['tag'] = $tag;
 
         $type = $this->trimString($_GET['type'] ?? '');
-        
+
         $this->viewModel->setType($type);
         if (!empty($type)) $cacheParams['type'] = $type;
 
@@ -80,7 +80,7 @@ class Listing
         $this->viewModel->setSecondaryOrder('DESC');
 
         $id = (int) ($_GET['id'] ?? 0);
-        
+
         if (!empty($id)) {
             $this->viewModel->setId($id);
             $cacheParams['id'] = $id;

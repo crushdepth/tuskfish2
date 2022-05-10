@@ -6,7 +6,7 @@ namespace Tfish\Content\Model;
 
 /**
  * \Tfish\Content\Model\Admin class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -41,7 +41,7 @@ class Admin
     use \Tfish\Traits\Taglink;
     use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
-    
+
     private $database;
     private $criteriaFactory;
     private $preference;
@@ -50,7 +50,7 @@ class Admin
 
     /**
      * Constructor.
-     * 
+     *
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.
      * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish site preferences class.
@@ -75,7 +75,7 @@ class Admin
 
     /**
      * Delete content object.
-     * 
+     *
      * @param   int $id ID of content object.
      * @return  bool True on success, false on failure.
      */
@@ -129,7 +129,7 @@ class Admin
 
     /**
      * Get content objects.
-     * 
+     *
      * @param   array $params Filter criteria.
      * @return  array Array of content objects.
      */
@@ -138,12 +138,12 @@ class Admin
         $cleanParams = $this->validateParams($params);
         $criteria = $this->setCriteria($cleanParams);
 
-        return $this->runQuery($criteria);        
+        return $this->runQuery($criteria);
     }
 
     /**
      * Toggle a content object online or offline.
-     * 
+     *
      * @param   int $id ID of content object.
      * @return  bool True on success, false on failure.
      */
@@ -162,7 +162,7 @@ class Admin
 
     /**
      * Count the number of content objects that match the filter criteria.
-     * 
+     *
      * @param   array $params Filter criteria.
      * @return  int Count.
      */
@@ -185,7 +185,7 @@ class Admin
 
     /**
      * Return a list of options to build a select box.
-     * 
+     *
      * @param   array $params Filter criteria.
      * @param   array $columns Columns to select to build the options.
      * @return  array
@@ -211,7 +211,7 @@ class Admin
 
     /**
      * Return certain columns from a content object required to aid its deletion.
-     * 
+     *
      * @param   int $id ID of content object.
      * @return  array Associative array containing type, id, image and media values.
      */
@@ -228,10 +228,10 @@ class Admin
         return $this->database->select('content', $criteria, ['type', 'id', 'image', 'media'])
             ->fetch(\PDO::FETCH_ASSOC);
     }
-    
+
     /**
      * Deletes an uploaded image file associated with a content object.
-     * 
+     *
      * @param string $filename Name of file.
      * @return bool True on success, false on failure.
      */
@@ -244,7 +244,7 @@ class Admin
 
     /**
      * Deletes an uploaded media file associated with a content object.
-     * 
+     *
      * @param string $filename Name of file.
      * @return bool True on success, false on failure.
      */
@@ -257,14 +257,14 @@ class Admin
 
     /**
      * Removes references to a collection when it is deleted or changed to another type.
-     * 
+     *
      * @param int $id ID of the parent collection.
      * @return boolean True on success, false on failure.
      */
     private function deleteReferencesToParent(int $id)
     {
         if ($id < 1) return false;
-        
+
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('parent', $id));
 
@@ -273,7 +273,7 @@ class Admin
 
     /**
      * Return the title of a given content object.
-     * 
+     *
      * @param   int $id ID of content object.
      * @return  string Title of content object.
      */
@@ -289,7 +289,7 @@ class Admin
 
     /**
      * Run the count query.
-     * 
+     *
      * @param   \Tfish\Criteria $criteria Filter criteria.
      * @return  int Count.
      */
@@ -300,7 +300,7 @@ class Admin
 
     /**
      * Run the select query.
-     * 
+     *
      * @param   \Tfish\Criteria $criteria Filter criteria.
      * @param   array $columns Columns to select.
      * @return  array Array of content objects.
@@ -314,7 +314,7 @@ class Admin
 
     /**
      * Set filter criteria on queries.
-     * 
+     *
      * @param   array $cleanParams Parameters to filter the query.
      * @return  \Tfish\Criteria
      */
@@ -361,7 +361,7 @@ class Admin
 
     /**
      * Validate criteria used to filter query.
-     * 
+     *
      * @param   array $params Filter criteria.
      * @return  array Validated filter criteria.
      */
@@ -374,7 +374,7 @@ class Admin
 
         if ($params['start'] ?? 0)
             $cleanParams['start'] = (int) $params['start'];
-        
+
         if ($params['tag'] ?? 0)
             $cleanParams['tag'] = (int) ($params['tag']);
 
@@ -395,7 +395,7 @@ class Admin
         }
 
         if (isset($params['order'])) {
-            
+
             if ($params['order'] === 'ASC') {
                 $cleanParams['order'] = 'ASC';
             } else {
@@ -408,7 +408,7 @@ class Admin
         }
 
         if (isset($params['secondaryOrder'])) {
-            
+
             if ($params['secondaryOrder'] === 'ASC') {
                 $cleanParams['secondaryOrder'] = 'ASC';
             } else {

@@ -22,9 +22,9 @@
 
 <?php if ($content->externalMedia()): ?>
 <div class="video-player text-left">
-  <iframe width="853" height="505" 
-    src="<?php echo $content->externalMedia(); ?>" 
-    title="YouTube video player" 
+  <iframe width="853" height="505"
+    src="<?php echo $content->externalMedia(); ?>"
+    title="YouTube video player"
     frameborder="0"
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
     allowfullscreen>
@@ -37,7 +37,7 @@
 
 <div>
   <figure class="float-end figure-right">
-    <img class="image img-fluid" src="<?php echo $content->cachedImage(400); ?>" 
+    <img class="image img-fluid" src="<?php echo $content->cachedImage(400); ?>"
     <?php if ($content->caption()): ?>
       title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"/>
       <figcaption><em><?php echo xss($content->caption()); ?></em></figcaption>

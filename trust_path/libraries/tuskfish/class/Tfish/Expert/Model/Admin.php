@@ -145,7 +145,7 @@ class Admin
 
     /**
      * Count the number of content objects that match the filter criteria.
-     * 
+     *
      * @param   array $params Filter criteria.
      * @return  int Count.
      */

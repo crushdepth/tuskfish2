@@ -6,7 +6,7 @@ namespace Tfish\Content\Controller;
 
 /**
  * \Tfish\Content\Controller\Search class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -32,13 +32,13 @@ namespace Tfish\Content\Controller;
 class Search
 {
     use \Tfish\Traits\ValidateString;
-    
+
     private $model;
     private $viewModel;
 
     /**
      * Constructor.
-     * 
+     *
      * @param   object $model Instance of a model class.
      * @param   object $viewModel Instance of a viewModel class.
      */
@@ -50,7 +50,7 @@ class Search
 
     /**
      * Display the search form.
-     * 
+     *
      * @return  array Empty array (the output of this action is not cached).
      */
     public function display(): array
@@ -62,7 +62,7 @@ class Search
 
     /**
      * Search and display results.
-     * 
+     *
      * @return  array Empty array (the output of this action is not cached).
      */
     public function search(): array
@@ -79,12 +79,12 @@ class Search
         // Search terms passed in from a pagination control link have been i) encoded and ii) escaped.
         // Search terms entered directly into the search form can be used directly.
         $cleanTerms = '';
-        
+
         if (isset($_GET['searchTerms'])) {
             $terms = $this->trimString($_REQUEST['searchTerms']);
             $terms = \rawurldecode($terms);
             $cleanTerms = \htmlspecialchars_decode($terms, ENT_QUOTES|ENT_HTML5);
-        } else { 
+        } else {
             $cleanTerms = $this->trimString($_POST['searchTerms'] ?? '');
         }
 

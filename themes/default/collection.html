@@ -39,7 +39,7 @@
 <?php if ($content->image()): ?>
 <div>
   <figure class="float-end figure-right">
-      <img class="image img-fluid" src="<?php echo $content->cachedImage(400); ?>" 
+      <img class="image img-fluid" src="<?php echo $content->cachedImage(400); ?>"
       <?php if ($content->caption()): ?>
         title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"/>
         <figcaption><em><?php echo xss($content->caption()); ?></em></figcaption>

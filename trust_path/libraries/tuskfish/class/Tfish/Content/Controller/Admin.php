@@ -6,7 +6,7 @@ namespace Tfish\Content\Controller;
 
 /**
  * \Tfish\Content\Controller\Admin class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -38,7 +38,7 @@ class Admin
 
     /**
      * Constructor.
-     * 
+     *
      * @param   object $model Instance of a model class.
      * @param   object $viewModel Instance of a viewModel class.
      */
@@ -52,7 +52,7 @@ class Admin
 
     /**
      * Cancel the delete content action.
-     * 
+     *
      * @return  array Empty array (the output of this action is not cached).
      */
     public function cancel(): array
@@ -64,7 +64,7 @@ class Admin
 
     /**
      * Display the confirm delete content page.
-     * 
+     *
      * @return  array Empty array (the output of this action is not cached).
      */
     public function confirmDelete(): array
@@ -80,14 +80,14 @@ class Admin
 
     /**
      * Delete a content object.
-     * 
+     *
      * @return  array Empty array (the output of this action is not cached).
      */
     public function delete(): array
     {
         $id = (int) ($_POST['id'] ?? 0);
         $this->viewModel->setId($id);
-        
+
         $this->viewModel->displayDelete();
 
         return [];
@@ -95,7 +95,7 @@ class Admin
 
     /**
      * Display the summary table of content objects.
-     * 
+     *
      * @return  array Empty array (the output of this action is not cached).
      */
     public function display(): array
@@ -127,7 +127,7 @@ class Admin
 
     /**
      * Toggle a content object online or offline.
-     * 
+     *
      * @return  array Empty array (the output of this action is not cached).
      */
     public function toggle(): array

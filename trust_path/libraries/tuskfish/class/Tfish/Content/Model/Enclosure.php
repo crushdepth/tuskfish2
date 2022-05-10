@@ -6,7 +6,7 @@ namespace Tfish\Content\Model;
 
 /**
  * \Tfish\Content\Model\Enclosure class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -40,7 +40,7 @@ class Enclosure
 
     /**
      * Constructor.
-     * 
+     *
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.
      * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
      */
@@ -52,17 +52,17 @@ class Enclosure
 
     /**
      * Initiate streaming of a downloadable media file associated with a content object.
-     * 
+     *
      * DOES NOT WORK WITH COMPRESSION ENABLED IN OUTPUT BUFFER. This method acts as an intermediary
      * to provide access to uploaded file resources that reside outside of the web root, while
      * concealing the real file path and name. Use this method to provide safe user access to
      * uploaded files. If anything nasty gets uploaded nobody will be able to execute it directly
      * through the browser.
-     * 
+     *
      * @param int $id ID of the associated content object.
      * @param string $filename An alternative name (rename) for the file you wish to transfer,
      * excluding extension.
-     * @return bool True on success, false on failure. 
+     * @return bool True on success, false on failure.
      */
     public function streamFileToBrowser(int $id, string $filename = '')
     {
@@ -83,18 +83,18 @@ class Enclosure
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
         $statement = $this->database->select('content', $criteria, ['type', 'media', 'onlineStatus']);
-        
+
         if (!$statement) {
             \trigger_error(TFISH_ERROR_NO_STATEMENT, E_USER_NOTICE);
         }
-        
+
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
-        
+
         $statement->closeCursor();
-        
+
         if ($row && $row['onlineStatus'] == '1') {
             $media = $row['media'] ?? false;
-            
+
             if ($media && \is_readable(TFISH_MEDIA_PATH . $media)) {
                 \ob_start();
                 $filepath = TFISH_MEDIA_PATH . $media;
@@ -104,17 +104,17 @@ class Enclosure
                 $mimetypeList = $this->listMimetypes();
                 $mimetype = $mimetypeList[$fileExtension];
 
-                // Update counter. 
+                // Update counter.
                 if ($row['type'] === 'TfDownload') {
                     $this->updateCounter($id);
                 }
 
                 // Must call session_write_close() first otherwise the script gets locked.
                 \session_write_close();
-                
+
                 // Output the header.
                 $this->_outputHeader($filename, $fileExtension, $mimetype, $fileSize, $filepath);
-                
+
             } else {
                 return false;
             }
@@ -124,7 +124,7 @@ class Enclosure
             exit;
         }
     }
-    
+
     /** @internal */
     private function _outputHeader($filename, $fileExtension, $mimetype, $fileSize, $filepath)
     {

@@ -44,7 +44,7 @@ class FrontController
 
     /**
      * Constructor
-     * 
+     *
      * @param   \Dice\Dice $dice DICE dependency injection container.
      * @param   \Tfish\Session $session Instance of the Tuskfish session class.
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.

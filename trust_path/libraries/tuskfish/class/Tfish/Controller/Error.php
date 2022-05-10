@@ -6,7 +6,7 @@ namespace Tfish\Controller;
 
 /**
  * \Tfish\Controller\Error class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -35,7 +35,7 @@ class Error
 
     /**
      * Constructor
-     * 
+     *
      * @param   object $model Instance of a model class.
      * @param   object $viewModel Instance of a viewModel class.
      */
@@ -49,7 +49,7 @@ class Error
 
     /**
      * Display error message.
-     * 
+     *
      * @return  array Empty array (the output of this action is not cached).
      */
     public function display(): array

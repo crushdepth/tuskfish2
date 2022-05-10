@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 declare(strict_types=1);
 
@@ -6,7 +6,7 @@ namespace Tfish\Content\Entity;
 
 /**
  * \Tfish\Content\Entity\Content class file.
- * 
+ *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -20,7 +20,7 @@ namespace Tfish\Content\Entity;
  *
  * Content objects are the base data class for Tuskfish CMS. The 'type' property determines the template that
  * will be used to display the object, and some aspects of its behaviour.
- * 
+ *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -104,9 +104,9 @@ class Content
 
     /**
      * Load properties.
-     * 
+     *
      * Parameters are validated by the respective setters.
-     * 
+     *
      * @param   array $row Data to load into properties.
      * @param   bool $convertUrlToConstant Convert the TFISH_LINK constant to a URL and vice-versa
      * to aid portability.
@@ -144,12 +144,12 @@ class Content
         // Convert URLs back to TFISH_LINK for insertion or update, to aid portability.
         // Convert base url to TFISH_LINK (true) or TFISH_LINK to base url (false).
         if (isset($this->teaser) && !empty($row['teaser'])) {
-            $teaser = $this->convertBaseUrlToConstant($row['teaser'], $convertUrlToConstant);            
+            $teaser = $this->convertBaseUrlToConstant($row['teaser'], $convertUrlToConstant);
             $this->setTeaser($teaser);
         }
 
         if (isset($this->description) && !empty($row['description'])) {
-            $description = $this->convertBaseUrlToConstant($row['description'], $convertUrlToConstant);            
+            $description = $this->convertBaseUrlToConstant($row['description'], $convertUrlToConstant);
             $this->setDescription($description);
         }
     }
@@ -157,7 +157,7 @@ class Content
     /** Utilities */
     /**
      * Converts bytes to a human readable units (KB, MB, GB etc).
-     * 
+     *
      * @return string Bytes expressed as convenient human readable units.
      */
     public function bytesToHumanReadable()
@@ -186,11 +186,11 @@ class Content
 
     /**
      * Convert the site base URL to the TFISH_LINK constant and vice versa.
-     * 
+     *
      * This aids site portability. The URL is stored as a constant in the database,
      * but is converted to actual URL on display. If the domain changes at some point
      * all the references to TFISH_LINK will update automatically.
-     * 
+     *
      * @param   string $html HTML field to search and replace.
      * @param   bool $convertToConstant
      */
@@ -201,13 +201,13 @@ class Content
         } else {
                 $html = \str_replace('TFISH_LINK', TFISH_LINK, $html);
         }
-        
+
         return $html;
     }
 
     /**
      * Unset properties that are not stored in the database.
-     * 
+     *
      * @param   array $keyValues Content object as associative array.
      * @return  array Content object with non-persistent properties unset.
      */
@@ -217,26 +217,26 @@ class Content
             $keyValues['tags'],
             $keyValues['module']
             );
-    
+
         return $keyValues;
     }
 
     /**
      * Return a URL (permalink) to a content object.
-     * 
+     *
      * @param   string $customRoute Override to customise the URL.
      * @return  string $url.
      */
     public function url(string $customRoute = ''): string
     {
         $url = empty($customRoute) ? TFISH_PERMALINK_URL : TFISH_URL;
-        
+
         if (!empty($customRoute)) {
             $url .= $this->trimString($customRoute);
         }
 
         $url .= '?id=' . $this->id;
-        
+
         if (!empty($this->metaSeo)) {
             $url .= '&amp;title=' . $this->encodeQueryString($this->metaSeo);
         }
@@ -246,7 +246,7 @@ class Content
 
     /**
      * Url-encode the query string segment of a URL.
-     * 
+     *
      * @param   string $url Query string to encode.
      * @return  string Encoded URL.
      */
@@ -260,7 +260,7 @@ class Content
 
     /**
      * Return ID.
-     * 
+     *
      * @return int
      */
     public function id(): int
@@ -270,7 +270,7 @@ class Content
 
     /**
      * Set ID
-     * 
+     *
      * @param   int $id ID of content object.
      */
     public function setId(int $id)
@@ -284,7 +284,7 @@ class Content
 
     /**
      * Return title.
-     * 
+     *
      * @return string
      */
     public function title(): string
@@ -294,7 +294,7 @@ class Content
 
     /**
      * Set title
-     * 
+     *
      * @param   string $title Title of content object.
      */
     public function setTitle(string $title)
@@ -304,7 +304,7 @@ class Content
 
     /**
      * Return type of content object.
-     * 
+     *
      * @return string
      */
     public function type(): string
@@ -314,7 +314,7 @@ class Content
 
     /**
      * Set type.
-     * 
+     *
      * @param   string $type Type of content object.
      */
     public function setType(string $type)
@@ -330,9 +330,9 @@ class Content
 
     /**
      * Return teaser.
-     * 
+     *
      * This is a HTML field. It has been input-validated but should not be output escaped.
-     * 
+     *
      * @return string
      */
     public function teaser(): string
@@ -342,9 +342,9 @@ class Content
 
     /**
      * Return teaser with TFISH_LINK constant converted to URL.
-     * 
+     *
      * This is a HTML field. It has been input-validated but should not be output escaped.
-     * 
+     *
      * @return string
      */
     public function teaserForDisplay(): string
@@ -355,7 +355,7 @@ class Content
 
     /**
      * Set teaser.
-     * 
+     *
      * @param   string $teaser HTML teaser.
      */
     public function setTeaser(string $teaser)
@@ -365,9 +365,9 @@ class Content
 
     /**
      * Return description.
-     * 
+     *
      * This is a HTML field. It has been input-validated but should not be output escaped.
-     * 
+     *
      * @return string
      */
     public function description(): string
@@ -377,9 +377,9 @@ class Content
 
     /**
      * Return description with TFISH_LINK constant converted to URL.
-     * 
+     *
      * This is a HTML field. It has been input-validated but should not be output escaped.
-     * 
+     *
      * @return string
      */
     public function descriptionForDisplay(): string
@@ -390,7 +390,7 @@ class Content
 
     /**
      * Set description.
-     * 
+     *
      * @param   string $description HTML description.
      */
     public function setDescription(string $description)
@@ -400,7 +400,7 @@ class Content
 
     /**
      * Return creator.
-     * 
+     *
      * @return string
      */
     public function creator(): string
@@ -410,7 +410,7 @@ class Content
 
     /**
      * Set creator.
-     * 
+     *
      * @param   string $creator Author of this content.
      */
     public function setCreator(string $creator)
@@ -420,7 +420,7 @@ class Content
 
     /**
      * Return media file name.
-     * 
+     *
      * @return string
      */
     public function media(): string
@@ -430,7 +430,7 @@ class Content
 
     /**
      * Set media file name.
-     * 
+     *
      * @param   string $filename Media file name.
      */
     public function setMedia(string $filename)
@@ -463,7 +463,7 @@ class Content
 
     /**
      * Return file extension.
-     * 
+     *
      * @return string
      */
     public function extension(): string
@@ -473,7 +473,7 @@ class Content
 
     /**
      * Return format (mimetype).
-     * 
+     *
      * @return string
      */
     public function format(): string
@@ -483,7 +483,7 @@ class Content
 
     /**
      * Set format.
-     * 
+     *
      * @param   string $format Mimetype of media attachment.
      */
     public function setFormat(string $format)
@@ -494,13 +494,13 @@ class Content
         if (!empty($format) && !\in_array($format, $whitelist, true)) {
             \trigger_error(TFISH_ERROR_ILLEGAL_MIMETYPE, E_USER_ERROR);
         }
-        
+
         $this->format = $format;
     }
 
     /**
      * Return the raw file size (bytes) of media attachment.
-     * 
+     *
      * @return int
      */
     public function fileSize(): int
@@ -510,7 +510,7 @@ class Content
 
     /**
      * Return file size of media attachment, formatted for display (bytes / KB / MB / GB etc).
-     * 
+     *
      * @return string
      */
     public function fileSizeForDisplay(): string
@@ -520,7 +520,7 @@ class Content
 
     /**
      * Set file size of media attachment.
-     * 
+     *
      * @param   int $fileSize File size in bytes.
      */
     public function setFileSize(int $fileSize)
@@ -553,7 +553,7 @@ class Content
 
     /**
      * Return image name.
-     * 
+     *
      * @return string
      */
     public function image(): string
@@ -563,32 +563,32 @@ class Content
 
     /**
      * Set image.
-     * 
+     *
      * @param   string $filename Name of image file.
      */
     public function setImage(string $filename)
     {
         $filename = $this->trimString($filename);
-        
+
         if ($this->hasTraversalorNullByte($filename)) {
             \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
             exit; // Hard stop due to high probability of abuse.
         }
-        
+
         $whitelist = $this->listImageMimetypes();
         $extension = \mb_strtolower(pathinfo($filename, PATHINFO_EXTENSION), 'UTF-8');
-        
+
         if (!empty($extension) && !\array_key_exists($extension, $whitelist)) {
             $this->image = '';
             \trigger_error(TFISH_ERROR_ILLEGAL_MIMETYPE, E_USER_ERROR);
         } else {
             $this->image = $filename;
-        }  
+        }
     }
 
     /**
      * Return caption of image.
-     * 
+     *
      * @return string
      */
     public function caption(): string
@@ -598,7 +598,7 @@ class Content
 
     /**
      * Set caption.
-     * 
+     *
      * @param   string $caption Caption to image file.
      */
     public function setCaption(string $caption)
@@ -608,7 +608,7 @@ class Content
 
     /**
      * Return date as a DateTime object that can be manipulated.
-     * 
+     *
      * @return string
      */
     public function date(): \DateTime
@@ -618,11 +618,11 @@ class Content
 
     /**
      * Set date.
-     * 
+     *
      * @param   string $date
      */
     public function setDate(string $date)
-    {        
+    {
         $date = $this->trimString($date);
         $checkDate = \date_parse_from_format('Y-m-d', $date);
 
@@ -630,13 +630,13 @@ class Content
             $date = \date(DATE_RSS, \time());
             \trigger_error(TFISH_ERROR_BAD_DATE_DEFAULTING_TO_TODAY, E_USER_WARNING);
         }
-        
+
         $this->date = $date;
     }
 
     /**
      * Return meta information about content object.
-     * 
+     *
      * @return string
      */
     public function info(): string
@@ -662,7 +662,7 @@ class Content
 
     /**
      * Return submission time.
-     * 
+     *
      * @return int Timestamp.
      */
     public function submissionTime(): int
@@ -672,13 +672,13 @@ class Content
 
     /**
      * Set submission time.
-     * 
+     *
      * @param   int $timestamp
      */
     public function setSubmissionTime(int $timestamp)
     {
         if ($timestamp < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR); 
+            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
         }
 
         $this->submissionTime = $timestamp;
@@ -686,7 +686,7 @@ class Content
 
     /**
      * Return last modification time.
-     * 
+     *
      * @return int $timestamp
      */
     public function lastUpdated(): int
@@ -696,7 +696,7 @@ class Content
 
     /**
      * Set last updated time.
-     * 
+     *
      * @param   int $timestamp
      */
     public function setLastUpdated(int $timestamp)
@@ -710,9 +710,9 @@ class Content
 
     /**
      * Return expiry date.
-     * 
+     *
      * Expiry date is not yet implemented.
-     * 
+     *
      * @return int $timestamp
      */
     public function expiresOn(): int
@@ -722,7 +722,7 @@ class Content
 
     /**
      * Set expiry time.
-     * 
+     *
      * @param   int $timestamp
      */
     public function setExpiresOn(int $timestamp)
@@ -730,15 +730,15 @@ class Content
         if ($timestamp < 0) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
         }
-        
+
         $this->expiresOn = $timestamp;
     }
 
     /**
      * Return view/download counter.
-     * 
+     *
      * The counter tracks downloads for download content types, and views for everything else.
-     * 
+     *
      * @return int
      */
     public function counter(): int
@@ -748,7 +748,7 @@ class Content
 
     /**
      * Set view/download counter.
-     * 
+     *
      * @param   int $counter
      */
     public function setCounter(int $counter)
@@ -771,7 +771,7 @@ class Content
 
     /**
      * Return online status.
-     * 
+     *
      * @return int 0 if offline, 1 if online.
      */
     public function onlineStatus(): int
@@ -781,7 +781,7 @@ class Content
 
     /**
      * Set online status.
-     * 
+     *
      * @param   int $status 0 for offline, 1 for online.
      */
     public function setOnlineStatus(int $status)
@@ -795,7 +795,7 @@ class Content
 
     /**
      * Return parent ID.
-     * 
+     *
      * @return int ID of parent collection object.
      */
     public function parent(): int
@@ -805,7 +805,7 @@ class Content
 
     /**
      * Set parent.
-     * 
+     *
      * @param   int $parent ID of parent collection.
      */
     public function setParent(int $parent)
@@ -823,7 +823,7 @@ class Content
 
     /**
      * Return language.
-     * 
+     *
      * @return string Two-letter ISO language code.
      */
     public function language(): string
@@ -833,7 +833,7 @@ class Content
 
     /**
      * Set language.
-     * 
+     *
      * @param   string $language Two-letter ISO language code.
      */
     public function setLanguage(string $language)
@@ -847,9 +847,9 @@ class Content
 
     /**
      * Return rights.
-     * 
+     *
      * Rights is an index to a license found in listRights();
-     * 
+     *
      * @return int
      */
     public function rights(): int
@@ -859,9 +859,9 @@ class Content
 
     /**
      * Set rights.
-     * 
+     *
      * Index to license stored in listRights().
-     * 
+     *
      * @param   int $rights
      */
     public function setRights(int $rights)
@@ -875,7 +875,7 @@ class Content
 
     /**
      * Return publisher.
-     * 
+     *
      * @return string
      */
     public function publisher(): string
@@ -885,7 +885,7 @@ class Content
 
     /**
      * Set publisher.
-     * 
+     *
      * @param   string $publisher The publisher of this content.
      */
     public function setPublisher(string $publisher)
@@ -922,9 +922,9 @@ class Content
 
     /**
      * Return module.
-     * 
+     *
      * Deprecated.
-     * 
+     *
      * @return string
      */
     public function module(): string
@@ -934,9 +934,9 @@ class Content
 
     /**
      * Set module.
-     * 
+     *
      * Deprecated, will be removed.
-     * 
+     *
      * @param   string $module Name of module.
      */
     public function setModule(string $module)

@@ -4,7 +4,7 @@ namespace Yubico;
 
   /**
    * Class for verifying Yubico One-Time-Passcodes.
-   * 
+   *
    * Version 2.6 released 2019-01-21
    *
    * @category    Auth
@@ -158,11 +158,11 @@ class Auth_Yubico
 	 *
 	 * @access public
 	 */
-	function addURLpart($URLpart) 
+	function addURLpart($URLpart)
 	{
 	  $this->_url_list[]=$URLpart;
 	}
-	
+
 	/**
 	 * Return the last query sent to the server, if any.
 	 *
@@ -270,7 +270,7 @@ class Auth_Yubico
 	  if (!$ret) {
 	    return \PEAR::raiseError('Could not parse Yubikey OTP');
 	  }
-	  $params = ['id'=>$this->_id, 
+	  $params = ['id'=>$this->_id,
 			  'otp'=>$ret['otp'],
 			  'nonce'=>md5(uniqid(rand()))];
 	  /* Take care of protocol version 2 parameters */
@@ -281,7 +281,7 @@ class Auth_Yubico
 	  $parameters = '';
 	  foreach($params as $p=>$v) $parameters .= "&" . $p . "=" . $v;
 	  $parameters = ltrim($parameters, "&");
-	  
+
 	  /* Generate signature. */
 	  if($this->_key <> "") {
 	    $signature = base64_encode(hash_hmac('sha1', $parameters,
@@ -295,13 +295,13 @@ class Auth_Yubico
 	  $this->URLreset();
 	  $mh = curl_multi_init();
 	  $ch = [];
-	  while($URLpart=$this->getNextURLpart()) 
+	  while($URLpart=$this->getNextURLpart())
 	    {
 	      $query = $URLpart . "?" . $parameters;
 
 	      if ($this->_lastquery) { $this->_lastquery .= " "; }
 	      $this->_lastquery .= $query;
-	      
+
 	      $handle = curl_init($query);
 	      curl_setopt($handle, CURLOPT_USERAGENT, "PEAR Auth_Yubico");
 	      curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
@@ -311,11 +311,11 @@ class Auth_Yubico
 	      }
 	      curl_setopt($handle, CURLOPT_FAILONERROR, true);
 	      /* If timeout is set, we better apply it here as well
-	         in case the validation server fails to follow it. 
-	      */ 
+	         in case the validation server fails to follow it.
+	      */
 	      if ($timeout) curl_setopt($handle, CURLOPT_TIMEOUT, $timeout);
 	      curl_multi_add_handle($mh, $handle);
-	      
+
 	      $ch[(int)$handle] = $handle;
 	    }
 
@@ -336,7 +336,7 @@ class Auth_Yubico
 
 		$str = curl_multi_getcontent($info['handle']);
 		$cinfo = curl_getinfo ($info['handle']);
-		
+
 		if ($wait_for_all) { # Better debug info
 		  $this->_response .= 'URL=' . $cinfo['url'] ."\n"
 		    . $str . "\n";
@@ -345,7 +345,7 @@ class Auth_Yubico
 		if (preg_match("/status=([a-zA-Z0-9_]+)/", $str, $out)) {
 		  $status = $out[1];
 
-		  /* 
+		  /*
 		   * There are 3 cases.
 		   *
 		   * 1. OTP or Nonce values doesn't match - ignore
@@ -360,7 +360,7 @@ class Auth_Yubico
 		  if (!preg_match("/otp=".$params['otp']."/", $str) ||
 		      !preg_match("/nonce=".$params['nonce']."/", $str)) {
 		    /* Case 1. Ignore response. */
-		  } 
+		  }
 		  elseif ($this->_key <> "") {
 		    /* Case 2. Verify signature first */
 		    $rows = explode("\r\n", trim($str));
@@ -371,7 +371,7 @@ class Auth_Yubico
 		      $row = explode("#", $val);
 		      $response[$row[0]] = $row[1];
 		    }
-		    
+
 		    $parameters=['nonce','otp', 'sessioncounter', 'sessionuse', 'sl', 'status', 't', 'timeout', 'timestamp'];
 		    sort($parameters);
 		    $check=Null;
@@ -390,7 +390,7 @@ class Auth_Yubico
 		      if ($status == 'REPLAYED_OTP') {
 			if (!$wait_for_all) { $this->_response = $str; }
 			$replay=True;
-		      } 
+		      }
 		      if ($status == 'OK') {
 			if (!$wait_for_all) { $this->_response = $str; }
 			$valid=True;
@@ -401,14 +401,14 @@ class Auth_Yubico
 		    if ($status == 'REPLAYED_OTP') {
 		      if (!$wait_for_all) { $this->_response = $str; }
 		      $replay=True;
-		    } 
+		    }
 		    if ($status == 'OK') {
 		      if (!$wait_for_all) { $this->_response = $str; }
 		      $valid=True;
 		    }
 		  }
 		}
-		if (!$wait_for_all && ($valid || $replay)) 
+		if (!$wait_for_all && ($valid || $replay))
 		  {
 		    /* We have status=OK or status=REPLAYED_OTP, return. */
 		    foreach ($ch as $h) {
@@ -420,7 +420,7 @@ class Auth_Yubico
 		    if ($valid) return true;
 		    return \PEAR::raiseError($status);
 		  }
-		
+
 		curl_multi_remove_handle($mh, $info['handle']);
 		curl_close($info['handle']);
 		unset ($ch[(int)$info['handle']]);
@@ -439,7 +439,7 @@ class Auth_Yubico
 	    curl_close ($h);
 	  }
 	  curl_multi_close ($mh);
-	  
+
 	  if ($replay) return \PEAR::raiseError('REPLAYED_OTP');
 	  if ($valid) return true;
 	  return \PEAR::raiseError('NO_VALID_ANSWER');
