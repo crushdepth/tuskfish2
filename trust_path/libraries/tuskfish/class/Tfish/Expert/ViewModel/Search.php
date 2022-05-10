@@ -116,7 +116,7 @@ class Search implements \Tfish\ViewModel\Listable
     public function activeTagOptions(string $zeroOption = TFISH_SELECT_TAGS): array
     {
         $zeroOption = $this->trimString($zeroOption);
-        $rows = $this->model->activeTagOptions('experts');
+        $rows = $this->model->activeTagOptions('expert');
 
         return $this->selectBoxOptions($zeroOption, $rows);
     }
