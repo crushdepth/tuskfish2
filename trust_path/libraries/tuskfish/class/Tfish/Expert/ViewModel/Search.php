@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\Expert\ViewModel;
 
 /**
- * \Tfish\Expert\ViewModelModel\Search class file.
+ * \Tfish\Expert\ViewModel\Model\Search class file.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -34,7 +34,6 @@ namespace Tfish\Expert\ViewModel;
  * @var         array $searchTerms Search terms entered by user.
  * @var         array $escapedSearchTerms Search terms entered by user XSS-escaped for display.
  * @var         int $start Position in result set to retrieve objects from.
- * @var         int $limit Number of search results to actually retrieve for display on this page view.
  * @var         int $tag Tag ID (not in use).
  * @var         int $onlineStatus Display online content only (1).
  */
@@ -51,12 +50,12 @@ class Search implements \Tfish\ViewModel\Listable
     private $contentCount = 0;
 
     private $action = '';
+    private $alpha = '';
     private $searchTerms = [];
     private $escapedSearchTerms = [];
     private $start = 0;
-    private $limit = 0;
     private $tag = 0;
-    private $onlineStatus = 1;
+    private $onlineStatus = 1; // Lock to online only.
 
     /**
      * Constructor.
@@ -69,7 +68,7 @@ class Search implements \Tfish\ViewModel\Listable
         $this->pageTitle = TFISH_EXPERTS;
         $this->model = $model;
         $this->preference = $preference;
-        $this->template = 'experts';
+        $this->template = 'expertListView';
         $this->theme = 'default';
         $this->sort = 'date';
         $this->order = 'DESC';
@@ -79,12 +78,26 @@ class Search implements \Tfish\ViewModel\Listable
         $this->setMetadata([]);
     }
 
-    /** Actions. */
+    /** Actions. **/
 
     /**
      * Display the search form.
      */
     public function displayForm() {}
+
+    public function searchAlpha()
+    {
+        $this->action = 'name';
+        $searchResults = $this->model->searchAlphabetically([
+            'alpha' => $this->alpha,
+            'onlineStatus' => $this->onlineStatus,
+            'start' => $this->start,
+            'limit' => $this->limit(),
+        ]);
+
+        $this->contentCount = (int) \array_shift($searchResults);
+        $this->searchResults = $searchResults;
+    }
 
     /**
      * Search.
@@ -98,11 +111,10 @@ class Search implements \Tfish\ViewModel\Listable
             'escapedSearchTerms' => $this->escapedSearchTerms,
             'start' => $this->start,
             'limit' => $this->limit(),
-            'onlineStatus' => $this->onlineStatus
         ]);
 
         $this->contentCount = (int) \array_shift($searchResults);
-        $this->searchResults =  $searchResults;
+        $this->searchResults = $searchResults;
     }
 
     /** Utilities. */
@@ -132,6 +144,33 @@ class Search implements \Tfish\ViewModel\Listable
     }
 
     /** Getters and setters. */
+
+    /**
+     * Return alphabetical filter criteria.
+     *
+     * @return string
+     */
+    public function alpha(): string
+    {
+        return $this->alpha;
+    }
+
+    /**
+     * Set alphabetical filter criteria.
+     *
+     * @param string $letter
+     * @return void
+     */
+    public function setAlpha(string $letter)
+    {
+        $letter = $this->trimString($letter);
+
+        if (!$this->isAlpha($letter) || \mb_strlen($letter, 'UTF-8') > 1) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        }
+
+        $this->alpha = $letter;
+    }
 
     /**
      * Return content count.
@@ -183,20 +222,6 @@ class Search implements \Tfish\ViewModel\Listable
     public function action(): string
     {
         return $this->action;
-    }
-
-    /**
-     * Set action.
-     *
-     * @param   string $action Action is embedded in the form, to control handling on submission (next page load)
-     */
-    public function setAction(string $action)
-    {
-        if (!$this->isAlpha($action)) {
-            \trigger_error(TFISH_ERROR_BAD_ACTION, E_USER_NOTICE);
-        }
-
-        $this->action = $this->trimString($action);
     }
 
     /**

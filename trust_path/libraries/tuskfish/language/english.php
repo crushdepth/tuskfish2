@@ -297,6 +297,7 @@ namespace Tfish;
 \define("TFISH_EXPERTS_PROJECTS", "Projects");
 \define("TFISH_EXPERTS_PUBLICATIONS", "Publications");
 \define("TFISH_EXPERTS_ADDRESS", "Address");
+\define("TFISH_EXPERTS_BROWSE", "Browse our directory of aquaculture experts by lastname, subject area or free text search");
 \define("TFISH_EXPERTS_OR_ENTER_SEARCH_TERMS", "...or enter search terms");
 \define("TFISH_EXPERTS_NO_EXPERTS_MATCH_YOUR_CRITERIA", "No experts matched these criteria.");
 \define("TFISH_EXPERTS_SELECT_STATE", "- Select state -");

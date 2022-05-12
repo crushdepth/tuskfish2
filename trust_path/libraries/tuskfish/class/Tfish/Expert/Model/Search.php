@@ -74,6 +74,84 @@ class Search
         return $this->searchContent($cleanParams);
     }
 
+    /**
+     * Search database by lastname.
+     *
+     * @param array $params
+     * @return array
+     */
+    public function searchAlphabetically(array $params): array
+    {
+        $cleanParams = $this->validateParams($params);
+
+        return $this->searchAlpha($cleanParams);
+    }
+
+    /**
+     * Search experts alphabetically.
+     *
+     * The first element of the returned results is a count of the total number of objects matching the
+     * search criteria. This is a bit of a hack that should probably be done away with in due course.
+     *
+     * @param   array $params Search criteria.
+     * @return  array Array of content objects matching search criteria, with content count as first element.
+     */
+    private function searchAlpha(array $params): array
+    {
+        $sql = $count = '';
+        $result = [];
+
+        $sqlCount = "SELECT count(*) ";
+        $sqlSearch = "SELECT * ";
+        $sql = "FROM `expert` WHERE (`lastName` LIKE :lastName AND `onlineStatus` = :onlineStatus)  ";
+        $sql .= "ORDER BY `lastName` ASC, `firstName` ASC ";
+        $sqlCount .= $sql;
+
+        // Bind the search term values and execute the statement.
+        $statement = $this->database->preparedStatement($sqlCount);
+
+        if ($statement) {
+            $statement->bindValue(':lastName', $params['alpha'] . "%", \PDO::PARAM_STR);
+            $statement->bindValue(":onlineStatus", $params['onlineStatus'], \PDO::PARAM_INT);
+        } else {
+            return false;
+        }
+
+        $statement->execute();
+        $row = $statement->fetch(\PDO::FETCH_NUM);
+        $result[0] = reset($row);
+        unset($statement, $row);
+
+        // Retrieve the subset of objects actually required.
+        if (!empty($params['limit'])) {
+            $sql .= "LIMIT :limit ";
+        }
+
+        if (!empty($params['start'])) {
+            $sql .= "OFFSET :offset ";
+        }
+
+        $sqlSearch .= $sql;
+        $statement = $this->database->preparedStatement($sqlSearch);
+
+        if ($statement) {
+            $statement->bindValue(':lastName', $params['alpha'] . "%", \PDO::PARAM_STR);
+            $statement->bindValue(":onlineStatus", $params['onlineStatus'], \PDO::PARAM_INT);
+            $statement->bindValue(":limit", (int) $params['limit'], \PDO::PARAM_INT);
+
+            if ($params['start']) {
+                $statement->bindValue(":offset", $params['start'], \PDO::PARAM_INT);
+            }
+        } else {
+            return false;
+        }
+
+        $statement->execute();
+        $rows = $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Expert\Entity\Expert');
+
+        return $result + $rows;
+    }
+
     /** Utilities. */
 
     /**
@@ -237,7 +315,13 @@ class Search
     {
         $cleanParams = [];
 
-        if (\is_array($params['searchTerms'])) {
+        $alpha = $this->trimString($params['alpha'] ?? '');
+
+        if (!empty($alpha) && $this->isAlpha($alpha) && \mb_strlen($params['alpha'], 'UTF-8') === 1) {
+                $cleanParams['alpha'] = $alpha;
+        }
+
+        if (!empty($params['searchTerms']) && \is_array($params['searchTerms'])) {
 
             $cleanParams['searchTerms'] = [];
 
@@ -246,7 +330,7 @@ class Search
             }
         }
 
-        if (\is_array($params['escapedSearchTerms'])) {
+        if (!empty($params['escapedSearchTerms']) && \is_array($params['escapedSearchTerms'])) {
 
             $cleanParams['escapedSearchTerms'] = [];
 

@@ -60,6 +60,23 @@ class Search
         return [];
     }
 
+    public function name(): array
+    {
+        $start = (int) ($_GET['start'] ?? 0);
+        $this->viewModel->setStart($start);
+
+        // Browse directory by lastname.
+        $alpha = $this->trimString($_GET['alpha'] ?? '');
+
+        if (!empty($alpha)) {
+            $this->viewModel->setAlpha($alpha);
+        }
+
+        $this->viewModel->searchAlpha();
+
+        return [];
+    }
+
     /**
      * Search and display results.
      *
@@ -67,11 +84,23 @@ class Search
      */
     public function search(): array
     {
+        // Need to handle:
+        // alpha
+        // country and tag (simultaneous filters)
+        // free text search
+
+        // Pagination.
         $start = (int) ($_GET['start'] ?? 0);
         $this->viewModel->setStart($start);
 
-        $action = $this->trimString($_REQUEST['action'] ?? '');
-        $this->viewModel->setAction($action);
+        // Browser directory by lastname.
+        $alpha = $this->trimString($_GET['alpha'] ?? '');
+
+        if (!empty($alpha)) {
+            $this->viewModel->setAlpha($alpha);
+            $this->viewModel->searchAlpha();
+            return [];
+        }
 
         // Search terms passed in from a pagination control link have been i) encoded and ii) escaped.
         // Search terms entered directly into the search form can be used directly.
@@ -87,7 +116,7 @@ class Search
 
         $this->viewModel->setSearchTerms($cleanTerms);
         $this->viewModel->setAction('search');
-        $this->viewModel->search();
+        //$this->viewModel->search();
 
         return [];
     }
