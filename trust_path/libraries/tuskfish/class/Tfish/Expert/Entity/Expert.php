@@ -148,33 +148,34 @@ class Expert
     }
 
     /**
-     * Return the full contact details for this expert XSS escaped for display.
+     * Return the full contact details for this expert.
      *
-     * Includes address, phone, fax and email.
+     * Includes address, phone, fax and email. To render it properly for display, pass the
+     * output through xss() as per usual but wrap that output in \nl2br(). eg:
+     *
+     * <p><?php echo \nl2br(xss($expert->contactDetailsForDisplay())); ?></p>
      *
      * @return string Contact details.
      */
-    public function contactDetails()
+    public function contactDetailsForDisplay()
     {
-        $contactDetails = array();
+        $contactDetails = '';
 
         if ($this->address) {
-            $contactDetails[] = nl2br($this->address);
+            $contactDetails .= $this->address;
         }
 
         if ($this->mobile) {
-            $contactDetails[] = TFISH_EXPERTS_MOBILE . ': ' . $this->mobile; 
+            $contactDetails .= "\n" . TFISH_EXPERTS_MOBILE . ': ' . $this->mobile;
         }
 
         if ($this->fax) {
-            $contactDetails[] = TFISH_EXPERTS_FAX . ': ' . $this->fax;
+            $contactDetails .= "\n" . TFISH_EXPERTS_FAX . ': ' . $this->fax;
         }
 
         if ($this->email) {
-            $contactDetails[] = TFISH_EXPERTS_EMAIL . ': ' . $this->email;
+            $contactDetails .= "\n" . TFISH_EXPERTS_EMAIL . ': ' . $this->email;
         }
-
-        $contactDetails = implode('<br>', $contactDetails);
 
         return $contactDetails;
     }

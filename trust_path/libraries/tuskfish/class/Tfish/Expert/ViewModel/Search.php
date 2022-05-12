@@ -46,15 +46,18 @@ class Search implements \Tfish\ViewModel\Listable
 
     private $model;
     private $preference;
+    private $expert = '';
     private $searchResults = [];
     private $contentCount = 0;
 
     private $action = '';
+    private $id = 0;
     private $alpha = '';
     private $searchTerms = [];
     private $escapedSearchTerms = [];
     private $start = 0;
     private $tag = 0;
+    private $country = 0;
     private $onlineStatus = 1; // Lock to online only.
 
     /**
@@ -85,6 +88,26 @@ class Search implements \Tfish\ViewModel\Listable
      */
     public function displayForm() {}
 
+    /**
+     * Display a single expert object.
+     */
+    public function displayObject()
+    {
+        $this->expert = $this->model->getObject($this->id);
+
+        if ($this->expert) {
+            $this->pageTitle = $this->expert->metaTitle();
+            $this->description = $this->expert->metaDescription();
+            $this->template = 'expert';
+            $this->setMetadata();
+        } else {
+            $this->pageTitle = TFISH_ERROR;
+            $this->response = TFISH_ERROR_NO_SUCH_EXPERT;
+            $this->backUrl = TFISH_URL;
+            $this->template = 'response';
+        }
+    }
+
     public function searchAlpha()
     {
         $this->action = 'name';
@@ -95,7 +118,7 @@ class Search implements \Tfish\ViewModel\Listable
             'limit' => $this->limit(),
         ]);
 
-        $this->contentCount = (int) \array_shift($searchResults);
+        $this->expertCount = (int) \array_shift($searchResults);
         $this->searchResults = $searchResults;
     }
 
@@ -113,7 +136,7 @@ class Search implements \Tfish\ViewModel\Listable
             'limit' => $this->limit(),
         ]);
 
-        $this->contentCount = (int) \array_shift($searchResults);
+        $this->expertCount = (int) \array_shift($searchResults);
         $this->searchResults = $searchResults;
     }
 
@@ -180,6 +203,32 @@ class Search implements \Tfish\ViewModel\Listable
     public function contentCount(): int
     {
         return $this->contentCount;
+    }
+
+    public function expert(): \Tfish\Expert\Entity\Expert
+    {
+        return $this->expert;
+    }
+
+    /**
+     * Returns the expert ID query parameter.
+     *
+     * @return integer
+     */
+    public function id(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set the expert ID of the query parameter.
+     *
+     * @param integer $id
+     * @return void
+     */
+    public function setId(int $id)
+    {
+        $this->id = (int) $id;
     }
 
     /**
@@ -342,5 +391,53 @@ class Search implements \Tfish\ViewModel\Listable
     public function setTag(int $tag)
     {
         $this->tag = $tag;
+    }
+
+    /**
+     * Return canonical URL for this page view.
+     *
+     * Used to populate the canonical link tag in theme files.
+     *
+     * @return  string
+     */
+    public function canonicalUrl(): string
+    {
+        $canonicalUrl = TFISH_EXPERTS_URL;
+
+        if ($this->id) return $canonicalUrl . '?id=' . $this->id;
+
+        if ($this->start || $this->tag || $this->country) $canonicalUrl .= '?';
+
+        $setParams = [];
+
+        foreach (['start', 'tag', 'country'] as $param) {
+            if (!empty($this->$param)) {
+                $setParams[$param] = $param . '=' . $this->param;
+            }
+        }
+
+        $queryString = '?' . \implode('&amp;', $setParams);
+        $canonicalUrl .= $queryString;
+
+        return $canonicalUrl;
+    }
+
+    /**
+     * Set page-specific overrides of the site metadata.
+     *
+     * Overrides generic site metadata.
+     *
+     * @param   array $metadata Metadata overrides as key-value pairs.
+     */
+    public function setMetadata(array $metadata = [])
+    {
+        if (!empty($this->pageTitle)) $metadata['title'] = $this->pageTitle;
+        if (!empty($this->description)) $metadata['description'] = $this->description;
+        if (!empty($this->author)) $metadata['author'] = $this->author;
+        if (!empty($this->robots)) $metadata['robots'] = $this->robots;
+
+        $metadata['canonicalUrl'] = $this->canonicalUrl();
+
+        $this->metadata = $metadata;
     }
 }

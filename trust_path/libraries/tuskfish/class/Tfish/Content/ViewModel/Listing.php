@@ -477,7 +477,7 @@ class Listing implements \Tfish\ViewModel\Listable
     /**
      * Set page-specific overrides of the site metadata.
      *
-     * Overrides trait setMetadata().
+     * Overrides trait Metadata.
      *
      * @param   array $metadata Metadata overrides as key-value pairs.
      */

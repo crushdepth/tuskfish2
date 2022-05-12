@@ -28,6 +28,7 @@ namespace Tfish\Expert\Model;
  * @var         \Tfish\Database $database Instance of the Tuskfish database class.
  * @var         \Tfish\CriteriaFactory $criteriaFactory A factory class that returns instances of Criteria and CriteriaItem.
  * @var         \Tfish\Entity\Preference Instance of the Tfish site preferences class.
+ * @var         \Tfish\Session $session Instance of the Tuskfish session manager class.
  * @var         int $onlineStatus Switch to filter online/offline content.
  */
 
@@ -40,6 +41,7 @@ class Search
     private $criteriaFactory;
     private $preference;
     private $onlineStatus;
+    private $session;
 
     /**
      * Constructor.
@@ -47,16 +49,19 @@ class Search
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.
      * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish site preferences class.
+     * @param   \Tfish\Session $session Instance of the Tuskfish session manager class.
      */
     public function __construct(
         \Tfish\Database $database,
         \Tfish\CriteriaFactory $criteriaFactory,
-        \Tfish\Entity\Preference $preference
+        \Tfish\Entity\Preference $preference,
+        \Tfish\Session $session
         )
     {
         $this->database = $database;
         $this->criteriaFactory = $criteriaFactory;
         $this->preference = $preference;
+        $this->session = $session;
         $this->onlineStatus = 1; // Default to online content only.
     }
 
@@ -152,12 +157,45 @@ class Search
         return $result + $rows;
     }
 
+    /**
+     * Get a single expert object.
+     *
+     * @param   int $id ID of the expert object to retrieve.
+     * @return  Mixed \Tfish\Expert\Entity\Expert on success, false on failure.
+     */
+    public function getObject(int $id)
+    {
+        $params = [];
+
+        $id = (int) $id;
+
+        if ($id < 1) {
+            return false;
+        }
+
+        $params['id'] = $id;
+
+        if (!$this->session->isAdmin()) { // NOT admin.
+            $params['onlineStatus'] = 1;
+        }
+
+        $cleanParams = $this->validateParams($params);
+        $criteria = $this->setCriteria($cleanParams);
+        $statement = $this->database->select('expert', $criteria);
+
+        $expert = $statement->fetchObject('\Tfish\Expert\Entity\Expert');
+
+        $statement->closeCursor();
+
+        return $expert;
+    }
+
     /** Utilities. */
 
     /**
      * Return onlineStatus.
      *
-     * @return  int Retrieve all content (0) or only online content (1).
+     * @return  int Retrieve all experts (0) or only online experts (1).
      */
     public function onlineStatus(): int
     {
@@ -167,7 +205,7 @@ class Search
     /**
      * Set onlineStatus.
      *
-     * @param   int $onlineStatus Retrieve all content (0) or only online content (1).
+     * @param   int $onlineStatus Retrieve all experts (0) or only online experts (1).
      */
     public function setOnlineStatus(int $onlineStatus)
     {
@@ -303,6 +341,51 @@ class Search
         \array_unshift($result, $contentCount);
 
         return $result;
+    }
+
+    /**
+     * Set filter criteria for listing content.
+     *
+     * @param   array $params Filter criteria.
+     * @return   \Tfish\Criteria Query composer.
+     */
+    private function setCriteria(array $cleanParams): \Tfish\Criteria
+    {
+        $criteria = $this->criteriaFactory->criteria();
+
+        if (isset($cleanParams['onlineStatus']))
+            $criteria->add($this->criteriaFactory->item('onlineStatus', $cleanParams['onlineStatus']));
+
+        if (!empty($cleanParams['id'])) {
+            $criteria->add($this->criteriaFactory->item('id', $cleanParams['id']));
+
+            return $criteria;
+        }
+
+        if (!empty($cleanParams['tag']))
+            $criteria->setTag([$cleanParams['tag']]);
+
+        if (!empty($cleanParams['country']))
+            $criteria->setTag([$cleanParams['country']]);
+
+        if (!empty($cleanParams['start']))
+            $criteria->setOffset($cleanParams['start']);
+
+        if (!empty($cleanParams['sort'])) {
+            $criteria->setSort($cleanParams['sort']);
+            $criteria->setOrder($cleanParams['order']);
+        }
+
+        if (!empty($cleanParams['secondarySort'])) {
+            $criteria->setSecondarySort($cleanParams['secondarySort']);
+            $criteria->setSecondaryOrder($cleanParams['secondaryOrder']);
+        }
+
+        if (!empty($cleanParams['limit'])) {
+            $criteria->setLimit($cleanParams['limit']);
+        }
+
+        return $criteria;
     }
 
     /**

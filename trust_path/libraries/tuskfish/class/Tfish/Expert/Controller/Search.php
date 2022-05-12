@@ -55,9 +55,19 @@ class Search
      */
     public function display(): array
     {
-        $this->viewModel->displayForm();
+        $cacheParams = ['page' => 'experts'];
 
-        return [];
+        $id = (int) ($_GET['id'] ?? 0);
+
+        if ($id > 0) {
+            $cacheParams['id'] = $id;
+            $this->viewModel->setId($id);
+            $this->viewModel->displayObject();
+        } else {
+            $this->viewModel->displayForm();
+        }
+
+        return $cacheParams;
     }
 
     public function name(): array
