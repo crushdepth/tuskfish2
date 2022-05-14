@@ -356,6 +356,10 @@ class Search implements \Tfish\ViewModel\Listable
             $extraParams['action'] = $this->action();
         }
 
+        if (!empty($this->alpha)) {
+            $extraParams['alpha'] = $this->alpha();
+        }
+
         if (!empty($this->searchTerms())) {
             $extraParams['searchTerms'] = \implode(" ", $this->searchTerms());
         }

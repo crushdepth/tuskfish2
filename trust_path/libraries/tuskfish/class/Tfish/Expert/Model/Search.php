@@ -155,7 +155,7 @@ class Search
         $statement->execute();
         $rows = $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Expert\Entity\Expert');
 
-        return $result + $rows;
+        return \array_merge($result, $rows);
     }
 
     /**
