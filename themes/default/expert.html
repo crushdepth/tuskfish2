@@ -7,6 +7,16 @@
 
       <!-- Display a single expert object -->
       <?php if ($expert = $viewModel->expert()): ?>
+      <?php $expertTags = $viewModel->expertTags(); ?>
+
+      <!-- Image -->
+      <?php if ($expert->image()): ?>
+      <div class="float-end figure-right">
+        <figure>
+            <img class="image img-fluid" src="<?php echo $expert->cachedImage(200); ?>" alt="<?php echo xss($expert->nameAndJob()); ?>" />
+        </figure>
+      </div>
+      <?php endif; ?>
 
       <!-- Title and meta information -->
       <div>
@@ -14,29 +24,19 @@
         <?php if ($expert->businessUnit() || $expert->organisation()): ?>
         <p><b><?php echo xss($expert->affiliation()); ?></b></p>
         <?php endif; ?>
-        <?php if ($expert->tags()): ?>
+        <?php if (!empty($expertTags)): ?>
         <p class="content-info">
-          <span class="small">
             <?php
-              $tags = [];
-              foreach ($contentTags as $key => $value) {
+              echo '<strong>' . TFISH_EXPERTS_SKILLS . ':</strong> ';
+              foreach ($expertTags as $key => $value) {
                 $tags[] = '<a href="' . TFISH_EXPERTS_URL . '?tag=' . xss($key) . '">' . xss($value) . '</a>';
               }
               echo \implode(', ', $tags);
             ?>
-          </span>
         </p>
+        <p><strong><?php echo TFISH_EXPERTS_EMAIL . ': </strong>' . $expert->email(); ?></p>
         <?php endif; ?>
       </div>
-
-      <!-- Image -->
-      <?php if ($expert->image()): ?>
-      <div class="float-end figure-right">
-        <figure>
-            <img class="image img-fluid" src="<?php echo $expert->cachedImage(300); ?>" alt="<?php echo xss($expert->nameAndJob()); ?>" />
-        </figure>
-      </div>
-      <?php endif; ?>
 
       <!-- Experience -->
       <?php if ($expert->experience()): ?>

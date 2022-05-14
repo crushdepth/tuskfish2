@@ -29,7 +29,7 @@ namespace Tfish\Expert\ViewModel;
  * @var         object $model Classname of the model used to display this page.
  * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  * @var         array $searchResults Array of content objects matching the search criteria.
- * @var         int $contentCount Number of search results matching the search criteria.
+ * @var         int $resultCount Number of search results matching the search criteria.
  * @var         string $action Action to be embedded in the form and executed after next submission.
  * @var         array $searchTerms Search terms entered by user.
  * @var         array $escapedSearchTerms Search terms entered by user XSS-escaped for display.
@@ -118,7 +118,7 @@ class Search implements \Tfish\ViewModel\Listable
             'limit' => $this->limit(),
         ]);
 
-        $this->expertCount = (int) \array_shift($searchResults);
+        $this->contentCount = (int) \array_shift($searchResults);
         $this->searchResults = $searchResults;
     }
 
@@ -391,6 +391,16 @@ class Search implements \Tfish\ViewModel\Listable
     public function setTag(int $tag)
     {
         $this->tag = $tag;
+    }
+
+    /**
+     * Return tags associated with an expert object.
+     *
+     * @return  array Array of tags as id/title key-value pairs.
+     */
+    public function expertTags()
+    {
+        return $this->model->getTagsForObject($this->id, 'expert', 'expert');
     }
 
     /**

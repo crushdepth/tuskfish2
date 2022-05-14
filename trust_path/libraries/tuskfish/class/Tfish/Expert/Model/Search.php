@@ -23,7 +23,8 @@ namespace Tfish\Expert\Model;
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0
  * @since       2.0
- * @package     content
+ * @package     expert
+ * @uses        trait \Tfish\Traits\TagRead Retrieve tag information for display.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         \Tfish\Database $database Instance of the Tuskfish database class.
  * @var         \Tfish\CriteriaFactory $criteriaFactory A factory class that returns instances of Criteria and CriteriaItem.
@@ -182,9 +183,7 @@ class Search
         $cleanParams = $this->validateParams($params);
         $criteria = $this->setCriteria($cleanParams);
         $statement = $this->database->select('expert', $criteria);
-
         $expert = $statement->fetchObject('\Tfish\Expert\Entity\Expert');
-
         $statement->closeCursor();
 
         return $expert;
