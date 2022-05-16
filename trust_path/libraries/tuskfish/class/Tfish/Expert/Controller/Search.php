@@ -60,6 +60,7 @@ class Search
         $tag = (int) ($_REQUEST['tag'] ?? 0);
         $country = (int) ($_REQUEST['country'] ?? 0);
         $start = (int) ($_GET['start'] ?? 0);
+        $cleanTerms = '';
 
         if ($id > 0) {
             $cacheParams['id'] = $id;
@@ -79,6 +80,22 @@ class Search
             $this->viewModel->displayFilter();
 
             return $cacheParams;
+        }
+
+        if (isset($_GET['searchTerms'])) {
+            $terms = $this->trimString($_REQUEST['searchTerms']);
+            $terms = \rawurldecode($terms);
+            $cleanTerms = \htmlspecialchars_decode($terms, ENT_QUOTES|ENT_HTML5);
+        } else {
+            $cleanTerms = $this->trimString($_POST['searchTerms'] ?? '');
+        }
+
+        if (isset($_REQUEST['searchTerms'])) {
+            if ($start > 0) $this->viewModel->setStart($start);
+            $this->viewModel->setSearchTerms($cleanTerms);
+            $this->viewModel->search();
+
+            return [];
         }
 
         $this->viewModel->displayForm();

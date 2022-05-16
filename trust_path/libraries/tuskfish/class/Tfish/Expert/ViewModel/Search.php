@@ -160,7 +160,7 @@ class Search implements \Tfish\ViewModel\Listable
             'limit' => $this->limit(),
         ]);
 
-        $this->expertCount = (int) \array_shift($searchResults);
+        $this->contentCount = (int) \array_shift($searchResults);
         $this->searchResults = $searchResults;
     }
 

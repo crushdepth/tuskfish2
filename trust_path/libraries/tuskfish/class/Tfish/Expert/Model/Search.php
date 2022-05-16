@@ -77,7 +77,7 @@ class Search
     {
         $cleanParams = $this->validateParams($params);
 
-        return $this->searchContent($cleanParams);
+        return $this->searchText($cleanParams);
     }
 
     /**
@@ -245,15 +245,15 @@ class Search
     }
 
     /**
-     * Search content objects.
+     * Search expert objects.
      *
      * The first element of the returned results is a count of the total number of objects matching the
      * search criteria. This is a bit of a hack that should probably be done away with in due course.
      *
      * @param   array $params Search criteria.
-     * @return  array Array of content objects matching search criteria, with content count as first element.
+     * @return  array Array of expert objects matching search criteria, with count as first element.
      */
-    private function searchContent(array $params): array
+    private function searchText(array $params): array
     {
         $sql = $count = $contentCount = '';
         $searchTermPlaceholders = $escapedTermPlaceholders = [];
@@ -261,7 +261,7 @@ class Search
 
         $sqlCount = "SELECT count(*) ";
         $sqlSearch = "SELECT * ";
-        $sql = "FROM `content` ";
+        $sql = "FROM `expert` ";
         $count = \count($params['searchTerms']);
 
         // If there are no legal search terms, return nil result.
@@ -275,12 +275,15 @@ class Search
             $searchTermPlaceholders[$i] = ':searchTerm' . (string) $i;
             $escapedTermPlaceholders[$i] = ':escapedSearchTerm' . (string) $i;
             $sql .= "(";
-            $sql .= "`title` LIKE " . $searchTermPlaceholders[$i] . " OR ";
-            $sql .= "`teaser` LIKE " . $escapedTermPlaceholders[$i] . " OR ";
-            $sql .= "`description` LIKE " . $escapedTermPlaceholders[$i] . " OR ";
-            $sql .= "`caption` LIKE " . $searchTermPlaceholders[$i] . " OR ";
-            $sql .= "`creator` LIKE " . $searchTermPlaceholders[$i] . " OR ";
-            $sql .= "`publisher` LIKE " . $searchTermPlaceholders[$i];
+            $sql .= "`firstName` LIKE " . $searchTermPlaceholders[$i] . " OR ";
+            $sql .= "`midName` LIKE " . $searchTermPlaceholders[$i] . " OR ";
+            $sql .= "`lastName` LIKE " . $searchTermPlaceholders[$i] . " OR ";
+            $sql .= "`job` LIKE " . $searchTermPlaceholders[$i] . " OR ";
+            $sql .= "`experience` LIKE " . $escapedTermPlaceholders[$i] . " OR ";
+            $sql .= "`projects` LIKE " . $escapedTermPlaceholders[$i] . " OR ";
+            $sql .= "`publications` LIKE " . $escapedTermPlaceholders[$i] . " OR ";
+            $sql .= "`businessUnit` LIKE " . $searchTermPlaceholders[$i] . " OR ";
+            $sql .= "`organisation` LIKE " . $searchTermPlaceholders[$i];
             $sql .= ")";
 
             if ($i != ($count - 1)) {
@@ -289,12 +292,11 @@ class Search
         }
 
         if ($params['onlineStatus'] !== 0) {
-            $sql .= " AND `onlineStatus` = :onlineStatus";
+            $sql .= " AND `onlineStatus` = :onlineStatus ";
         }
 
-        $sql .= " AND `type` != 'TfBlock' ";
         $sqlCount .= $sql;
-        $sql .= "ORDER BY `date` DESC, `submissionTime` DESC ";
+        $sql .= "ORDER BY `lastName` ASC, `firstName` ASC ";
 
         // Bind the search term values and execute the statement.
         $statement = $this->database->preparedStatement($sqlCount);
