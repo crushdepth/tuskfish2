@@ -299,7 +299,7 @@ namespace Tfish;
 \define("TFISH_EXPERTS_ADDRESS", "Address");
 \define("TFISH_EXPERTS_CONTACT", "Contact details");
 \define("TFISH_EXPERTS_SKILLS", "Skills");
-\define("TFISH_EXPERTS_BROWSE", "Browse our directory of aquaculture experts by lastname, subject area or free text search");
+\define("TFISH_EXPERTS_BROWSE", "Browse our directory of aquaculture experts by lastname, subject area and/or state, or free text search");
 \define("TFISH_EXPERTS_OR_ENTER_SEARCH_TERMS", "...or enter search terms");
 \define("TFISH_EXPERTS_NO_EXPERTS_MATCH_YOUR_CRITERIA", "No experts matched these criteria.");
 \define("TFISH_EXPERTS_SELECT_STATE", "- Select state -");

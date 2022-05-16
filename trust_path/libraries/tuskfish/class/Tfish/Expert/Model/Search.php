@@ -159,6 +159,24 @@ class Search
     }
 
     /**
+     * Returns experts filtered by tag and/or country.
+     *
+     * @param array $params
+     * @return array
+     */
+    public function searchTagCountry(array $params): array
+    {
+        $cleanParams = $this->validateParams($params);
+        $criteria = $this->setCriteria($cleanParams);
+        $statement = $this->database->select('expert', $criteria);
+        $count = $this->database->selectCount('expert', $criteria);
+        $result = $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Expert\Entity\Expert');
+        $statement->closeCursor();
+
+        return \array_merge([$count], $result);
+    }
+
+    /**
      * Get a single expert object.
      *
      * @param   int $id ID of the expert object to retrieve.
@@ -365,7 +383,7 @@ class Search
             $criteria->setTag([$cleanParams['tag']]);
 
         if (!empty($cleanParams['country']))
-            $criteria->setTag([$cleanParams['country']]);
+            $criteria->add($this->criteriaFactory->item('country', $cleanParams['country']));
 
         if (!empty($cleanParams['start']))
             $criteria->setOffset($cleanParams['start']);
@@ -401,6 +419,18 @@ class Search
 
         if (!empty($alpha) && $this->isAlpha($alpha) && \mb_strlen($params['alpha'], 'UTF-8') === 1) {
                 $cleanParams['alpha'] = $alpha;
+        }
+
+        $tag = (int) ($params['tag'] ?? 0);
+
+        if ($tag > 0) {
+            $cleanParams['tag'] = $tag;
+        }
+
+        $country = (int) ($params['country'] ?? 0);
+
+        if ($country > 0) {
+            $cleanParams['country'] = $country;
         }
 
         if (!empty($params['searchTerms']) && \is_array($params['searchTerms'])) {

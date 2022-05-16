@@ -108,6 +108,30 @@ class Search implements \Tfish\ViewModel\Listable
         }
     }
 
+    /**
+     * Display experts filtered by tag or country.
+     *
+     * @return void
+     */
+    public function displayFilter()
+    {
+        $searchResults = $this->model->searchTagCountry([
+            'tag' => $this->tag,
+            'country' => $this->country,
+            'onlineStatus' => $this->onlineStatus,
+            'start' => $this->start,
+            'limit' => $this->limit(),
+        ]);
+
+        $this->contentCount = (int) \array_shift($searchResults);
+        $this->searchResults = $searchResults;
+    }
+
+    /**
+     * Search experts by lastname.
+     *
+     * @return void
+     */
     public function searchAlpha()
     {
         $this->action = 'name';
@@ -193,6 +217,27 @@ class Search implements \Tfish\ViewModel\Listable
         }
 
         $this->alpha = $letter;
+    }
+
+    /**
+     * Return country ID.
+     *
+     * @return integer
+     */
+    public function country(): int
+    {
+        return $this->country;
+    }
+
+    /**
+     * Set country ID.
+     *
+     * @param integer $country
+     * @return void
+     */
+    public function setCountry(int $country)
+    {
+        $this->country = $country;
     }
 
     /**
@@ -352,17 +397,10 @@ class Search implements \Tfish\ViewModel\Listable
     {
         $extraParams = [];
 
-        if (!empty($this->action)) {
-            $extraParams['action'] = $this->action();
-        }
-
-        if (!empty($this->alpha)) {
-            $extraParams['alpha'] = $this->alpha();
-        }
-
-        if (!empty($this->searchTerms())) {
-            $extraParams['searchTerms'] = \implode(" ", $this->searchTerms());
-        }
+        if (!empty($this->action)) $extraParams['action'] = $this->action();
+        if (!empty($this->alpha)) $extraParams['alpha'] = $this->alpha();
+        if (!empty($this->country)) $extraParams['country'] = $this->country();
+        if (!empty($this->searchTerms())) $extraParams['searchTerms'] = \implode(" ", $this->searchTerms());
 
         return $extraParams;
     }

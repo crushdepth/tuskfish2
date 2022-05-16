@@ -56,35 +56,59 @@ class Search
     public function display(): array
     {
         $cacheParams = ['page' => 'experts'];
-
         $id = (int) ($_GET['id'] ?? 0);
+        $tag = (int) ($_REQUEST['tag'] ?? 0);
+        $country = (int) ($_REQUEST['country'] ?? 0);
+        $start = (int) ($_GET['start'] ?? 0);
 
         if ($id > 0) {
             $cacheParams['id'] = $id;
             $this->viewModel->setId($id);
             $this->viewModel->displayObject();
-        } else {
-            $this->viewModel->displayForm();
+
+            return $cacheParams;
         }
+
+        if ($tag > 0 || $country > 0) {
+            if ($start > 0) $cacheParams['start'] = $start;
+            $cacheParams['tag'] = $tag;
+            $cacheParams['country'] = $country;
+            $this->viewModel->setStart($start);
+            $this->viewModel->setTag($tag);
+            $this->viewModel->setCountry($country);
+            $this->viewModel->displayFilter();
+
+            return $cacheParams;
+        }
+
+        $this->viewModel->displayForm();
 
         return $cacheParams;
     }
 
+    /**
+     * Browse experts by lastname.
+     *
+     * @return array
+     */
     public function name(): array
     {
+        $cacheParams = ['page' => 'experts'];
+
         $start = (int) ($_GET['start'] ?? 0);
+        if ($start > 0) $cacheParams['start'] = $start;
         $this->viewModel->setStart($start);
 
-        // Browse directory by lastname.
         $alpha = $this->trimString($_GET['alpha'] ?? '');
 
         if (!empty($alpha)) {
+            $cacheParams['alpha'] = $alpha;
             $this->viewModel->setAlpha($alpha);
         }
 
         $this->viewModel->searchAlpha();
 
-        return [];
+        return $cacheParams;
     }
 
     /**
@@ -94,11 +118,6 @@ class Search
      */
     public function search(): array
     {
-        // Need to handle:
-        // alpha
-        // country and tag (simultaneous filters)
-        // free text search
-
         // Pagination.
         $start = (int) ($_GET['start'] ?? 0);
         $this->viewModel->setStart($start);

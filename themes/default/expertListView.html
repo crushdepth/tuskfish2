@@ -56,7 +56,7 @@
       <div class="col-sm-6 col-md-3 col-lg-2">
         <select class="form-control custom-select" name="country" id="country" onchange="this.form.submit()">
           <?php foreach ($viewModel->countryList() as $key => $value) {
-            echo ($key === $viewModel->tag()) ?
+            echo ($key === $viewModel->country()) ?
               '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>' :
               '<option value="' . xss($key) . '">' . xss($value) . '</option>';
           } ?>
@@ -81,7 +81,8 @@
   </form>
 
   <!-- Search results -->
-  <?php if (!empty($viewModel->action())): ?>
+  <?php if ($_REQUEST): ?>
+
   <?php if ($searchResults = $viewModel->searchResults()): ?>
 
   <div class="row">
