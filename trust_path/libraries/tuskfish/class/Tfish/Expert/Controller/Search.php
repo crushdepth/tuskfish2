@@ -60,7 +60,6 @@ class Search
         $tag = (int) ($_REQUEST['tag'] ?? 0);
         $country = (int) ($_REQUEST['country'] ?? 0);
         $start = (int) ($_GET['start'] ?? 0);
-        $cleanTerms = '';
 
         if ($id > 0) {
             $cacheParams['id'] = $id;
@@ -80,22 +79,6 @@ class Search
             $this->viewModel->displayFilter();
 
             return $cacheParams;
-        }
-
-        if (isset($_GET['searchTerms'])) {
-            $terms = $this->trimString($_REQUEST['searchTerms']);
-            $terms = \rawurldecode($terms);
-            $cleanTerms = \htmlspecialchars_decode($terms, ENT_QUOTES|ENT_HTML5);
-        } else {
-            $cleanTerms = $this->trimString($_POST['searchTerms'] ?? '');
-        }
-
-        if (isset($_REQUEST['searchTerms'])) {
-            if ($start > 0) $this->viewModel->setStart($start);
-            $this->viewModel->setSearchTerms($cleanTerms);
-            $this->viewModel->search();
-
-            return [];
         }
 
         $this->viewModel->displayForm();
@@ -135,25 +118,13 @@ class Search
      */
     public function search(): array
     {
-        // Pagination.
         $start = (int) ($_GET['start'] ?? 0);
         $this->viewModel->setStart($start);
 
-        // Browser directory by lastname.
-        $alpha = $this->trimString($_GET['alpha'] ?? '');
-
-        if (!empty($alpha)) {
-            $this->viewModel->setAlpha($alpha);
-            $this->viewModel->searchAlpha();
-            return [];
-        }
-
-        // Search terms passed in from a pagination control link have been i) encoded and ii) escaped.
-        // Search terms entered directly into the search form can be used directly.
         $cleanTerms = '';
 
         if (isset($_GET['searchTerms'])) {
-            $terms = $this->trimString($_REQUEST['searchTerms']);
+            $terms = $this->trimString($_GET['searchTerms']);
             $terms = \rawurldecode($terms);
             $cleanTerms = \htmlspecialchars_decode($terms, ENT_QUOTES|ENT_HTML5);
         } else {
@@ -161,8 +132,7 @@ class Search
         }
 
         $this->viewModel->setSearchTerms($cleanTerms);
-        $this->viewModel->setAction('search');
-        //$this->viewModel->search();
+        $this->viewModel->search();
 
         return [];
     }

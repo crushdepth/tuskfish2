@@ -75,11 +75,20 @@
       </div>
 
       <div class="col-sm-2 mt-3 col-md-1 mt-md-0">
-        <button type="submit" class="btn btn-primary text-right"><?php echo TFISH_SEARCH ?></button>
+        <button type="submit" class="btn btn-primary text-right" onclick = "setAction()">
+            <?php echo TFISH_SEARCH ?>
+        </button>
+        <input type="hidden" id="action" name="action" value="display">
       </div>
 
     </div>
   </form>
+
+  <script>
+    function setAction() {
+        document.getElementById("action").value="search";
+    }
+  </script>
 
   <!-- Search results -->
   <?php if ($_REQUEST): ?>

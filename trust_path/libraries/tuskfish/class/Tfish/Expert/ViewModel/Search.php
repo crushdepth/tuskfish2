@@ -135,6 +135,7 @@ class Search implements \Tfish\ViewModel\Listable
     public function searchAlpha()
     {
         $this->action = 'name';
+
         $searchResults = $this->model->searchAlphabetically([
             'alpha' => $this->alpha,
             'onlineStatus' => $this->onlineStatus,
