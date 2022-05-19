@@ -144,6 +144,19 @@ class Admin
     /** Utilities. */
 
     /**
+     * Deletes an uploaded image file associated with an expert object.
+     *
+     * @param string $filename Name of file.
+     * @return bool True on success, false on failure.
+     */
+    private function deleteImage(string $filename): bool
+    {
+        if ($filename) {
+            return $this->fileHandler->deleteFile('image/' . $filename);
+        }
+    }
+
+    /**
      * Count the number of expert objects that match the filter criteria.
      *
      * @param   array $params Filter criteria.
@@ -209,19 +222,6 @@ class Admin
         $criteria->add($this->criteriaFactory->item('id', $id));
 
         return $this->database->select('expert', $criteria, ['id', 'image'])->fetch(\PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Deletes an uploaded image file associated with an expert object.
-     *
-     * @param string $filename Name of file.
-     * @return bool True on success, false on failure.
-     */
-    private function deleteImage(string $filename): bool
-    {
-        if ($filename) {
-            return $this->fileHandler->deleteFile('image/' . $filename);
-        }
     }
 
     /**

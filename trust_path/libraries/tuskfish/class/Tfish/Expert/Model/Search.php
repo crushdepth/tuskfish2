@@ -67,114 +67,6 @@ class Search
     /** Actions. */
 
     /**
-     * Search content objects.
-     *
-     * @param   array $params Filtering criteria (keywords, limit, offset etc).
-     */
-    public function search(array $params): array
-    {
-        $cleanParams = $this->validateParams($params);
-
-        return $this->searchText($cleanParams);
-    }
-
-    /**
-     * Search database by lastname.
-     *
-     * @param array $params Filter criteria.
-     * @return array
-     */
-    public function searchAlphabetically(array $params): array
-    {
-        $cleanParams = $this->validateParams($params);
-
-        return $this->searchAlpha($cleanParams);
-    }
-
-    /**
-     * Search experts alphabetically.
-     *
-     * The first element of the returned results is a count of the total number of objects matching the
-     * search criteria. This is a bit of a hack that should probably be done away with in due course.
-     *
-     * @param   array $params Search criteria.
-     * @return  array Array of expert objects matching search criteria, with count as first element.
-     */
-    private function searchAlpha(array $params): array
-    {
-        $sql = $count = '';
-        $result = [];
-
-        $sqlCount = "SELECT count(*) ";
-        $sqlSearch = "SELECT * ";
-        $sql = "FROM `expert` WHERE (`lastName` LIKE :lastName AND `onlineStatus` = :onlineStatus)  ";
-        $sql .= "ORDER BY `lastName` ASC, `firstName` ASC ";
-        $sqlCount .= $sql;
-
-        // Bind the search term values and execute the statement.
-        $statement = $this->database->preparedStatement($sqlCount);
-
-        if ($statement) {
-            $statement->bindValue(':lastName', $params['alpha'] . "%", \PDO::PARAM_STR);
-            $statement->bindValue(":onlineStatus", $this->onlineStatus, \PDO::PARAM_INT);
-        } else {
-            return false;
-        }
-
-        $statement->execute();
-        $row = $statement->fetch(\PDO::FETCH_NUM);
-        $result[0] = reset($row);
-        unset($statement, $row);
-
-        // Retrieve the subset of objects actually required.
-        if (!empty($params['limit'])) {
-            $sql .= "LIMIT :limit ";
-        }
-
-        if (!empty($params['start'])) {
-            $sql .= "OFFSET :offset ";
-        }
-
-        $sqlSearch .= $sql;
-        $statement = $this->database->preparedStatement($sqlSearch);
-
-        if ($statement) {
-            $statement->bindValue(':lastName', $params['alpha'] . "%", \PDO::PARAM_STR);
-            $statement->bindValue(":onlineStatus", $this->onlineStatus, \PDO::PARAM_INT);
-            $statement->bindValue(":limit", (int) $params['limit'], \PDO::PARAM_INT);
-
-            if ($params['start']) {
-                $statement->bindValue(":offset", $params['start'], \PDO::PARAM_INT);
-            }
-        } else {
-            return false;
-        }
-
-        $statement->execute();
-        $rows = $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Expert\Entity\Expert');
-
-        return \array_merge($result, $rows);
-    }
-
-    /**
-     * Returns experts filtered by tag and/or country.
-     *
-     * @param array $params
-     * @return array Array of expert objects with count as first element.
-     */
-    public function searchTagCountry(array $params): array
-    {
-        $cleanParams = $this->validateParams($params);
-        $criteria = $this->setCriteria($cleanParams);
-        $statement = $this->database->select('expert', $criteria);
-        $count = $this->database->selectCount('expert', $criteria);
-        $result = $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Expert\Entity\Expert');
-        $statement->closeCursor();
-
-        return \array_merge([$count], $result);
-    }
-
-    /**
      * Get a single expert object.
      *
      * @param   int $id ID of the expert object to retrieve.
@@ -201,28 +93,16 @@ class Search
         return $expert;
     }
 
-    /** Utilities. */
-
     /**
-     * Return onlineStatus.
+     * Search content objects.
      *
-     * @return  int Retrieve all experts (0) or only online experts (1).
+     * @param   array $params Filtering criteria (keywords, limit, offset etc).
      */
-    public function onlineStatus(): int
+    public function search(array $params): array
     {
-        return (int) $this->onlineStatus;
-    }
+        $cleanParams = $this->validateParams($params);
 
-    /**
-     * Set onlineStatus.
-     *
-     * @param   int $onlineStatus Retrieve all experts (0) or only online experts (1).
-     */
-    public function setOnlineStatus(int $onlineStatus)
-    {
-        if ($onlineStatus == 0 || $onlineStatus == 1) {
-            $this->onlineStatus = $onlineStatus;
-        }
+        return $this->searchText($cleanParams);
     }
 
     /**
@@ -342,6 +222,104 @@ class Search
 
         return $result;
     }
+
+    /**
+     * Search database by lastname.
+     *
+     * @param array $params Filter criteria.
+     * @return array
+     */
+    public function searchAlphabetically(array $params): array
+    {
+        $cleanParams = $this->validateParams($params);
+
+        return $this->searchAlpha($cleanParams);
+    }
+
+    /**
+     * Search experts alphabetically.
+     *
+     * The first element of the returned results is a count of the total number of objects matching the
+     * search criteria. This is a bit of a hack that should probably be done away with in due course.
+     *
+     * @param   array $params Search criteria.
+     * @return  array Array of expert objects matching search criteria, with count as first element.
+     */
+    private function searchAlpha(array $params): array
+    {
+        $sql = $count = '';
+        $result = [];
+
+        $sqlCount = "SELECT count(*) ";
+        $sqlSearch = "SELECT * ";
+        $sql = "FROM `expert` WHERE (`lastName` LIKE :lastName AND `onlineStatus` = :onlineStatus)  ";
+        $sql .= "ORDER BY `lastName` ASC, `firstName` ASC ";
+        $sqlCount .= $sql;
+
+        // Bind the search term values and execute the statement.
+        $statement = $this->database->preparedStatement($sqlCount);
+
+        if ($statement) {
+            $statement->bindValue(':lastName', $params['alpha'] . "%", \PDO::PARAM_STR);
+            $statement->bindValue(":onlineStatus", $this->onlineStatus, \PDO::PARAM_INT);
+        } else {
+            return false;
+        }
+
+        $statement->execute();
+        $row = $statement->fetch(\PDO::FETCH_NUM);
+        $result[0] = reset($row);
+        unset($statement, $row);
+
+        // Retrieve the subset of objects actually required.
+        if (!empty($params['limit'])) {
+            $sql .= "LIMIT :limit ";
+        }
+
+        if (!empty($params['start'])) {
+            $sql .= "OFFSET :offset ";
+        }
+
+        $sqlSearch .= $sql;
+        $statement = $this->database->preparedStatement($sqlSearch);
+
+        if ($statement) {
+            $statement->bindValue(':lastName', $params['alpha'] . "%", \PDO::PARAM_STR);
+            $statement->bindValue(":onlineStatus", $this->onlineStatus, \PDO::PARAM_INT);
+            $statement->bindValue(":limit", (int) $params['limit'], \PDO::PARAM_INT);
+
+            if ($params['start']) {
+                $statement->bindValue(":offset", $params['start'], \PDO::PARAM_INT);
+            }
+        } else {
+            return false;
+        }
+
+        $statement->execute();
+        $rows = $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Expert\Entity\Expert');
+
+        return \array_merge($result, $rows);
+    }
+
+    /**
+     * Returns experts filtered by tag and/or country.
+     *
+     * @param array $params
+     * @return array Array of expert objects with count as first element.
+     */
+    public function searchTagCountry(array $params): array
+    {
+        $cleanParams = $this->validateParams($params);
+        $criteria = $this->setCriteria($cleanParams);
+        $statement = $this->database->select('expert', $criteria);
+        $count = $this->database->selectCount('expert', $criteria);
+        $result = $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Expert\Entity\Expert');
+        $statement->closeCursor();
+
+        return \array_merge([$count], $result);
+    }
+
+    /** Utilities. */
 
     /**
      * Set filter criteria for listing content.
@@ -470,5 +448,29 @@ class Search
         }
 
         return $cleanParams;
+    }
+
+    /** Getters and setters **/
+    
+    /**
+     * Return onlineStatus.
+     *
+     * @return  int Retrieve all experts (0) or only online experts (1).
+     */
+    public function onlineStatus(): int
+    {
+        return (int) $this->onlineStatus;
+    }
+
+    /**
+     * Set onlineStatus.
+     *
+     * @param   int $onlineStatus Retrieve all experts (0) or only online experts (1).
+     */
+    public function setOnlineStatus(int $onlineStatus)
+    {
+        if ($onlineStatus == 0 || $onlineStatus == 1) {
+            $this->onlineStatus = $onlineStatus;
+        }
     }
 }

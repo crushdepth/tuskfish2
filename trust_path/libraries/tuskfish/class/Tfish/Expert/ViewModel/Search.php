@@ -80,7 +80,6 @@ class Search implements \Tfish\ViewModel\Listable
         $this->order = 'DESC';
         $this->secondarySort = 'submissionTime';
         $this->secondaryOrder = 'DESC';
-
         $this->setMetadata([]);
     }
 
@@ -90,6 +89,24 @@ class Search implements \Tfish\ViewModel\Listable
      * Display the search form.
      */
     public function displayForm() {}
+
+    /**
+     * Display experts filtered by tag or country.
+     *
+     * @return void
+     */
+    public function displayFilter()
+    {
+        $searchResults = $this->model->searchTagCountry([
+            'tag' => $this->tag,
+            'country' => $this->country,
+            'start' => $this->start,
+            'limit' => $this->limit(),
+        ]);
+
+        $this->contentCount = (int) \array_shift($searchResults);
+        $this->searchResults = $searchResults;
+    }
 
     /**
      * Display a single expert object.
@@ -112,15 +129,15 @@ class Search implements \Tfish\ViewModel\Listable
     }
 
     /**
-     * Display experts filtered by tag or country.
+     * Search.
      *
-     * @return void
+     * Search results are cached in the property $searchResults.
      */
-    public function displayFilter()
+    public function search()
     {
-        $searchResults = $this->model->searchTagCountry([
-            'tag' => $this->tag,
-            'country' => $this->country,
+        $searchResults = $this->model->search([
+            'searchTerms' => $this->searchTerms,
+            'escapedSearchTerms' => $this->escapedSearchTerms,
             'start' => $this->start,
             'limit' => $this->limit(),
         ]);
@@ -148,24 +165,6 @@ class Search implements \Tfish\ViewModel\Listable
         $this->searchResults = $searchResults;
     }
 
-    /**
-     * Search.
-     *
-     * Search results are cached in the property $searchResults.
-     */
-    public function search()
-    {
-        $searchResults = $this->model->search([
-            'searchTerms' => $this->searchTerms,
-            'escapedSearchTerms' => $this->escapedSearchTerms,
-            'start' => $this->start,
-            'limit' => $this->limit(),
-        ]);
-
-        $this->contentCount = (int) \array_shift($searchResults);
-        $this->searchResults = $searchResults;
-    }
-
     /** Utilities. */
 
     /**
@@ -183,13 +182,32 @@ class Search implements \Tfish\ViewModel\Listable
     }
 
     /**
-     * Return limit.
+     * Return canonical URL for this page view.
      *
-     * @return  int The number of  search results to retrieve.
+     * Used to populate the canonical link tag in theme files.
+     *
+     * @return  string
      */
-    public function limit(): int
+    public function canonicalUrl(): string
     {
-        return $this->preference->searchPagination();
+        $canonicalUrl = TFISH_EXPERTS_URL;
+
+        if ($this->id) return $canonicalUrl . '?id=' . $this->id;
+
+        if ($this->start || $this->tag || $this->country) $canonicalUrl .= '?';
+
+        $setParams = [];
+
+        foreach (['start', 'tag', 'country', 'action'] as $param) {
+            if (!empty($this->$param)) {
+                $setParams[$param] = $param . '=' . $this->param;
+            }
+        }
+
+        $queryString = '?' . \implode('&amp;', $setParams);
+        $canonicalUrl .= $queryString;
+
+        return $canonicalUrl;
     }
 
     /** Getters and setters. */
@@ -281,6 +299,16 @@ class Search implements \Tfish\ViewModel\Listable
     public function setId(int $id)
     {
         $this->id = (int) $id;
+    }
+
+    /**
+     * Return limit.
+     *
+     * @return  int The number of  search results to retrieve.
+     */
+    public function limit(): int
+    {
+        return $this->preference->searchPagination();
     }
 
     /**
@@ -396,6 +424,16 @@ class Search implements \Tfish\ViewModel\Listable
     }
 
     /**
+     * Return tags associated with an expert object.
+     *
+     * @return  array Array of tags as id/title key-value pairs.
+     */
+    public function expertTags()
+    {
+        return $this->model->getTagsForObject($this->id, 'expert', 'expert');
+    }
+
+    /**
      * Return extra parameters to be included in pagination control links.
      *
      * @return  array
@@ -430,45 +468,6 @@ class Search implements \Tfish\ViewModel\Listable
     public function setTag(int $tag)
     {
         $this->tag = $tag;
-    }
-
-    /**
-     * Return tags associated with an expert object.
-     *
-     * @return  array Array of tags as id/title key-value pairs.
-     */
-    public function expertTags()
-    {
-        return $this->model->getTagsForObject($this->id, 'expert', 'expert');
-    }
-
-    /**
-     * Return canonical URL for this page view.
-     *
-     * Used to populate the canonical link tag in theme files.
-     *
-     * @return  string
-     */
-    public function canonicalUrl(): string
-    {
-        $canonicalUrl = TFISH_EXPERTS_URL;
-
-        if ($this->id) return $canonicalUrl . '?id=' . $this->id;
-
-        if ($this->start || $this->tag || $this->country) $canonicalUrl .= '?';
-
-        $setParams = [];
-
-        foreach (['start', 'tag', 'country', 'action'] as $param) {
-            if (!empty($this->$param)) {
-                $setParams[$param] = $param . '=' . $this->param;
-            }
-        }
-
-        $queryString = '?' . \implode('&amp;', $setParams);
-        $canonicalUrl .= $queryString;
-
-        return $canonicalUrl;
     }
 
     /**
