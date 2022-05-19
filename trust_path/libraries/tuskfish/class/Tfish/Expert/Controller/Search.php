@@ -12,7 +12,7 @@ namespace Tfish\Expert\Controller;
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0
  * @since       2.0
- * @package     content
+ * @package     expert
  */
 
 /**
@@ -23,7 +23,7 @@ namespace Tfish\Expert\Controller;
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0
  * @since       2.0
- * @package     content
+ * @package     expert
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         object $model Classname of the model used to display this page.
  * @var         object $viewModel Classname of the viewModel used to display this page.
@@ -51,7 +51,7 @@ class Search
     /**
      * Display the search form.
      *
-     * @return  array Empty array (the output of this action is not cached).
+     * @return  array Array of parameters used to name cache files for this page.
      */
     public function display(): array
     {
@@ -89,7 +89,7 @@ class Search
     /**
      * Browse experts by lastname.
      *
-     * @return array
+     * @return array cache parameters.
      */
     public function name(): array
     {

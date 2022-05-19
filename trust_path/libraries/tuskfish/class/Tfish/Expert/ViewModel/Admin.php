@@ -24,6 +24,7 @@ namespace Tfish\Expert\ViewModel;
  * @version     Release: 2.0
  * @since       2.0
  * @package     expert
+ * @uses        trait \Tfish\Expert\Traits\Options Common traits of expert objects and form controls.
  * @uses        trait \Tfish\Traits\Listable Provides a standard implementation of the \Tfish\View\Listable interface.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
@@ -35,6 +36,7 @@ namespace Tfish\Expert\ViewModel;
  * @var         int $id ID of a single expert to be displayed.
  * @var         int $start Position in result set to retrieve objects from.
  * @var         int $tag Filter search results by tag ID.
+ * @var         int $country Filter search results by country ID.
  * @var         int $onlineStatus Filter search results by online (1) or offline (0) status.
  * @var         string $backUrl $backUrl URL to return to if the user cancels the action.
  * @var         string $response Message to display to the user after processing action (success/failure).
@@ -55,6 +57,7 @@ class Admin implements \Tfish\ViewModel\Listable
     private $id = 0;
     private $start = 0;
     private $tag = 0;
+    private $country = 0;
     private $type = 'TfExpert';
     private $onlineStatus = 2;
     private $action = '';
@@ -156,6 +159,7 @@ class Admin implements \Tfish\ViewModel\Listable
                 'id' => $this->id,
                 'start' => $this->start,
                 'tag' => $this->tag,
+                'country' => $this->country,
                 'type' => $this->type,
                 'onlineStatus' => $this->onlineStatus
             ]
@@ -180,6 +184,7 @@ class Admin implements \Tfish\ViewModel\Listable
         $extraParams = [];
 
         if (!empty($this->tag)) $extraParams['tag'] = $this->tag;
+        if (!empty($this->country)) $extraParams['country'] = $this->country;
         if (isset($this->onlineStatus) && $this->onlineStatus == 0 || $this->onlineStatus == 1)
             $extraParams['onlineStatus'] = $this->onlineStatus;
 
@@ -198,6 +203,7 @@ class Admin implements \Tfish\ViewModel\Listable
                 'id' => $this->id,
                 'start' => $this->start,
                 'tag' => $this->tag,
+                'country' => $this->country,
                 'onlineStatus' => $this->onlineStatus,
                 'sort' => $this->sort,
                 'order' => $this->order,
@@ -409,5 +415,25 @@ class Admin implements \Tfish\ViewModel\Listable
     public function setTag(int $tag)
     {
         $this->tag = $tag;
+    }
+
+    /**
+     * Return ID of country filter.
+     *
+     * @return  int
+     */
+    public function country(): int
+    {
+        return $this->country;
+    }
+
+    /**
+     * Set country ID.
+     *
+     * @param   int $tag ID of country.
+     */
+    public function setCountry(int $country)
+    {
+        $this->country = $country;
     }
 }

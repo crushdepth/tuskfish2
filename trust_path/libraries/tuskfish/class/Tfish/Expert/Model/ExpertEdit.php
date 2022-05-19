@@ -25,7 +25,7 @@ namespace Tfish\Expert\Model;
  * @since       1.1
  * @package     expert
  * @uses        trait \Tfish\Traits\Experts\Options Provides whitelists of common options to populate controls.
- * @uses        trait \Tfish\Traits\UrlCheck Validate that a URL meets the specification.
+ * @uses        trait \Tfish\Traits\EmailCheck Validate that email address conforms to specification.
  * @uses        trait \Tfish\Traits\HtmlPurifier Includes HTMLPurifier library.
  * @uses        trait \Tfish\Traits\Mimetypes Provides a list of common (permitted) mimetypes for file uploads.
  * @uses        trait \Tfish\Traits\Taglink Manage object-tag associations via taglinks.
@@ -37,7 +37,7 @@ namespace Tfish\Expert\Model;
  * @var         \Tfish\CriteriaFactory $criteriaFactory A factory class that returns instances of Criteria and CriteriaItem.
  * @var         \Tfish\Entity\Preference Instance of the Tfish site preferences class.
  * @var         \Tfish\Cache Instance of the Tfish cache class.
- * @var         \HTMLPurifier Instance of HTMLPurifier class.
+ * @var         \HtmlPurifier Instance of HTMLPurifier class.
  * @var         \Tfish\FileHandler Instance of the Tfish filehandler class.
  */
 class ExpertEdit
@@ -90,7 +90,7 @@ class ExpertEdit
      * Edit expert object.
      *
      * @param   int $id ID of expert object.
-     * @return  array Expert object data as associative array.
+     * @return  array Expert as associative array.
      */
     public function edit(int $id): array
     {
@@ -119,7 +119,7 @@ class ExpertEdit
         $content['lastUpdated'] = 0;
         $content['expiresOn'] = 0;
 
-        // Upload image/media files and update the file names in $content.
+        // Upload image files and update the file names in $content.
         $this->uploadImage($content);
 
         // Insert new content.
@@ -167,7 +167,7 @@ class ExpertEdit
             $this->fileHandler->deleteFile('image/' . $savedContent['image']);
         }
 
-        // Upload any new image files and update file names. 
+        // Upload any new image files and update file names.
         $this->uploadImage($content);
 
         // Update taglinks.
@@ -177,7 +177,21 @@ class ExpertEdit
         $this->cache->flush();
 
         // As this is being sent to storage, decode some entities that were encoded for display.
-        $fieldsToDecode = ['title', 'creator', 'publisher'];
+        $fieldsToDecode = [
+            'firstName',
+            'midName',
+            'lastName',
+            'job',
+            'businessUnit',
+            'organisation',
+            'address',
+            'email',
+            'mobile',
+            'fax',
+            'profileUrl',
+            'image',
+            'template',
+        ];
 
         foreach ($fieldsToDecode as $field) {
             if (isset($content[$field])) {
@@ -210,8 +224,7 @@ class ExpertEdit
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
 
-        $row = $this->database->select('expert', $criteria)
-            ->fetch(\PDO::FETCH_ASSOC);
+        $row = $this->database->select('expert', $criteria)->fetch(\PDO::FETCH_ASSOC);
 
         return !empty($row) ? $row : [];
     }
@@ -330,6 +343,7 @@ class ExpertEdit
 
         $clean['profileUrl'] = $profileUrl;
 
+        // Validate image.
         $image = $this->trimString($form['image'] ?? '');
 
         if (!empty($image) && $this->hasTraversalorNullByte($image)) {

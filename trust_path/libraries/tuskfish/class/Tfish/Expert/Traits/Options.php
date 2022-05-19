@@ -12,7 +12,7 @@ namespace Tfish\Expert\Traits;
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 1.0
  * @since       1.0
- * @package     experts
+ * @package     expert
  */
 
 /**
@@ -23,11 +23,16 @@ namespace Tfish\Expert\Traits;
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 1.0
  * @since       1.0
- * @package     experts
+ * @package     expert
  */
 trait Options
 {
 
+    /**
+     * Returns a whitelist of countries as array.
+     *
+     * @return array List of countries.
+     */
     public function countryList()
     {
         return [
@@ -54,7 +59,7 @@ trait Options
     }
 
     /**
-     * Returns an array of known / permitted genders.
+     * Returns a whitelist of genders as array.
      *
      * @return array List of genders.
      */
@@ -67,7 +72,7 @@ trait Options
     }
 
     /**
-     * Returns an array of known / permitted salutations.
+     * Returns a whitelist of salutations as array.
      *
      * @return array List of salutations as key => value pairs.
      */

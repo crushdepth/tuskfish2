@@ -12,7 +12,7 @@ namespace Tfish\Expert\ViewModel;
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0
  * @since       2.0
- * @package     content
+ * @package     expert
  */
 
 /**
@@ -23,19 +23,24 @@ namespace Tfish\Expert\ViewModel;
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0
  * @since       2.0
- * @package     content
+ * @package     expert
+ * @uses        trait \Tfish\Experts\Traits\Options Common traits of expert objects and form controls.
  * @uses        trait \Tfish\Traits\Listable Provides a standard implementation of the \Tfish\View\Listable interface.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         object $model Classname of the model used to display this page.
  * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
- * @var         array $searchResults Array of content objects matching the search criteria.
- * @var         int $resultCount Number of search results matching the search criteria.
+ * @var         int $contentCount Number of experts returned by search.
+ * @var         array $searchResults Array of expert objects matching the search criteria.
+ * @var         int $contentCount Number of search results matching the search criteria.
  * @var         string $action Action to be embedded in the form and executed after next submission.
+ * @var         int $id ID of expert object.
+ * @var         string $alpha Single-letter string used to search experts by lastname.
  * @var         array $searchTerms Search terms entered by user.
  * @var         array $escapedSearchTerms Search terms entered by user XSS-escaped for display.
  * @var         int $start Position in result set to retrieve objects from.
- * @var         int $tag Tag ID (not in use).
- * @var         int $onlineStatus Display online content only (1).
+ * @var         int $tag Tag ID.
+ * @var         int $country Country ID
+ * @var         int $onlineStatus Display online experts only (1).
  */
 
 class Search implements \Tfish\ViewModel\Listable
@@ -168,7 +173,7 @@ class Search implements \Tfish\ViewModel\Listable
     /** Utilities. */
 
     /**
-     * Return IDs and titles of tags that are actually in use with content objects.
+     * Return IDs and titles of tags that are actually in use with expert objects.
      *
      * @param   string $zeroOption Text for the default (unselected) option.
      * @return  array IDs and titles as key-value pairs.
@@ -206,7 +211,7 @@ class Search implements \Tfish\ViewModel\Listable
     /**
      * Set alphabetical filter criteria.
      *
-     * @param string $letter
+     * @param string $letter Single character for search by lastname.
      * @return void
      */
     public function setAlpha(string $letter)
@@ -242,7 +247,7 @@ class Search implements \Tfish\ViewModel\Listable
     }
 
     /**
-     * Return content count.
+     * Return expert count.
      *
      * @return  int The number of objects that meet the search criteria.
      */
@@ -251,6 +256,11 @@ class Search implements \Tfish\ViewModel\Listable
         return $this->contentCount;
     }
 
+    /**
+     * Return expert as object.
+     *
+     * @return \Tfish\Expert\Entity\Expert
+     */
     public function expert(): \Tfish\Expert\Entity\Expert
     {
         return $this->expert;
@@ -280,7 +290,7 @@ class Search implements \Tfish\ViewModel\Listable
     /**
      * Return search results.
      *
-     * @return  array
+     * @return  array Array of expert objects.
      */
     public function searchResults(): array
     {
@@ -409,7 +419,7 @@ class Search implements \Tfish\ViewModel\Listable
     /**
      * Return onlineStatus
      *
-     * @return  int Online content only (1).
+     * @return  int Online experts only (1).
      */
     public function onlineStatus(): int
     {
@@ -463,7 +473,7 @@ class Search implements \Tfish\ViewModel\Listable
 
         $setParams = [];
 
-        foreach (['start', 'tag', 'country'] as $param) {
+        foreach (['start', 'tag', 'country', 'action'] as $param) {
             if (!empty($this->$param)) {
                 $setParams[$param] = $param . '=' . $this->param;
             }

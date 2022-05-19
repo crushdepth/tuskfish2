@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\Expert\ViewModel;
 
 /**
- * \Tfish\Content\ViewModel\ContentEdit class file.
+ * \Tfish\Expert\ViewModel\ExperttEdit class file.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -24,6 +24,7 @@ namespace Tfish\Expert\ViewModel;
  * @version     Release: 2.0
  * @since       2.0
  * @package     expert
+ * @uses        trait \Tfish\Expert\Traits\Options Common traits of expert objects and form controls.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
  * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\View\Viewable interface.
@@ -31,9 +32,8 @@ namespace Tfish\Expert\ViewModel;
  * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  * @var         int $id ID of a single expert object to be displayed.
  * @var         \Tfish\Expert\Entity\Expert $content Expert object to be edited.
- * @var         array $parentOptions A list of parents (collections) IDs and titles.
  * @var         string $action Action to be embedded in the form and executed after next submission.
- * @var         string $response Message to display to the user after processing action (success/failure). 
+ * @var         string $response Message to display to the user after processing action (success/failure).
  * @var         string $backUrl $backUrl URL to return to if the user cancels the action.
  */
 class ExpertEdit implements \Tfish\ViewModel\Viewable
@@ -46,7 +46,6 @@ class ExpertEdit implements \Tfish\ViewModel\Viewable
     private $model;
     private $id = 0;
     private $content = '';
-    private $parentOptions = '';
     private $action = '';
     private $response = '';
     private $backUrl = '';

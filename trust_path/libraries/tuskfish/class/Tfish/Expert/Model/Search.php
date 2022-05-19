@@ -12,7 +12,7 @@ namespace Tfish\Expert\Model;
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0
  * @since       2.0
- * @package     content
+ * @package     expert
  */
 
 /**
@@ -29,8 +29,8 @@ namespace Tfish\Expert\Model;
  * @var         \Tfish\Database $database Instance of the Tuskfish database class.
  * @var         \Tfish\CriteriaFactory $criteriaFactory A factory class that returns instances of Criteria and CriteriaItem.
  * @var         \Tfish\Entity\Preference Instance of the Tfish site preferences class.
- * @var         \Tfish\Session $session Instance of the Tuskfish session manager class.
  * @var         int $onlineStatus Switch to filter online/offline content.
+ * @var         \Tfish\Session $session Instance of the Tuskfish session manager class.
  */
 
 class Search
@@ -83,7 +83,7 @@ class Search
     /**
      * Search database by lastname.
      *
-     * @param array $params
+     * @param array $params Filter criteria.
      * @return array
      */
     public function searchAlphabetically(array $params): array
@@ -100,7 +100,7 @@ class Search
      * search criteria. This is a bit of a hack that should probably be done away with in due course.
      *
      * @param   array $params Search criteria.
-     * @return  array Array of content objects matching search criteria, with content count as first element.
+     * @return  array Array of expert objects matching search criteria, with count as first element.
      */
     private function searchAlpha(array $params): array
     {
@@ -162,7 +162,7 @@ class Search
      * Returns experts filtered by tag and/or country.
      *
      * @param array $params
-     * @return array
+     * @return array Array of expert objects with count as first element.
      */
     public function searchTagCountry(array $params): array
     {
@@ -229,19 +229,6 @@ class Search
         if ($onlineStatus == 0 || $onlineStatus == 1) {
             $this->onlineStatus = $onlineStatus;
         }
-    }
-
-    /**
-     * Run search query.
-     *
-     * @param   \Tfish\Criteria $criteria Filtering criteria.
-     * @return  array Array of content objects.
-     */
-    private function runQuery(\Tfish\Criteria $criteria): array
-    {
-        $statement = $this->database->select('content', $criteria);
-
-        return $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Expert\Entity\Expert');
     }
 
     /**

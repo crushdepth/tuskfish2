@@ -23,7 +23,7 @@ namespace Tfish\Expert\Model;
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0
  * @since       2.0
- * @package     experts
+ * @package     expert
  * @uses        trait \Tfish\Traits\Experts\Options Provides whitelists of common options to populate controls.
  * @uses        trait \Tfish\Traits\Taglink Manage object-tag associations via taglinks.
  * @uses        trait \Tfish\Traits\TagRead Retrieve tag information for display.
@@ -144,7 +144,7 @@ class Admin
     /** Utilities. */
 
     /**
-     * Count the number of content objects that match the filter criteria.
+     * Count the number of expert objects that match the filter criteria.
      *
      * @param   array $params Filter criteria.
      * @return  int Count.
@@ -171,7 +171,7 @@ class Admin
      *
      * @param   array $params Filter criteria.
      * @param   array $columns Columns to select to build the options.
-     * @return  array
+     * @return  array Options to populate select box.
      */
     public function getOptions(array $params, array $columns = [])
     {
@@ -195,8 +195,8 @@ class Admin
     /**
      * Return certain columns from an expert object required to aid its deletion.
      *
-     * @param   int $id ID of content object.
-     * @return  array Associative array containing type, id, image and media values.
+     * @param   int $id ID of expert object.
+     * @return  array Associative array containing, id and image values.
      */
     private function getRow(int $id)
     {
@@ -208,8 +208,7 @@ class Admin
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
 
-        return $this->database->select('expert', $criteria, ['id', 'image'])
-            ->fetch(\PDO::FETCH_ASSOC);
+        return $this->database->select('expert', $criteria, ['id', 'image'])->fetch(\PDO::FETCH_ASSOC);
     }
 
     /**
@@ -223,22 +222,6 @@ class Admin
         if ($filename) {
             return $this->fileHandler->deleteFile('image/' . $filename);
         }
-    }
-
-    /**
-     * Return the title of a given expert object.
-     *
-     * @param   int $id ID of expert object.
-     * @return  string Title of expert object.
-     */
-    public function getTitle(int $id)
-    {
-        $criteria = $this->criteriaFactory->criteria();
-        $criteria->add($this->criteriaFactory->item('id', $id));
-
-        $statement = $this->database->select('expert', $criteria, ['lastname']);
-
-        return $statement->fetch(\PDO::FETCH_COLUMN);
     }
 
     /**
@@ -257,7 +240,7 @@ class Admin
      *
      * @param   \Tfish\Criteria $criteria Filter criteria.
      * @param   array $columns Columns to select.
-     * @return  array Array of content objects.
+     * @return  array Associative array of experts.
      */
     private function runQuery(\Tfish\Criteria $criteria, array $columns = null): array
     {
@@ -311,10 +294,10 @@ class Admin
     }
 
     /**
-     * Validate criteria used to filter query.
+     * Validate parameters (type and range check) used to filter query.
      *
-     * @param   array $params Filter criteria.
-     * @return  array Validated filter criteria.
+     * @param   array $params Filter parameters to be validated.
+     * @return  array Validated Validated parameters.
      */
     private function validateParams(array $params): array
     {

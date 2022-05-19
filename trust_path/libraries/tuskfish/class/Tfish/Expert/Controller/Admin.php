@@ -12,7 +12,7 @@ namespace Tfish\Expert\Controller;
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0
  * @since       2.0
- * @package     content
+ * @package     expert
  */
 
 /**
