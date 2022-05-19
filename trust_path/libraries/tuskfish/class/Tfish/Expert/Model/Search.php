@@ -41,9 +41,8 @@ class Search
     private $database;
     private $criteriaFactory;
     private $preference;
-    private $onlineStatus;
+    private $onlineStatus = 1; // Default to online content only.
     private $session;
-
     /**
      * Constructor.
      *
@@ -63,7 +62,6 @@ class Search
         $this->criteriaFactory = $criteriaFactory;
         $this->preference = $preference;
         $this->session = $session;
-        $this->onlineStatus = 1; // Default to online content only.
     }
 
     /** Actions. */
@@ -118,7 +116,7 @@ class Search
 
         if ($statement) {
             $statement->bindValue(':lastName', $params['alpha'] . "%", \PDO::PARAM_STR);
-            $statement->bindValue(":onlineStatus", $params['onlineStatus'], \PDO::PARAM_INT);
+            $statement->bindValue(":onlineStatus", $this->onlineStatus, \PDO::PARAM_INT);
         } else {
             return false;
         }
@@ -142,7 +140,7 @@ class Search
 
         if ($statement) {
             $statement->bindValue(':lastName', $params['alpha'] . "%", \PDO::PARAM_STR);
-            $statement->bindValue(":onlineStatus", $params['onlineStatus'], \PDO::PARAM_INT);
+            $statement->bindValue(":onlineStatus", $this->onlineStatus, \PDO::PARAM_INT);
             $statement->bindValue(":limit", (int) $params['limit'], \PDO::PARAM_INT);
 
             if ($params['start']) {
@@ -193,10 +191,6 @@ class Search
         }
 
         $params['id'] = $id;
-
-        if (!$this->session->isAdmin()) { // NOT admin.
-            $params['onlineStatus'] = 1;
-        }
 
         $cleanParams = $this->validateParams($params);
         $criteria = $this->setCriteria($cleanParams);
@@ -278,7 +272,7 @@ class Search
             }
         }
 
-        if ($params['onlineStatus'] !== 0) {
+        if ($this->onlineStatus !== 0) {
             $sql .= " AND `onlineStatus` = :onlineStatus ";
         }
 
@@ -295,8 +289,8 @@ class Search
                 $statement->bindValue($escapedTermPlaceholders[$i], "%" . $params['escapedSearchTerms'][$i] . "%", \PDO::PARAM_STR);
             }
 
-            if ($params['onlineStatus'] !== 0) {
-                $statement->bindValue(":onlineStatus", $params['onlineStatus'], \PDO::PARAM_INT);
+            if ($this->onlineStatus !== 0) {
+                $statement->bindValue(":onlineStatus", $this->onlineStatus, \PDO::PARAM_INT);
             }
 
         } else {
@@ -332,8 +326,8 @@ class Search
                 }
             }
 
-            if ($params['onlineStatus'] !== 0) {
-                $statement->bindValue(":onlineStatus", $params['onlineStatus'], \PDO::PARAM_INT);
+            if ($this->onlineStatus !== 0) {
+                $statement->bindValue(":onlineStatus", $this->onlineStatus, \PDO::PARAM_INT);
             }
 
         } else {
@@ -358,9 +352,6 @@ class Search
     private function setCriteria(array $cleanParams): \Tfish\Criteria
     {
         $criteria = $this->criteriaFactory->criteria();
-
-        if (isset($cleanParams['onlineStatus']))
-            $criteria->add($this->criteriaFactory->item('onlineStatus', $cleanParams['onlineStatus']));
 
         if (!empty($cleanParams['id'])) {
             $criteria->add($this->criteriaFactory->item('id', $cleanParams['id']));
@@ -476,12 +467,6 @@ class Search
             } else {
                 $cleanParams['secondaryOrder'] = 'DESC';
             }
-        }
-
-        if (isset($params['onlineStatus']) && $params['onlineStatus'] == 0) {
-            $cleanParams['onlineStatus'] = 0;
-        } else {
-            $cleanParams['onlineStatus'] = 1;
         }
 
         return $cleanParams;

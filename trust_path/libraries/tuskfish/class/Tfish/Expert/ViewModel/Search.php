@@ -40,7 +40,6 @@ namespace Tfish\Expert\ViewModel;
  * @var         int $start Position in result set to retrieve objects from.
  * @var         int $tag Tag ID.
  * @var         int $country Country ID
- * @var         int $onlineStatus Display online experts only (1).
  */
 
 class Search implements \Tfish\ViewModel\Listable
@@ -63,7 +62,6 @@ class Search implements \Tfish\ViewModel\Listable
     private $start = 0;
     private $tag = 0;
     private $country = 0;
-    private $onlineStatus = 1; // Lock to online only.
 
     /**
      * Constructor.
@@ -123,7 +121,6 @@ class Search implements \Tfish\ViewModel\Listable
         $searchResults = $this->model->searchTagCountry([
             'tag' => $this->tag,
             'country' => $this->country,
-            'onlineStatus' => $this->onlineStatus,
             'start' => $this->start,
             'limit' => $this->limit(),
         ]);
@@ -143,7 +140,6 @@ class Search implements \Tfish\ViewModel\Listable
 
         $searchResults = $this->model->searchAlphabetically([
             'alpha' => $this->alpha,
-            'onlineStatus' => $this->onlineStatus,
             'start' => $this->start,
             'limit' => $this->limit(),
         ]);
@@ -414,16 +410,6 @@ class Search implements \Tfish\ViewModel\Listable
         if (!empty($this->searchTerms())) $extraParams['searchTerms'] = \implode(" ", $this->searchTerms());
 
         return $extraParams;
-    }
-
-    /**
-     * Return onlineStatus
-     *
-     * @return  int Online experts only (1).
-     */
-    public function onlineStatus(): int
-    {
-        return $this->onlineStatus;
     }
 
     /**
