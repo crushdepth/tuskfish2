@@ -205,7 +205,19 @@ class ContentEdit
         $this->checkExCollection($content, $savedContent);
 
         // As this is being sent to storage, decode some entities that were encoded for display.
-        $fieldsToDecode = ['title', 'creator', 'publisher'];
+        $fieldsToDecode = [
+            'title',
+            'creator',
+            'publisher',
+            'image',
+            'media',
+            'externalMedia',
+            'format',
+            'caption',
+            'date',
+            'language',
+            'template',
+        ];
 
         foreach ($fieldsToDecode as $field) {
             if (isset($content[$field])) {
