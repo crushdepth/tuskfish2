@@ -132,8 +132,8 @@ class Admin implements \Tfish\ViewModel\Listable
     public function displayTable()
     {
         $this->pageTitle = TFISH_EXPERTS;
-        $this->listContent();
         $this->countContent();
+        $this->listContent();
         $this->template = 'expertTable';
     }
 

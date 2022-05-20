@@ -373,6 +373,12 @@ class Search
     {
         $cleanParams = [];
 
+        $id = (int) ($params['id'] ?? 0);
+
+        if ($id > 0) {
+            $cleanParams['id'] = $id;
+        }
+
         $alpha = $this->trimString($params['alpha'] ?? '');
 
         if (!empty($alpha) && $this->isAlpha($alpha) && \mb_strlen($params['alpha'], 'UTF-8') === 1) {
@@ -451,7 +457,7 @@ class Search
     }
 
     /** Getters and setters **/
-    
+
     /**
      * Return onlineStatus.
      *

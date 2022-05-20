@@ -48,7 +48,7 @@
         <tr>
           <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['id']); ?></td>
           <td><?php echo xss($viewModel->salutationList()[$row['salutation']]); ?></td>
-          <td><a href="<?php echo TFISH_ADMIN_URL . 'experts.php?action=view&amp;id=' . xss($row['id']); ?>">
+          <td><a href="<?php echo TFISH_EXPERTS_URL . '?id=' . xss($row['id']); ?>">
               <?php
                 echo xss($row['lastName']);
                 if ($row['lastName'] && ($row['firstName'] || $row['midName'])) {
