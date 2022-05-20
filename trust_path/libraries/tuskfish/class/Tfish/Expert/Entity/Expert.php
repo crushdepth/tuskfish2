@@ -317,11 +317,11 @@ class Expert
     {
         $url = empty($customRoute) ? TFISH_EXPERTS_URL : TFISH_URL;
 
-        if (!empty($customRoute)) {
-            $url .= $this->trimString($customRoute);
-        }
+        if (!empty($customRoute)) $url .= $customRoute;
 
         $url .= '?id=' . $this->id;
+
+        $url = \htmlspecialchars($url, ENT_QUOTES, "UTF-8");
 
         if (!empty($this->metaSeo)) {
             $url .= '&amp;title=' . $this->encodeQueryString($this->metaSeo);

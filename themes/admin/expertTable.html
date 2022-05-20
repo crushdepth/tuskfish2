@@ -21,7 +21,9 @@
     <div class="col form-buttons clearfix">
       <form method="post">
         <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
-        <button class="btn btn-primary float-start add-content" type="submit" formaction="<?php echo TFISH_EXPERTS_ADMIN_URL . 'edit/'; ?>"><?php echo TFISH_ADD; ?></button>
+        <button class="btn btn-primary float-start add-content" type="submit" formaction="<?php echo TFISH_EXPERTS_ADMIN_URL . 'edit/'; ?>">
+            <?php echo TFISH_ADD; ?>
+        </button>
       </form>
     </div>
 </div>
@@ -45,7 +47,7 @@
       <?php foreach($viewModel->contentList() as &$row): ?>
         <tr>
           <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['id']); ?></td>
-          <td><?php echo $viewModel->salutationList()[$row['salutation']]; ?></td>
+          <td><?php echo xss($viewModel->salutationList()[$row['salutation']]); ?></td>
           <td><a href="<?php echo TFISH_ADMIN_URL . 'experts.php?action=view&amp;id=' . xss($row['id']); ?>">
               <?php
                 echo xss($row['lastName']);
@@ -55,7 +57,7 @@
                 echo xss($row['firstName'] . ' ' . $row['midName']);
               ?>
             </a></td>
-          <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo $viewModel->countryList()[$row['country']]; ?></td>
+          <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($viewModel->countryList()[$row['country']]); ?></td>
           <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell">
               <?php
               if ($row['lastUpdated'] > 0) {

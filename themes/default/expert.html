@@ -34,7 +34,7 @@
               echo \implode(', ', $tags);
             ?>
         </p>
-        <p><strong><?php echo TFISH_EXPERTS_EMAIL . ': </strong>' . $expert->email(); ?></p>
+        <p><strong><?php echo TFISH_EXPERTS_EMAIL . ': </strong>' . xss($expert->email()); ?></p>
         <?php endif; ?>
       </div>
 
