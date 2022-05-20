@@ -278,6 +278,7 @@ namespace Tfish;
 
 // Experts module.
 \define("TFISH_EXPERTS", "Experts");
+\define("TFISH_EXPERTS_DESCRIPTION", "Browse our directory of aquaculture experts.");
 \define("TFISH_EXPERTS_MOBILE", "Mobile");
 \define("TFISH_EXPERTS_FAX", "Fax");
 \define("TFISH_EXPERTS_EMAIL", "Email");

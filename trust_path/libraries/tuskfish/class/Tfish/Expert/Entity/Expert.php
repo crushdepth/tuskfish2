@@ -24,6 +24,40 @@ namespace Tfish\Expert\Entity;
  * @version     Release: 1.0
  * @since       1.0
  * @package     experts
+ * @uses        \Tfish\Expert\Traits\Options    Common traits of expert objects and form controls.
+ * @uses        trait \Tfish\Traits\Language	Returns a list of languages in use by the system.
+ * @uses        trait \Tfish\Traits\Metadata HTML metadata tag support.
+ * @uses        trait \Tfish\Traits\Mimetypes	Provides a list of common (permitted) mimetypes for file uploads.
+ * @uses        trait \Tfish\Traits\ResizeImage	Resize and cache copies of image files to allow them to be used at different sizes in templates.
+ * @uses        trait \Tfish\Traits\Tag Support for tagging of content.
+ * @uses        trait \Tfish\Traits\TraversalCheck	Validates that a filename or path does NOT contain directory traversals in any form.
+ * @uses        trait \Tfish\Traits\UrlCheck    Validate that a URL meets the specification.
+ * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
+ * @var         int $id ID of this expert, auto-increment set by database.
+ * @var         int $salutation Title of this expert (Dr, Professor etc).
+ * @var         string $firstName First or given name.
+ * @var         string $midName Middle name(s).
+ * @var         string $lastName Last or surname.
+ * @var         int $gender Gender of this expert (0 female, 1 male).
+ * @var         string $job Title of position.
+ * @var         string $experience HTML summary of experience.
+ * @var         string $projects HTML summary of recent projects.
+ * @var         string $publications HTML summary of key publications.
+ * @var         string $businessUnit Name of business unit, eg. division.
+ * @var         string $organisation Name of organisation.
+ * @var         string $address Postal address sans country.
+ * @var         int $country Country (forms part of address).
+ * @var         string $email Email address.
+ * @var         string $mobile Mobile or other phone number.
+ * @var         string $fax Fax number.
+ * @var         string $profileUrl External URL to personal profile or website.
+ * @var         string $image Image of this expert.
+ * @var         int $onlineStatus Toggle expert online (1) or offline (0).
+ * @var         int $submissionTime When expert was submitted (timestamp).
+ * @var         int $lastUpdated When expert was last updated (timestamp).
+ * @var         int $expiresOn When expert should be toggled offline (timestamp, not implemented).
+ * @var         string $template Name of template file to display this expert (without extension).
+ * @var         string $module Name of module (locked to 'expert').
  */
 
 class Expert

@@ -54,6 +54,7 @@ class Search implements \Tfish\ViewModel\Listable
     private $searchResults = [];
     private $contentCount = 0;
 
+    private $description = '';
     private $action = '';
     private $id = 0;
     private $alpha = '';
@@ -72,6 +73,7 @@ class Search implements \Tfish\ViewModel\Listable
     public function __construct($model, \Tfish\Entity\Preference $preference)
     {
         $this->pageTitle = TFISH_EXPERTS;
+        $this->description = TFISH_EXPERTS_DESCRIPTION;
         $this->model = $model;
         $this->preference = $preference;
         $this->template = 'expertListView';
@@ -80,7 +82,6 @@ class Search implements \Tfish\ViewModel\Listable
         $this->order = 'DESC';
         $this->secondarySort = 'submissionTime';
         $this->secondaryOrder = 'DESC';
-        $this->setMetadata([]);
     }
 
     /** Actions. **/
@@ -88,7 +89,9 @@ class Search implements \Tfish\ViewModel\Listable
     /**
      * Display the search form.
      */
-    public function displayForm() {}
+    public function displayForm() {
+        $this->setMetadata();
+    }
 
     /**
      * Display experts filtered by tag or country.
@@ -106,6 +109,7 @@ class Search implements \Tfish\ViewModel\Listable
 
         $this->contentCount = (int) \array_shift($searchResults);
         $this->searchResults = $searchResults;
+        $this->setMetadata();
     }
 
     /**
@@ -144,6 +148,7 @@ class Search implements \Tfish\ViewModel\Listable
 
         $this->contentCount = (int) \array_shift($searchResults);
         $this->searchResults = $searchResults;
+        $this->setMetadata();
     }
 
     /**
@@ -163,6 +168,8 @@ class Search implements \Tfish\ViewModel\Listable
 
         $this->contentCount = (int) \array_shift($searchResults);
         $this->searchResults = $searchResults;
+
+        $this->pageTitle .= ": " . \mb_strtoupper($this->alpha, "UTF-8");
     }
 
     /** Utilities. */
@@ -200,7 +207,7 @@ class Search implements \Tfish\ViewModel\Listable
 
         foreach (['start', 'tag', 'country', 'action'] as $param) {
             if (!empty($this->$param)) {
-                $setParams[$param] = $param . '=' . $this->param;
+                $setParams[$param] = $param . '=' . $this->$param;
             }
         }
 
