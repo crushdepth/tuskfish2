@@ -55,7 +55,7 @@ class Search
      */
     public function display(): array
     {
-        $cacheParams = ['page' => 'experts'];
+        $cacheParams = [];
         $id = (int) ($_GET['id'] ?? 0);
         $tag = (int) ($_REQUEST['tag'] ?? 0);
         $country = (int) ($_REQUEST['country'] ?? 0);
@@ -93,7 +93,7 @@ class Search
      */
     public function name(): array
     {
-        $cacheParams = ['page' => 'experts'];
+        $cacheParams = [];
 
         $start = (int) ($_GET['start'] ?? 0);
         if ($start > 0) $cacheParams['start'] = $start;

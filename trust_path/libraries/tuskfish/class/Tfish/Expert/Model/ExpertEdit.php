@@ -94,7 +94,7 @@ class ExpertEdit
      */
     public function edit(int $id): array
     {
-        $row = $this->getRow($id);
+        $row = $this->getRow((int) $id);
 
         if (empty($row)) {
             return [];
@@ -162,7 +162,7 @@ class ExpertEdit
         }
 
         // Check if delete flag was set.
-        if ($_POST['deleteImage'] === '1' && !empty($savedContent['image'])) {
+        if ($_POST['deleteImage'] == '1' && !empty($savedContent['image'])) {
             $content['image'] = '';
             $this->fileHandler->deleteFile('image/' . $savedContent['image']);
         }
@@ -195,7 +195,7 @@ class ExpertEdit
 
         foreach ($fieldsToDecode as $field) {
             if (isset($content[$field])) {
-                $content[$field] = htmlspecialchars_decode($content[$field], ENT_NOQUOTES);
+                $content[$field] = \htmlspecialchars_decode($content[$field], ENT_NOQUOTES);
             }
         }
 
@@ -204,7 +204,7 @@ class ExpertEdit
 
         foreach ($fieldsToDecode as $field) {
             if (isset($content[$field])) {
-                $content[$field] = htmlspecialchars_decode($content[$field], ENT_QUOTES);
+                $content[$field] = \htmlspecialchars_decode($content[$field], ENT_QUOTES);
             }
         }
 
@@ -221,6 +221,8 @@ class ExpertEdit
      */
     private function getRow(int $id): array
     {
+        $id = (int) $id;
+
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
 

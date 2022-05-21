@@ -81,6 +81,8 @@ class Admin
      */
     public function delete(int $id): bool
     {
+        $id = (int) $id;
+
         if ($id < 1) {
             return false;
         }
@@ -132,6 +134,8 @@ class Admin
      */
     public function toggleOnlineStatus(int $id): bool
     {
+        $id = (int) $id;
+
         if ($id < 1) {
             return false;
         }
@@ -213,6 +217,8 @@ class Admin
      */
     private function getRow(int $id)
     {
+        $id = (int) $id;
+
         if ($id < 1) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_NOTICE);
             return [];
@@ -303,14 +309,14 @@ class Admin
     {
         $cleanParams = [];
 
-        if ($params['id'] ?? 0)
-            $cleanParams['id'] = (int) $params['id'];
+        $id = (int) ($params['id'] ?? 0);
+        if ($id > 0) $cleanParams['id'] = $id;
 
-        if ($params['start'] ?? 0)
-            $cleanParams['start'] = (int) $params['start'];
+        $start = (int) ($params['start'] ?? 0);
+        if ($start > 0) $cleanParams['start'] = $start;
 
-        if ($params['tag'] ?? 0)
-            $cleanParams['tag'] = (int) ($params['tag']);
+        $tag = (int) ($params['tag'] ?? 0);
+        if ($tag > 0) $cleanParams['tag'] = $tag;
 
         if (isset($params['onlineStatus'])) {
             $onlineStatus = (int) $params['onlineStatus'];

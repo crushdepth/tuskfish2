@@ -139,6 +139,8 @@ class Search implements \Tfish\ViewModel\Listable
      */
     public function search()
     {
+        $this->action = 'search';
+
         $searchResults = $this->model->search([
             'searchTerms' => $this->searchTerms,
             'escapedSearchTerms' => $this->escapedSearchTerms,
@@ -237,13 +239,7 @@ class Search implements \Tfish\ViewModel\Listable
      */
     public function setAlpha(string $letter)
     {
-        $letter = $this->trimString($letter);
-
-        if (!$this->isAlpha($letter) || \mb_strlen($letter, 'UTF-8') > 1) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
-        }
-
-        $this->alpha = $letter;
+        $this->alpha = $this->trimString($letter);
     }
 
     /**
@@ -305,7 +301,7 @@ class Search implements \Tfish\ViewModel\Listable
      */
     public function setId(int $id)
     {
-        $this->id = (int) $id;
+        $this->id = $id;
     }
 
     /**
