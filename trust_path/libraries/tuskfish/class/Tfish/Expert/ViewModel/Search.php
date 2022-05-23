@@ -170,8 +170,9 @@ class Search implements \Tfish\ViewModel\Listable
 
         $this->contentCount = (int) \array_shift($searchResults);
         $this->searchResults = $searchResults;
-
         $this->pageTitle .= ": " . \mb_strtoupper($this->alpha, "UTF-8");
+        $this->description = TFISH_EXPERTS_DESCRIPTION;
+        $this->setMetadata();
     }
 
     /** Utilities. */
@@ -203,11 +204,9 @@ class Search implements \Tfish\ViewModel\Listable
 
         if ($this->id) return $canonicalUrl . '?id=' . $this->id;
 
-        if ($this->start || $this->tag || $this->country) $canonicalUrl .= '?';
-
         $setParams = [];
 
-        foreach (['start', 'tag', 'country', 'action'] as $param) {
+        foreach (['action', 'alpha', 'tag', 'country', 'start'] as $param) {
             if (!empty($this->$param)) {
                 $setParams[$param] = $param . '=' . $this->$param;
             }
