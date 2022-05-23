@@ -139,6 +139,9 @@ namespace Tfish;
 \define("TFISH_PAGINATION_FIRST", "First");
 \define("TFISH_PAGINATION_LAST", "Last");
 
+// Utilities
+\define("TFISH_STATE", "State");
+
 // Base intellectual property licenses.
 \define("TFISH_RIGHTS_COPYRIGHT", "Copyright, all rights reserved.");
 \define("TFISH_RIGHTS_ATTRIBUTION", "Creative Commons Attribution.");
