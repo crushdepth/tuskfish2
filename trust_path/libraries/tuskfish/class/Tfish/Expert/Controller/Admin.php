@@ -71,8 +71,6 @@ class Admin
     {
         $id = (int) ($_GET['id'] ?? 0);
         $this->viewModel->setId($id);
-        $this->viewModel->setContentTitle();
-
         $this->viewModel->displayConfirmDelete();
 
         return [];

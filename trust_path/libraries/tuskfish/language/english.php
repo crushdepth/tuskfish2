@@ -305,3 +305,4 @@ namespace Tfish;
 \define("TFISH_EXPERTS_NO_EXPERTS_MATCH_YOUR_CRITERIA", "No experts matched these criteria.");
 \define("TFISH_EXPERTS_SELECT_STATE", "- Select state -");
 \define("TFISH_ERROR_NO_SUCH_EXPERT", "No such expert");
+\define("TFISH_EXPERTS_ARE_YOU_SURE", "Are you sure you wish to delete this expert?");

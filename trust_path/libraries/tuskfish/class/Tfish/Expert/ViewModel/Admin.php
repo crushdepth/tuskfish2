@@ -338,14 +338,6 @@ class Admin implements \Tfish\ViewModel\Listable
     }
 
     /**
-     * Set title of page.
-     */
-    public function setContentTitle()
-    {
-        $this->contentTitle = $this->model->getTitle($this->id);
-    }
-
-    /**
      * Return online status.
      *
      * @return  int Online (1) or offline (0).

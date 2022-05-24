@@ -360,6 +360,7 @@ class ExpertEdit
 
         $clean['submissionTime'] = (int) ($form['submissionTime'] ?? 0);
         $clean['lastUpdated'] = (int) ($form['lastUpdated'] ?? 0);
+        $clean['expiresOn'] = (int) ($form['expiresOn'] ?? 0);
 
         return $clean;
     }

@@ -10,7 +10,7 @@
 
 <div>
   <div class="alert alert-danger">
-    <strong><?php echo TFISH_DO_YOU_WANT_TO_DELETE . ': ' . xss($viewModel->contentTitle()); ?></strong>
+    <strong><?php echo TFISH_EXPERTS_ARE_YOU_SURE; ?></strong>
   </div>
   <form class="form-horizontal" action="<?php echo TFISH_EXPERTS_ADMIN_URL; ?>" method="post" accept-charset="UTF-8">
     <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
