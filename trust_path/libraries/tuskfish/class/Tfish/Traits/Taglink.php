@@ -68,9 +68,10 @@ trait TagLink
      * This is a helper function used in edit operations.
      *
      * @param   int $id ID of content object.
+     * @param string $module Name of module (disambiguate content ID).
      * @return  array Array of tag IDs.
      */
-    private function getTagIds(int $id): array
+    private function getTagIds(int $id, string $module = 'content'): array
     {
         $columns = ['tagId'];
         $criteria = $this->criteriaFactory->criteria();
