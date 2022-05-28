@@ -89,7 +89,7 @@ class Password
     {
         $userId = (int) $_SESSION['userId'];
 
-        if (empty($userId) || !isset($_SESSION['TFISH_LOGIN']) || $_SESSION['TFISH_LOGIN'] !== true) {
+        if (empty($userId) || empty($_SESSION['TFISH_LOGIN'])) {
             return false;
         }
 

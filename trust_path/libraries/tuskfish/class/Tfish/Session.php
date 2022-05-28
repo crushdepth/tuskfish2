@@ -74,7 +74,7 @@ class Session
      */
     public function getLoginLink(): string
     {
-        if ($this->isAdmin()) {
+        if ($this->isEditor()) {
             return '<a href="' . TFISH_URL . 'logout/">' . TFISH_LOGOUT . '</a>';
         } else {
             return '<a href="' . TFISH_URL . 'login/">' . TFISH_LOGIN . '</a>';
@@ -82,7 +82,7 @@ class Session
     }
 
     /**
-     * Shorthand admin privileges check.
+     * Shorthand admin (super user) privileges check.
      *
      * For added security this could retrieve an encrypted token, preferably the SSL session id,
      * although thats availability seems to depend on server configuration.
@@ -91,7 +91,22 @@ class Session
      */
     public function isAdmin(): bool
     {
-        if (isset($_SESSION['TFISH_LOGIN']) && $_SESSION['TFISH_LOGIN'] === true) {
+        if (isset($_SESSION['TFISH_LOGIN']) && $_SESSION['TFISH_LOGIN'] === 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Shorthand editor privileges check (admin also qualifies)
+     *
+     * @return boolean
+     */
+    public function isEditor(): bool
+    {
+        if (isset($_SESSION['TFISH_LOGIN']) &&
+            ($_SESSION['TFISH_LOGIN'] === 1 || $_SESSION['TFISH_LOGIN'] === 2 )) {
             return true;
         } else {
             return false;
@@ -233,8 +248,7 @@ class Session
         // If login successful regenerate session due to privilege escalation.
         if (\password_verify($dirtyPassword, $user['passwordHash'])) {
             $this->regenerate();
-            $_SESSION['TFISH_LOGIN'] = true;
-            $_SESSION['userId'] = (int) $user['id'];
+            $this->setLoginFlags($user);
 
             // Reset failed login counter to zero.
             $this->db->update('user', (int) $user['id'], ['loginErrors' => 0]);
@@ -268,6 +282,28 @@ class Session
     {
         $delay = ($seconds <= 15) ? $seconds : 15;
         \sleep($delay);
+    }
+
+    /**
+     * Set the User ID and user group in the session.
+     *
+     * This function must only be called after a successful login, as it is used for all
+     * subsequent authentication checks.
+     *
+     * @param array $user User info as an array read from database.
+     * @return void
+     */
+    private function setLoginFlags(array $user)
+    {
+        $_SESSION['userId'] = (int) $user['id'];
+
+        if ($user['userGroup'] === '1') {
+            $_SESSION['TFISH_LOGIN'] = 1;
+        }
+
+        if ($user['userGroup'] === '2') {
+            $_SESSION['TFISH_LOGIN'] = 2;
+        }
     }
 
     /**
@@ -349,7 +385,7 @@ class Session
             'X-Mailer' => 'PHP/' . phpversion(),
             'Content-type' => 'text/plain; charset=utf-8'
         ];
-        $message = TFISH_LOGIN_NOTED_MESSAGE . $email . '.';
+        $message = TFISH_LOGIN_NOTED_MESSAGE . xss($email) . '.';
 
         mail($to, $subject, $message, $headers);
     }
@@ -564,10 +600,7 @@ class Session
         // If both checks are good regenerate session due to priviledge escalation and login.
         if ($first_factor === true && $second_factor === true) {
             $this->regenerate();
-            $_SESSION['TFISH_LOGIN'] = true;
-
-            // Added as a handle for the password change script.
-            $_SESSION['userId'] = (int) $user['id'];
+            $this->setLoginFlags($user);
 
             // Reset failed login counter to zero.
             $this->db->update('user', (int) $user['id'], ['loginErrors' => 0]);

@@ -69,7 +69,7 @@ class FrontController
         $this->session = $session;
         $session->start();
         $this->checkSiteClosed($preference, $path);
-        $this->checkAdminOnly($route);
+        $this->checkAccessRights($route);
 
         // Create MVVM components with dice (as they have variable dependencies).
         $pagination = $dice->create('\\Tfish\\Pagination', [$path]);
@@ -103,9 +103,16 @@ class FrontController
      *
      * @param   \Tfish\Route $route
      */
-    private function checkAdminOnly(Route $route)
+    private function checkAccessRights(Route $route)
     {
-        if ($route->loginRequired() && !$this->session->isAdmin()) {
+        // Route restricted to admin.
+        if ($route->loginRequired() === 1 && !$this->session->isAdmin()) {
+            \header('Location: ' . TFISH_URL . 'login/');
+            exit;
+        }
+
+        // Route restricted to Editors and admin.
+        if ($route->loginRequired() === 2 && !$this->session->isEditor()) {
             \header('Location: ' . TFISH_URL . 'login/');
             exit;
         }

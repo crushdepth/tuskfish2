@@ -29,7 +29,7 @@ namespace Tfish;
  * @var         string $viewModel Class name of the viewModel.
  * @var         string $view Class name of the view.
  * @var         string $controller Class name of the controller.
- * @var         bool $login True if this route requires admin privileges, otherwise false.
+ * @var         int $login Is this route restricted access (0 public, 1 super user only, 2 editor and super user.
  */
 
 class Route
@@ -49,14 +49,14 @@ class Route
      * @param   string $viewModel Classname of the viewModel required for this route.
      * @param   string $view Classname of the view required for this route.
      * @param   string $controller Classname of the controller required for this route.
-     * @param   bool $login Whether this route is restricted to admins (true) or not (false).
+     * @param   int $login Whether this route is public (0), restricted to admins (1) or editors (2).
      */
     public function __construct(
         string $model,
         string $viewModel,
         string $view,
         string $controller,
-        bool $login
+        int $login
         )
     {
         $this->model = $this->trimString($model);
@@ -79,9 +79,9 @@ class Route
     /**
      * Restricted route?
      *
-     * @return  bool Whether this route is restricted to admins (true) or not (false).
+     * @return  int Whether this route is public (0), restricted to admins (1) or editors (2).
      */
-    public function loginRequired(): bool
+    public function loginRequired(): int
     {
         return $this->login;
     }
