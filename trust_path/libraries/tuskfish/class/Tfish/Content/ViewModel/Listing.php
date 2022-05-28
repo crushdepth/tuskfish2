@@ -116,7 +116,7 @@ class Listing implements \Tfish\ViewModel\Listable
                 $this->countContent();
             }
 
-            $this->template = $this->content->template();
+            $this->template = !empty($this->template) ? $this->template : $this->content->template();
             $this->setMetadata();
         } else {
             $this->pageTitle = TFISH_ERROR;
