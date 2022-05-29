@@ -91,11 +91,11 @@ class Session
      */
     public function isAdmin(): bool
     {
-        if (isset($_SESSION['TFISH_LOGIN']) && $_SESSION['TFISH_LOGIN'] === 1) {
+        if ($this->verifyPrivileges() === '1') {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -105,12 +105,39 @@ class Session
      */
     public function isEditor(): bool
     {
-        if (isset($_SESSION['TFISH_LOGIN']) &&
-            ($_SESSION['TFISH_LOGIN'] === 1 || $_SESSION['TFISH_LOGIN'] === 2 )) {
+        $privileges = $this->verifyPrivileges();
+
+        if ($privileges === '1' || $privileges === '2') {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
+    }
+
+    /**
+     * Verify that the current session is valid and return current user group.
+     *
+     * If the password has changed since the user logged in, they will be denied access.
+     *
+     * @return string User group as string.
+     */
+    private function verifyPrivileges(): string
+    {
+        if (empty($_SESSION['adminEmail'])) {
+            return '0';
+        }
+
+        $user = $this->_getUser($_SESSION['adminEmail']);
+
+        if (empty($user)) {
+            return '0';
+        }
+
+        if ($_SESSION['passwordHash'] !== $user['passwordHash']) {
+            return '0';
+        }
+
+        return $user['userGroup'];
     }
 
     /**
@@ -287,22 +314,17 @@ class Session
     /**
      * Set the User ID and user group in the session.
      *
-     * This function must only be called after a successful login, as it is used for all
-     * subsequent authentication checks.
+     * This function must ONLY be called after a successful login, as it is used as the basis for
+     * all subsequent authentication checks.
      *
      * @param array $user User info as an array read from database.
      * @return void
      */
     private function setLoginFlags(array $user)
     {
-        $_SESSION['userId'] = (int) $user['id'];
-
-        if ($user['userGroup'] === '1') {
-            $_SESSION['TFISH_LOGIN'] = 1;
-        }
-
-        if ($user['userGroup'] === '2') {
-            $_SESSION['TFISH_LOGIN'] = 2;
+        if ($user['userGroup'] === '1' || $user['userGroup'] === '2') {
+            $_SESSION['adminEmail'] = $user['adminEmail'];
+            $_SESSION['passwordHash'] = $user['passwordHash'];
         }
     }
 
