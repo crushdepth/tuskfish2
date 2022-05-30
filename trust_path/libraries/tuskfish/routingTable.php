@@ -130,5 +130,17 @@ return [
         '\\Tfish\\ViewModel\\Token',
         '\\Tfish\\View\\Single',
         '\\Tfish\\Controller\\Error',
-        0)
+        0),
+    '/admin/users/' => new Route(
+        '\\Tfish\\User\\Model\\Admin',
+        '\\Tfish\\User\\ViewModel\\Admin',
+        '\\Tfish\\View\\Listing',
+        '\\Tfish\\User\\Controller\\Admin',
+        1),
+    '/admin/users/edit/' => new Route(
+        '\\Tfish\\User\\Model\\UserEdit',
+        '\\Tfish\\User\\ViewModel\\UserEdit',
+        '\\Tfish\\View\\Single',
+        '\\Tfish\\User\\Controller\\UserEdit',
+        1),
 ];

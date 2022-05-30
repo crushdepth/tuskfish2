@@ -121,6 +121,12 @@ namespace Tfish;
 \define("TFISH_PREFERENCE_SESSION_LIFE", "Session life (minutes)");
 \define("TFISH_PREFERENCE_MAPS_API_KEY", "Google Maps API key");
 
+// Users
+\define("TFISH_USERS", "Users");
+\define("TFISH_USER_GROUP", "Group");
+\define("TFISH_USER_YUBIKEY", "Yubikey ID");
+\define("TFISH_USER_LOGIN_ERRORS", "Login errors");
+
 // Search.
 \define("TFISH_SEARCH", "Search");
 \define("TFISH_ADMIN_SEARCH", "Admin search");

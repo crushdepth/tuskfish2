@@ -151,7 +151,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             `userGroup` INTEGER NOT NULL,
             `yubikeyId` TEXT NOT NULL,
             `yubikeyId2` TEXT NOT NULL,
-            `loginErrors` INTEGER NOT NULL
+            `loginErrors` INTEGER NOT NULL,
+            `onlineStatus` INTEGER NOT NULL
         );";
         $statement = $database->preparedStatement($sql);
         $statement->execute();
@@ -220,7 +221,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'userGroup' => '1',
             'yubikeyId' => '',
             'yubikeyId2' => '',
-            'loginErrors' => '0'
+            'loginErrors' => '0',
+            'onlineStatus' => '1',
             );
         $query = $database->insert('user', $userData);
 
