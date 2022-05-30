@@ -47,10 +47,11 @@ class Admin implements \Tfish\ViewModel\Listable
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
+    use \Tfish\User\Traits\UserGroup;
 
     private $model;
     private $preference;
-    private $contentTitle = '';
+    private $userEmail = '';
     private $contentList = [];
     private $contentCount = 0;
     private $id = 0;
@@ -92,7 +93,7 @@ class Admin implements \Tfish\ViewModel\Listable
     public function displayConfirmDelete()
     {
         $this->pageTitle = TFISH_CONFIRM;
-        $this->template = 'confirmDelete';
+        $this->template = 'confirmDeleteUser';
         $this->action = 'confirm';
         $this->backUrl = TFISH_ADMIN_USERS_URL;
     }
@@ -114,7 +115,7 @@ class Admin implements \Tfish\ViewModel\Listable
         }
 
         $this->template ='response';
-        $this->backUrl = TFISH_ADMIN_URL;
+        $this->backUrl = TFISH_ADMIN_USERS_URL;
     }
 
     /**
@@ -238,19 +239,19 @@ class Admin implements \Tfish\ViewModel\Listable
     }
 
     /**
-     * Return content title.
+     * Return user email.
      */
-    public function contentTitle(): string
+    public function userEmail(): string
     {
-        return $this->contentTitle;
+        return $this->userEmail;
     }
 
     /**
-     * Set title of content object.
+     * Set email of user object.
      */
-    public function setContentTitle()
+    public function setUserEmail()
     {
-        $this->contentTitle = $this->model->getTitle($this->id);
+        $this->userEmail = $this->model->getEmail($this->id);
     }
 
     /**

@@ -126,6 +126,8 @@ namespace Tfish;
 \define("TFISH_USER_GROUP", "Group");
 \define("TFISH_USER_YUBIKEY", "Yubikey ID");
 \define("TFISH_USER_LOGIN_ERRORS", "Login errors");
+\define("TFISH_USER_SUPER_USER", "Admin");
+\define("TFISH_USER_EDITOR", "Editor");
 
 // Search.
 \define("TFISH_SEARCH", "Search");

@@ -1,5 +1,7 @@
 <?php declare(strict_types=1); ?>
 
+<?php $groups = $viewModel->userGroupList(); ?>
+
 <!-- Container -->
 <div class="container">
 
@@ -13,7 +15,7 @@
   <div class="col form-buttons clearfix">
     <form method="post">
       <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
-      <button class="btn btn-primary float-start add-content" type="submit" formaction="<?php echo TFISH_ADMIN_URL . 'user/'; ?>"><?php echo TFISH_ADD; ?></button>
+      <button class="btn btn-primary float-start add-content" type="submit" formaction="<?php echo TFISH_ADMIN_USERS_URL; ?>"><?php echo TFISH_ADD; ?></button>
     </form>
   </div>
 </div>
@@ -36,12 +38,12 @@
     <tbody>
     <?php foreach($viewModel->contentList() as &$row): ?>
       <tr>
-        <td><?php echo xss($row['id']); ?></td>
+        <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['id']); ?></td>
         <td><?php echo xss($row['adminEmail']); ?></td>
-        <td><?php echo xss($row['userGroup']); ?></td>
-        <td><?php echo xss($row['yubikeyId']); ?></td>
-        <td><?php echo xss($row['yubikeyId2']); ?></td>
-        <td><?php echo xss($row['loginErrors']); ?></td>
+        <td><?php echo xss($groups[$row['userGroup']]); ?></td>
+        <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['yubikeyId']); ?></td>
+        <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['yubikeyId2']); ?></td>
+        <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['loginErrors']); ?></td>
         <?php if ($row['userGroup'] === '1'): ?>
         <td class="text-center"><i class="fas fa-check"></i></td>
         <td class="text-center"><a href="<?php echo TFISH_ADMIN_USERS_URL; ?>?action=edit&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-edit"></i></a></td>

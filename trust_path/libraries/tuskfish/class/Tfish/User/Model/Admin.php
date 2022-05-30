@@ -68,9 +68,9 @@ class Admin
     /** Actions. */
 
     /**
-     * Delete content object.
+     * Delete user object.
      *
-     * @param   int $id ID of content object.
+     * @param   int $id ID of user.
      * @return  bool True on success, false on failure.
      */
     public function delete(int $id): bool
@@ -81,18 +81,18 @@ class Admin
 
         $row = $this->getRow($id);
 
-        if (!$row) {
+        if (!$row || $row['userGroup'] == '1') {
             return false;
         }
 
-        return $this->database->delete('content', $id);
+        return $this->database->delete('user', $id);
     }
 
     /**
-     * Get content objects.
+     * Get users.
      *
      * @param   array $params Filter criteria.
-     * @return  array Array of content objects.
+     * @return  array Array of user objects.
      */
     public function getObjects(array $params): array
     {
@@ -103,9 +103,9 @@ class Admin
     }
 
     /**
-     * Toggle a content object online or offline.
+     * Toggle a user online or offline.
      *
-     * @param   int $id ID of content object.
+     * @param   int $id ID of user object.
      * @return  bool True on success, false on failure.
      */
     public function toggleOnlineStatus(int $id): bool
@@ -159,7 +159,7 @@ class Admin
     }
 
     /**
-     * Return certain columns from a content object required to aid its deletion.
+     * Return certain columns from a user object required to aid its deletion.
      *
      * @param   int $id ID of content object.
      * @return  array Associative array containing type, id, image and media values.
@@ -178,17 +178,17 @@ class Admin
     }
 
     /**
-     * Return the title of a given content object.
+     * Return the title of a given user object.
      *
-     * @param   int $id ID of content object.
-     * @return  string Title of content object.
+     * @param   int $id ID of user object.
+     * @return  string Title of user object.
      */
-    public function getTitle(int $id)
+    public function getEmail(int $id)
     {
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
 
-        $statement = $this->database->select('user', $criteria, ['email']);
+        $statement = $this->database->select('user', $criteria, ['adminEmail']);
 
         return $statement->fetch(\PDO::FETCH_COLUMN);
     }
@@ -198,7 +198,7 @@ class Admin
      *
      * @param   \Tfish\Criteria $criteria Filter criteria.
      * @param   array $columns Columns to select.
-     * @return  array Array of content objects.
+     * @return  array Array of user objects.
      */
     private function runQuery(\Tfish\Criteria $criteria, array $columns = null): array
     {

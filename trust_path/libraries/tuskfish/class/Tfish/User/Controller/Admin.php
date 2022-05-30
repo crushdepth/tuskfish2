@@ -71,7 +71,7 @@ class Admin
     {
         $id = (int) ($_GET['id'] ?? 0);
         $this->viewModel->setId($id);
-        $this->viewModel->setUserTitle();
+        $this->viewModel->setUserEmail();
 
         $this->viewModel->displayConfirmDelete();
 
