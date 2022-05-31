@@ -146,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $sql = "CREATE TABLE IF NOT EXISTS `user` (
             `id` INTEGER PRIMARY KEY,
-            `adminEmail` TEXT NOT NULL,
+            `adminEmail` TEXT NOT NULL UNIQUE,
             `passwordHash` TEXT NOT NULL,
             `userGroup` INTEGER NOT NULL,
             `yubikeyId` TEXT NOT NULL,

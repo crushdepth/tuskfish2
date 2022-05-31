@@ -23,8 +23,7 @@ namespace Tfish\User\ViewModel;
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0
  * @since       2.0
- * @package     content
- * @uses        trait \Tfish\Traits\Timezones	Provides an array of time zones.
+ * @package     user
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
  * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\View\Viewable interface.
@@ -39,7 +38,6 @@ namespace Tfish\User\ViewModel;
  */
 class UserEdit implements \Tfish\ViewModel\Viewable
 {
-    use \Tfish\Traits\Timezones;
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
     use \Tfish\Traits\Viewable;
@@ -77,10 +75,10 @@ class UserEdit implements \Tfish\ViewModel\Viewable
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
 
-        $this->pageTitle = TFISH_ADD;
+        $this->pageTitle = TFISH_USER_ADD;
         $this->content = new \Tfish\Content\Entity\Content();
         $this->parentOptions = [];
-        $this->template = 'contentEntry';
+        $this->template = 'userEntry';
     }
 
     /**
@@ -88,19 +86,19 @@ class UserEdit implements \Tfish\ViewModel\Viewable
      */
     public function displayCancel()
     {
-        \header('Location: ' . TFISH_ADMIN_URL);
+        \header('Location: ' . TFISH_ADMIN_USERS_URL);
         exit;
     }
 
     /**
-     * Display edit content form.
+     * Display edit user form.
      */
     public function displayEdit()
     {
         $id = (int) ($_GET['id'] ?? 0);
 
         $this->pageTitle = TFISH_EDIT;
-        $content = new \Tfish\Content\Entity\Content();
+        $content = new \Tfish\User\Entity\User;
 
         if ($data = $this->model->edit($id)) {
             $content->load($data, false);
@@ -236,9 +234,9 @@ class UserEdit implements \Tfish\ViewModel\Viewable
     /**
      * Return a content object.
      *
-     * @return \Tfish\Content\Entity\Content
+     * @return \Tfish\User\Entity\User
      */
-    public function content(): \Tfish\Content\Entity\Content
+    public function content(): \Tfish\User\Entity\User
     {
         return $this->content;
     }
@@ -248,7 +246,7 @@ class UserEdit implements \Tfish\ViewModel\Viewable
      *
      * @param   \Tfish\Content\Entity\Content $content Content object to be edited.
      */
-    public function setContent(\Tfish\Content\Entity\Content $content)
+    public function setContent(\Tfish\User\Entity\User $content)
     {
         $this->content = $content;
     }

@@ -131,6 +131,8 @@ return [
         '\\Tfish\\View\\Single',
         '\\Tfish\\Controller\\Error',
         0),
+
+    // Users
     '/admin/users/' => new Route(
         '\\Tfish\\User\\Model\\Admin',
         '\\Tfish\\User\\ViewModel\\Admin',
