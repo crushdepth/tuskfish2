@@ -179,20 +179,23 @@ class UserEdit
 
         if (!empty($form['password'])) $clean['passwordHash'] = $this->session->hashPassword($form['password']);
 
-        // YubikeyId (primary).
+        // Yubikey IDs
         $yubikeyId = !empty($form['yubikeyId']) ? $this->trimString($form['yubikeyId']) : '';
+        $yubikeyId2 = !empty($form['yubikeyId2']) ? $this->trimString($form['yubikeyId2']) : '';
 
-        if (!empty($yubikeyId) && \mb_strlen($yubikeyId) !== 12) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        // Check if this record has duplicate primary and secondary yubikey IDs.
+        if ($form['yubikeyId'] && $form['yubikeyId2'] && $form['yubikeyId'] === $form['yubikeyId2']) {
+            \trigger_error(TFISH_ERROR_YUBIKEY_NOT_UNIQUE, E_USER_ERROR);
+        }
+
+        if (!empty($yubikeyId) && !$this->isValidYubikeyId($id, $yubikeyId)) {
+            \trigger_error(TFISH_ERROR_YUBIKEY_NOT_UNIQUE, E_USER_ERROR);
         }
 
         $clean['yubikeyId'] = $yubikeyId;
 
-        // YubikeyId2 (secondary).
-        $yubikeyId2= !empty($form['yubikeyId2']) ? $this->trimString($form['yubikeyId2']) : '';
-
-        if (!empty($yubikeyId2) && \mb_strlen($yubikeyId2) !== 12)  {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        if (!empty($yubikeyId2) && !$this->isValidYubikeyId($id, $yubikeyId2)) {
+            \trigger_error(TFISH_ERROR_YUBIKEY_NOT_UNIQUE, E_USER_ERROR);
         }
 
         $clean['yubikeyId2'] = $yubikeyId2;
@@ -213,7 +216,7 @@ class UserEdit
 
         $clean['onlineStatus'] = $onlineStatus;
 
-        $clean = $this->lockAdminFields($clean);
+        if ($id > 0) $clean = $this->lockAdminFields($clean);
 
         return $clean;
     }
@@ -234,5 +237,41 @@ class UserEdit
         }
 
         return $clean;
+    }
+
+    /**
+     * Check if a submitted yubikey ID is unique.
+     *
+     * The yubikey Id is used to identify accounts when using two-factor authentication, so they
+     * must be unique, you cannot share them!
+     *
+     * @param int $id ID of user (0) if new user.
+     * @param string $yubikeyId First 12 characters of yubikey output.
+     * @return boolean true if valid and unique, false if ID is invalid or already in use.
+     */
+    private function isValidYubikeyId(int $id, string $yubikeyId): bool
+    {
+        if (\mb_strlen($yubikeyId) !== 12) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        }
+
+        $count = 0;
+
+        $sql = "SELECT COUNT(*) FROM `user` WHERE " .
+                "(`yubikeyId` = :yubikeyId OR " .
+                "`yubikeyId2` = :yubikeyId) ";
+
+        if ($id > 0) $sql .= " AND `id` != :id";
+
+        $statement = $this->database->preparedStatement($sql);
+        $statement->bindParam(':yubikeyId', $yubikeyId, \PDO::PARAM_STR);
+
+        if ($id > 0) $statement->bindParam(':id', $id, \PDO::PARAM_INT);
+
+        $statement->execute();
+        $count = $statement->fetch(\PDO::FETCH_NUM);
+        $count = (int) \reset($count);
+
+        return $count === 0 ? true : false;
     }
 }

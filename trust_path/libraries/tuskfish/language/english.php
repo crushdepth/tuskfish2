@@ -128,6 +128,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_USER_RESET_PASSWORD", "Reset password");
 \define("TFISH_USER_GROUP", "Group");
 \define("TFISH_USER_YUBIKEY_ID", "Yubikey ID");
+\define("TFISH_ERROR_YUBIKEY_NOT_UNIQUE", "Yubikey ID not unique");
 \define("TFISH_USER_LOGIN_ERRORS", "Login errors");
 \define("TFISH_USER_SUPER_USER", "Admin");
 \define("TFISH_USER_EDITOR", "Editor");
