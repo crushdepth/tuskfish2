@@ -409,9 +409,9 @@ class Session
     private function notifyAdminLogin(string $email)
     {
         $siteName = $this->preference->siteName() ? $this->preference->siteName() : TUSKFISH_CMS;
-        $siteEmail = $this->preference->siteEmail() ? $this->preference->siteEmail() : $email;
+        $siteEmail = $this->preference->siteEmail();
 
-        $to = $email;
+        $to = $siteEmail;
         $subject = TFISH_LOGIN_NOTED;
         $headers = [
             'From' => $siteName . '<' . $siteEmail . '>',
