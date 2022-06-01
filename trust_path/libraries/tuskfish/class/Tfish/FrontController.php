@@ -80,7 +80,7 @@ class FrontController
 
         $action = $this->trimString(($_REQUEST['action'] ?? 'display'));
 
-        if (!$this->isAlpha($action) || !method_exists($this->controller, $action)) {
+        if (!$this->isAlpha($action) || !\method_exists($this->controller, $action)) {
             \trigger_error(TFISH_ERROR_BAD_ACTION, E_USER_NOTICE);
             \header('Location: ' . TFISH_URL . 'error/');
             exit;

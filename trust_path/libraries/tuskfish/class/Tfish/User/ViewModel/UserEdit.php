@@ -29,8 +29,8 @@ namespace Tfish\User\ViewModel;
  * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\View\Viewable interface.
  * @var         object $model Classname of the model used to display this page.
  * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
- * @var         int $id ID of a single content object to be displayed.
- * @var         \Tfish\Content\Entity\Content $content Content object to be edited.
+ * @var         int $id ID of a single user object to be displayed.
+ * @var         \Tfish\User\Entity\User $content User object to be edited.
  * @var         array $parentOptions A list of parents (collections) IDs and titles.
  * @var         string $action Action to be embedded in the form and executed after next submission.
  * @var         string $response Message to display to the user after processing action (success/failure).
@@ -68,7 +68,7 @@ class UserEdit implements \Tfish\ViewModel\Viewable
     /** Actions */
 
     /**
-     * Display Add content form.
+     * Display Add user form.
      */
     public function displayAdd()
     {
@@ -76,7 +76,7 @@ class UserEdit implements \Tfish\ViewModel\Viewable
         $this->validateToken($token);
 
         $this->pageTitle = TFISH_USER_ADD;
-        $this->content = new \Tfish\Content\Entity\Content();
+        $this->content = new \Tfish\User\Entity\User;
         $this->parentOptions = [];
         $this->template = 'userEntry';
     }
@@ -97,7 +97,7 @@ class UserEdit implements \Tfish\ViewModel\Viewable
     {
         $id = (int) ($_GET['id'] ?? 0);
 
-        $this->pageTitle = TFISH_EDIT;
+        $this->pageTitle = TFISH_EDIT_USER;
         $content = new \Tfish\User\Entity\User;
 
         if ($data = $this->model->edit($id)) {
@@ -105,17 +105,17 @@ class UserEdit implements \Tfish\ViewModel\Viewable
             $this->setContent($content);
             $this->action = 'update';
             $this->parentOptions = [];
-            $this->template = 'contentEdit';
+            $this->template = 'userEdit';
         } else {
             $this->pageTitle = TFISH_FAILED;
             $this->response = TFISH_ERROR_NO_SUCH_OBJECT;
-            $this->backUrl = TFISH_ADMIN_URL;
+            $this->backUrl = TFISH_ADMIN_USERS_URL;
             $this->template = 'response';
         }
     }
 
     /**
-     * Save content object (new or updated).
+     * Save user object (new or updated).
      */
     public function displaySave()
     {
@@ -147,53 +147,10 @@ class UserEdit implements \Tfish\ViewModel\Viewable
         }
 
         $this->template = 'response';
-        $this->backUrl = TFISH_ADMIN_URL;
+        $this->backUrl = TFISH_ADMIN_USERS_URL;
     }
 
     /** Utilities */
-
-    /**
-     * Returns the date template as per the date() function of PHP.
-     *
-     * @return  string
-     */
-    public function dateFormat(): string
-    {
-        return $this->preference->dateFormat();
-    }
-
-    /**
-     * Returns the default language preference.
-     *
-     * @return  string Default language as two-letter ISO code.
-     */
-    public function defaultLanguage(): string
-    {
-        return $this->preference->defaultLanguage();
-    }
-
-    /**
-     * Returns a list of options for the tag select box.
-     *
-     * @return  array Array of tag IDs and titles as key-value pairs.
-     */
-    public function listTags(): array
-    {
-        return [0 => TFISH_ZERO_OPTION] + $this->model->onlineTagSelectOptions();
-    }
-
-    /**
-     * Returns a list of options for the parent select box.
-     *
-     * @return  array Array of parent (collection) IDs and titles as key-value pairs.
-     */
-    public function parentOptions()
-    {
-        $collections = $this->model->collections();
-        $parentTree = new \Tfish\Tree($collections, 'id', 'parent');
-
-        return $parentTree->makeParentSelectBox();
-    }
 
     /**
      * Return the site author preference.
@@ -232,7 +189,7 @@ class UserEdit implements \Tfish\ViewModel\Viewable
     }
 
     /**
-     * Return a content object.
+     * Return a user object.
      *
      * @return \Tfish\User\Entity\User
      */
@@ -244,7 +201,7 @@ class UserEdit implements \Tfish\ViewModel\Viewable
     /**
      * Set content.
      *
-     * @param   \Tfish\Content\Entity\Content $content Content object to be edited.
+     * @param   \Tfish\User\Entity\User $content User object to be edited.
      */
     public function setContent(\Tfish\User\Entity\User $content)
     {

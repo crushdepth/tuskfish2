@@ -84,7 +84,7 @@ class UserEdit
      */
     public function insert(): bool
     {
-        $content = $this->validateForm($_POST['content']);
+        $content = $this->validateForm($_POST['content'], true);
 
         // Insert new content.
         if (!$this->database->insert('user', $content)) {
@@ -101,7 +101,7 @@ class UserEdit
      */
     public function update(): bool
     {
-        $content = $this->validateForm($_POST['content']);
+        $content = $this->validateForm($_POST['content'], false);
 
         $id = (int) $content['id'];
 
@@ -110,7 +110,6 @@ class UserEdit
             'adminEmail',
             'yubikeyId',
             'yubikeyId2',
-            'onlineStatus',
         ];
 
         foreach ($fieldsToDecode as $field) {
@@ -147,10 +146,11 @@ class UserEdit
      * @param   array $form Submitted form data.
      * @return  array Validated form data.
      */
-    public function validateForm(array $form): array
+    public function validateForm(array $form, bool $passwordRequired): array
     {
         $clean = [];
 
+        // ID.
         $id = ((int) ($form['id'] ?? 0));
         if ($id > 0) $clean['id'] = $id;
 
@@ -160,14 +160,26 @@ class UserEdit
             \trigger_error(TFISH_ERROR_NOT_EMAIL, E_USER_ERROR);
         }
 
+        // adminEmail
         $clean['adminEmail'] = $email;
 
-        if (empty($form['password']) || \mb_strlen($form['password'], "UTF-8") < 15) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        // On add (insert) password is mandatory.
+        if ($passwordRequired === true) {
+            if (empty($form['password']) || \mb_strlen($form['password'], "UTF-8") < 15) {
+                \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            }
         }
 
-        $clean['passwordHash'] = $this->session->hashPassword($form['password']);
+        // On edit (update) password is optional and represents a reset.
+        if ($passwordRequired === false) {
+            if (!empty($form['password']) && \mb_strlen($form['password'], "UTF-8") < 15) {
+                \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            }
+        }
 
+        if (!empty($form['password'])) $clean['passwordHash'] = $this->session->hashPassword($form['password']);
+
+        // YubikeyId (primary).
         $yubikeyId = !empty($form['yubikeyId']) ? $this->trimString($form['yubikeyId']) : '';
 
         if (!empty($yubikeyId) && \mb_strlen($yubikeyId) !== 12) {
@@ -176,15 +188,21 @@ class UserEdit
 
         $clean['yubikeyId'] = $yubikeyId;
 
+        // YubikeyId2 (secondary).
         $yubikeyId2= !empty($form['yubikeyId2']) ? $this->trimString($form['yubikeyId2']) : '';
 
-        if (!empty($yubikeyId2) && \mb_strlen($yubikeyId2) !== 12) {
+        if (!empty($yubikeyId2) && \mb_strlen($yubikeyId2) !== 12)  {
             \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
         }
 
         $clean['yubikeyId2'] = $yubikeyId2;
 
-        $clean['userGroup'] = 2; // Locked to Editor.
+        // userGroup, locked to Editor (2) on insert, but unset (unchanged) on update.
+        if ($passwordRequired === true) { //
+            $clean['userGroup'] = 2;
+        }
+
+        // loginErrors.
         $clean['loginErrors'] = !empty($form['loginErrors']) ? (int) $form['loginErrors'] : 0;
 
         $onlineStatus = !empty($form['onlineStatus']) ? (int) $form['onlineStatus'] : 0;
@@ -194,6 +212,26 @@ class UserEdit
         }
 
         $clean['onlineStatus'] = $onlineStatus;
+
+        $clean = $this->lockAdminFields($clean);
+
+        return $clean;
+    }
+
+    /**
+     * Admin account may not have user group changed or be set offline.
+     *
+     * @param array $clean
+     * @return array
+     */
+    private function lockAdminFields(array $clean): array
+    {
+        $row = $this->getRow($clean['id']);
+
+        if ($row['userGroup'] == '1') {
+            $clean['userGroup'] = '1';
+            $clean['onlineStatus'] = '1';
+        }
 
         return $clean;
     }

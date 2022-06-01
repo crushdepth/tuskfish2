@@ -66,7 +66,7 @@ class User
         $this->setPasswordHash((string) ($row['passwordHash'] ?? ''));
         $this->setUserGroup((int) ($row['userGroup'] ?? 0));
         $this->setYubikeyId((string) ($row['yubikeyId'] ?? ''));
-        $this->setYubikeyId2((string) ($row['yubikeyID2'] ?? ''));
+        $this->setYubikeyId2((string) ($row['yubikeyId2'] ?? ''));
         $this->setLoginErrors((int) ($row['loginErrors'] ?? 0));
         $this->setOnlineStatus((int) ($row['onlineStatus'] ?? 0));
     }

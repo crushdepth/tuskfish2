@@ -28,7 +28,6 @@ namespace Tfish\User\Model;
  * @var         \Tfish\Database $database Instance of the Tuskfish database class.
  * @var         \Tfish\CriteriaFactory $criteriaFactory A factory class that returns instances of Criteria and CriteriaItem.
  * @var         \Tfish\Entity\Preference Instance of the Tfish site preferences class.
- * @var         \Tfish\Cache Instance of the Tfish cache class.
  * @var         \Tfish\FileHandler Instance of the Tfish filehandler class.
  */
 
@@ -39,8 +38,6 @@ class Admin
     private $database;
     private $criteriaFactory;
     private $preference;
-    private $cache;
-    private $fileHandler;
 
     /**
      * Constructor.
@@ -48,21 +45,15 @@ class Admin
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.
      * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish site preferences class.
-     * @param   \Tfish\FileHandler $fileHandler Instance of the Tuskfish filehandler class.
-     * @param   \Tfish\Cache Instance of the Tuskfish cache class.
      */
     public function __construct(
         \Tfish\Database $database,
         \Tfish\CriteriaFactory $criteriaFactory,
-        \Tfish\Entity\Preference $preference,
-        \Tfish\FileHandler $fileHandler,
-        \Tfish\Cache $cache)
+        \Tfish\Entity\Preference $preference)
     {
         $this->database = $database;
         $this->criteriaFactory = $criteriaFactory;
         $this->preference = $preference;
-        $this->cache = $cache;
-        $this->fileHandler = $fileHandler;
     }
 
     /** Actions. */
@@ -105,6 +96,8 @@ class Admin
     /**
      * Toggle a user online or offline.
      *
+     * The administrator may not be set offline.
+     *
      * @param   int $id ID of user object.
      * @return  bool True on success, false on failure.
      */
@@ -114,7 +107,8 @@ class Admin
             return false;
         }
 
-        $this->cache->flush();
+        $user = $this->getRow($id);
+        if ($user['userGroup'] === '1') return true; // Admin.
 
         return $this->database->toggleBoolean($id, 'user', 'onlineStatus');
     }
