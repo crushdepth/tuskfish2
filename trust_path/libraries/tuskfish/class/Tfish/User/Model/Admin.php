@@ -72,7 +72,7 @@ class Admin
 
         $row = $this->getRow($id);
 
-        if (!$row || $row['userGroup'] == '1') {
+        if (!$row || $row['userGroup'] === '1') {
             return false;
         }
 

@@ -115,9 +115,10 @@ class Session
     }
 
     /**
-     * Verify that the current session is valid and return current user group.
+     * Verify that the current session is valid and user is enabled and return current user group.
      *
-     * If the password has changed since the user logged in, they will be denied access.
+     * If the password has changed since the user logged in, they will be denied access. A user
+     * whose privileges are suspended (onlineStatus = 0) will also be denied access.
      *
      * @return string User group as string.
      */
@@ -134,6 +135,10 @@ class Session
         }
 
         if ($_SESSION['passwordHash'] !== $user['passwordHash']) {
+            return '0';
+        }
+
+        if ($user['onlineStatus'] !== '1') {
             return '0';
         }
 
@@ -270,6 +275,12 @@ class Session
         // If the user has previous failed login atttempts sleep to frustrate brute force attacks.
         if ($user['loginErrors']) {
             $this->delayLogin((int) $user['loginErrors']);
+        }
+
+        // If this user is suspended, do not proceed any further.
+        if ($user['onlineStatus'] !== '1') {
+            $this->logout(TFISH_URL . "login/");
+            exit;
         }
 
         // If login successful regenerate session due to privilege escalation.
@@ -608,6 +619,12 @@ class Session
         // If the user has previous failed login attempts sleep to frustrate brute force attacks.
         if ($user['loginErrors']) {
             $this->delayLogin((int) $user['loginErrors']);
+        }
+
+        // If this user is suspended, do not proceed any further.
+        if ($user['onlineStatus'] !== '1') {
+            $this->logout(TFISH_URL . "login/");
+            exit;
         }
 
         // First factor authentication: Calculate password hash and compare to the one on file.

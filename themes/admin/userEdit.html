@@ -45,7 +45,7 @@
       <!-- Yubikey ID -->
       <div class="row justify-content-center">
           <div class="col-md-6 mb-3">
-            <label for="yubikeyId"><strong><?php echo TFISH_YUBIKEY_ID; ?></strong></label>
+            <label for="yubikeyId"><strong><?php echo TFISH_USER_YUBIKEY_ID; ?></strong></label>
             <div class="form-group input-group">
               <input type="text" class="form-control" name="content[yubikeyId]" id="yubikeyId" pattern="[a-z]{12,12}" minlength="12" maxlength="12"
                 placeholder="<?php echo TFISH_YUBIKEY_FIRST_12_CHARACTERS; ?>" value="<?php echo xss($content->yubikeyId()); ?>">
@@ -57,7 +57,7 @@
       <!-- Yubikey ID2 -->
       <div class="row justify-content-center">
         <div class="col-md-6 mb-3">
-          <label for="yubikeyId2"><strong><?php echo TFISH_YUBIKEY_ID . '2'; ?></strong></label>
+          <label for="yubikeyId2"><strong><?php echo TFISH_USER_YUBIKEY_ID . '2'; ?></strong></label>
           <div class="form-group input-group">
             <input type="text" class="form-control" name="content[yubikeyId2]" id="yubikeyId2" pattern="[a-z]{12,12}" minlength="12" maxlength="12"
               placeholder="<?php echo TFISH_YUBIKEY_FIRST_12_CHARACTERS; ?>" value="<?php echo xss($content->yubikeyId2()); ?>">
