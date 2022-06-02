@@ -74,7 +74,7 @@ class Session
      */
     public function getLoginLink(): string
     {
-        if ($this->isAdmin()) {
+        if ($this->isEditor()) {
             return '<a href="' . TFISH_URL . 'logout/">' . TFISH_LOGOUT . '</a>';
         } else {
             return '<a href="' . TFISH_URL . 'login/">' . TFISH_LOGIN . '</a>';
@@ -82,7 +82,7 @@ class Session
     }
 
     /**
-     * Shorthand admin privileges check.
+     * Shorthand admin (super user) privileges check.
      *
      * For added security this could retrieve an encrypted token, preferably the SSL session id,
      * although thats availability seems to depend on server configuration.
@@ -91,11 +91,58 @@ class Session
      */
     public function isAdmin(): bool
     {
-        if (isset($_SESSION['TFISH_LOGIN']) && $_SESSION['TFISH_LOGIN'] === true) {
+        if ($this->verifyPrivileges() === '1') {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
+    }
+
+    /**
+     * Shorthand editor privileges check (admin also qualifies)
+     *
+     * @return boolean
+     */
+    public function isEditor(): bool
+    {
+        $privileges = $this->verifyPrivileges();
+
+        if ($privileges === '1' || $privileges === '2') {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Verify that the current session is valid and user is enabled and return current user group.
+     *
+     * If the password has changed since the user logged in, they will be denied access. A user
+     * whose privileges are suspended (onlineStatus = 0) will also be denied access.
+     *
+     * @return string User group as string.
+     */
+    private function verifyPrivileges(): string
+    {
+        if (empty($_SESSION['adminEmail'])) {
+            return '0';
+        }
+
+        $user = $this->_getUser($_SESSION['adminEmail']);
+
+        if (empty($user)) {
+            return '0';
+        }
+
+        if ($_SESSION['passwordHash'] !== $user['passwordHash']) {
+            return '0';
+        }
+
+        if ($user['onlineStatus'] !== '1') {
+            return '0';
+        }
+
+        return $user['userGroup'];
     }
 
     /**
@@ -230,11 +277,16 @@ class Session
             $this->delayLogin((int) $user['loginErrors']);
         }
 
+        // If this user is suspended, do not proceed any further.
+        if ($user['onlineStatus'] !== '1') {
+            $this->logout(TFISH_URL . "login/");
+            exit;
+        }
+
         // If login successful regenerate session due to privilege escalation.
         if (\password_verify($dirtyPassword, $user['passwordHash'])) {
             $this->regenerate();
-            $_SESSION['TFISH_LOGIN'] = true;
-            $_SESSION['userId'] = (int) $user['id'];
+            $this->setLoginFlags($user);
 
             // Reset failed login counter to zero.
             $this->db->update('user', (int) $user['id'], ['loginErrors' => 0]);
@@ -268,6 +320,23 @@ class Session
     {
         $delay = ($seconds <= 15) ? $seconds : 15;
         \sleep($delay);
+    }
+
+    /**
+     * Set the User ID and user group in the session.
+     *
+     * This function must ONLY be called after a successful login, as it is used as the basis for
+     * all subsequent authentication checks.
+     *
+     * @param array $user User info as an array read from database.
+     * @return void
+     */
+    private function setLoginFlags(array $user)
+    {
+        if ($user['userGroup'] === '1' || $user['userGroup'] === '2') {
+            $_SESSION['adminEmail'] = $user['adminEmail'];
+            $_SESSION['passwordHash'] = $user['passwordHash'];
+        }
     }
 
     /**
@@ -340,16 +409,16 @@ class Session
     private function notifyAdminLogin(string $email)
     {
         $siteName = $this->preference->siteName() ? $this->preference->siteName() : TUSKFISH_CMS;
-        $siteEmail = $this->preference->siteEmail() ? $this->preference->siteEmail() : $email;
+        $siteEmail = $this->preference->siteEmail();
 
-        $to = $email;
+        $to = $siteEmail;
         $subject = TFISH_LOGIN_NOTED;
         $headers = [
             'From' => $siteName . '<' . $siteEmail . '>',
             'X-Mailer' => 'PHP/' . phpversion(),
             'Content-type' => 'text/plain; charset=utf-8'
         ];
-        $message = TFISH_LOGIN_NOTED_MESSAGE . $email . '.';
+        $message = TFISH_LOGIN_NOTED_MESSAGE . xss($email) . '.';
 
         mail($to, $subject, $message, $headers);
     }
@@ -552,6 +621,12 @@ class Session
             $this->delayLogin((int) $user['loginErrors']);
         }
 
+        // If this user is suspended, do not proceed any further.
+        if ($user['onlineStatus'] !== '1') {
+            $this->logout(TFISH_URL . "login/");
+            exit;
+        }
+
         // First factor authentication: Calculate password hash and compare to the one on file.
         if (\password_verify($dirtyPassword, $user['passwordHash'])) {
             $first_factor = true;
@@ -564,10 +639,7 @@ class Session
         // If both checks are good regenerate session due to priviledge escalation and login.
         if ($first_factor === true && $second_factor === true) {
             $this->regenerate();
-            $_SESSION['TFISH_LOGIN'] = true;
-
-            // Added as a handle for the password change script.
-            $_SESSION['userId'] = (int) $user['id'];
+            $this->setLoginFlags($user);
 
             // Reset failed login counter to zero.
             $this->db->update('user', (int) $user['id'], ['loginErrors' => 0]);

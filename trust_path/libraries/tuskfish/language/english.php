@@ -62,8 +62,8 @@ namespace Tfish;
 \define("TFISH_META_TAGS", "Meta tags");
 \define("TFISH_CHANGE_PASSWORD", "Change password");
 \define("TFISH_CHANGE_PASSWORD_EXPLANATION", "Please enter and confirm your new administrative "
-        . "password in the form below to change it. Passwords must be at least 15 characters long "
-        . "and contain at least least one upper and lower case letter, number and symbol.");
+        . "password in the form below to change it. Passwords must be at least 15 characters long.");
+define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_FLUSH_CACHE", "Flush cache");
 \define("TFISH_DO_YOU_WANT_TO_FLUSH_CACHE", "Do you want to flush the cache?");
 \define("TFISH_CONFIRM", "Are you sure?");
@@ -120,6 +120,22 @@ namespace Tfish;
 \define("TFISH_PREFERENCE_CACHE_LIFE", "Cache life (seconds)");
 \define("TFISH_PREFERENCE_SESSION_LIFE", "Session life (minutes)");
 \define("TFISH_PREFERENCE_MAPS_API_KEY", "Google Maps API key");
+
+// Users
+\define("TFISH_USERS", "Users");
+\define("TFISH_USER_ADD", "Add user");
+\define("TFISH_EDIT_USER", "Edit user");
+\define("TFISH_USER_RESET_PASSWORD", "Reset password");
+\define("TFISH_USER_GROUP", "Group");
+\define("TFISH_USER_YUBIKEY_ID", "Yubikey ID");
+\define("TFISH_ERROR_YUBIKEY_NOT_UNIQUE", "Yubikey ID not unique");
+\define("TFISH_USER_LOGIN_ERRORS", "Login errors");
+\define("TFISH_USER_SUPER_USER", "Admin");
+\define("TFISH_USER_EDITOR", "Editor");
+\define("TFISH_YUBIKEY_FIRST_12_CHARACTERS", "First 12 characters of Yubikey output. ID must be unique.");
+\define("TFISH_USER_PRIVILEGES", "Privileges");
+\define("TFISH_USER_ACTIVE", "Active");
+\define("TFISH_USER_SUSPENDED", "Suspended");
 
 // Search.
 \define("TFISH_SEARCH", "Search");

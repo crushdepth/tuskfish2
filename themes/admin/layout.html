@@ -38,7 +38,7 @@
     <script defer src="<?php echo TFISH_VENDOR_URL . 'fontawesome/fontawesome.min.js'; ?>"></script>
     <script defer src="<?php echo TFISH_VENDOR_URL . 'fontawesome/icons-in-use.js'; ?>"></script>
 
-    <?php if ($session->isAdmin()): ?>
+    <?php if ($session->isEditor()): ?>
     <!-- TinyMCE editor -->
     <script src="<?php echo TFISH_VENDOR_URL . 'tinymce/tinymce.min.js'; ?>"></script>
     <script>tinymce.init({
@@ -79,21 +79,24 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav me-auto mb-2 mb-md-0">
-              <?php if ($session->isAdmin()): ?>
+              <?php if ($session->isEditor()): ?>
               <li class="nav-item">
                   <a class="nav-link"  href="<?php echo TFISH_ADMIN_URL; ?>"><?php echo TFISH_ADMIN; ?></a>
               </li>
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" id="settings" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo TFISH_SETTINGS; ?></a>
                 <ul class="dropdown-menu" aria-labelledby="settings">
+                  <?php if ($session->isAdmin()): ?>
                   <a class="dropdown-item" href="<?php echo TFISH_PREFERENCE_URL; ?>"><?php echo TFISH_PREFERENCES; ?></a>
+                  <a class="dropdown-item" href="<?php echo TFISH_ADMIN_USERS_URL; ?>"><?php echo TFISH_USERS; ?></a>
+                  <?php endif; ?>
                   <a class="dropdown-item" href="<?php echo TFISH_PASSWORD_URL; ?>"><?php echo TFISH_PASSWORD; ?></a>
                   <a class="dropdown-item" href="<?php echo TFISH_URL . 'flush/'; ?>"><?php echo TFISH_FLUSH_CACHE; ?></a>
                   <a class="dropdown-item" href="<?php echo TFISH_URL . 'sitemap/'; ?>"><?php echo TFISH_UPDATE_SITEMAP; ?></a>
                 </ul>
               </li>
               <?php endif; ?>
-              <?php if ($session->isAdmin()): ?><li class="nav-item">
+              <?php if ($session->isEditor()): ?><li class="nav-item">
                 <a class="nav-link" href="<?php echo TFISH_URL . 'logout/'; ?>"><?php echo TFISH_LOGOUT; ?></a>
               </li>
               <?php else: ?>
