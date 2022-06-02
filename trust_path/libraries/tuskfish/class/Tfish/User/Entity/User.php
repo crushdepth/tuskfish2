@@ -11,7 +11,7 @@ namespace Tfish\User\Entity;
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0
- * @since       1.0
+ * @since       2.0
  * @package     user
  */
 
@@ -20,23 +20,23 @@ namespace Tfish\User\Entity;
  *
  * Users are the administrators of Tuskfish CMS (one super user and multiple Editors. They are never
  * untrusted members of the public! The super user has full administrative access to the site,
- * while Editors have access to content creation and editing functions.
+ * while Editors have access to content creation and editing functions, only.
  *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0
- * @since       1.0
+ * @since       2.0
  * @package     user
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         int $id Auto-increment, set by database.
- * @var         string $adminEmail
- * @var         string $passwordHash
- * @var         string $userGroup
- * @var         string $yubikeyId
- * @var         string $yubikeyId2
- * @var         int $onlineStatus
- * @var         int $loginErrors
+ * @var         string $adminEmail Email address of this user.
+ * @var         string $passwordHash Password hash for this user.
+ * @var         string $userGroup User group to which this user belongs.
+ * @var         string $yubikeyId Public ID of primary yubikey for two factor authentication.
+ * @var         string $yubikeyId2 Public ID of secondary yubikey for two factor authentication.
+ * @var         int $onlineStatus Whether the user's privileges are enabled (1) or suspended (0).
+ * @var         int $loginErrors Number of failed logins since last successful long.
  */
 
 class User
@@ -232,11 +232,26 @@ class User
         $this->onlineStatus = $status;
     }
 
+    /**
+     * Return number of login errors since last successful login.
+     *
+     * This is used to set a proportional delay on subsequent login attempts.
+     *
+     * @return integer
+     */
     public function loginErrors(): int
     {
         return (int) $this->loginErrors;
     }
 
+    /**
+     * Set the number of login errors for this user.
+     *
+     * Used when instantiating a user object from storage.
+     *
+     * @param integer $errors
+     * @return void
+     */
     public function setLoginErrors(int $errors)
     {
         $errors = (int) $errors;

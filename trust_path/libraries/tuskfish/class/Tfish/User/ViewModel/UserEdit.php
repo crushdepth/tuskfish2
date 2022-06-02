@@ -31,7 +31,6 @@ namespace Tfish\User\ViewModel;
  * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  * @var         int $id ID of a single user object to be displayed.
  * @var         \Tfish\User\Entity\User $content User object to be edited.
- * @var         array $parentOptions A list of parents (collections) IDs and titles.
  * @var         string $action Action to be embedded in the form and executed after next submission.
  * @var         string $response Message to display to the user after processing action (success/failure).
  * @var         string $backUrl $backUrl URL to return to if the user cancels the action.
@@ -45,7 +44,6 @@ class UserEdit implements \Tfish\ViewModel\Viewable
     private $model;
     private $id = 0;
     private $content = '';
-    private $parentOptions = '';
     private $action = '';
     private $response = '';
     private $backUrl = '';
@@ -77,7 +75,6 @@ class UserEdit implements \Tfish\ViewModel\Viewable
 
         $this->pageTitle = TFISH_USER_ADD;
         $this->content = new \Tfish\User\Entity\User;
-        $this->parentOptions = [];
         $this->template = 'userEntry';
     }
 
@@ -104,7 +101,6 @@ class UserEdit implements \Tfish\ViewModel\Viewable
             $content->load($data, false);
             $this->setContent($content);
             $this->action = 'update';
-            $this->parentOptions = [];
             $this->template = 'userEdit';
         } else {
             $this->pageTitle = TFISH_FAILED;
@@ -199,7 +195,7 @@ class UserEdit implements \Tfish\ViewModel\Viewable
     }
 
     /**
-     * Set content.
+     * Set user object.
      *
      * @param   \Tfish\User\Entity\User $content User object to be edited.
      */
@@ -209,9 +205,9 @@ class UserEdit implements \Tfish\ViewModel\Viewable
     }
 
     /**
-     * Return ID.
+     * Return ID of user object.
      *
-     * @return  int ID of content object.
+     * @return  int ID of user object.
      */
     public function id(): int
     {

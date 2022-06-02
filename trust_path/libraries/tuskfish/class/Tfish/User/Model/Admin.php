@@ -28,7 +28,6 @@ namespace Tfish\User\Model;
  * @var         \Tfish\Database $database Instance of the Tuskfish database class.
  * @var         \Tfish\CriteriaFactory $criteriaFactory A factory class that returns instances of Criteria and CriteriaItem.
  * @var         \Tfish\Entity\Preference Instance of the Tfish site preferences class.
- * @var         \Tfish\FileHandler Instance of the Tfish filehandler class.
  */
 
 class Admin
@@ -59,7 +58,9 @@ class Admin
     /** Actions. */
 
     /**
-     * Delete user object.
+     * Delete user.
+     *
+     * The admin (user group 1) may not be deleted.
      *
      * @param   int $id ID of user.
      * @return  bool True on success, false on failure.
@@ -72,7 +73,7 @@ class Admin
 
         $row = $this->getRow($id);
 
-        if (!$row || $row['userGroup'] === '1') {
+        if (empty($row) || $row['userGroup'] === '1') {
             return false;
         }
 
@@ -83,7 +84,7 @@ class Admin
      * Get users.
      *
      * @param   array $params Filter criteria.
-     * @return  array Array of user objects.
+     * @return  array Array of users as associative arrays.
      */
     public function getObjects(array $params): array
     {
@@ -96,7 +97,7 @@ class Admin
     /**
      * Toggle a user online or offline.
      *
-     * The administrator may not be set offline.
+     * The administrator (userGroup 1) may not be set offline.
      *
      * @param   int $id ID of user object.
      * @return  bool True on success, false on failure.
@@ -108,7 +109,8 @@ class Admin
         }
 
         $user = $this->getRow($id);
-        if ($user['userGroup'] === '1') return true; // Admin.
+
+        if ($user['userGroup'] === '1') return true;
 
         return $this->database->toggleBoolean($id, 'user', 'onlineStatus');
     }
@@ -121,39 +123,10 @@ class Admin
      * @param   array $params Filter criteria.
      * @return  int Count.
      */
-    public function getCount(array $params): int
-    {
-        return 0;
-    }
+    public function getCount(array $params): int { return 0; }
 
     /**
-     * Return a list of options to build a select box.
-     *
-     * @param   array $params Filter criteria.
-     * @param   array $columns Columns to select to build the options.
-     * @return  array
-     */
-    public function getOptions(array $params, array $columns = [])
-    {
-        $cleanParams = $this->validateParams($params);
-        $criteria = $this->setCriteria($cleanParams);
-
-        $cleanColumns = [];
-
-        foreach ($columns as $key => $value) {
-            $cleanKey = (int) $key;
-            $cleanValue = $this->trimString($value);
-
-            if ($this->isAlnumUnderscore($cleanValue)) {
-                $cleanColumns[$cleanKey] = $cleanValue;
-            }
-        }
-
-        return $this->runQuery($criteria, $cleanColumns);
-    }
-
-    /**
-     * Return certain columns from a user object required to aid its deletion.
+     * Return old user object state from database to aid in update/deletion.
      *
      * @param   int $id ID of content object.
      * @return  array Associative array containing type, id, image and media values.
@@ -172,10 +145,10 @@ class Admin
     }
 
     /**
-     * Return the title of a given user object.
+     * Return the adminEmail address of a given user.
      *
-     * @param   int $id ID of user object.
-     * @return  string Title of user object.
+     * @param   int $id ID of user.
+     * @return  string Title of user.
      */
     public function getEmail(int $id)
     {
@@ -211,13 +184,6 @@ class Admin
     {
         $criteria = $this->criteriaFactory->criteria();
 
-        // If ID is set, retrieve a single object.
-        if (!empty($cleanParams['id'])) {
-            $criteria->add($this->criteriaFactory->item('id', $cleanParams['id']));
-
-            return $criteria;
-        }
-
         if (!empty($cleanParams['sort']))
             $criteria->setSort($cleanParams['sort']);
 
@@ -236,9 +202,6 @@ class Admin
     private function validateParams(array $params): array
     {
         $cleanParams = [];
-
-        if ($params['id'] ?? 0)
-            $cleanParams['id'] = (int) $params['id'];
 
         if (isset($params['onlineStatus'])) {
             $onlineStatus = (int) $params['onlineStatus'];

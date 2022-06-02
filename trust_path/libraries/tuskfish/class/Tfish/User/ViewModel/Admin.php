@@ -24,20 +24,17 @@ namespace Tfish\User\ViewModel;
  * @version     Release: 2.0
  * @since       2.0
  * @package     user
- * @uses        trait \Tfish\Traits\Content\ContentTypes	Provides definition of permitted content object types.
  * @uses        trait \Tfish\Traits\Listable Provides a standard implementation of the \Tfish\View\Listable interface.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
+ * @uses        trait \Tfish\User\Traits\UserGroup Whitelist of permitted user groups on system.
  * @var         object $model Classname of the model used to display this page.
  * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
- * @var         string $contentTitle Name of content object to display in confirm delete request.
- * @var         array $contentList An array of content objects to be displayed in this page view.
- * @var         int $contentCount The number of content objects that match filtering criteria. Used to build pagination control.
- * @var         int $id ID of a single content object to be displayed.
- * @var         int $start Position in result set to retrieve objects from.
- * @var         int $tag Filter search results by tag ID.
- * @var         string $type Filter search results by content type.
+ * @var         string $userEmail The email address of this user.
+ * @var         array $contentList An array of user objects to be displayed in this page view.
+ * @var         int $id ID of a single user object to be displayed.
  * @var         int $onlineStatus Filter search results by online (1) or offline (0) status.
+ * @var         string $action Action to be embedded in the form and executed after next submission.
  * @var         string $backUrl $backUrl URL to return to if the user cancels the action.
  * @var         string $response Message to display to the user after processing action (success/failure).
  */
@@ -53,7 +50,6 @@ class Admin implements \Tfish\ViewModel\Listable
     private $preference;
     private $userEmail = '';
     private $contentList = [];
-    private $contentCount = 0;
     private $id = 0;
     private $onlineStatus = 0;
     private $action = '';
@@ -83,7 +79,7 @@ class Admin implements \Tfish\ViewModel\Listable
      */
     public function displayCancel()
     {
-        \header('Location: ' . TFISH_ADMIN_URL);
+        \header('Location: ' . TFISH_ADMIN_USERS_URL);
         exit;
     }
 
@@ -99,7 +95,7 @@ class Admin implements \Tfish\ViewModel\Listable
     }
 
     /**
-     * Delete content object and display result.
+     * Delete user object and display result.
      */
     public function displayDelete()
     {
@@ -121,18 +117,17 @@ class Admin implements \Tfish\ViewModel\Listable
     /**
      * Display the admin summary table.
      *
-     * Table a list of content and links to view, edit and delete items.
+     * Table a list of users and links to view, edit and delete items.
      */
     public function displayTable()
     {
         $this->pageTitle = TFISH_USERS;
         $this->listContent();
-        $this->countContent();
         $this->template = 'userTable';
     }
 
     /**
-     * Toggle a content object online or offline.
+     * Toggle a user object online or offline.
      */
     public function displayToggle()
     {
@@ -144,20 +139,7 @@ class Admin implements \Tfish\ViewModel\Listable
     /** output */
 
     /**
-     * Count content objects meeting filter criteria.
-     */
-    public function countContent()
-    {
-        $this->contentCount = $this->model->getCount(
-            [
-                'id' => $this->id,
-                'onlineStatus' => $this->onlineStatus
-            ]
-        );
-    }
-
-    /**
-     * Get content objects matching cached filter criteria.
+     * Get user objects matching cached filter criteria.
      *
      * Result is cached as $contentList property.
      */
@@ -199,19 +181,9 @@ class Admin implements \Tfish\ViewModel\Listable
     }
 
     /**
-     * Return content count.
+     * Return user list.
      *
-     * @return  int Number of content objects that match filtering criteria.
-     */
-    public function contentCount(): int
-    {
-        return $this->contentCount;
-    }
-
-    /**
-     * Return content list.
-     *
-     * @return  array Array of content objects.
+     * @return  array Array of user objects.
      */
     public function contentList(): array
     {
@@ -221,17 +193,17 @@ class Admin implements \Tfish\ViewModel\Listable
     /**
      * Return ID.
      *
-     * @return  int ID of content object.
+     * @return  int ID of user object.
      */
     public function id(): int
     {
-        return $this->id;
+        return (int) $this->id;
     }
 
     /**
      * Set ID.
      *
-     * @param   int $id ID of content object.
+     * @param   int $id ID of user object.
      */
     public function setId(int $id)
     {
@@ -265,6 +237,7 @@ class Admin implements \Tfish\ViewModel\Listable
     }
 
     /** Unused but required for compliance with Listable interface. **/
+    public function contentCount(): int { return 0; }
     public function limit(): int { return 0; }
     public function start(): int { return 0; }
     public function tag(): int { return 0;}

@@ -22,10 +22,12 @@ namespace Tfish\User\Model;
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0
- * @since       1.1
+ * @since       2.0
  * @package     user
+ * @uses        trait \Tfish\Traits\EmailCheck Validate that email address conforms to specification.
  * @uses        trait \Tfish\Traits\ValidateString Provides methods for validating UTF-8 character encoding and string composition.
  * @var         \Tfish\Database $database Instance of the Tuskfish database class.
+ * @var         \Tfish\Session $session Instance of the Tuskfish session manager class.
  * @var         \Tfish\CriteriaFactory $criteriaFactory A factory class that returns instances of Criteria and CriteriaItem.
  * @var         \Tfish\Entity\Preference Instance of the Tfish site preferences class.
  */
@@ -43,7 +45,9 @@ class UserEdit
      * Constructor.
      *
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.
+     * @param   \Tfish\Session $session Instance of the Tuskfish session manager class.
      * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
+     * @param   \Tfish\Entity\Preference Instance of the Tfish site preferences class.
      */
     public function __construct(
         \Tfish\Database $database,
@@ -61,10 +65,10 @@ class UserEdit
     /** Actions. */
 
     /**
-     * Edit content object.
+     * Edit user object.
      *
-     * @param   int $id ID of content object.
-     * @return  array Content object data as associative array.
+     * @param   int $id ID of user object.
+     * @return  array User object data as associative array.
      */
     public function edit(int $id): array
     {
@@ -78,7 +82,7 @@ class UserEdit
     }
 
     /**
-     * Insert a content object into the database.
+     * Insert a user into the database.
      *
      * @return  bool True on success, false on failure.
      */
@@ -95,7 +99,7 @@ class UserEdit
     }
 
     /**
-     * Update a content object in the database.
+     * Update a user in the database.
      *
      * @return True on success, false on failure.
      */
@@ -126,7 +130,7 @@ class UserEdit
     /**
      * Get a single content object as an associative array.
      *
-     * @param   int $id ID of content object.
+     * @param   int $id ID of user.
      * @return  array
      */
     private function getRow(int $id): array
@@ -141,9 +145,13 @@ class UserEdit
     }
 
     /**
-     * Validate submitted form data for content object.
+     * Validate submitted form data for user.
+     *
+     * Password is only mandatory when submitting a new record. If an existing record is being
+     * edited, then password is optional (and providing one will reset it).
      *
      * @param   array $form Submitted form data.
+     * @param   bool $passwordRequired True if inserting new record, false if editing existing record.
      * @return  array Validated form data.
      */
     public function validateForm(array $form, bool $passwordRequired): array
@@ -224,6 +232,8 @@ class UserEdit
     /**
      * Admin account may not have user group changed or be set offline.
      *
+     * Tests if the user is the admin, and if so locks their user group and online status.
+     *
      * @param array $clean
      * @return array
      */
@@ -246,7 +256,7 @@ class UserEdit
      * must be unique, you cannot share them!
      *
      * @param int $id ID of user (0) if new user.
-     * @param string $yubikeyId First 12 characters of yubikey output.
+     * @param string $yubikeyId First 12 characters of yubikey output is its public ID.
      * @return boolean true if valid and unique, false if ID is invalid or already in use.
      */
     private function isValidYubikeyId(int $id, string $yubikeyId): bool

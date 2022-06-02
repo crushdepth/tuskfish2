@@ -29,13 +29,12 @@ namespace Tfish\User\Traits;
 trait UserGroup
 {
     /**
-     * Validate URL.
+     * Whitelist of user groups permitted on system.
      *
-     * Only accepts http:// and https:// protocol and ASCII characters. Other protocols
-     * and internationalised domain names will fail validation due to limitation of filter.
+     * If you add any groups to the system you must include them here.
      *
      * @param string $url Input to be tested.
-     * @return bool True if valid URL otherwise false.
+     * @return array Array of user groups with userGroup ID as key.
      */
     public function userGroupList(): array
     {

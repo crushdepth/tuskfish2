@@ -48,7 +48,7 @@ class UserEdit
     /* Actions. */
 
     /**
-     * Cancel the add/edit content action.
+     * Cancel the add/edit user action.
      *
      * @return  array Empty array (the output of this action is not cached).
      */
@@ -60,7 +60,7 @@ class UserEdit
     }
 
     /**
-     * Display the add content form.
+     * Display the user entry form.
      *
      * @return  array Empty array (the output of this action is not cached).
      */
@@ -72,7 +72,7 @@ class UserEdit
     }
 
     /**
-     * Display the edit content form.
+     * Display the edit user form.
      *
      * @return  array Empty array (the output of this action is not cached).
      */
@@ -84,7 +84,7 @@ class UserEdit
     }
 
     /**
-     * Save the new/edited content object.
+     * Save the new/edited user object.
      *
      * @return  array Empty array (the output of this action is not cached).
      */
