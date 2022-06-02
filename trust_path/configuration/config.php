@@ -37,6 +37,7 @@ if (!\defined("TFISH_ROOT_PATH")) die("TFISH_ERROR_ROOT_PATH_NOT_DEFINED");
 
 // Constants that make use of the virtual (URL) path, these refer to assets accessed by URL.
 \define("TFISH_ADMIN_URL", TFISH_URL . "admin/");
+\define("TFISH_ADMIN_USERS_URL", TFISH_ADMIN_URL . 'users/');
 \define("TFISH_PREFERENCE_URL",  TFISH_URL . "preference/");
 \define("TFISH_PREFERENCE_EDIT_URL", TFISH_URL . "preference/edit/");
 \define("TFISH_PASSWORD_URL", TFISH_URL . "password/");
