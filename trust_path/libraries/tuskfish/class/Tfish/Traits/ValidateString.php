@@ -60,9 +60,9 @@ trait ValidateString
     {
         if (\mb_strlen($alnum, 'UTF-8') > 0) {
             return \preg_match('/[^a-z0-9]/i', $alnum) ? false : true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -78,9 +78,9 @@ trait ValidateString
     {
         if (\mb_strlen($alnumUnderscore, 'UTF-8') > 0) {
             return \preg_match('/[^a-z0-9_]/i', $alnumUnderscore) ? false : true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -96,9 +96,9 @@ trait ValidateString
     {
         if (\mb_strlen($alpha, 'UTF-8') > 0) {
             return \preg_match('/[^a-z]/i', $alpha) ? false : true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -134,8 +134,8 @@ trait ValidateString
 
         if ($this->isUtf8($text)) {
             return \trim($text, "\x00..\x20");
-        } else {
-            return '';
         }
+        
+        return '';
     }
 }

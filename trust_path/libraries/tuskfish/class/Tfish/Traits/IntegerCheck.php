@@ -60,8 +60,8 @@ trait IntegerCheck
         // Simple use case, no range check.
         if (\is_int($cleanInt) && !isset($cleanMin) && !isset($cleanMax)) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 }
