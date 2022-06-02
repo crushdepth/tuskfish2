@@ -88,7 +88,16 @@ class UserEdit
      */
     public function insert(): bool
     {
+        if ($this->duplicateYubikeysSubmitted()) {
+            \trigger_error(TFISH_ERROR_YUBIKEY_NOT_UNIQUE, E_USER_NOTICE);
+            return false;
+        }
+
         $content = $this->validateForm($_POST['content'], true);
+
+        // If a submitted yubikey ID is not present in $content this indicates it was not unique.
+        if (!empty($_POST['content']['yubikeyId']) && empty($content['yubikeyId'])) return false;
+        if (!empty($_POST['content']['yubikeyId2']) && empty($content['yubikeyId2'])) return false;
 
         // Insert new content.
         if (!$this->database->insert('user', $content)) {
@@ -105,7 +114,16 @@ class UserEdit
      */
     public function update(): bool
     {
+        if ($this->duplicateYubikeysSubmitted()) {
+            \trigger_error(TFISH_ERROR_YUBIKEY_NOT_UNIQUE, E_USER_NOTICE);
+            return false;
+        }
+
         $content = $this->validateForm($_POST['content'], false);
+
+        // If a submitted yubikey ID is not present in $content this indicates it was not unique.
+        if (!empty($_POST['content']['yubikeyId']) && empty($content['yubikeyId'])) return false;
+        if (!empty($_POST['content']['yubikeyId2']) && empty($content['yubikeyId2'])) return false;
 
         $id = (int) $content['id'];
 
@@ -191,19 +209,30 @@ class UserEdit
         $yubikeyId = !empty($form['yubikeyId']) ? $this->trimString($form['yubikeyId']) : '';
         $yubikeyId2 = !empty($form['yubikeyId2']) ? $this->trimString($form['yubikeyId2']) : '';
 
-        // Check if this record has duplicate primary and secondary yubikey IDs.
-        if ($form['yubikeyId'] && $form['yubikeyId2'] && $form['yubikeyId'] === $form['yubikeyId2']) {
-            \trigger_error(TFISH_ERROR_YUBIKEY_NOT_UNIQUE, E_USER_ERROR);
-        }
+        if (!empty($yubikeyId)) {
 
-        if (!empty($yubikeyId) && !$this->isValidYubikeyId($id, $yubikeyId)) {
-            \trigger_error(TFISH_ERROR_YUBIKEY_NOT_UNIQUE, E_USER_ERROR);
+            if (\mb_strlen($yubikeyId) !== 12) {
+                \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            }
+
+            if (!$this->isValidYubikeyId($id, $yubikeyId)) {
+                $yubikeyId = '';
+                \trigger_error(TFISH_ERROR_YUBIKEY_NOT_UNIQUE, E_USER_NOTICE);
+            }
         }
 
         $clean['yubikeyId'] = $yubikeyId;
 
-        if (!empty($yubikeyId2) && !$this->isValidYubikeyId($id, $yubikeyId2)) {
-            \trigger_error(TFISH_ERROR_YUBIKEY_NOT_UNIQUE, E_USER_ERROR);
+        if (!empty($yubikeyId2)) {
+
+            if (\mb_strlen($yubikeyId2) !== 12) {
+                \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            }
+
+            if (!$this->isValidYubikeyId($id, $yubikeyId2)) {
+                $yubikeyId2 = '';
+                \trigger_error(TFISH_ERROR_YUBIKEY_NOT_UNIQUE, E_USER_NOTICE);
+            }
         }
 
         $clean['yubikeyId2'] = $yubikeyId2;
@@ -250,6 +279,23 @@ class UserEdit
     }
 
     /**
+     * Check if the same yubikey ID has been submitted in primary and secondary fields.
+     *
+     * @return boolean True if duplicated, false if not.
+     */
+    private function duplicateYubikeysSubmitted(): bool
+    {
+        if (!empty($_POST['content']['yubikeyId']) && !empty($_POST['content']['yubikeyId'])) {
+            $yubikeyId = $this->trimString($_POST['content']['yubikeyId']);
+            $yubikeyId2 = $this->trimString($_POST['content']['yubikeyId2']);
+
+            if ($yubikeyId === $yubikeyId2) return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Check if a submitted yubikey ID is unique.
      *
      * The yubikey Id is used to identify accounts when using two-factor authentication, so they
@@ -261,10 +307,6 @@ class UserEdit
      */
     private function isValidYubikeyId(int $id, string $yubikeyId): bool
     {
-        if (\mb_strlen($yubikeyId) !== 12) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
-        }
-
         $count = 0;
 
         $sql = "SELECT COUNT(*) FROM `user` WHERE " .

@@ -132,7 +132,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_USER_LOGIN_ERRORS", "Login errors");
 \define("TFISH_USER_SUPER_USER", "Admin");
 \define("TFISH_USER_EDITOR", "Editor");
-\define("TFISH_YUBIKEY_FIRST_12_CHARACTERS", "First 12 characters of Yubikey output (alpha only)");
+\define("TFISH_YUBIKEY_FIRST_12_CHARACTERS", "First 12 characters of Yubikey output. ID must be unique.");
 \define("TFISH_USER_PRIVILEGES", "Privileges");
 \define("TFISH_USER_ACTIVE", "Active");
 \define("TFISH_USER_SUSPENDED", "Suspended");
