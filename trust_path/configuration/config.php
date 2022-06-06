@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Tuskfish configuration script.
- * 
+ *
  * Sets file paths and key constants. Included in every page via mainfile.php.
  *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
@@ -76,11 +76,11 @@ if (\parse_url(TFISH_URL, PHP_URL_SCHEME) === 'https') {
 
 /**
  * Autoload core Tuskfish classes. spl_autoload_register() avoids namespace clashes.
- * 
+ *
  * Note that you must check if the file exists before attempting to include it; otherwise calls
  * to additional autoloaders down the chain (eg. module-specific autoloaders) will fail.
- * 
- * @param string $classname Name of class to autoload. 
+ *
+ * @param string $classname Name of class to autoload.
  */
 function tfish_autoload(string $classname) {
     $classname = \str_replace('\\', '/', $classname);

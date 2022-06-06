@@ -91,7 +91,7 @@ class Session
      */
     public function isAdmin(): bool
     {
-        if ($this->verifyPrivileges() === '1') {
+        if ($this->verifyPrivileges() === 1) {
             return true;
         }
 
@@ -107,7 +107,7 @@ class Session
     {
         $privileges = $this->verifyPrivileges();
 
-        if ($privileges === '1' || $privileges === '2') {
+        if ($privileges === 1 || $privileges === 2) {
             return true;
         }
 
@@ -120,29 +120,29 @@ class Session
      * If the password has changed since the user logged in, they will be denied access. A user
      * whose privileges are suspended (onlineStatus = 0) will also be denied access.
      *
-     * @return string User group as string.
+     * @return int User group.
      */
-    private function verifyPrivileges(): string
+    private function verifyPrivileges(): int
     {
         if (empty($_SESSION['adminEmail'])) {
-            return '0';
+            return 0;
         }
 
         $user = $this->_getUser($_SESSION['adminEmail']);
 
         if (empty($user)) {
-            return '0';
+            return 0;
         }
 
         if ($_SESSION['passwordHash'] !== $user['passwordHash']) {
-            return '0';
+            return 0;
         }
 
-        if ($user['onlineStatus'] !== '1') {
-            return '0';
+        if ($user['onlineStatus'] !== 1) {
+            return 0;
         }
 
-        return $user['userGroup'];
+        return (int) $user['userGroup'];
     }
 
     /**
@@ -278,7 +278,7 @@ class Session
         }
 
         // If this user is suspended, do not proceed any further.
-        if ($user['onlineStatus'] !== '1') {
+        if ($user['onlineStatus'] !== 1) {
             $this->logout(TFISH_URL . "login/");
             exit;
         }
@@ -333,7 +333,7 @@ class Session
      */
     private function setLoginFlags(array $user)
     {
-        if ($user['userGroup'] === '1' || $user['userGroup'] === '2') {
+        if ($user['userGroup'] === 1 || $user['userGroup'] === 2) {
             $_SESSION['adminEmail'] = $user['adminEmail'];
             $_SESSION['passwordHash'] = $user['passwordHash'];
         }
