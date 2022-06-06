@@ -138,7 +138,7 @@ class Session
             return 0;
         }
 
-        if ($user['onlineStatus'] !== 1) {
+        if ($user['onlineStatus'] !== '1') {
             return 0;
         }
 
@@ -278,7 +278,7 @@ class Session
         }
 
         // If this user is suspended, do not proceed any further.
-        if ($user['onlineStatus'] !== 1) {
+        if ($user['onlineStatus'] !== '1') {
             $this->logout(TFISH_URL . "login/");
             exit;
         }
@@ -299,7 +299,7 @@ class Session
             exit;
         } else {
             // Increment failed login counter, destroy session and redirect to the login page.
-            if ((int) $user['loginErrors'] < 30) {
+            if ((int) $user['loginErrors'] < 15) {
                 $this->db->updateCounter((int) $user['id'], 'user', 'loginErrors');
             }
 
@@ -333,7 +333,7 @@ class Session
      */
     private function setLoginFlags(array $user)
     {
-        if ($user['userGroup'] === 1 || $user['userGroup'] === 2) {
+        if ($user['userGroup'] === '1' || $user['userGroup'] === '2') {
             $_SESSION['adminEmail'] = $user['adminEmail'];
             $_SESSION['passwordHash'] = $user['passwordHash'];
         }
@@ -652,7 +652,7 @@ class Session
         }
 
         // Fail: Increment failed login counter, destroy session and redirect to the login page.
-        if ((int) $user['loginErrors'] < 30) {
+        if ((int) $user['loginErrors'] < 15) {
             $this->db->updateCounter((int) $user['id'], 'user', 'loginErrors');
         }
 
