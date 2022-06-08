@@ -138,7 +138,7 @@ class Session
             return 0;
         }
 
-        if ($user['onlineStatus'] !== '1') {
+        if ((int) $user['onlineStatus'] !== 1) {
             return 0;
         }
 
@@ -278,7 +278,7 @@ class Session
         }
 
         // If this user is suspended, do not proceed any further.
-        if ($user['onlineStatus'] !== '1') {
+        if ((int) $user['onlineStatus'] !== 1) {
             $this->logout(TFISH_URL . "login/");
             exit;
         }
@@ -333,7 +333,7 @@ class Session
      */
     private function setLoginFlags(array $user)
     {
-        if ($user['userGroup'] === '1' || $user['userGroup'] === '2') {
+        if ((int) $user['userGroup'] === 1 || (int) $user['userGroup'] === 2) {
             $_SESSION['adminEmail'] = $user['adminEmail'];
             $_SESSION['passwordHash'] = $user['passwordHash'];
         }
@@ -622,7 +622,7 @@ class Session
         }
 
         // If this user is suspended, do not proceed any further.
-        if ($user['onlineStatus'] !== '1') {
+        if ((int) $user['onlineStatus'] !== 1) {
             $this->logout(TFISH_URL . "login/");
             exit;
         }
