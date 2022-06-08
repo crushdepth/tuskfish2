@@ -134,7 +134,7 @@ class Session
             return 0;
         }
 
-        if ($_SESSION['passwordHash'] !== $user['passwordHash']) {
+        if ($_SESSION['authHash'] !== \hash('sha256', $user['passwordHash'])) {
             return 0;
         }
 
@@ -328,6 +328,9 @@ class Session
      * This function must ONLY be called after a successful login, as it is used as the basis for
      * all subsequent authentication checks.
      *
+     * To guard against compromised sessions, the pasword hash is not used directly, but is hashed
+     * itself.
+     *
      * @param array $user User info as an array read from database.
      * @return void
      */
@@ -335,7 +338,7 @@ class Session
     {
         if ((int) $user['userGroup'] === 1 || (int) $user['userGroup'] === 2) {
             $_SESSION['adminEmail'] = $user['adminEmail'];
-            $_SESSION['passwordHash'] = $user['passwordHash'];
+            $_SESSION['authHash'] = \hash('sha256', $user['passwordHash']);
         }
     }
 
