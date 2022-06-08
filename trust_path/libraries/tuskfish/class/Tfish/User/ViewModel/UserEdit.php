@@ -83,7 +83,7 @@ class UserEdit implements \Tfish\ViewModel\Viewable
      */
     public function displayCancel()
     {
-        \header('Location: ' . TFISH_ADMIN_USERS_URL);
+        \header('Location: ' . TFISH_ADMIN_USER_URL);
         exit;
     }
 
@@ -105,7 +105,7 @@ class UserEdit implements \Tfish\ViewModel\Viewable
         } else {
             $this->pageTitle = TFISH_FAILED;
             $this->response = TFISH_ERROR_NO_SUCH_OBJECT;
-            $this->backUrl = TFISH_ADMIN_USERS_URL;
+            $this->backUrl = TFISH_ADMIN_USER_URL;
             $this->template = 'response';
         }
     }
@@ -143,7 +143,7 @@ class UserEdit implements \Tfish\ViewModel\Viewable
         }
 
         $this->template = 'response';
-        $this->backUrl = TFISH_ADMIN_USERS_URL;
+        $this->backUrl = TFISH_ADMIN_USER_URL;
     }
 
     /** Utilities */

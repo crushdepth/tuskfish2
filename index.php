@@ -21,10 +21,15 @@ namespace Tfish;
 
 // Access trust path, DB credentials, configuration and preferences.
 require_once 'mainfile.php';
-require_once TFISH_PATH . 'header.php';
 
 // Routing table for front end controller is declared here for convenient editing.
 $routingTable = require_once TFISH_PATH . 'routingTable.php';
+
+// Header for core and any installed modules.
+require_once TFISH_PATH . 'header.php';
+require_once TFISH_CLASS_PATH . 'Tfish/User/header.php';
+
+// Module headers provide additional path and language constants, and routing table info.
 
 // Extract the route and action from the request.
 // Note: If using an NGINX reverse proxy in front of Apache/Tuskfish to terminate SSL, use the

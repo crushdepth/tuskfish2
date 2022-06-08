@@ -79,7 +79,7 @@ class Admin implements \Tfish\ViewModel\Listable
      */
     public function displayCancel()
     {
-        \header('Location: ' . TFISH_ADMIN_USERS_URL);
+        \header('Location: ' . TFISH_ADMIN_USER_URL);
         exit;
     }
 
@@ -91,7 +91,7 @@ class Admin implements \Tfish\ViewModel\Listable
         $this->pageTitle = TFISH_CONFIRM;
         $this->template = 'confirmDeleteUser';
         $this->action = 'confirm';
-        $this->backUrl = TFISH_ADMIN_USERS_URL;
+        $this->backUrl = TFISH_ADMIN_USER_URL;
     }
 
     /**
@@ -111,7 +111,7 @@ class Admin implements \Tfish\ViewModel\Listable
         }
 
         $this->template ='response';
-        $this->backUrl = TFISH_ADMIN_USERS_URL;
+        $this->backUrl = TFISH_ADMIN_USER_URL;
     }
 
     /**
@@ -133,7 +133,7 @@ class Admin implements \Tfish\ViewModel\Listable
     {
         $this->model->toggleOnlineStatus($this->id);
         $this->template = 'userTable';
-        header('Location: ' . TFISH_ADMIN_USERS_URL);
+        header('Location: ' . TFISH_ADMIN_USER_URL);
     }
 
     /** output */
