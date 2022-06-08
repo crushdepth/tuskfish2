@@ -270,9 +270,9 @@ class UserEdit
     {
         $row = $this->getRow($clean['id']);
 
-        if ($row['userGroup'] == '1') {
-            $clean['userGroup'] = '1';
-            $clean['onlineStatus'] = '1';
+        if ((int) $row['userGroup'] === 1) {
+            $clean['userGroup'] = 1;
+            $clean['onlineStatus'] = 1;
         }
 
         return $clean;

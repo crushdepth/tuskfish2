@@ -44,7 +44,7 @@
         <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['yubikeyId']); ?></td>
         <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['yubikeyId2']); ?></td>
         <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['loginErrors']); ?></td>
-        <?php if ($row['userGroup'] === '1'): ?>
+        <?php if ((int) $row['userGroup'] === 1): ?>
         <td class="text-center"><i class="fas fa-check"></i></td>
         <td class="text-center"><a href="<?php echo TFISH_ADMIN_USERS_URL . 'edit/'; ?>?action=edit&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-edit"></i></a></td>
         <td class="text-center"><i class="fas fa-trash-alt"></a></td>

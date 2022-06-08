@@ -218,11 +218,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $userData = array(
             'adminEmail' => $adminEmail,
             'passwordHash' => $passwordHash,
-            'userGroup' => '1',
+            'userGroup' => 1,
             'yubikeyId' => '',
             'yubikeyId2' => '',
-            'loginErrors' => '0',
-            'onlineStatus' => '1',
+            'loginErrors' => 0,
+            'onlineStatus' => 1
             );
         $query = $database->insert('user', $userData);
 

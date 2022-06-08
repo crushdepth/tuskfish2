@@ -66,7 +66,7 @@
         </div>
       </div>
 
-      <?php if ($content->userGroup() !== 1): ?>
+      <?php if ((int) $content->userGroup() !== 1): ?>
       <!-- Online status -->
       <div class="row justify-content-center">
         <div class="col-md-6 mb-3" id="onlineStatusContainer">

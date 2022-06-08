@@ -73,7 +73,7 @@ class Admin
 
         $row = $this->getRow($id);
 
-        if (empty($row) || $row['userGroup'] === '1') {
+        if (empty($row) || (int) $row['userGroup'] === 1) {
             return false;
         }
 
@@ -110,7 +110,7 @@ class Admin
 
         $user = $this->getRow($id);
 
-        if ($user['userGroup'] === '1') return true;
+        if ((int) $user['userGroup'] === 1) return true;
 
         return $this->database->toggleBoolean($id, 'user', 'onlineStatus');
     }
