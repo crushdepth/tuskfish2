@@ -16,4 +16,4 @@ namespace Tfish;
  */
 
 $version = 'Tuskfish V2.0.4';
-$released = '2 June 2022';
+$released = '20 June 2022';
