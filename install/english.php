@@ -11,7 +11,7 @@
  */
 \define("TFISH_CMS", "Tuskfish CMS");
 \define("TFISH_INSTALLATION_TUSKFISH", "Installation");
-\define("TFISH_INSTALLATION_GUIDE", "Please refer to the <a href=\"https://tuskfish.biz/installation.php\""
+\define("TFISH_INSTALLATION_GUIDE", "Please refer to the <a href=\"https://tuskfish.biz/installation\""
         . " target=\"_blank\">Installation Guide</a> for detailed instructions.");
 \define("TFISH_INSTALLATION_DESCRIPTION", "Script to install the Tuskfish CMS. Delete from server "
         . "after use.");
