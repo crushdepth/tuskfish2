@@ -33,7 +33,7 @@
         . "<p>Please note that you may need to use the cPanel File Manager or shell access to set "
         . "file permissions to these levels, as your FTP client probably can't.</p>"
         . "<p>Then please <strong><a href='../login/'>login</a></strong> and configure your "
-        . "site preferences. The <strong><a href='https://tuskfish.biz/?id=41' "
+        . "site preferences. The <strong><a href='https://tuskfish.biz/manual/' "
         . "target='_blank'>Tuskfish User Manual</a></strong> can help you. </p>");
 \define("TFISH_INSTALLATION_DIRECTORY_DELETED", "Successfully removed the installation directory.");
 \define("TFISH_INSTALLATION_REMOVE_DIRECTORY", "Removal of the installation directory failed. Please "
