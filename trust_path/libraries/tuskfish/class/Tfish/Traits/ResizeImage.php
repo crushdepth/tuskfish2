@@ -226,9 +226,10 @@ trait ResizeImage
                 if ($properties['mime'] === "image/gif") {
                     $result = \imagegif($thumbnail, $cachedPath);
                 } else {
-                    // Quality is controlled through an optional third argument (0-9, lower is
-                    // better).
-                    $result = \imagepng($thumbnail, $cachedPath, 0);
+                    // Quality is controlled through an optional third argument (0-9).
+                    // 0 = no compression, 9 = max compression, 6 is a good medium.
+                    // Do not use compression = 0, it creates massive file size.
+                    $result = \imagepng($thumbnail, $cachedPath, 6);
                 }
                 break;
 
