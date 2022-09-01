@@ -1,4 +1,7 @@
 <?php
+
+namespace Yubico;
+
   /**
    * Class for verifying Yubico One-Time-Passcodes
    *

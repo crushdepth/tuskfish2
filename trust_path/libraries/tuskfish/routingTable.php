@@ -74,20 +74,20 @@ return [
         0),
 
     // Standard username / password login route.
-    '/login/' => new Route(
+    /*'/login/' => new Route(
         '\\Tfish\\Model\\Login',
         '\\Tfish\\ViewModel\\Login',
         '\\Tfish\\View\\Single',
         '\\Tfish\\Controller\\Login',
-        0),
+        0),*/
 
     // Alternative two-factor login route for use with Yubikey.
-    /**'/login/' => new Route(
+    '/login/' => new Route(
         '\\Tfish\\Model\\Yubikey',
         '\\Tfish\\ViewModel\\Yubikey',
         '\\Tfish\\View\\Single',
         '\\Tfish\\Controller\\Yubikey',
-        0),**/
+        0),
 
     '/logout/' => new Route(
         '\\Tfish\\Model\\Login',
