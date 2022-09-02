@@ -34,9 +34,9 @@ require_once TFISH_CLASS_PATH . 'Tfish/User/header.php';
 // Extract the route and action from the request.
 // Note: If using an NGINX reverse proxy in front of Apache/Tuskfish to terminate SSL, use the
 // commented out line instead (which locks protocol to https), otherwise routing won't work.
-$url = "https://" . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
-//$url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http")
-//    . "://" . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+//$url = "https://" . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+$url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http")
+    . "://" . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
 
 $path = \parse_url($url, PHP_URL_PATH);
 
