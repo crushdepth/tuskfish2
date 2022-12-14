@@ -17,7 +17,8 @@ declare(strict_types=1);
 
 // Lock charset to UTF-8.
 \header('Content-Type: text/html; charset=utf-8');
-\header("X-Frame-Options: SAMEORIGIN");
+\header("X-Frame-Options: DENY");
+\header("Content-Security-Policy: frame-ancestors 'none'");
 \mb_internal_encoding('UTF-8');
 \mb_http_output('UTF-8');
 
