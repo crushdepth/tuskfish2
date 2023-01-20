@@ -39,6 +39,7 @@ class FrontController
     use Traits\TraversalCheck;
     use Traits\ValidateString;
 
+    private $session;
     private $view;
     private $controller;
 
