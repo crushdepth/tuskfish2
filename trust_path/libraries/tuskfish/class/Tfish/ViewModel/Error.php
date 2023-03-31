@@ -46,7 +46,7 @@ class Error implements Viewable
         $this->pageTitle = TFISH_ERROR;
         $this->theme = 'default';
         $this->template = 'error';
-        $this->setMetadata(['robots' => 'noindex,nofollow']);
+        $this->setMetadata(['robots' => 'index,follow']);
     }
 
     /** Actions. */

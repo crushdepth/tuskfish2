@@ -47,7 +47,7 @@ class Enclosure implements \Tfish\ViewModel\Viewable
     {
         $this->model = $model;
         $this->theme = 'default';
-        $this->setMetadata(['robots' => 'noindex,nofollow']);
+        $this->setMetadata(['robots' => 'index,follow']);
     }
 
     /** Actions. */
