@@ -22,6 +22,7 @@ Features include:
 * SQLite database: There is no database server to worry about.
 * Exclusive use of prepared statements with bound values and parameters as protection against SQL injection.
 * Minimal public-facing code base: Most of the code lives outside the web root.
+* Optional two-factor authentication with Yubikeys (main and backup keys).
 * Lightweight core library.
 
 System requirements
