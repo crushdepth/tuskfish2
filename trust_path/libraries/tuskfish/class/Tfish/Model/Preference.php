@@ -34,6 +34,7 @@ class Preference
     private $database;
     private $criteriaFactory;
     private $preference;
+    private $cache;
 
     /**
      * Constructor.
