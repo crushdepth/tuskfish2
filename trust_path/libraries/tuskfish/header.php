@@ -16,7 +16,7 @@ declare(strict_types=1);
  */
 
 // Security headers.
-\header('Strict-Transport-Security: max-age=63072000');
+// \header('Strict-Transport-Security: max-age=63072000'); // Enable once you have a SSL/TLS certificate installed.
 \header('X-Content-Type-Options: nosniff');
 \header("X-XSS-Protection: 1; mode=block");
 \header("Content-Security-Policy: frame-ancestors 'none'");
