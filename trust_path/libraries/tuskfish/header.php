@@ -15,6 +15,13 @@ declare(strict_types=1);
  * @package     core
  */
 
+// Security headers.
+\header('Strict-Transport-Security: max-age=63072000');
+\header('X-Content-Type-Options: nosniff');
+\header("X-XSS-Protection: 1; mode=block");
+\header("Content-Security-Policy: frame-ancestors 'none'");
+\header("X-Frame-Options: DENY");
+
 // Lock charset to UTF-8.
 \header('Content-Type: text/html; charset=utf-8');
 \header("X-Frame-Options: DENY");
