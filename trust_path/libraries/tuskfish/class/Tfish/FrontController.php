@@ -81,8 +81,8 @@ class FrontController
 
         $action = $this->trimString(($_REQUEST['action'] ?? 'display'));
 
+        // Attempt to inject a bad action will throw a soft error.
         if (!$this->isAlpha($action) || !\method_exists($this->controller, $action)) {
-            \trigger_error(TFISH_ERROR_BAD_ACTION, E_USER_NOTICE);
             \header('Location: ' . TFISH_URL . 'error/');
             exit;
         }
