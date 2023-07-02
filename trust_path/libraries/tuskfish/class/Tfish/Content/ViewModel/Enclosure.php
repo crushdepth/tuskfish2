@@ -57,6 +57,13 @@ class Enclosure implements \Tfish\ViewModel\Viewable
      */
     public function streamFile()
     {
+        if ($this->id === 0) {
+            $this->pageTitle = TFISH_ERROR;
+            $this->template = 'response';
+
+            return;
+        }
+
         return $this->model->streamFileToBrowser($this->id);
     }
 
