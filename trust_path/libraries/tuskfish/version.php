@@ -11,9 +11,9 @@ namespace Tfish;
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @since       1.0
- * @version     Release: 2.0.2
+ * @version     Release: 2.0.6
  * @package     core
  */
 
-$version = 'Tuskfish V2.0.5';
-$released = '2 September 2022';
+$version = 'Tuskfish V2.0.6';
+$released = '2 July 2023';
