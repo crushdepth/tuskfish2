@@ -93,8 +93,11 @@ class Rss implements \Tfish\ViewModel\Viewable
     private function customFeed(int $id)
     {
         $customFeed = $this->model->customFeed($id);
-        $this->title = $this->trimString($customFeed['title']);
-        $this->description = $this->trimString($customFeed['description']);
+
+        if (!empty($customFeed)) {
+            $this->title = $this->trimString($customFeed['title']);
+            $this->description = $this->trimString($customFeed['description']);
+        }
     }
 
     /* Getters and setters. */
