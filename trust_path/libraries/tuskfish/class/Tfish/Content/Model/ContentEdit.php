@@ -115,7 +115,7 @@ class ContentEdit
 
         $content['submissionTime'] = \time();
         $content['lastUpdated'] = 0;
-        $content['expiresOn'] = 0;
+        // $content['expiresOn'] = 0;
         $content['counter'] = 0;
 
         // Upload image/media files and update the file names in $content.

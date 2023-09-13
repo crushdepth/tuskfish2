@@ -84,6 +84,7 @@ class Listing
 
         if (!$this->session->isAdmin()) { // NOT admin.
             $params['onlineStatus'] = 1;
+            $params['time'] = \time();
         }
 
         $cleanParams = $this->validateParams($params);
@@ -182,6 +183,11 @@ class Listing
         if (isset($cleanParams['onlineStatus']))
             $criteria->add($this->criteriaFactory->item('onlineStatus', $cleanParams['onlineStatus']));
 
+        //if (!empty($cleanParams['time'])) {
+        //    $criteria->add($this->criteriaFactory->item('expiresOn', 0, '>='));
+        //    $criteria->add($this->criteriaFactory->item('expiresOn', $cleanParams['time'], '<'));
+        //}
+
         if (!empty($cleanParams['id'])) {
             $criteria->add($this->criteriaFactory->item('id', $cleanParams['id']));
 
@@ -272,6 +278,9 @@ class Listing
                 $cleanParams['onlineStatus'] = $onlineStatus;
             }
         }
+
+        if ($params['time'] ?? 0)
+            $cleanParams['time'] = (int) ($params['time']);
 
         if (isset($params['sort']) && $this->isAlnumUnderscore($params['sort'])) {
             $cleanParams['sort'] = $this->trimString($params['sort']);

@@ -92,7 +92,10 @@ class Enclosure
 
         $statement->closeCursor();
 
-        if ($row && $row['onlineStatus'] == '1') {
+        // Check that object is online and hasn't expired.
+        if ($row && $row['onlineStatus'] == '1'
+            && (empty($row['expiresOn']) || $row['expiresOn'] >= \time())) {
+
             $media = $row['media'] ?? false;
 
             if ($media && \is_readable(TFISH_MEDIA_PATH . $media)) {

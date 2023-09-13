@@ -66,7 +66,7 @@
       </div>
 
       <!-- Date (bootstrap-datepicker) -->
-      <div class="col-md-6 col-lg-3 mb-3 text-left" id="dateContainer">
+      <div class="col-md-6 col-lg-2 mb-3 text-left" id="dateContainer">
         <label for="date"><strong><?php echo TFISH_DATE; ?></strong></label>
         <input type="text" class="form-control" name="content[date]" id="date" <?php if (!empty($content->date())) { echo 'value="' . xss($content->date()->format($viewModel->dateFormat())) . '"'; } ?>>
       </div>
@@ -83,8 +83,26 @@
       });
       </script>
 
+      <!-- expiresOn (bootstrap-datepicker) -->
+      <div class="col-md-6 col-lg-2 mb-3 text-left" id="expiresOnContainer">
+        <label for="expiresOn"><strong><?php echo TFISH_EXPIRES_ON; ?></strong></label>
+        <input type="text" class="form-control" name="content[expiresOn]" id="expiresOn" <?php if (!empty($content->expiresOn())) { echo 'value="' . xss($content->expiresOn()->format($viewModel->dateFormat())) . '"'; } ?>>
+      </div>
+      <script>
+      $(document).ready(function() {
+        $('#expiresOn').datepicker({
+          format: 'yyyy-mm-dd',
+          todayHighlight: 'true',
+          todayBtn: 'linked',
+          startView: 'years'
+        });
+        $('#expiresOn').datepicker('setDate', new Date('<?php echo xss($content->expiresOn()->format($viewModel->dateFormat())); ?>'));
+        $('#expiresOn').datepicker('update');
+      });
+      </script>
+
       <!-- Tags -->
-      <div class="col-md-6 col-lg-3 mb-3 text-left" id="tagsContainer" name="tagsContainer">
+      <div class="col-md-6 col-lg-2 mb-3 text-left" id="tagsContainer" name="tagsContainer">
         <label for="tags"><strong><?php echo TFISH_TAGS; ?></strong></label>
         <select multiple class="form-control custom-select" size="5" name="tags[]" id="tags">
           <?php

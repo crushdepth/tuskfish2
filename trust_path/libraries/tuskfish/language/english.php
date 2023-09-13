@@ -29,6 +29,7 @@ namespace Tfish;
 \define("TFISH_TEASER", "Teaser");
 \define("TFISH_DESCRIPTION", "Description");
 \define("TFISH_DATE", "Date");
+\define("TFISH_EXPIRES_ON", "Expires on");
 \define("TFISH_ONLINE_STATUS", "Status");
 \define("TFISH_ONLINE", "Online");
 \define("TFISH_OFFLINE", "Offline");
