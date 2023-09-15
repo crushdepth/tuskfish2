@@ -15,6 +15,14 @@ $(document).ready(function() {
         loadTemplateOptions();
     });
 
+    // Clear the expiry date if an offline item is marked online.
+    $('#online').change(function() {
+        if (this.value == 1) {
+            $('#expiresOn').datepicker('setDate', '');
+            $('#expiresOn').datepicker('update');
+        }
+    });
+
     // Copies the title to metaTitle and prefills the metaSEO string.
     $('#title').change(function(event) {
         var title = $("#title").val();
@@ -311,7 +319,7 @@ function showHide() {
     });
     if ($("#type").val() === 'TfTag') {
         var disabledProperties = [
-            'creatorContainer', 'languageContainer', 'rightsContainer',
+            'creatorContainer', 'expiresOnContainer', 'languageContainer', 'rightsContainer',
             'publisherContainer', 'tagsContainer'];
         $.each(disabledProperties, function (i, value) {
             $('#' + value).hide();
