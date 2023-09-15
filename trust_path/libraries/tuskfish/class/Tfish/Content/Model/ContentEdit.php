@@ -112,10 +112,8 @@ class ContentEdit
     {
         $content = $this->validateForm($_POST['content']);
         $tags = $this->validateTags($_POST['tags'] ?? []);
-
         $content['submissionTime'] = \time();
         $content['lastUpdated'] = 0;
-        // $content['expiresOn'] = 0;
         $content['counter'] = 0;
 
         // Upload image/media files and update the file names in $content.
@@ -423,10 +421,10 @@ class ContentEdit
         $clean['image'] = $image;
 
         $clean['caption'] = $this->trimString($form['caption'] ?? '');
-        $clean['date'] = (string) ($form['date'] ?? 0);
+        $clean['date'] = $this->trimString($form['date'] ?? '');
         $clean['submissionTime'] = (int) ($form['submissionTime'] ?? 0);
         $clean['lastUpdated'] = (int) ($form['lastUpdated'] ?? 0);
-        $clean['expiresOn'] = (int) ($form['expiresOn'] ?? 0);
+        $clean['expiresOn'] = !empty($form['expiresOn']) ? $this->trimString($form['expiresOn']) : 0;
         $clean['counter'] = (int) ($form['counter'] ?? 0);
         $clean['onlineStatus'] = (int) ($form['onlineStatus'] ?? 0);
         $clean['parent'] = (int) ($form['parent'] ?? 0);

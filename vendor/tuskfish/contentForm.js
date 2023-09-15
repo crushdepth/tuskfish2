@@ -300,7 +300,7 @@ function getAllMimeType() {
 // Shows or hides form fields as appropriate for this content type.
 function showHide() {
     var allowedProperties = ['teaserContainer', 'descriptionContainer',
-        'captionContainer','creatorContainer', 'dateContainer',
+        'captionContainer','creatorContainer', 'dateContainer', 'expiresOnContainer',
         'imageContainer', 'languageContainer','mediaContainer',
         'parentContainer', 'publisherContainer', 'templateContainer',
         'rightsContainer', 'tagsContainer', 'metaHeader', 'metaTitleContainer',
@@ -311,7 +311,7 @@ function showHide() {
     });
     if ($("#type").val() === 'TfTag') {
         var disabledProperties = [
-            'creatorContainer', 'languageContainer', 'rightsContainer',
+            'creatorContainer', 'expiresOnContainer', 'languageContainer', 'rightsContainer',
             'publisherContainer', 'tagsContainer'];
         $.each(disabledProperties, function (i, value) {
             $('#' + value).hide();

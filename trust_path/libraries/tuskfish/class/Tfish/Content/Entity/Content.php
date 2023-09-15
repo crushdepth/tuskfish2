@@ -52,7 +52,7 @@ namespace Tfish\Content\Entity;
  * @var         string $date Date of publication expressed as a string.
  * @var         int $submissionTime Timestamp representing submission time.
  * @var         int $lastUpdated Timestamp representing last time this object was updated.
- * @var         int $expiresOn Timestamp indicating the expiry date for this object.
+ * @var         string $expiresOn Date for this object expressed as a string.
  * @var         int $counter Number of times this content was viewed or downloaded.
  * @var         int $onlineStatus Toggle object on or offline.
  * @var         int $parent A source work or collection of which this content is part.
@@ -91,7 +91,7 @@ class Content
     private $date = '';
     private $submissionTime = 0;
     private $lastUpdated = 0;
-    private $expiresOn = 0;
+    private $expiresOn = '';
     private $counter = 0;
     private $minimumViews = 0;
     private $onlineStatus = 0;
@@ -129,7 +129,7 @@ class Content
         $this->setDate((string) ($row['date'] ?? ''));
         $this->setSubmissionTime((int) ($row['submissionTime'] ?? 0));
         $this->setLastUpdated((int) ($row['lastUpdated'] ?? 0));
-        $this->setExpiresOn((int) ($row['expiresOn'] ?? 0));
+        $this->setExpiresOn((string) ($row['expiresOn'] ?? ''));
         $this->setCounter((int) ($row['counter'] ?? 0));
         $this->setOnlineStatus((int) ($row['onlineStatus'] ?? 1));
         $this->setParent((int) ($row['parent'] ?? 0));
@@ -713,25 +713,21 @@ class Content
      *
      * Expiry date is not yet implemented.
      *
-     * @return int $timestamp
+     * @return string $date
      */
-    public function expiresOn(): int
+    public function expiresOn(): string
     {
-        return (int) $this->expiresOn;
+        return (string) $this->expiresOn;
     }
 
     /**
-     * Set expiry time.
+     * Set expiry date.
      *
-     * @param   int $timestamp
+     * @param   string $date
      */
-    public function setExpiresOn(int $timestamp)
+    public function setExpiresOn(string $date)
     {
-        if ($timestamp < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
-        }
-
-        $this->expiresOn = $timestamp;
+        $this->expiresOn = $this->trimString($date);
     }
 
     /**
