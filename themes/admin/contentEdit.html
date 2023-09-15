@@ -86,7 +86,8 @@
       <!-- expiresOn (bootstrap-datepicker) -->
       <div class="col-md-6 col-lg-2 mb-3 text-left" id="expiresOnContainer">
         <label for="expiresOn"><strong><?php echo TFISH_EXPIRES_ON; ?></strong></label>
-        <input type="text" class="form-control" name="content[expiresOn]" id="expiresOn" <?php if (!empty($content->expiresOn())) { echo 'value="' . xss($content->expiresOn()->format($viewModel->dateFormat())) . '"'; } ?>>
+        <input type="text" class="form-control" name="content[expiresOn]" id="expiresOn"
+        <?php if (!empty($content->expiresOn())) { echo 'value="' . xss($content->expiresOn()->format($viewModel->dateFormat())) . '"'; } ?>>
       </div>
       <script>
       $(document).ready(function() {
@@ -96,8 +97,14 @@
           todayBtn: 'linked',
           startView: 'years'
         });
-        $('#expiresOn').datepicker('setDate', new Date('<?php echo xss($content->expiresOn()->format($viewModel->dateFormat())); ?>'));
-        $('#expiresOn').datepicker('update');
+        <?php if (!empty($content->expiresOn())): ?>
+            $('#expiresOn').datepicker('setDate',
+              new Date('<?php echo xss($content->expiresOn()->format($viewModel->dateFormat())); ?>'));
+            $('#expiresOn').datepicker('update');
+        <?php else: ?>
+            $('#expiresOn').datepicker('setDate', '');
+            $('#expiresOn').datepicker('update');
+        <?php endif; ?>
       });
       </script>
 
