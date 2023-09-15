@@ -713,11 +713,11 @@ class Content
      *
      * Expiry date is not yet implemented.
      *
-     * @return string $date
+     * @return DateTime|string
      */
-    public function expiresOn(): string
+    public function expiresOn(): \DateTime|string
     {
-        return (string) $this->expiresOn;
+        return !empty($this->expiresOn) ? \date_create($this->expiresOn) : '';
     }
 
     /**
