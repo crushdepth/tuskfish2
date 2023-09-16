@@ -153,9 +153,24 @@ class Admin
             return false;
         }
 
+        $result = $this->database->toggleBoolean($id, 'content', 'onlineStatus');
+        $this->clearExpiresOn($id);
         $this->cache->flush();
 
-        return $this->database->toggleBoolean($id, 'content', 'onlineStatus');
+        return $result;
+    }
+
+    /**
+     * Clear the expiry date, if set, when an offline object is toggled online.
+     *
+     * @param integer $id
+     */
+    private function clearExpiresOn(int $id)
+    {
+        $sql = "UPDATE `content` set `expiresOn` = '' WHERE `id` = :id AND `onlineStatus` = '1';";
+        $statement = $this->database->preparedStatement($sql);
+        $statement->bindValue(':id', $id, \PDO::PARAM_INT);
+        $this->database->executeTransaction($statement);
     }
 
     /** Utilities. */
