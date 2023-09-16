@@ -80,6 +80,7 @@
         <th><?php echo TFISH_TYPE; ?></th>
         <th><?php echo TFISH_TITLE; ?></th>
         <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_SUBMISSION_TIME; ?></th>
+        <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_EXPIRES; ?></th>
         <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_COUNTER; ?></th>
         <th class="text-center"><?php echo TFISH_ONLINE; ?></th>
         <th colspan="2" class="text-center"><?php echo TFISH_ACTION; ?></th>
@@ -91,7 +92,15 @@
         <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['id']); ?></td>
         <td><?php echo xss($viewModel->listTypes()[$row['type']]); ?></td>
         <td><a href="<?php echo TFISH_URL . '?id=' . xss($row['id']); ?>"><?php echo xss($row['title']); ?></a></td>
-        <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss(\date($viewModel->dateFormat(), (int) $row['submissionTime'])); ?></td>
+        <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss(\date('j M Y', (int) $row['submissionTime'])); ?></td>
+        <td class="d-none d-md-table-cell d-lg-table-call d=xl-table-cell">
+          <?php if (!empty($row['expiresOn'])):
+              echo xss(\date('j M Y', \strtotime($row['expiresOn'])));
+            else:
+              echo '-';
+            endif;
+          ?>
+        </td>
         <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['counter']); ?></td>
         <?php if ($row['onlineStatus']): ?>
         <td class="text-center"><a class="text-success" href="<?php echo TFISH_ADMIN_URL; ?>?action=toggle&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-check"></i></a></td>
