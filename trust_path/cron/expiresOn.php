@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace Tfish;
 
 /**
- * Tuskfish cron job script to check for expired content and mark it as offline.
+ * Tuskfish script to check for expired content and mark it as offline. Run via cron job at midnight.
  *
- * Run this script via cron job once per day (midnight).
+ * BONEHEAD WARNINGS:
  *
- * BONEHEAD WARNING: If the system time is wrong, this script could mark your whole site offline.
+ * 1. Do not put this script in your web root, it should remain in an inaccessible location.
+ * 2. If the system time is wrong, content with expiry dates could incorrectly be set offline.
+ *
+ * In the interests of default security, the reference to mainfile.php is disabled by default to
+ * prevent this script from running.
  *
  * @copyright   Simon Wilkinson 2023+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -19,7 +23,8 @@ namespace Tfish;
  * @package     content
  */
 
-require_once 'mainfile.php';
+// CONFIG: Uncomment line below and set the path to mainfile.php.
+// require_once '../../mainfile.php';
 require_once TFISH_PATH . 'header.php';
 
 $database = $dice->create('\\Tfish\\Database');
@@ -29,7 +34,7 @@ $cache = $dice->create('\\Tfish\\Cache');
 $date = \date('Y-m-d', \time());
 
 // Count to determine if any rows are due for expiry.
-$sql = "SELECT COUNT(*) FROM `content` WHERE `expiresOn` < :date AND `onlineStatus` = '1';";
+$sql = "SELECT COUNT(*) FROM `content` WHERE `expiresOn` > 0 AND `expiresOn` < :date AND `onlineStatus` = '1';";
 $statement = $database->preparedStatement($sql);
 $statement->bindValue(':date', $date, \PDO::PARAM_STR);
 $statement->execute();
@@ -38,10 +43,11 @@ $count = (int) reset($count);
 
 // If any candidate rows were found, expire them and flush the cache.
 if ($count > 0) {
-    $sql = "UPDATE `content` SET `onlineStatus` = '0' WHERE `expiresOn` < :date AND `onlineStatus` = '1';";
+    $sql = "UPDATE `content` SET `onlineStatus` = '0' WHERE `expiresOn` > '0' AND `expiresOn` < :date AND `onlineStatus` = '1';";
     $statement = $database->preparedStatement($sql);
     $statement->bindValue(':date', $date, \PDO::PARAM_STR);
     $database->executeTransaction($statement);
-    //$statement->executeTransaction();
     $cache->flush();
 }
+
+exit;
