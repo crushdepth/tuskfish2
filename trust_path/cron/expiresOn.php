@@ -7,18 +7,24 @@ namespace Tfish;
 /**
  * Tuskfish script to check for expired content and mark it as offline. Run via cron job at midnight.
  * 
- * Sample crontab entry (modify the paths to php / expiresOn.php to suit your own environment):
+ * Sample crontab entry (modify the paths to php / expiresOn.php to suit your own environment): 
+ * 0 0 * * * /usr/local/bin/php /var/www/trust_path/cron/expiresOn.php
  * 
- * 0 0 * * * /usr/local/bin/php /var/www/tuskfish_dot_biz/cron/expiresOn.php
+ * If you are running Tuskfish in a Docker container, you can use the crontab on the host machine
+ * via the exec command (modify the paths as required):
+ * 
+ * 0 0 * * * docker exec -it containerName php /var/www/trust_path/cron/expiresOn.php
  *
  * BONEHEAD WARNINGS:
  *
  * 1. DO NOT put this script in your web root, it should remain in a location inaccessible by browser.
- * 2. Set the file ownership so that it can be run by the crontab but NOT by the webserver.
+ * 2. Set the file permissions/ownership as restrictive as you can (0400 is fine).
  * 3. If the system time is wrong, content with expiry dates could incorrectly be set offline.
  *
- * In the interests of default security, the reference to mainfile.php is commented out by default
- * to prevent this script from running.
+ * NOTE:
+ * 
+ * In the interests of security by default, the reference to mainfile.php is commented out
+ * to prevent this script from running. Uncomment to enable, after heeding the warnings above.
  *
  * @copyright   Simon Wilkinson 2023+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -28,7 +34,7 @@ namespace Tfish;
  * @package     content
  */
 
-// CONFIG: Uncomment line below and set the path to mainfile.php.
+// CONFIG: Uncomment line below and SET TEH CORRECT PATH to mainfile.php.
 // require_once '../../mainfile.php';
 require_once TFISH_PATH . 'header.php';
 
