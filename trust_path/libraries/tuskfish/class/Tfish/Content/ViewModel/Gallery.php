@@ -45,6 +45,7 @@ class Gallery implements \Tfish\ViewModel\Listable
     use \Tfish\Traits\ValidateString;
 
     private $model;
+    private $preference;
     private $contentList = [];
     private $contentCount = 0;
     private $id = 0;
