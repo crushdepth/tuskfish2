@@ -6,6 +6,10 @@ namespace Tfish;
 
 /**
  * Tuskfish script to check for expired content and mark it as offline. Run via cron job at midnight.
+ * 
+ * Sample crontab entry (modify the paths to php / expiresOn.php to suit your own environment):
+ * 
+ * 0 0 * * * /usr/local/bin/php /var/www/tuskfish_dot_biz/cron/expiresOn.php
  *
  * BONEHEAD WARNINGS:
  *
