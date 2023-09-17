@@ -63,7 +63,7 @@
             todayBtn: 'linked',
             startView: 'years'
         });
-        $('#date').datepicker('setDate', 0);
+        $('#date').datepicker('setDate', new Date());
         $('#date').datepicker('update');
       });
       </script>
@@ -81,7 +81,7 @@
             todayBtn: 'linked',
             startView: 'years'
         });
-        $('#expiresOn').datepicker('setDate', new Date());
+        $('#expiresOn').datepicker('setDate', '');
         $('#expiresOn').datepicker('update');
       });
       </script>
