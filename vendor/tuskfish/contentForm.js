@@ -1,3 +1,13 @@
+/**
+ * Add interactivity to the Tuskfish CMS content management forms.
+ *
+ * @copyright	Simon Wilkinson 2013+ (https://tuskfish.biz)
+ * @license		https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
+ * @author      Simon Wilkinson <simon@isengard.biz>
+ * @since		2.0
+ * @package		UI
+ */
+
 // Shows/hides form fields that are relevant/irrelevant to the content type.
 $(document).ready(function() {
     // Show or hide content properties as appropriate for this content type.
