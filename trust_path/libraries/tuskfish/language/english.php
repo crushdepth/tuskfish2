@@ -122,6 +122,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_PREFERENCE_CACHE_LIFE", "Cache life (seconds)");
 \define("TFISH_PREFERENCE_SESSION_LIFE", "Session life (minutes)");
 \define("TFISH_PREFERENCE_MAPS_API_KEY", "Google Maps API key");
+\define("TFISH_PREFERENCE_LAST_PUB_CHECK", "Last publication check");
 
 // Search.
 \define("TFISH_SEARCH", "Search");
@@ -215,6 +216,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE", "File path contains a traversal or null byte (illegal "
         . "value).");
 \define("TFISH_ERROR_BAD_ACTION", "Bad action submitted to front controller, high probability attempted abuse.");
+\define("TFISH_ERROR_BAD_DATE", "Bad date value or format.");
 \define("TFISH_ERROR_UNSPECIFIED", "Unspecified error.");
 
 // Token errors.

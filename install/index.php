@@ -51,7 +51,7 @@ $template['metadata'] = $metadata;
 \ini_set('display_errors', '1');
 \ini_set('log_errors', '1');
 \error_reporting(E_ALL & ~E_NOTICE);
-\set_error_handler(array($logger, "logError"));
+\set_error_handler([$logger, "logError"]);
 
 $template = [];
 $page = '';
@@ -75,7 +75,7 @@ function getUrl() {
 \ob_start();
 
 // Initialise default content variable.
-$content = array('output' => '');
+$content = ['output' => ''];
 $template['output'] = '';
 
 // Test and save database credentials.
@@ -215,7 +215,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->execute();
 
         // Insert admin user's details to database.
-        $userData = array(
+        $userData = [
             'adminEmail' => $adminEmail,
             'passwordHash' => $passwordHash,
             'userGroup' => 1,
@@ -223,42 +223,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'yubikeyId2' => '',
             'loginErrors' => 0,
             'onlineStatus' => 1
-            );
+        ];
         $query = $database->insert('user', $userData);
 
         // Insert default preferences to database.
-        $preferenceData = array(
-            array('title' => 'siteName', 'value' => 'Tuskfish CMS'),
-            array('title' => 'siteDescription', 'value' => 'A cutting edge micro CMS'),
-            array('title' => 'siteAuthor', 'value' => 'Tuskfish'),
-            array('title' => 'siteEmail', 'value' => $adminEmail),
-            array('title' => 'siteCopyright', 'value' => 'Copyright all rights reserved'),
-            array('title' => 'closeSite', 'value' => '0'),
-            array('title' => 'serverTimezone', 'value' => '0'),
-            array('title' => 'siteTimezone', 'value' => '0'),
-            array('title' => 'minSearchLength', 'value' => '3'),
-            array('title' => 'searchPagination', 'value' => '20'),
-            array('title' => 'userPagination', 'value' => '10'),
-            array('title' => 'adminPagination', 'value' => '20'),
-            array('title' => 'galleryPagination', 'value' => '20'),
-            array('title' => 'paginationElements', 'value' => '5'),
-            array('title' => 'minimumViews', 'value' => '0'),
-            array('title' => 'rssPosts', 'value' => '10'),
-            array('title' => 'sessionName', 'value' => 'tfish'),
-            array('title' => 'sessionLife', 'value' => '20'),
-            array('title' => 'defaultLanguage', 'value' => 'en'),
-            array('title' => 'dateFormat', 'value' => 'j F Y'),
-            array('title' => 'enableCache', 'value' => '0'),
-            array('title' => 'cacheLife', 'value' => '86400'),
-            array('title' => 'mapsApiKey', 'value' => '')
-        );
+        $preferenceData = [
+            ['title' => 'siteName', 'value' => 'Tuskfish CMS'],
+            ['title' => 'siteDescription', 'value' => 'A cutting edge micro CMS'],
+            ['title' => 'siteAuthor', 'value' => 'Tuskfish'],
+            ['title' => 'siteEmail', 'value' => $adminEmail],
+            ['title' => 'siteCopyright', 'value' => 'Copyright all rights reserved'],
+            ['title' => 'closeSite', 'value' => '0'],
+            ['title' => 'serverTimezone', 'value' => '0'],
+            ['title' => 'siteTimezone', 'value' => '0'],
+            ['title' => 'minSearchLength', 'value' => '3'],
+            ['title' => 'searchPagination', 'value' => '20'],
+            ['title' => 'userPagination', 'value' => '10'],
+            ['title' => 'adminPagination', 'value' => '20'],
+            ['title' => 'galleryPagination', 'value' => '20'],
+            ['title' => 'paginationElements', 'value' => '5'],
+            ['title' => 'minimumViews', 'value' => '0'],
+            ['title' => 'rssPosts', 'value' => '10'],
+            ['title' => 'sessionName', 'value' => 'tfish'],
+            ['title' => 'sessionLife', 'value' => '20'],
+            ['title' => 'defaultLanguage', 'value' => 'en'],
+            ['title' => 'dateFormat', 'value' => 'j F Y'],
+            ['title' => 'enableCache', 'value' => '0'],
+            ['title' => 'cacheLife', 'value' => '86400'],
+            ['title' => 'mapsApiKey', 'value' => ''],
+            ['title' => 'lastPubCheck', 'value' => '']
+        ];
 
         foreach ($preferenceData as $preference) {
             $database->insert('preference', $preference, 'id');
         }
 
         // Insert a "General" tag content object.
-        $contentData = array(
+        $contentData = [
             "type" => "TfTag",
             "template" => 'tag',
             "title" => "General",
@@ -283,7 +284,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "counter" => "0",
             "metaTitle" => "General",
             "metaDescription" => "General information.",
-            "metaSeo" => "general");
+            "metaSeo" => "general"];
         $query = $database->insert('content', $contentData);
 
         // Create an experts table - not required in public release.
@@ -346,7 +347,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
      */
     $template['output'] .= '<div class="row"><div class="col-xs-6 offset-xs-3 col-lg-4 offset-md-4 text-left">';
 
-    $requiredExtentions = array('sqlite3', 'PDO', 'pdo_sqlite', 'gd');
+    $requiredExtentions = ['sqlite3', 'PDO', 'pdo_sqlite', 'gd'];
     $loadedExtensions = \get_loaded_extensions();
     $presentList = '';
     $missingList = '';
@@ -450,7 +451,7 @@ function checkPasswordStrength(string $password): array
  */
 function hashPassword(string $password): string
 {
-    $options = array('cost' => 11);
+    $options = ['cost' => 11];
     $password = \password_hash($password, PASSWORD_DEFAULT, $options);
 
     return $password;

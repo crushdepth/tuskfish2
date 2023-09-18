@@ -199,6 +199,12 @@
       <input type="text" class="form-control" name="preference[mapsApiKey]" id="mapsApiKey" <?php if (!empty($preference->mapsApiKey())) { echo 'value="' . xss($preference->mapsApiKey()) . '"'; } ?>>
     </div>
 
+    <!-- Last publication check -->
+    <div class="col-md-6 col-lg-4 mb-3 text-left">
+        <label for="lastPubCheck"><strong><?php echo TFISH_PREFERENCE_LAST_PUB_CHECK; ?></strong></label>
+        <input type="text" class="form-control" name="preference[lastPubCheck]" id="lastPubCheck" readonly <?php if (!empty($preference->lastPubcheck())) { echo 'value="' . xss($preference->lastPubCheck()) . '"'; } ?>>
+    </div>
+
     <!-- Update / cancel buttons -->
     <div class="col-12 text-left clearfix">
       <input type="hidden" name="token" value="<?php echo $_SESSION['token']; ?>" />

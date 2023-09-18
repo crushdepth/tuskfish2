@@ -82,6 +82,7 @@ class Preference
     private $enableCache = 0; // global
     private $cacheLife = 0; // global
     private $mapsApiKey = ''; // global
+    private $lastPubCheck = ''; // global
 
     /**
      * Constructor.
@@ -722,5 +723,33 @@ class Preference
         }
 
         $this->userPagination = $value;
+    }
+
+    /**
+     * Returns the last time the DB was swept for newly published or due to expire content.
+     *
+     * @return string $date as yyyy-mm-dd
+     */
+    public function lastPubCheck(): string
+    {
+        return $this->lastPubCheck;
+    }
+
+    /**
+     * Update the last time the DB was swept for newly published or expired content.
+     *
+     * @param string $date as yyyy-mm-dd
+     * @return void
+     */
+    public function setLastPubCheck(string $date)
+    {
+        $date = $this->trimString($date);
+        $datetime = \DateTime::createFromFormat('Y-m-d', $date);
+
+        if (empty($date) || $datetime->format('Y-m-d') != $date) {
+            \trigger_error(TFISH_ERROR_BAD_DATE, E_USER_ERROR);
+        }
+
+        $this->lastPubCheck = $date;
     }
 }

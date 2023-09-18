@@ -57,6 +57,11 @@ $dice = $dice->addRules($rules);
 $logger = $dice->create('\\Tfish\\Logger');
 \set_error_handler([$logger, "logError"]);
 
+// Check DB for newly published and expired content.
+$date = \date('Y-m-d');
+
+
+
 /**
  * Universal XSS output escape function for use in templates.
  *
