@@ -10,10 +10,15 @@ namespace Tfish;
  * Sample crontab entry (modify the paths to php / expiresOn.php to suit your own environment):
  * 0 0 * * * /usr/local/bin/php /var/www/trust_path/cron/expiresOn.php
  *
- * If you are running Tuskfish in a Docker container, you can use the crontab on the host machine
- * via the exec command (modify the paths as required):
+ * DOCKER USERS:
  *
- * 0 0 * * * docker exec -it containerName php /var/www/trust_path/cron/expiresOn.php
+ * If you are running Tuskfish in a Docker container, you can use the crontab on the host machine
+ * via the exec command (modify the paths to PHP and expiresOn.php as required):
+ *
+ * 0 0 * * * docker exec -t container-name /usr/bin/local/php /var/www/somepath/cron/expiresOn.php
+ *
+ * If you try to run exec from cron with the interactive flat (-i) it will not work, because you
+ * are not running it from an interactive context.
  *
  * BONEHEAD WARNINGS:
  *
