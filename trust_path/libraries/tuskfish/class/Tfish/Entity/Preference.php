@@ -148,6 +148,7 @@ class Preference
         $this->setEnableCache((int) ($input['enableCache'] ?? 0));
         $this->setCacheLife((int) ($input['cacheLife'] ?? 86400));
         $this->setMapsApiKey((string) $input['mapsApiKey'] ?? '');
+        $this->setLastPubCheck((string) $input['lastPubCheck'] ?? '');
     }
 
     /**

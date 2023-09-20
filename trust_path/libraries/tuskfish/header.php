@@ -57,10 +57,48 @@ $dice = $dice->addRules($rules);
 $logger = $dice->create('\\Tfish\\Logger');
 \set_error_handler([$logger, "logError"]);
 
-// Check DB for newly published and expired content.
-$date = \date('Y-m-d');
+// Check DB for newly expired content once per day.
+$date = \date('Y-m-d', \time());
+$database = $dice->create('\\Tfish\\Database');
+$cache = $dice->create('\\Tfish\\Cache');
+$preference = $dice->create('\\Tfish\\Entity\\Preference');
 
+if ($date > $preference->lastPubCheck()) {
+    sweep($date, $database, $cache);
+    updateLastPubCheck($date, $database);
+}
 
+/**
+ * Turn off expired content.
+ */
+function sweep($date, $database, $cache)
+{
+    $sql = "SELECT COUNT(*) FROM `content` WHERE `expiresOn` != '' AND `expiresOn` < :date AND `onlineStatus` = '1';";
+    $statement = $database->preparedStatement($sql);
+    $statement->bindValue(':date', $date, \PDO::PARAM_STR);
+    $statement->execute();
+    $count = $statement->fetch(\PDO::FETCH_NUM);
+    $count = (int) reset($count);
+
+    if ($count > 0) {
+        $sql = "UPDATE `content` SET `onlineStatus` = '0' WHERE `expiresOn` != '' AND `expiresOn` < :date AND `onlineStatus` = '1';";
+        $statement = $database->preparedStatement($sql);
+        $statement->bindValue(':date', $date, \PDO::PARAM_STR);
+        $database->executeTransaction($statement);
+        $cache->flush();
+    }
+}
+
+/**
+ * Update the lastPubCheck record in site preferences.
+ */
+function updateLastPubCheck(string $date, \Tfish\Database $database)
+{
+    $sql = "UPDATE `preference` SET `value` = :date  WHERE `title` = 'lastPubCheck';";
+    $statement = $database->preparedStatement($sql);
+    $statement->bindValue(':date', $date, \PDO::PARAM_STR);
+    $database->executeTransaction($statement);
+}
 
 /**
  * Universal XSS output escape function for use in templates.
