@@ -1,0 +1,94 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Container -->
+<div class="container">
+
+<div class="row">
+  <div class="col">
+    <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+  </div>
+</div>
+
+<?php if ($pagination ?? null): ?>
+<div class="row">
+  <div class="col d-flex justify-content-end pagination-top clearfix">
+    <?php echo $pagination; ?>
+  </div>
+</div>
+<?php endif; ?>
+
+<div class="row">
+    <div class="col form-buttons clearfix">
+      <form method="post">
+        <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
+        <button class="btn btn-primary float-start add-content" type="submit" formaction="<?php echo TFISH_EXPERTS_ADMIN_URL . 'edit/'; ?>">
+            <?php echo TFISH_ADD; ?>
+        </button>
+      </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col main-content clearfix">
+    <table class="table table-bordered table-striped table-hover text-left">
+      <thead>
+        <tr>
+          <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_ID; ?></th>
+          <th><?php echo TFISH_EXPERTS_SALUTATION; ?></th>
+          <th><?php echo TFISH_EXPERTS_NAME; ?></th>
+          <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_STATE; ?></th>
+          <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_LAST_UPDATED; ?></th>
+          <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_SUBMISSION_TIME; ?></th>
+          <th class="text-center"><?php echo TFISH_ONLINE; ?></th>
+          <th colspan="2" class="text-center"><?php echo TFISH_ACTION; ?></th>
+        </tr>
+        </thead>
+      <tbody>
+      <?php foreach($viewModel->contentList() as &$row): ?>
+        <tr>
+          <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['id']); ?></td>
+          <td><?php echo xss($viewModel->salutationList()[$row['salutation']]); ?></td>
+          <td><a href="<?php echo TFISH_EXPERTS_URL . '?id=' . xss($row['id']); ?>">
+              <?php
+                echo xss($row['lastName']);
+                if ($row['lastName'] && ($row['firstName'] || $row['midName'])) {
+                    echo ', ';
+                }
+                echo xss($row['firstName'] . ' ' . $row['midName']);
+              ?>
+            </a></td>
+          <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($viewModel->countryList()[$row['country']]); ?></td>
+          <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell">
+              <?php
+              if ($row['lastUpdated'] > 0) {
+                echo xss(\date($viewModel->dateFormat(), (int) $row['lastUpdated']));
+              } else {
+                  echo '---';
+              }
+              ?>
+          </td>
+          <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss(\date($viewModel->dateFormat(), (int) $row['submissionTime'])); ?></td>
+          <?php if ($row['onlineStatus']): ?>
+          <td class="text-center"><a class="text-success" href="<?php echo TFISH_EXPERTS_ADMIN_URL . '?action=toggle&amp;id=' . xss($row['id']); ?>"><i class="fas fa-check"></i></a></td>
+          <?php else: ?>
+          <td class="text-center"><a class="text-danger" href="<?php echo TFISH_EXPERTS_ADMIN_URL . '?action=toggle&amp;id=' . xss($row['id']); ?>"><i class="fas fa-times"></i></a></td>
+          <?php endif; ?>
+          <td class="text-center"><a href="<?php echo TFISH_EXPERTS_ADMIN_URL . 'edit/?action=edit&amp;id=' . xss($row['id']); ?>"><i class="fas fa-edit"></i></a></td>
+          <td class="text-center"><a href="<?php echo TFISH_EXPERTS_ADMIN_URL . '?action=confirmDelete&amp;id=' . xss($row['id']); ?>"><i class="fas fa-trash-alt"></i></a></td>
+          <?php unset($row); ?>
+        </tr>
+      <?php endforeach; ?>
+      </tbody>
+    </table>
+    </div>
+</div>
+
+<?php if ($pagination ?? null): ?>
+<div class="row">
+  <div class="col d-flex justify-content-end pagination-top clearfix">
+    <?php echo $pagination; ?>
+  </div>
+</div>
+<?php endif; ?>
+
+</div> <!-- /container -->

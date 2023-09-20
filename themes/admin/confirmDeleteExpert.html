@@ -1,0 +1,23 @@
+<?php declare(strict_types=1); ?>
+
+<div class="container">
+
+<div class="row">
+  <div class="col">
+    <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+  </div>
+</div>
+
+<div>
+  <div class="alert alert-danger">
+    <strong><?php echo TFISH_EXPERTS_ARE_YOU_SURE; ?></strong>
+  </div>
+  <form class="form-horizontal" action="<?php echo TFISH_EXPERTS_ADMIN_URL; ?>" method="post" accept-charset="UTF-8">
+    <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
+    <input name="id" value="<?php echo xss($viewModel->id()); ?>" type="hidden">
+    <button name="action" value="delete" type="submit" class="btn btn-primary"><?php echo TFISH_YES; ?></button>
+    <button name="action" value="cancel" type="submit" class="btn btn-primary"><?php echo TFISH_NO; ?></button>
+  </form>
+</div>
+
+</div>
