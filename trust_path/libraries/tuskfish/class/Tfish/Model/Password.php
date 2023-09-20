@@ -89,7 +89,7 @@ class Password
     {
         $userId = (int) $_SESSION['userId'];
 
-        if (empty($userId) || empty($_SESSION['TFISH_LOGIN'])) {
+        if (empty($userId) || !$this->session->isEditor()) {
             return false;
         }
 

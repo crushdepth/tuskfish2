@@ -337,6 +337,7 @@ class Session
     private function setLoginFlags(array $user)
     {
         if ((int) $user['userGroup'] === 1 || (int) $user['userGroup'] === 2) {
+            $_SESSION['id'] = $user['id'];
             $_SESSION['adminEmail'] = $user['adminEmail'];
             $_SESSION['authHash'] = \hash('sha256', $user['passwordHash']);
         }
