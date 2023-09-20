@@ -8,17 +8,20 @@ namespace Tfish;
  * Tuskfish script to check for expired content and mark it as offline. Run via cron job at midnight.
  *
  * Sample crontab entry (modify the paths to php / expiresOn.php to suit your own environment):
- * 0 0 * * * /usr/local/bin/php /var/www/trust_path/cron/expiresOn.php
+ * 0 0 * * * /usr/local/bin/php /var/www/trust_path/cron/expiresOn.php'
+ *
+ * DOCKER USERS:
  *
  * If you are running Tuskfish in a Docker container, you can use the crontab on the host machine
- * via the exec command (modify the paths as required):
+ * via the exec command (modify the paths as required). Note: Do not use the interactive flag (-i)
+ * as cron does not run in an interactive context, and the job will fail.
  *
- * 0 0 * * * docker exec -it containerName php /var/www/trust_path/cron/expiresOn.php
+ * 0 0 * * * docker exec -t containerName /usr/local/bin/php /var/www/trust_path/cron/expiresOn.php
  *
  * BONEHEAD WARNINGS:
  *
  * 1. DO NOT put this script in your web root, it should remain in a location inaccessible by browser.
- * 2. Set the file permissions/ownership as restrictive as you can (0400 is fine).
+ * 2. Set the file permissions/ownership as restrictive as you can (0440 is fine).
  * 3. If the system time is wrong, content with expiry dates could incorrectly be set offline.
  *
  * NOTE:
