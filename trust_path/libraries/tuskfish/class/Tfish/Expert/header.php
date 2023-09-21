@@ -43,4 +43,5 @@ $routingTable['/admin/experts/edit/'] = new \Tfish\Route(
     1);
 
 // User file path constants.
-\define("TFISH_ADMIN_EXPERT_URL", TFISH_ADMIN_URL . 'expert/');
+\define("TFISH_EXPERTS_URL", TFISH_URL . 'experts/');
+\define("TFISH_EXPERTS_ADMIN_URL", TFISH_ADMIN_URL . 'experts/');

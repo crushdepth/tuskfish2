@@ -78,7 +78,7 @@ class Search implements \Tfish\ViewModel\Listable
         $this->model = $model;
         $this->preference = $preference;
         $this->template = 'expertListView';
-        $this->theme = 'marketing';
+        $this->theme = 'default';
         $this->sort = 'date';
         $this->order = 'DESC';
         $this->secondarySort = 'submissionTime';
