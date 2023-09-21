@@ -87,7 +87,7 @@ class Password
      */
     private function updatePassword(string $password): bool
     {
-        $userId = (int) $_SESSION['userId'];
+        $userId = (int) $_SESSION['id'];
 
         if (empty($userId) || !$this->session->isEditor()) {
             return false;
