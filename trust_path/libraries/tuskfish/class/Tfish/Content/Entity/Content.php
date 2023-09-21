@@ -711,8 +711,6 @@ class Content
     /**
      * Return expiry date.
      *
-     * Expiry date is not yet implemented.
-     *
      * @return mixed
      */
     public function expiresOn()
