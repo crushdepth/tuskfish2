@@ -67,7 +67,7 @@ if ($count > 0) {
 }
 
 // Update the sitemap.
-$sitemap = $dice->create('\\Tfish\\Database');
+$sitemap = $dice->create('\\Tfish\\Model\\Sitemap');
 $sitemap->generate();
 
 exit;
