@@ -16,11 +16,11 @@ declare(strict_types=1);
  */
 
 // Security headers.
-// \header('Strict-Transport-Security: max-age=63072000'); // Enable once you have a SSL/TLS certificate installed.
+// \header('Strict-Transport-Security: max-age=31536000'); // Enable once you have a SSL/TLS certificate installed.
 \header('X-Content-Type-Options: nosniff');
 \header("X-XSS-Protection: 1; mode=block");
 \header("Content-Security-Policy: frame-ancestors 'none'");
-\header("X-Frame-Options: DENY");
+\header("X-Frame-Options: DENY"); // Fallback for old browsers that don't support frame-ancestors.
 
 // Lock charset to UTF-8.
 \header('Content-Type: text/html; charset=utf-8');

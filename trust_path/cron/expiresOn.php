@@ -66,4 +66,8 @@ if ($count > 0) {
     $cache->flush();
 }
 
+// Update the sitemap.
+$sitemap = $dice->create('\\Tfish\\Model\\Sitemap');
+$sitemap->generate();
+
 exit;
