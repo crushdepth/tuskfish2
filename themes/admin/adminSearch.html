@@ -78,6 +78,7 @@
         <th><?php echo TFISH_TYPE; ?></th>
         <th><?php echo TFISH_TITLE; ?></th>
         <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_SUBMISSION_TIME; ?></th>
+        <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_EXPIRES; ?></th>
         <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_COUNTER; ?></th>
         <th class="text-center"><?php echo TFISH_ONLINE; ?></th>
         <th colspan="2" class="text-center"><?php echo TFISH_ACTION; ?></th>
@@ -90,6 +91,14 @@
         <td><?php echo xss($viewModel->listTypes()[$content->type()]); ?></td>
         <td><a href="<?php echo TFISH_URL . '?id=' . xss($content->id()); ?>"><?php echo xss($content->title()); ?></a></td>
         <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss(\date($viewModel->dateFormat(), (int) $content->submissionTime())); ?></td>
+        <td class="d-none d-md-table-cell d-lg-table-call d=xl-table-cell">
+            <?php if (!empty($content->expiresOn())):
+                echo xss($content->expiresOn()->format('j M Y'));
+              else:
+                echo '-';
+              endif;
+            ?>
+        </td>
         <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($content->counter()); ?></td>
         <?php if ($content->onlineStatus()): ?>
         <td class="text-center"><a class="text-success" href="<?php echo TFISH_ADMIN_URL; ?>?action=toggle&amp;id=<?php echo xss($content->id()); ?>"><i class="fas fa-check"></i></a></td>
