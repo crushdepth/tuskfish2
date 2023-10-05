@@ -12,3 +12,4 @@ uploads/image/*
 uploads/media/*
 !uploads/media/index.html
 mainfile.php
+vendor/.DS_Store
