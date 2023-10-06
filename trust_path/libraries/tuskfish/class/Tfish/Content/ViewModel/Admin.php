@@ -34,6 +34,7 @@ namespace Tfish\Content\ViewModel;
  * @var         array $contentList An array of content objects to be displayed in this page view.
  * @var         int $contentCount The number of content objects that match filtering criteria. Used to build pagination control.
  * @var         int $id ID of a single content object to be displayed.
+ * @var         int $status The online status of a single content item being toggled on or offline.
  * @var         int $start Position in result set to retrieve objects from.
  * @var         int $tag Filter search results by tag ID.
  * @var         string $type Filter search results by content type.
@@ -55,6 +56,7 @@ class Admin implements \Tfish\ViewModel\Listable
     private $contentList = [];
     private $contentCount = 0;
     private $id = 0;
+    private $status = 0;
     private $start = 0;
     private $tag = 0;
     private $type = '';
@@ -137,13 +139,24 @@ class Admin implements \Tfish\ViewModel\Listable
     }
 
     /**
-     * Toggle a content object online or offline.
+     * Toggle a content object online or offline using htmx.
      */
-    public function displayToggle()
+    public function displayToggle(): string
     {
         $this->model->toggleOnlineStatus($this->id);
-        $this->template = 'contentTable';
-        header('Location: ' . TFISH_ADMIN_URL);
+
+        if ($this->status === 1) {
+            $this->status = 0;
+            echo '<a class="text-danger" hx-post="' . TFISH_ADMIN_URL . '?action=toggle"'
+            . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "0"}\' '
+            . 'hx-swap="outerHTML"><i class="fas fa-times"></i></a>';
+        } else {
+            $this->status = 1;
+            echo '<a class="text-success" hx-post="' . TFISH_ADMIN_URL . '?action=toggle"'
+              . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "1"}\' '
+              . 'hx-swap="outerHTML"><i class="fas fa-check"></i></a>';
+        }
+        exit;
     }
 
     /** output */
@@ -354,6 +367,16 @@ class Admin implements \Tfish\ViewModel\Listable
     public function setContentTitle()
     {
         $this->contentTitle = $this->model->getTitle($this->id);
+    }
+
+    public function status(): int
+    {
+        return (int) $this->status;
+    }
+
+    public function setStatus(int $status)
+    {
+        $this->status = $status;
     }
 
     /**

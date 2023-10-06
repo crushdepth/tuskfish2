@@ -103,9 +103,16 @@
         </td>
         <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['counter']); ?></td>
         <?php if ($row['onlineStatus']): ?>
-        <td class="text-center"><a class="text-success" href="<?php echo TFISH_ADMIN_URL; ?>?action=toggle&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-check"></i></a></td>
+        <td class="text-center">
+          <a class="text-success" hx-post="<?php echo TFISH_ADMIN_URL; ?>?action=toggle" target="closest td"
+            hx-vals='{"id": "<?php echo xss($row['id']); ?>", "status": "1"}' hx-swap="outerHTML">
+            <i class="fas fa-check"></i></a>
+        </td>
         <?php else: ?>
-        <td class="text-center"><a class="text-danger" href="<?php echo TFISH_ADMIN_URL; ?>?action=toggle&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-times"></i></a></td>
+        <td class="text-center">
+            <a class="text-danger" hx-post="<?php echo TFISH_ADMIN_URL; ?>?action=toggle" target="closest td"
+              hx-vals='{"id": "<?php echo xss($row['id']); ?>", "status": "0"}' hx-swap="outerHTML">
+              <i class="fas fa-times"></i></a>
         <?php endif; ?>
         <td class="text-center"><a href="<?php echo TFISH_ADMIN_URL . 'content/'; ?>?action=edit&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-edit"></i></a></td>
         <td class="text-center"><a href="<?php echo TFISH_ADMIN_URL; ?>?action=confirmDelete&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-trash-alt"></i></a></td>

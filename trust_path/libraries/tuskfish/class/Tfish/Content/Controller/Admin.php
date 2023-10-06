@@ -127,16 +127,15 @@ class Admin
 
     /**
      * Toggle a content object online or offline.
-     *
-     * @return  array Empty array (the output of this action is not cached).
      */
-    public function toggle(): array
+
+    public function toggle()
     {
-        $id = (int) ($_GET['id'] ?? 0);
+        $id = (int) ($_POST['id'] ?? 0);
+        $status = (int) ($_POST['status'] ?? 0); // online status of individual content item.
         $this->viewModel->setId($id);
-
+        $this->viewModel->setStatus($status);
         $this->viewModel->displayToggle();
-
-        return [];
+        exit;
     }
 }
