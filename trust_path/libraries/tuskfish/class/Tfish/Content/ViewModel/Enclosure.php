@@ -28,6 +28,7 @@ namespace Tfish\Content\ViewModel;
  * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\View\Viewable interface.
  * @var         object $model Classname of the model used to display this page.
  * @var         int $id ID of the content object whose media attachment will be streamed.
+ * @var         string $backUrl $backUrl URL to return to if the user cancels the action.
  */
 
 class Enclosure implements \Tfish\ViewModel\Viewable
@@ -37,6 +38,7 @@ class Enclosure implements \Tfish\ViewModel\Viewable
 
     private $model;
     private $id = 0;
+    private $backUrl = '';
 
     /**
      * Constructor.
@@ -59,12 +61,25 @@ class Enclosure implements \Tfish\ViewModel\Viewable
     {
         if ($this->id === 0) {
             $this->pageTitle = TFISH_ERROR;
+            $this->backUrl = TFISH_URL;
             $this->template = 'response';
 
             return;
         }
 
         return $this->model->streamFileToBrowser($this->id);
+    }
+
+    /** Utilities */
+
+    /**
+     * Return error message if enclosure ID not set or inappropriate.
+     *
+     * @return string
+     */
+    public function response(): string
+    {
+        return TFISH_ERROR_NO_SUCH_CONTENT;
     }
 
     /* Getters and setters. */
@@ -77,5 +92,17 @@ class Enclosure implements \Tfish\ViewModel\Viewable
     public function setId(int $id)
     {
         $this->id = $id;
+    }
+
+    /**
+     * Return the backUrl.
+     *
+     * If the cancel button is clicked, the user will be redirected to the backUrl.
+     *
+     * @return  string
+     */
+    public function backUrl(): string
+    {
+        return $this->backUrl;
     }
 }
