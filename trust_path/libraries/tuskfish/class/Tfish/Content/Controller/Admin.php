@@ -126,7 +126,9 @@ class Admin
     }
 
     /**
-     * Toggle a content object online or offline.
+     * Toggle individual content objects on or offline.
+     *
+     * Uses AJAX call (htmx) to avoid page reload. Implemented post v2.0.6.
      */
 
     public function toggle()

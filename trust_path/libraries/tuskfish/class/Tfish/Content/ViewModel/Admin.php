@@ -156,7 +156,7 @@ class Admin implements \Tfish\ViewModel\Listable
               . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "1"}\' '
               . 'hx-swap="outerHTML"><i class="fas fa-check"></i></a>';
         }
-        exit;
+        exit; // Prevents proceeding to full page reload.
     }
 
     /** output */
