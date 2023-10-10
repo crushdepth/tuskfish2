@@ -17,8 +17,8 @@ declare(strict_types=1);
 
 // Security headers.
 // \header('Strict-Transport-Security: max-age=63072000'); // Enable once you have a SSL/TLS certificate installed.
+\header("Content-Security-Policy: img-src data: 'self' maps.gstatic.com *.googleapis.com *.ggpht.com; font-src 'self' media-src 'self' www.youtube.com; object-src 'none'; script-src-attr 'none'; frame-ancestors 'none';");
 \header('X-Content-Type-Options: nosniff');
-\header("Content-Security-Policy: frame-ancestors 'none'");
 \header("X-Frame-Options: DENY"); // Fallback for old browsers that don't support frame-ancestors.
 
 // Lock charset to UTF-8.
