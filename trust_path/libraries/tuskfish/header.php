@@ -15,9 +15,9 @@ declare(strict_types=1);
  * @package     core
  */
 
-// Security headers.
+// Security headers. Content-Security-Policy may need to be customised for any non-standard fonts and scripts you are using.
 // \header('Strict-Transport-Security: max-age=63072000'); // Enable once you have a SSL/TLS certificate installed.
-\header("Content-Security-Policy: img-src data: 'self' maps.gstatic.com *.googleapis.com *.ggpht.com; font-src 'self' media-src 'self' www.youtube.com; object-src 'none'; script-src-attr 'none'; frame-ancestors 'none';");
+// \header("Content-Security-Policy: img-src data: 'self' maps.gstatic.com *.googleapis.com *.ggpht.com; font-src 'self' media-src 'self' www.youtube.com; object-src 'none'; frame-ancestors 'none';");
 \header('X-Content-Type-Options: nosniff');
 \header("X-Frame-Options: DENY"); // Fallback for old browsers that don't support frame-ancestors.
 
