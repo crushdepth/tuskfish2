@@ -55,36 +55,12 @@
         <label for="date"><strong><?php echo TFISH_DATE; ?></strong></label>
         <input type="text" class="form-control" name="content[date]" id="date">
       </div>
-      <script>
-      $(document).ready(function() {
-        $('#date').datepicker({
-            format: 'yyyy-mm-dd',
-            todayHighlight: 'true',
-            todayBtn: 'linked',
-            startView: 'years'
-        });
-        $('#date').datepicker('setDate', new Date());
-        $('#date').datepicker('update');
-      });
-      </script>
 
       <!-- expiresOn (bootstrap-datepicker) -->
       <div class="col-md-6 col-lg-2 mb-3 text-left" id="expiresOnContainer">
         <label for="expiresOn"><strong><?php echo TFISH_EXPIRES_ON; ?></strong></label>
         <input type="text" class="form-control" name="content[expiresOn]" id="expiresOn">
       </div>
-      <script>
-      $(document).ready(function() {
-        $('#expiresOn').datepicker({
-            format: 'yyyy-mm-dd',
-            todayHighlight: 'true',
-            todayBtn: 'linked',
-            startView: 'years'
-        });
-        $('#expiresOn').datepicker('setDate', '');
-        $('#expiresOn').datepicker('update');
-      });
-      </script>
 
       <!-- Tags -->
       <div class="col-md-6 col-lg-2 mb-3 text-left" id="tagsContainer">
@@ -143,38 +119,12 @@
           <label for="image"><strong><?php echo TFISH_IMAGE; ?></strong></label>
           <input id="image" name="content[image]" type="file" data-preview-file-type="text">
         </div>
-        <script>
-        $(document).ready(function() {
-          $("#image").fileinput({
-          'showUpload': false,
-          'showRemove': true,
-          'allowedFileExtensions': ["gif", "jpg", "png"],
-          'previewFileType': ["image"],
-          'fileActionSettings': {
-              'showDrag': false},
-          'theme': "fa"});
-        });
-        </script>
 
         <!-- Media -->
         <div class="col-md-6 mb-3 text-left" id="mediaContainer">
           <label for="media"><span class="alert2 text-danger d-none  hide"><i class="fas fa-exclamation-triangle" title="<?php echo TFISH_MEDIA_NOT_COMPATIBLE; ?>"></i> </span><strong><?php echo TFISH_MEDIA; ?></strong></label>
           <input id="media" name="content[media]" type="file" data-preview-file-type="text" >
         </div>
-        <script>
-        $(document).ready(function() {
-          $("#media").fileinput({
-          'showUpload': false,
-          'showRemove': true,
-          'allowedPreviewTypes': ['image', 'video', 'audio', 'object'],
-          'allowedFileExtensions': ["doc","docx","gif","gz","jpg","kml", "kmz", "mp3","mp4","odt",
-              "ods", "odp", "oga","ogg","ogv","pdf","png","ppt", "pptx", "tar","wav","webm","xls",
-              "xlsx", "zip"],
-          'fileActionSettings': {
-              'showDrag': false},
-          'theme': "fa"});
-        });
-        </script>
 
         <!-- External media -->
         <div class="col-12 mb-3 text-left" id="externalMediaContainer">

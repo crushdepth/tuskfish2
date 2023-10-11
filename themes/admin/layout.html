@@ -44,18 +44,6 @@
     <?php if ($session->isEditor()): ?>
     <!-- TinyMCE editor -->
     <script src="<?php echo TFISH_VENDOR_URL . 'tinymce/tinymce.min.js'; ?>"></script>
-    <script>tinymce.init({
-        selector: "#teaser,#description,#experience,#projects,#publications",
-        autoresize_max_height: 700,
-        entity_encoding: "raw",
-        plugins: "anchor,autosave,autoresize,charmap,code,codesample,emoticons,image,link,lists,media,table,wordcount",
-        menubar: "view,insert,table",
-        toolbar: "code | styles | bold italic underline forecolor | superscript subscript | removeformat | link unlink anchor | bullist numlist blockquote | alignleft aligncenter alignright | image media charmap | table | codesample",
-        pasteastext: true,
-        image_caption: true,
-        convert_urls: false,
-  });
-    </script>
 
     <!-- Bootstrap-datepicker -->
     <link href="<?php echo TFISH_VENDOR_URL . 'bootstrap-datepicker/css/bootstrap-datepicker3.min.css'; ?>" media="all" rel="stylesheet" type="text/css" />
