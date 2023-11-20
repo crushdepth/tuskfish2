@@ -69,6 +69,7 @@ trait TagRead
 
         $sql = rtrim($sql, ",");
         $sql .= ")";
+        $sql .= "AND `parent` = '852'";
 
         $statement = $this->database->preparedStatement($sql);
         $result = $statement->execute($taglinks);
