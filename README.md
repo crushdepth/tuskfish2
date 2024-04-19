@@ -26,7 +26,7 @@ Features include:
 * Lightweight core library.
 
 System requirements
-* PHP 7.2+ (tested up to 8.1)
+* PHP 7.2+ (tested up to 8.3)
 * SQLite3 extension.
 * PDO extension.
 * pdo_sqlite extension.
