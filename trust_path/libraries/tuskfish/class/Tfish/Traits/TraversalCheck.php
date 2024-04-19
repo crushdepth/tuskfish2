@@ -56,12 +56,19 @@ trait TraversalCheck
             "%2e%2e", // Represents ..\
             "..%5c", // Represents ..\
             "%252e%252e%255c", // Represents ..\
+            "%252e%252e%252f", // Double URL-encoded traversal sequence
             "..%255c", // Represents ..\
             "..%c0%af", // Represents ../ (URL encoding)
             "..%c1%9c", // Represents ..\
             "%00", // URL-encoded null byte filename terminator.
             "\0", // C-style null byte (PHP functions are written in C).
-            "0x00" // Hex-encoded null byte.
+            "\x00", // Hexadecimal representation of null byte.
+            "0x00", // Hex-encoded null byte.
+            "\000", // Octal representation of null byte.
+            "chr(0)", // PHP function that returns a null byte character.
+            "\u{0000}", // Represents a null byte using Unicode code point notation.
+            "&#0;", // Represents a null byte using HTML entity encoding.
+            "AA==", //Represents a null byte in Base64 encoding.
         ];
 
         // Search the path for traversals.
