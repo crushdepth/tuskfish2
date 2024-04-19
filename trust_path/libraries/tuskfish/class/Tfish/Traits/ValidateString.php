@@ -135,7 +135,7 @@ trait ValidateString
         if ($this->isUtf8($text)) {
             return \trim($text, "\x00..\x20");
         }
-        
+
         return '';
     }
 }
