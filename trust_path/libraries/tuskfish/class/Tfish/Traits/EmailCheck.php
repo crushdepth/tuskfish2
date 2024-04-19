@@ -36,12 +36,24 @@ trait EmailCheck
      * @param string $email Input to be tested.
      * @return bool True if a valid email address, otherwise false.
      */
-    public function isEmail(string $email)
+    public function isEmail(string $email): bool
     {
-        if (\mb_strlen($email, 'UTF-8') > 2) {
-            return \filter_var($email, FILTER_VALIDATE_EMAIL);
-        } else {
+        // Trim whitespace from the email address.
+        $email = trim($email);
+
+        // Check if the email address meets minimum length requirements.
+        if (strlen($email) < 3) {
             return false;
         }
+
+        // FILTER_VALIDATE_EMAIL has some really stupid behaviour:
+        // If the email is valid, it returns the email as a string (not 'true').
+        // If the email is an invalid string, or does not contain '@', it returns null (not 'false')
+        if (filter_var($email, FILTER_VALIDATE_EMAIL) !== false &&
+                filter_var($email, FILTER_VALIDATE_EMAIL) !== null) {
+            return true;
+        }
+
+        return false;
     }
 }
