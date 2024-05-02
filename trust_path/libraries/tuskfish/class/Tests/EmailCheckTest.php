@@ -1,5 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
+namespace Tests;
+
+/**
+ * \Tests\EmailCheckTest class file.
+ *
+ * @copyright   Simon Wilkinson 2024+ (https://tuskfish.biz)
+ * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
+ * @author      Simon Wilkinson <simon@isengard.biz>
+ * @version     Release: 2.0.7
+ * @since       2.0.7
+ * @package     tests
+ */
+
+ /**
+ * Unit tests for the EmailCheck validation trait.
+ *
+ * @copyright   Simon Wilkinson 2024+ (https://tuskfish.biz)
+ * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
+ * @author      Simon Wilkinson <simon@isengard.biz>
+ * @version     Release: 2.0.7
+ * @since       2.0.7
+ * @package     core
+ * @uses        trait \Tfish\Traits\EmailCheck
+ */
+
 use PHPUnit\Framework\TestCase;
 use Tfish\Traits\EmailCheck;
 
