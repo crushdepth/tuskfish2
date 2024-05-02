@@ -31,37 +31,38 @@ trait IntegerCheck
     /**
      * Validate integer, optionally include range check.
      *
-     * @param mixed $int Input to be tested.
-     * @param int $min Minimum acceptable value.
-     * @param int $max Maximum acceptable value.
+     * @param int $int Input to be tested.
+     * @param int|null $min Minimum acceptable value.
+     * @param int|null $max Maximum acceptable value.
      * @return bool True if valid int and within optional range check, false otherwise.
      */
-    public function isInt(int $int, int $min = null, int $max = null): bool
+    public function isInt(int $int, ?int $min = null, ?int $max = null): bool
     {
-        $cleanInt = \is_int($int) ? $int : null;
-        $cleanMin = \is_int($min) ? $min : null;
-        $cleanMax = \is_int($max) ? $max : null;
+        $int = \is_int($int) ? $int : null;
+        $min = \is_int($min) ? $min : null;
+        $max = \is_int($max) ? $max : null;
 
-        // Range check on minimum and maximum value.
-        if (\is_int($cleanInt) && \is_int($cleanMin) && \is_int($cleanMax)) {
-            return ($cleanInt >= $cleanMin) && ($cleanInt <= $cleanMax) ? true : false;
+        // If input is not an integer, return false.
+        if (!\is_int($int)) {
+            return false;
         }
 
-        // Range check on minimum value.
-        if (\is_int($cleanInt) && \is_int($cleanMin) && !isset($cleanMax)) {
-            return $cleanInt >= $cleanMin ? true : false;
+        // Perform range check if both min and max are provided.
+        if (\is_int($min) && \is_int($max)) {
+            return $int >= $min && $int <= $max;
         }
 
-        // Range check on maximum value.
-        if (\is_int($cleanInt) && !isset($cleanMin) && \is_int($cleanMax)) {
-            return $cleanInt <= $cleanMax ? true : false;
+        // Perform minimum value check if only min is provided.
+        if (\is_int($min)) {
+            return $int >= $min;
         }
 
-        // Simple use case, no range check.
-        if (\is_int($cleanInt) && !isset($cleanMin) && !isset($cleanMax)) {
-            return true;
+        // Perform maximum value check if only max is provided.
+        if (\is_int($max)) {
+            return $int <= $max;
         }
 
-        return false;
+        // If neither min nor max is provided, return true.
+        return true;
     }
 }
