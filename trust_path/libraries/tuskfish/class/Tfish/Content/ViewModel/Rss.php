@@ -43,6 +43,8 @@ class Rss implements \Tfish\ViewModel\Viewable
     private $model;
     private $id = 0;
     private $tag = 0;
+    private $title = '';
+    private $description = '';
     private $items = [];
     private $preference;
 
