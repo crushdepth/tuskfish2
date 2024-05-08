@@ -116,7 +116,7 @@ class Enclosure
                 \session_write_close();
 
                 // Output the header.
-                $this->_outputHeader($filename, $fileExtension, $mimetype, $fileSize, $filepath);
+                $this->_outputHeader($id, $filename, $fileExtension, $mimetype, $fileSize, $filepath);
 
             } else {
                 return false;
@@ -129,12 +129,15 @@ class Enclosure
     }
 
     /** @internal */
-    private function _outputHeader($filename, $fileExtension, $mimetype, $fileSize, $filepath)
+    private function _outputHeader($id, $filename, $fileExtension, $mimetype, $fileSize, $filepath)
     {
         // Prevent caching.
         \header("Pragma: public");
         \header("Expires: -1");
         \header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+
+        // Set canonical link to prevent external sites gaining authority over our resource!
+        \header('Link: <' . TFISH_ENCLOSURE_URL . $id . '>; rel="canonical"');
 
         // Set file-specific headers.
         \header('Content-Disposition: attachment; filename="' . $filename . '.' . $fileExtension . '"');
