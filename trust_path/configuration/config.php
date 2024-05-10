@@ -56,7 +56,7 @@ if (!\defined("TFISH_ROOT_PATH")) die("TFISH_ERROR_ROOT_PATH_NOT_DEFINED");
 
 // RSS enclosure URL - spec requires that the URL use http protocol, as https will invalidate feed.
 if (\parse_url(TFISH_URL, PHP_URL_SCHEME) === 'https') {
-    \define("TFISH_ENCLOSURE_URL", "http://" . \parse_url(TFISH_URL, PHP_URL_HOST)
+    \define("TFISH_ENCLOSURE_URL", "https://" . \parse_url(TFISH_URL, PHP_URL_HOST)
             . "/enclosure/?id=");
 } else {
     \define("TFISH_ENCLOSURE_URL", TFISH_URL . "enclosure/?id=");
