@@ -13,8 +13,8 @@ namespace Tfish;
  *
  * 2. Uncomment and specify the correct path to your mainfile below.
  *
- * 3. Add a cron job to execute the script periodically (recommend midnight, daily) as per below,
- * but modify the paths to the PHP binary and this file to suit your own environment, eg:
+ * 3. Add a cron job to execute the script periodically (recommend midnight, daily), but modify the
+ * paths to the PHP binary and this file to suit your own environment, eg:
  *
  * 0 0 * * * /usr/local/bin/php /var/www/trust_path/cron/expiresOn.php
  *
