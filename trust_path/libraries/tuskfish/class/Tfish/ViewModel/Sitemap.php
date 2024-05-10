@@ -36,6 +36,9 @@ class Sitemap implements Viewable
     use \Tfish\Traits\Viewable;
 
     private $model;
+    private $backurl = '';
+    private $response = '';
+    private $action = '';
 
     /**
      * Constructor
