@@ -322,11 +322,7 @@ class Expert
         $url .= '?id=' . $this->id;
 
         $url = \htmlspecialchars($url, ENT_QUOTES, "UTF-8");
-
-        if (!empty($this->metaSeo)) {
-            $url .= '&amp;title=' . $this->encodeQueryString($this->metaSeo);
-        }
-
+        
         return $url;
     }
 
