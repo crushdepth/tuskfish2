@@ -51,6 +51,7 @@ trait Rights
             '8' => TFISH_RIGHTS_GPL2,
             '9' => TFISH_RIGHTS_GPL3,
             '10' => TFISH_RIGHTS_PUBLIC_DOMAIN,
+            '11' => TFISH_RIGHTS_YOUTUBE_STANDARD,
         ];
     }
 }
