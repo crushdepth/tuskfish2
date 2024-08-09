@@ -157,6 +157,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_RIGHTS_GPL2", "GNU General Public License Version 2.");
 \define("TFISH_RIGHTS_GPL3", "GNU General Public License Version 3.");
 \define("TFISH_RIGHTS_PUBLIC_DOMAIN", "Public domain.");
+\define("TFISH_RIGHTS_YOUTUBE_STANDARD", "YouTube Standard License.");
 
 // Actions and confirmation messages.
 \define("TFISH_ADD", "Add");
