@@ -21,10 +21,12 @@
 </div>
 
 <?php if ($content->externalMedia()): ?>
-<div class="video-player text-left">
-  <iframe width="864" height="486"
+<!-- 16 by 9 aspect ratio, alternatives are 4 by 3, 21 by 9, and 1 by 1 -->
+<div class="embed-responsive embed-responsive-16by9 video-player text-left">
+  <iframe
+    class="embed-responsive-item" 
     src="<?php echo $content->externalMedia(); ?>"
-    title="YouTube video player"
+    title="YouTube video player" 
     frameborder="0"
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
     allowfullscreen>
