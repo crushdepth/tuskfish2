@@ -72,7 +72,7 @@ class Listing
         $type = $this->trimString($_GET['type'] ?? '');
 
         $this->viewModel->setType($type);
-        if (!empty($type)) $cacheParams['type'] = $type;
+        if (!empty($type)) $cacheParams['type'] = $viewModel->type();
 
         $this->viewModel->setSort('date');
         $this->viewModel->setOrder('DESC');
