@@ -451,6 +451,11 @@ class Listing implements \Tfish\ViewModel\Listable
      */
     public function setType(string $type)
     {
+        if (!empty($type) && !\array_key_exists($type, $this->listTypes())) {
+           \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
+           exit;
+        }
+
         $this->type = $this->trimString($type);
     }
 
