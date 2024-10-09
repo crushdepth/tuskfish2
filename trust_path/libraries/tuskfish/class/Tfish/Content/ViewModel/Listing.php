@@ -211,10 +211,6 @@ class Listing implements \Tfish\ViewModel\Listable
         // tag, country, status
         $extraParams = [];
 
-        if (!empty($this->tag)) {
-            $extraParams['tag'] = (int) $this->tag;
-        }
-
         if (!empty($this->type)) {
             $extraParams['type'] = $this->trimString($this->type);
         }
