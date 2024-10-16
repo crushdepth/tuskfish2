@@ -153,12 +153,18 @@ class Listing implements \Tfish\ViewModel\Listable
     {
         $canonicalUrl = TFISH_URL;
 
-        if ($this->id) return $canonicalUrl . '?id=' . $this->id;
+        if ($this->id || $this->start || $this->tag) $canonicalUrl .= '?';
 
-        if ($this->start || $this->tag) $canonicalUrl .= '?';
-        if ($this->start) $canonicalUrl .= 'start=' . $this->start;
-        if ($this->start && $this->tag) $canonicalUrl .= '&amp;';
-        if ($this->tag) $canonicalUrl .= 'tag=' . $this->tag;
+        $params = [];
+        $params['id'] = $this->id;
+        $params['tag'] = $this->tag;
+        $params['start'] = $this->start;
+
+        // Discard empty parameters.
+        $setParams = \array_filter($params);
+
+        // Append parameters separated with '&amp;'.
+        $canonicalUrl .= \http_build_query($setParams, '', '&', PHP_QUERY_RFC3986);
 
         return $canonicalUrl;
     }
