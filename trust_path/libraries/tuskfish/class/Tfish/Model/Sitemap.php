@@ -78,6 +78,11 @@ class Sitemap
             return false;
         }
 
+        // Write base URL.
+        \fwrite($fileHandle, TFISH_URL . "\n");
+
+        // Write links for each piece of content.
+        
         foreach ($content as $item) {
             \fwrite($fileHandle, TFISH_PERMALINK_URL . '?id=' . (string) $item['id'] . "\n");
             if (!empty($item['media'])) {
