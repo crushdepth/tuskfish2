@@ -35,6 +35,7 @@ namespace Tfish\User\Entity;
  * @var         string $userGroup User group to which this user belongs.
  * @var         string $yubikeyId Public ID of primary yubikey for two factor authentication.
  * @var         string $yubikeyId2 Public ID of secondary yubikey for two factor authentication.
+ * @var         string $yubikeyId3 Public ID of tertiary yubikey for two factor authentication.
  * @var         int $onlineStatus Whether the user's privileges are enabled (1) or suspended (0).
  * @var         int $loginErrors Number of failed logins since last successful long.
  */
@@ -49,6 +50,7 @@ class User
     private $userGroup = 0;
     private $yubikeyId = '';
     private $yubikeyId2 = '';
+    private $yubikeyId3 = '';
     private $loginErrors = 0;
     private $onlineStatus = 0;
 
@@ -67,6 +69,7 @@ class User
         $this->setUserGroup((int) ($row['userGroup'] ?? 0));
         $this->setYubikeyId((string) ($row['yubikeyId'] ?? ''));
         $this->setYubikeyId2((string) ($row['yubikeyId2'] ?? ''));
+        $this->setYubikeyId3((string) ($row['yubikeyId3'] ?? ''));
         $this->setLoginErrors((int) ($row['loginErrors'] ?? 0));
         $this->setOnlineStatus((int) ($row['onlineStatus'] ?? 0));
     }
@@ -206,6 +209,27 @@ class User
     public function setYubikeyId2(string $yubikey)
     {
         $this->yubikeyId2 = $this->trimString($yubikey);
+    }
+
+    /**
+     * Return tertiary Yubikey ID of this user.
+     *
+     * @return string
+     */
+    public function yubikeyId3(): string
+    {
+        return $this->yubikeyId3;
+    }
+
+    /**
+     * Set tertiary Yubikey ID of this user.
+     *
+     * @param string $yubikey
+     * @return void
+     */
+    public function setYubikeyId3(string $yubikey)
+    {
+        $this->yubikeyId3 = $this->trimString($yubikey);
     }
 
     /**

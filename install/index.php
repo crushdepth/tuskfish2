@@ -151,6 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             `userGroup` INTEGER NOT NULL,
             `yubikeyId` TEXT NOT NULL,
             `yubikeyId2` TEXT NOT NULL,
+            `yubikeyId3` TEXT NOT NULL,
             `loginErrors` INTEGER NOT NULL,
             `onlineStatus` INTEGER NOT NULL
         );";
@@ -254,6 +255,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'userGroup' => 1,
             'yubikeyId' => '',
             'yubikeyId2' => '',
+            'yubikeyId3' => '',
             'loginErrors' => 0,
             'onlineStatus' => 1
         ];

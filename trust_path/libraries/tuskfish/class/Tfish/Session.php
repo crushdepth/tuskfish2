@@ -671,7 +671,8 @@ class Session
 
         $statement = $this->db->preparedStatement("SELECT * FROM user WHERE "
                 . "`yubikeyId` = :yubikeyId OR "
-                . "`yubikeyId2` = :yubikeyId");
+                . "`yubikeyId2` = :yubikeyId OR "
+                . "`yubikeyId3` = :yubikeyId");
         $statement->bindParam(':yubikeyId', $cleanId, \PDO::PARAM_STR);
         $statement->execute();
         $user = $statement->fetch(\PDO::FETCH_ASSOC);

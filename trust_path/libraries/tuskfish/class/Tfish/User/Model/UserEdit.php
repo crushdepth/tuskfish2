@@ -98,6 +98,7 @@ class UserEdit
         // If a submitted yubikey ID is not present in $content this indicates it was not unique.
         if (!empty($_POST['content']['yubikeyId']) && empty($content['yubikeyId'])) return false;
         if (!empty($_POST['content']['yubikeyId2']) && empty($content['yubikeyId2'])) return false;
+        if (!empty($_POST['content']['yubikeyId3']) && empty($content['yubikeyId3'])) return false;
 
         // Insert new content.
         if (!$this->database->insert('user', $content)) {
@@ -124,6 +125,7 @@ class UserEdit
         // If a submitted yubikey ID is not present in $content this indicates it was not unique.
         if (!empty($_POST['content']['yubikeyId']) && empty($content['yubikeyId'])) return false;
         if (!empty($_POST['content']['yubikeyId2']) && empty($content['yubikeyId2'])) return false;
+        if (!empty($_POST['content']['yubikeyId3']) && empty($content['yubikeyId3'])) return false;
 
         $id = (int) $content['id'];
 
@@ -132,6 +134,7 @@ class UserEdit
             'adminEmail',
             'yubikeyId',
             'yubikeyId2',
+            'yubikeyId3',
         ];
 
         foreach ($fieldsToDecode as $field) {
@@ -208,6 +211,7 @@ class UserEdit
         // Yubikey IDs
         $yubikeyId = !empty($form['yubikeyId']) ? $this->trimString($form['yubikeyId']) : '';
         $yubikeyId2 = !empty($form['yubikeyId2']) ? $this->trimString($form['yubikeyId2']) : '';
+        $yubikeyId3 = !empty($form['yubikeyId3']) ? $this->trimString($form['yubikeyId3']) : '';
 
         if (!empty($yubikeyId)) {
 
@@ -236,6 +240,20 @@ class UserEdit
         }
 
         $clean['yubikeyId2'] = $yubikeyId2;
+
+        if (!empty($yubikeyId3)) {
+
+            if (\mb_strlen($yubikeyId3) !== 12) {
+                \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            }
+
+            if (!$this->isValidYubikeyId($id, $yubikeyId3)) {
+                $yubikeyId3 = '';
+                \trigger_error(TFISH_ERROR_YUBIKEY_NOT_UNIQUE, E_USER_NOTICE);
+            }
+        }
+
+        $clean['yubikeyId3'] = $yubikeyId3;
 
         // userGroup, locked to Editor (2) on insert, but unset (unchanged) on update.
         if ($passwordRequired === true) { //
@@ -288,8 +306,9 @@ class UserEdit
         if (!empty($_POST['content']['yubikeyId']) && !empty($_POST['content']['yubikeyId'])) {
             $yubikeyId = $this->trimString($_POST['content']['yubikeyId']);
             $yubikeyId2 = $this->trimString($_POST['content']['yubikeyId2']);
+            $yubikeyId3 = $this->trimString($_POST['content']['yubikeyId3']);
 
-            if ($yubikeyId === $yubikeyId2) return true;
+            if ($yubikeyId === $yubikeyId2 || $yubikeyId === $yubikeyId3 || $yubikeyId2 === $yubikeyId3) return true;
         }
 
         return false;
@@ -311,7 +330,8 @@ class UserEdit
 
         $sql = "SELECT COUNT(*) FROM `user` WHERE " .
                 "(`yubikeyId` = :yubikeyId OR " .
-                "`yubikeyId2` = :yubikeyId) ";
+                "`yubikeyId2` = :yubikeyId OR " .
+                "`yubikeyId3` = :yubikeyId) ";
 
         if ($id > 0) $sql .= " AND `id` != :id";
 
