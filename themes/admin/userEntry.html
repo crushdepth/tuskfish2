@@ -64,6 +64,19 @@
         </div>
       </div>
 
+      <!-- Yubikey ID3 -->
+      <div class="row justify-content-center">
+        <div class="col-md-6 mb-3">
+          <label for="yubikeyId3"><strong><?php echo TFISH_USER_YUBIKEY_ID . '3'; ?></strong></label>
+          <div class="form-group input-group">
+            <input type="text" class="form-control" name="content[yubikeyId3]" id="yubikeyId3"
+              pattern="[a-z]{12,12}" minlength="12" maxlength="12"
+              placeholder="<?php echo TFISH_YUBIKEY_FIRST_12_CHARACTERS; ?>">
+            <span class="input-group-text" id="password-addon"><i class="fas fa-key"></i></span>
+          </div>
+        </div>
+      </div>
+
       <!-- Online status -->
       <div class="row justify-content-center">
         <div class="col-md-6 mb-3" id="onlineStatusContainer">
