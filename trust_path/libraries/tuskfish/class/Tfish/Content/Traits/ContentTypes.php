@@ -44,7 +44,7 @@ trait ContentTypes
             'TfArticle' => ['article', 'article-left', 'article-right'],
             'TfAudio' => ['audio'],
             'TfBlock' => ['block'],
-            'TfCollection' => ['collection'],
+            'TfCollection' => ['collection', 'collection-compact'],
             'TfDownload' => ['download'],
             'TfImage' => ['image'],
             'TfTag' => ['tag'],

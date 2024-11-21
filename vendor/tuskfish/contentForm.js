@@ -148,7 +148,7 @@ function loadTemplateOptions() {
         "TfBlock":
             {"block": "Block"},
         "TfCollection":
-            {"collection": "Collection"},
+            {"collection": "Detailed view", "collection-compact": "Compact view"},
         "TfDownload":
             {"download": "Download"},
         "TfImage":
