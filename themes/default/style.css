@@ -49,14 +49,12 @@ body {
 video {
     max-width: 100%;
     height: auto;
-    border: solid;
-    border-width: 1px;
 }
 
 .video-player {
     display: flex;
     justify-content: center;
-    margin: 2rem;
+    margin: 2rem 0;
 }
 
 /** Content styles */

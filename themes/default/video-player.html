@@ -20,18 +20,17 @@
   </p>
 </div>
 
+<!-- Available video aspect ratios are ratio-1x1, ratio-4x3, ratio-16x9, ratio-21x9 -->
 <?php if ($content->externalMedia()): ?>
-<!-- 16 by 9 aspect ratio, alternatives are 4 by 3, 21 by 9, and 1 by 1 -->
-<div class="embed-responsive embed-responsive-16by9 video-player text-left">
+<div class="ratio ratio-16x9 video-player text-left">
   <iframe
-    class="embed-responsive-item" 
     src="<?php echo $content->externalMedia(); ?>"
-    title="YouTube video player" 
-    frameborder="0"
+    title="YouTube video player"
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
     allowfullscreen>
   </iframe>
-</div>
+  </div>
+  
 <?php endif; ?>
 
 <!-- Description -->
