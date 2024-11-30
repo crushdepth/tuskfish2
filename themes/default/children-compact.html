@@ -16,7 +16,7 @@
   <ul>
   <?php foreach ($children as $child): ?>
   <li>
-    <a href="<?php echo TFISH_URL . 'news/?id=' . $child->id(); ?>"><?php echo '<strong>' . xss($child->title()) . '</strong>'; ?></a>
+    <a href="<?php echo TFISH_URL . '?id=' . $child->id(); ?>"><?php echo '<strong>' . xss($child->title()) . '</strong>'; ?></a>
     <?php if ($child->creator()) echo '<br><em>' . xss($child->creator()) . '</em>'; ?>
   </li>
   <?php endforeach; ?>
