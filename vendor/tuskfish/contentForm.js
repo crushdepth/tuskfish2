@@ -160,7 +160,7 @@ function loadTemplateOptions() {
         "TfStatic":
             {"static": "Static"},
         "TfVideo":
-            {"video": "Video"},
+            {"video16x9": "Video 16x9", "video4x3": "Video 4x3", "video21x9": "Video 21x9", "video1x1": "Video 1x1"},
     };
 
     $.each(templateList[$("#type").val()], function(index, value) {
