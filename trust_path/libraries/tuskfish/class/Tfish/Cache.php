@@ -39,7 +39,7 @@ class Cache
     use Traits\ValidateString;
 
     private $preference;
-    private $path;
+    private string $path;
 
     /**
      * Constructor.

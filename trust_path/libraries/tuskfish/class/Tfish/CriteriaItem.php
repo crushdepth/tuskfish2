@@ -38,9 +38,9 @@ class CriteriaItem
     use Traits\IntegerCheck;
     use Traits\ValidateString;
 
-    public $column = '';
+    public string $column = '';
     public $value = '';
-    public $operator = "="; // Default value.
+    public string $operator = "="; // Default value.
 
     /**
      * Constructor.

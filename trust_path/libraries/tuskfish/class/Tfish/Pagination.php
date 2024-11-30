@@ -37,6 +37,7 @@ namespace Tfish;
  * @var         string $url Base URL for constructing pagination links.
  * @var         int $tag ID of tag filter.
  * @var         array $extraParams Extra parameters to be included in pagination control links as key => value pairs.
+ * @var         string $extraParamsString Extra parameters converted to a query string fragment.
  */
 
 class Pagination
@@ -46,13 +47,14 @@ class Pagination
     use \Tfish\Traits\ValidateString;
 
     private $preference;
-    private $count;
-    private $limit;
-    private $start;
-    private $url;
+    private int $count;
+    private int $limit;
+    private int $start;
+    private string $url;
 
-    private $tag;
-    private $extraParams;
+    private int $tag;
+    private array $extraParams;
+    private string $extraParamsString;
 
     /**
      * Constructor.
@@ -160,11 +162,11 @@ class Pagination
         foreach ($pageSlots as $key => $slot) {
             $this->start = (int) ($key * $this->limit);
 
-            if ($this->start || $this->tag || $this->extraParams) {
+            if ($this->start || $this->tag || $this->extraParamsString) {
                 $args = [];
 
-                if (!empty($this->extraParams)) {
-                    $args[] = $this->extraParams;
+                if (!empty($this->extraParamsString)) {
+                    $args[] = $this->extraParamsString;
                 }
 
                 if (!empty($this->tag)) {
@@ -236,9 +238,9 @@ class Pagination
         }
 
         if (empty($clean_extraParams)) {
-            $this->extraParams = '';
+            $this->extraParamsString = '';
         } else {
-            $this->extraParams = \implode("&", $clean_extraParams);
+            $this->extraParamsString = \implode("&", $clean_extraParams);
         }
     }
 

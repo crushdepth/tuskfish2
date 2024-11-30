@@ -32,7 +32,7 @@ namespace Tfish;
 
 class Router
 {
-    private $table = [];
+    private array $table = [];
 
     /**
      * Constructor
