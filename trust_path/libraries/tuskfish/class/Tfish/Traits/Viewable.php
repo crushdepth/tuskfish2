@@ -30,11 +30,11 @@ namespace Tfish\Traits;
  */
 trait Viewable
 {
-    private $pageTitle = '';
-    private $template = '';
-    private $layout = 'layout';
-    private $theme = '';
-    private $metadata = [];
+    private string $pageTitle = '';
+    private string $template = '';
+    private string $layout = 'layout';
+    private string $theme = '';
+    private array $metadata = [];
 
     /**
      * Return title of this page.

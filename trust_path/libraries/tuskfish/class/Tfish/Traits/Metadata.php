@@ -31,9 +31,9 @@ namespace Tfish\Traits;
 
 trait Metadata
 {
-    private $metaTitle = '';
-    private $metaDescription = '';
-    private $metaSeo = '';
+    private string $metaTitle = '';
+    private string $metaDescription = '';
+    private string $metaSeo = '';
 
     /**
      * Return meta title.

@@ -35,15 +35,15 @@ namespace Tfish\Traits;
  */
 trait Listable
 {
-    private $pageTitle = '';
-    private $template = '';
-    private $layout = 'layout';
-    private $theme = '';
-    private $metadata = [];
-    private $sort = '';
-    private $order = '';
-    private $secondarySort = '';
-    private $secondaryOrder = '';
+    private string $pageTitle = '';
+    private string $template = '';
+    private string $layout = 'layout';
+    private string $theme = '';
+    private array $metadata = [];
+    private string $sort = '';
+    private string $order = '';
+    private string $secondarySort = '';
+    private string $secondaryOrder = '';
 
     /** Utilities. */
 
