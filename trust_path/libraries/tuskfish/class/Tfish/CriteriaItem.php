@@ -113,33 +113,20 @@ class CriteriaItem
     /**
      * Sets the value of a column to use in a query clause.
      *
+     * Array, boolean, integer and double can't be evaluated further in the current context.
+     * All other types are illegal.
+     *
      * @param mixed $value Value of column.
      */
     public function setValue($value)
     {
         $type = gettype($value);
 
-        switch ($type) {
-            case "string":
-                $cleanValue = $this->trimString($value);
-                break;
-
-            // Types that can't be validated further in the current context.
-            case "array":
-            case "boolean":
-            case "integer":
-            case "double":
-                $cleanValue = $value;
-                break;
-
-            // Illegal types.
-            case "object":
-            case "resource":
-            case "NULL":
-            case "unknown type":
-                \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
-                break;
-        }
+        $cleanValue = match ($type) {
+            "string" => $this->trimString($value),
+            "array", "boolean", "integer", "double" => $value,
+            default => \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR),
+        };
 
         $this->value = $cleanValue;
     }

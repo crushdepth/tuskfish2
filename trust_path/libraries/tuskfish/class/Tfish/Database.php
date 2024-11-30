@@ -1208,8 +1208,8 @@ class Database
     /**
      * Helper method to set appropriate \PDO predefined constants in bindValue() and bindParam().
      *
-     * Do not use this method for arrays, objects or resources. Note that if you pass in an
-     * unexpected data type (ie. one that clashes with a column type definition) \PDO will throw
+     * Do not use this method for arrays, objects, or resources. Note that if you pass in an
+     * unexpected data type (i.e., one that clashes with a column type definition), \PDO will throw
      * an error.
      *
      * @param mixed $data Input data to be type set.
@@ -1217,30 +1217,15 @@ class Database
      */
     public function setType($data)
     {
-        $type = gettype($data);
+        $type = \gettype($data);
 
-        switch ($type) {
-            case "boolean":
-                return \PDO::PARAM_BOOL;
-                break;
-
-            case "integer":
-                return \PDO::PARAM_INT;
-                break;
-
-            case "NULL":
-                return \PDO::PARAM_NULL;
-                break;
-
-            case "string":
-            case "double":
-                return \PDO::PARAM_STR;
-                break;
-
-            default: // array, object, resource, "unknown type"
-                \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
-                exit;
-        }
+        return match ($type) {
+            "boolean" => \PDO::PARAM_BOOL,
+            "integer" => \PDO::PARAM_INT,
+            "NULL" => \PDO::PARAM_NULL,
+            "string", "double" => \PDO::PARAM_STR,
+            default => \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR),
+        };
     }
 
     /**
