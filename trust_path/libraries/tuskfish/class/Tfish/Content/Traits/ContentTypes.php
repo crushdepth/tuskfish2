@@ -44,13 +44,13 @@ trait ContentTypes
             'TfArticle' => ['article', 'article-left', 'article-right'],
             'TfAudio' => ['audio'],
             'TfBlock' => ['block'],
-            'TfCollection' => ['collection'],
+            'TfCollection' => ['collection', 'collection-compact'],
             'TfDownload' => ['download'],
             'TfImage' => ['image'],
             'TfTag' => ['tag'],
             'TfTrack' => ['track'],
             'TfStatic' => ['static'],
-            'TfVideo' => ['video'],
+            'TfVideo' => ['video1x1', 'video4x3', 'video16x9', 'video21x9'],
         ];
     }
 

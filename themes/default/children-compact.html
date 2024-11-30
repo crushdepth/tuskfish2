@@ -1,0 +1,35 @@
+<?php if (!empty($children)): ?>
+<!-- Children -->
+
+<div class="clearfix">
+
+<?php if (!empty($pagination)): ?>
+<div class="d-flex justify-content-end collection-pagination-top">
+  <?php echo $pagination; ?>
+</div>
+<?php endif; ?>
+
+<div>
+  <h3 class="mb-3"><?php echo TFISH_IN_THIS_COLLECTION; ?></h3>
+</div>
+<div class="mb-3">
+  <ul>
+  <?php foreach ($children as $child): ?>
+  <li>
+    <a href="<?php echo TFISH_URL . 'news/?id=' . $child->id(); ?>"><?php echo '<strong>' . xss($child->title()) . '</strong>'; ?></a>
+    <?php if ($child->creator()) echo '<br><em>' . xss($child->creator()) . '</em>'; ?>
+  </li>
+  <?php endforeach; ?>
+  </ul>
+</div>
+
+<!-- Intra-collection pagination -->
+<?php if (!empty($pagination)): ?>
+<div class="d-flex justify-content-end collection-pagination-bottom clearfix">
+  <?php echo $pagination; ?>
+</div>
+<?php endif; ?>
+
+</div>
+
+<?php endif; ?>
