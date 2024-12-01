@@ -49,17 +49,17 @@ class Logger
      * the admin preferences before doing this. Comment the lines back out before re-opening your
      * site.
      *
-     * @param int $errno The level of the error raised.
+     * @param int|null $errno The level of the error raised.
      * @param string $error The error message.
      * @param string $file Name of the file where the error occurred.
-     * @param int $line Line number the error was raised at.
+     * @param int|null $line Line number the error was raised at.
      * @return bool Returns false to halt script execution.
      */
     public function logError(
-        int $errno = null,
+        int|null $errno = null,
         string $error = '',
         string $file = '',
-        int $line = null
+        int|null $line = null
         )
     {
         $errno = isset($errno) ? $this->trimString($errno) : TFISH_ERROR_UNSPECIFIED;

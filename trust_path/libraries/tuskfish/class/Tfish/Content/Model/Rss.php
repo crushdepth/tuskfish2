@@ -129,7 +129,7 @@ class Rss
 
         $statement = $this->database->select('taglink', $criteria, ['contentId']);
 
-        $params = $this->database->selectDistinct('taglink', $criteria, ['contentId'])
+        $params = $this->database->selectDistinct('taglink', ['contentId'], $criteria)
             ->fetchAll(\PDO::FETCH_COLUMN);
 
         if (empty($params)) {
