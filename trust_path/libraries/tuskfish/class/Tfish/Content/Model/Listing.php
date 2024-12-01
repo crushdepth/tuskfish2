@@ -70,9 +70,9 @@ class Listing
      * Get a single content object.
      *
      * @param   int $id ID of the content object to retrieve.
-     * @return  Mixed \Tfish\Content\Entity\Content on success, false on failure.
+     * @return  \Tfish\Content\Entity\Content|bool
      */
-    public function getObject(int $id)
+    public function getObject(int $id): \Tfish\Content\Entity\Content|bool
     {
         $params = [];
 

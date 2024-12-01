@@ -50,7 +50,7 @@ class CriteriaItem
      * @param mixed $value Value of the column.
      * @param string $operator See listPermittedOperators() for a list of acceptable operators.
      */
-    function __construct(string $column, $value, string $operator = '=')
+    function __construct(string $column, mixed $value, string $operator = '=')
     {
         $this->setColumn($column);
         $this->setValue($value);
@@ -113,18 +113,13 @@ class CriteriaItem
     /**
      * Sets the value of a column to use in a query clause.
      *
-     * Array, boolean, integer and double can't be evaluated further in the current context.
-     * All other types are illegal.
-     *
-     * @param mixed $value Value of column.
+     * @param string|array|bool|int|float $value Value of column.
      */
-    public function setValue($value)
+    public function setValue(string|array|bool|int|float $value): void
     {
-        $type = gettype($value);
-
-        $cleanValue = match ($type) {
-            "string" => $this->trimString($value),
-            "array", "boolean", "integer", "double" => $value,
+        $cleanValue = match (true) {
+            \is_string($value) => $this->trimString($value),
+            \is_int($value), \is_float($value), \is_array($value), is_bool($value)  => $value,
             default => \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR),
         };
 
