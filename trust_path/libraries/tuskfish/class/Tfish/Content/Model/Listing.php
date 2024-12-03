@@ -199,7 +199,6 @@ class Listing
         } else {
             $criteria->add($this->criteriaFactory->item('type', 'TfStatic', '!='));
             $criteria->add($this->criteriaFactory->item('type', 'TfTag', '!='));
-            $criteria->add($this->criteriaFactory->item('type', 'TfBlock', '!='));
         }
 
         if (!empty($cleanParams['tag']))

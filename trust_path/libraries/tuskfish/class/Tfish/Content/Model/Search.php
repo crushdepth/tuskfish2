@@ -169,9 +169,8 @@ class Search
             $sql .= " AND `onlineStatus` = :onlineStatus";
         }
 
-        $sql .= " AND `type` != 'TfBlock' ";
         $sqlCount .= $sql;
-        $sql .= "ORDER BY `date` DESC, `submissionTime` DESC ";
+        $sql .= " ORDER BY `date` DESC, `submissionTime` DESC ";
 
         // Bind the search term values and execute the statement.
         $statement = $this->database->preparedStatement($sqlCount);

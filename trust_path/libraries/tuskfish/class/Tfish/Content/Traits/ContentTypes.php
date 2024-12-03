@@ -43,7 +43,6 @@ trait ContentTypes
         return [
             'TfArticle' => ['article', 'article-left', 'article-right'],
             'TfAudio' => ['audio'],
-            'TfBlock' => ['block'],
             'TfCollection' => ['collection', 'collection-compact'],
             'TfDownload' => ['download'],
             'TfImage' => ['image'],
@@ -69,7 +68,6 @@ trait ContentTypes
         return array(
             'TfArticle' => TFISH_TYPE_ARTICLE,
             'TfAudio' => TFISH_TYPE_AUDIO,
-            'TfBlock' => TFISH_TYPE_BLOCK,
             'TfCollection' => TFISH_TYPE_COLLECTION,
             'TfDownload' => TFISH_TYPE_DOWNLOAD,
             'TfImage' => TFISH_TYPE_IMAGE,
