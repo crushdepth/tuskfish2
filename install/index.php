@@ -321,6 +321,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ];
         $database->createTable('expert', $expertColumns, 'id');*/
 
+        // Create a blocks table - future public release.
+        $blockColumns = [
+            "id" => "INTEGER",
+            "type" => "TEXT", // would integer be better?
+            "position" => "TEXT", // would integer be better?
+            "title" => "TEXT",
+            "config" => "TEXT",
+            "onlineStatus" =>"INTEGER"
+        ];
+
+        $database->createTable('block', $blockColumns, 'id');
+
+        // Create a blockRoute table - future public release.
+        $blockRouteColumns = [
+            "id" => "INTEGER",
+            "blockId" => "INTEGER",
+            "route" => "TEXT", // Would INTEGER be more effient?
+            "weight" => "INTEGER" // Would this be better placed in blocks table?
+        ];
+
+        $database->createTable('blockroute', $blockRouteColumns, 'id');
+
         // Close the database connection.
         $database->close();
 
