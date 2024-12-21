@@ -323,8 +323,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Create a blocks table - future public release.
         $blockColumns = [
+            "type" => "TEXT", // Used to dynamically read row out into object.
             "id" => "INTEGER",
-            "type" => "TEXT", // would integer be better?
             "position" => "TEXT", // would integer be better?
             "title" => "TEXT",
             "config" => "TEXT",
@@ -337,8 +337,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $blockRouteColumns = [
             "id" => "INTEGER",
             "blockId" => "INTEGER",
-            "route" => "TEXT", // Would INTEGER be more effient?
-            "weight" => "INTEGER" // Would this be better placed in blocks table?
+            "route" => "TEXT",
+            "weight" => "INTEGER"
         ];
 
         $database->createTable('blockroute', $blockRouteColumns, 'id');
