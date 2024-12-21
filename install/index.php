@@ -207,10 +207,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $sql = "CREATE TABLE IF NOT EXISTS `taglink` (
             `id` INTEGER PRIMARY KEY,
-            `tagId` INTEGER  NOT NULL,
-            `contentType` TEXT  NOT NULL,
-            `contentId` INTEGER  NOT NULL,
-            `module` TEXT  NOT NULL
+            `tagId` INTEGER NOT NULL,
+            `contentType` TEXT NOT NULL,
+            `contentId` INTEGER NOT NULL,
+            `module` TEXT NOT NULL
         );";
         $statement = $database->preparedStatement($sql);
         $statement->execute();
@@ -316,32 +316,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "counter" => "INTEGER",
             "onlineStatus" => "INTEGER",
             "metaTitle" => "TEXT",
-            "metaDescription" => "TEXT",
+            "metaDescription" => "TEXT", NOT NULL
             "metaSeo" => "TEXT"
         ];
         $database->createTable('expert', $expertColumns, 'id');*/
 
         // Create a blocks table - future public release.
-        $blockColumns = [
-            "type" => "TEXT", // Used to dynamically read row out into object.
-            "id" => "INTEGER",
-            "position" => "TEXT", // would integer be better?
-            "title" => "TEXT",
-            "config" => "TEXT",
-            "onlineStatus" =>"INTEGER"
-        ];
-
-        $database->createTable('block', $blockColumns, 'id');
+        $sql = "CREATE TABLE IF NOT EXISTS `block` (
+            `type` TEXT NOT NULL,
+            `id` INTEGER PRIMARY KEY,
+            `position` TEXT NOT NULL,
+            `title` TEXT NOT NULL,
+            `config` TEXT NOT NULL,
+            `onlineStatus` INTEGER NOT NULL
+        );";
+        $statement = $database->preparedStatement($sql);
+        $statement->execute();
 
         // Create a blockRoute table - future public release.
-        $blockRouteColumns = [
-            "id" => "INTEGER",
-            "blockId" => "INTEGER",
-            "route" => "TEXT",
-            "weight" => "INTEGER"
-        ];
+        $sql = "CREATE TABLE IF NOT EXISTS `blockRoute` (
+            `id` INTEGER PRIMARY KEY,
+            `blockId` INTEGER NOT NULL,
+            `route` TEXT NOT NULL,
+            `weight` INTEGER NOT NULL
+        );";
 
-        $database->createTable('blockroute', $blockRouteColumns, 'id');
+        $statement = $database->preparedStatement($sql);
+        $statement->execute();
 
         // Close the database connection.
         $database->close();
