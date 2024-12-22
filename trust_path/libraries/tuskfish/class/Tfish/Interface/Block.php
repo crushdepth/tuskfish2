@@ -57,6 +57,24 @@ interface Block
     public function listTemplates(): array;
 
     /**
+     * Load a database row into a new block object.
+     *
+     * Call in constructor, before render().
+     *
+     * @return void
+     */
+    public function load(array $row): void;
+
+    /**
+     * Retrieve content from database.
+     *
+     * @param \Tfish\Database $database
+     * @param \Tfish\CriteriaFactory $criteriaFactory
+     * @return void
+     */
+    public function content(\Tfish\Database $database, \Tfish\CriteriaFactory $criteriaFactory): void;
+
+    /**
      * Render the block.
      *
      * Call render() from the constructor, it is responsible for populating the block with data

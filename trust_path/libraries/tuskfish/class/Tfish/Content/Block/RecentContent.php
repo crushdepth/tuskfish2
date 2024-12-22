@@ -31,28 +31,67 @@ namespace Tfish\Content\Block;
 
 class RecentContent implements \Tfish\Interface\Block
 {
-    private string $type = '';
+    use \Tfish\Traits\ValidateString;
+
     private int $id = 0;
+    private string $type = '\Tfish\Content\Block\RecentContent';
     private string $position = '';
     private string $title = 'Recent content';
     private string $html = '';
-    private string $config = '';
+    private array $config = [];
     private int $weight = 0;
     private string $template = 'recent-content-compact';
     private int $onlineStatus = 0;
+    private array $content = [];
 
     /** Constructor. */
-    public function __construct()
+    public function __construct(array $row, \Tfish\Database $database, \Tfish\criteriaFactory $criteriaFactory)
     {
-        $this->render();
+        $this->load($row);
+        $content = $this->content($database, $criteriaFactory);
+        $this->render($content);
     }
 
     /**
-     * TODO:
+     * Populate object with row from database.
      *
-     * 1. Block options handling (serialise, unserialse, verify JSON).
-     * 2. Block management interface.
+     * @param array $row Database entry for this block.
+     * @return void
      */
+    public function load(array $row): void
+    {
+       $this->id = (int)$row['id'];
+       $this->position = $this->trimString($row['position']);
+       $this->title = $this->trimString($row['title']);
+       $this->config = !empty($row['config']) ? \json_decode($row['config'], true) : [];
+       $this->weight = (int)$row['weight'];
+       $this->template = \in_array($row['template'], $this->listTemplates(), true)
+           ? $row['template'] : 'recent-content-compact';
+       $this->onlineStatus = ($row['onlineStatus'] == 1) ? 1 : 0;
+    }
+
+    /**
+     * Retrieve content from database.
+     *
+     * @param \Tfish\Database $database
+     * @param \Tfish\CriteriaFactory $criteriaFactory
+     * @return void
+     */
+    public function content(\Tfish\Database $database, \Tfish\CriteriaFactory $criteriaFactory): void
+    {
+        $criteria = $criteriaFactory->criteria();
+        $criteria->setLimit(5);
+        $criteria->setSort('date');
+        $criteria->setOrder('DESC');
+        $criteria->setSecondarySort('submissionTime');
+        $criteria->setSecondaryOrder('DESC');
+        $criteria->add($criteriaFactory->item('onlineStatus', 1));
+        // $criteria->setTag([$cleanParams['tag']]);
+
+        // Just want to select ID, title with a link
+        $statement = $database->select('content', $criteria, ['id', 'title']);
+        $this->content = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
+    }
 
     /**
      * Render the block and store output in $html (output buffering is required).
@@ -61,11 +100,7 @@ class RecentContent implements \Tfish\Interface\Block
      */
     public function render(): void
     {
-        // To be fully functional need to read content from database.
-        $content = [2 => "Sample title", 3 => "Another title", 4 => "Last title"];
-
-        // Retrieve last 5 content items from database.
-        
+        $content = $this->content;
 
         $filepath = TFISH_CONTENT_BLOCK_PATH . $this->template . '.html';
 

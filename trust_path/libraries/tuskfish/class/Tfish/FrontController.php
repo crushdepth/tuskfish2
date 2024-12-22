@@ -140,48 +140,6 @@ class FrontController
     }
 
     /**
-     * Renders the blocks for insertion into the layout (main template) of a theme.
-     *
-     * Blocks are loaded based on the URL path (route) associated with this request.
-     * Valid paths are whitelisted in index.php via routing table lookup.
-     * Blocks are sorted by ID, and can be displayed in the main layout.html via echo, eg:
-     *
-     * <?php echo $block[42]; ?>
-     *
-     * Note:
-     *
-     * 1. Block types must include the fully qualified namespace.
-     * 2. Block content must be populated via calls in the block's constructor.
-     *
-     * @param string $path URL path.
-     * @return array
-     */
-    private function renderBlocks(string $path): array
-    {
-        $blocks = [];
-
-        // Todo: Add description or content column.
-        $sql = "SELECT `type`, `block`.`id`, `position`, `title`, `config`, `weight`, `onlineStatus` "
-            . "FROM `block` "
-            . "INNER JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId` "
-            . "WHERE `blockRoute`.`route` = :path";
-
-        $statement = $this->database->preparedStatement($sql);
-        $statement->bindValue(':path', $path, \PDO::PARAM_STR);
-        $result = $statement->execute();
-
-        // Might need to pass in CriteriaFactory and Database here.
-        $statement->setFetchMode(\PDO::FETCH_CLASS|\PDO::FETCH_CLASSTYPE);
-        $rows = $statement->fetchAll();
-
-        foreach ($rows as $block) {
-            $blocks[$block->id()] = $block;
-        }
-
-        return $blocks;
-    }
-
-    /**
      * Renders the layout (main template) of a theme.
      *
      * @param \Tfish\Entity\Metadata $metadata Instance of the Tuskfish metadata class.
@@ -204,5 +162,40 @@ class FrontController
         }
 
         include_once TFISH_THEMES_PATH . $theme . "/" . $layout . ".html";
+    }
+
+    /**
+     * Renders the blocks for insertion into the layout (main template) of a theme.
+     *
+     * Blocks are loaded based on the URL path (route) associated with this request.
+     * Blocks are sorted by ID. Display in layout.html via echo, eg: <?php echo $block[42]; ?>
+     *
+     * @param string $path URL path.
+     * @return array Blocked indexed by ID.
+     */
+    private function renderBlocks(string $path): array
+    {
+        $blocks = [];
+
+        $sql = "SELECT `block`.`id`, `type`, `position`, `title`, `config`, `weight`, "
+            . "`template`, `onlineStatus` FROM `block` "
+            . "INNER JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId` "
+            . "WHERE `blockRoute`.`route` = :path";
+
+        $statement = $this->database->preparedStatement($sql);
+        $statement->bindValue(':path', $path, \PDO::PARAM_STR);
+        $result = $statement->execute();
+
+        $statement->setFetchMode(\PDO::FETCH_UNIQUE); // Index by ID.
+        $rows = $statement->fetchAll();
+
+        foreach ($rows as $key => $row) {
+            $className = $row['type'];
+            if (\class_exists($className)) {
+                $blocks[$row['id']] = new $className($row, $this->database, $this->criteriaFactory);
+            }
+        }
+
+        return $blocks;
     }
 }
