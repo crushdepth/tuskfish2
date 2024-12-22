@@ -148,6 +148,11 @@ class FrontController
      *
      * <?php echo $block[42]; ?>
      *
+     * Note:
+     *
+     * 1. Block types must include the fully qualified namespace.
+     * 2. Block content must be populated via calls in the block's constructor.
+     *
      * @param string $path URL path.
      * @return array
      */
@@ -155,19 +160,19 @@ class FrontController
     {
         $blocks = [];
 
-        // List blocks associated with this route.
-        $criteria = $this->criteriaFactory->criteria();
-        //$criteria->add($this->criteriaFactory->item('route', $path));
+        // Todo: Add description or content column.
+        $sql = "SELECT `type`, `block`.`id`, `position`, `title`, `config`, `weight`, `onlineStatus` "
+            . "FROM `block` "
+            . "INNER JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId` "
+            . "WHERE `blockRoute`.`route` = :path";
 
-        // Read blocks with the 'type' as the first column
-        $statement = $this->database->select('block', $criteria);
+        $statement = $this->database->preparedStatement($sql);
+        $statement->bindValue(':path', $path, \PDO::PARAM_STR);
+        $result = $statement->execute();
 
-        // Set fetch mode to dynamically assign class based on the 'type' column.
         $statement->setFetchMode(\PDO::FETCH_CLASS|\PDO::FETCH_CLASSTYPE);
-
         $rows = $statement->fetchAll();
 
-        // Index the result set by ID to facilitate block placements in template.
         foreach ($rows as $block) {
             $blocks[$block->id()] = $block;
         }

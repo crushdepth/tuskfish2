@@ -327,7 +327,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             `id` INTEGER PRIMARY KEY,
             `position` TEXT NOT NULL,
             `title` TEXT NOT NULL,
+            `html` TEXT NOT NULL,
             `config` TEXT NOT NULL,
+            `weight` INTEGER NOT NULL,
+            `template` TEXT NOT NULL,
             `onlineStatus` INTEGER NOT NULL
         );";
         $statement = $database->preparedStatement($sql);
@@ -337,8 +340,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sql = "CREATE TABLE IF NOT EXISTS `blockRoute` (
             `id` INTEGER PRIMARY KEY,
             `blockId` INTEGER NOT NULL,
-            `route` TEXT NOT NULL,
-            `weight` INTEGER NOT NULL
+            `route` TEXT NOT NULL
         );";
 
         $statement = $database->preparedStatement($sql);

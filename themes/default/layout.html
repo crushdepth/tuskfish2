@@ -96,6 +96,11 @@
 
       <div class="starter-template">
 
+        <!-- Test Recent Content Block -->
+        <?php if ($blocks ?? null): ?>
+        <?php echo $blocks[1]->html(); ?>
+        <?php endif; ?>
+
         <!-- Main page -->
         <?php if ($page ?? null): ?>
         <?php echo $page; ?>
