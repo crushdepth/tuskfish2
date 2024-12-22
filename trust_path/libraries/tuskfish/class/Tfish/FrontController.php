@@ -30,8 +30,11 @@ namespace Tfish;
  * @package     core
  * @uses        trait \Tfish\Traits\TraversalCheck
  * @uses        trait \Tfish\Traits\ValidateString
+ * @var         \Tfish\Session $session Instance of the Tuskfish session class.
  * @var         object $view
  * @var         object $controller
+ * @var         \Tfish\CriteriaFactory $criteriaFactory
+ * @var         \Tfish\Database $database Instance of the Tuskfish database class.
  */
 
 class FrontController
@@ -42,6 +45,8 @@ class FrontController
     private $session;
     private $view;
     private $controller;
+    private $criteriaFactory;
+    private $database;
 
     /**
      * Constructor
@@ -67,7 +72,10 @@ class FrontController
         Route $route,
         string $path)
     {
+        $this->database = $database;
+        $this->criteriaFactory = $criteriaFactory;
         $this->session = $session;
+
         $session->start();
         $this->checkSiteClosed($preference, $path);
         $this->checkAccessRights($route);
@@ -92,10 +100,9 @@ class FrontController
         $cacheParams = $this->controller->{$action}();
         $cache->check($path, $cacheParams);
 
-        $this->renderLayout($metadata, $viewModel);
+        $this->renderLayout($metadata, $viewModel, $path);
         $cache->save($cacheParams, \ob_get_contents());
         $database->close();
-
         return \ob_end_flush();
     }
 
@@ -133,14 +140,52 @@ class FrontController
     }
 
     /**
+     * Renders the blocks for insertion into the layout (main template) of a theme.
+     *
+     * Blocks are loaded based on the URL path (route) associated with this request.
+     * Valid paths are whitelisted in index.php via routing table lookup.
+     * Blocks are sorted by ID, and can be displayed in the main layout.html via echo, eg:
+     *
+     * <?php echo $block[42]; ?>
+     *
+     * @param string $path URL path.
+     * @return array
+     */
+    private function renderBlocks(string $path): array
+    {
+        $blocks = [];
+
+        // List blocks associated with this route.
+        $criteria = $this->criteriaFactory->criteria();
+        //$criteria->add($this->criteriaFactory->item('route', $path));
+
+        // Read blocks with the 'type' as the first column
+        $statement = $this->database->select('block', $criteria);
+
+        // Set fetch mode to dynamically assign class based on the 'type' column.
+        $statement->setFetchMode(\PDO::FETCH_CLASS|\PDO::FETCH_CLASSTYPE);
+
+        $rows = $statement->fetchAll();
+
+        // Index the result set by ID to facilitate block placements in template.
+        foreach ($rows as $block) {
+            $blocks[$block->id()] = $block;
+        }
+
+        return $blocks;
+    }
+
+    /**
      * Renders the layout (main template) of a theme.
      *
      * @param \Tfish\Entity\Metadata $metadata Instance of the Tuskfish metadata class.
-     * @param string $viewModel Instance of a viewModel class.
+     * @param mixed $viewModel Instance of a viewModel class.
+     * @param string $path URL path (route) associated with this request.
      */
-    private function renderLayout(Entity\Metadata $metadata, $viewModel)
+    private function renderLayout(Entity\Metadata $metadata, $viewModel, string $path)
     {
         $page = $this->view->render();
+        $blocks = $this->renderBlocks($path);
         $metadata->update($viewModel->metadata());
         $session = $this->session;
 
