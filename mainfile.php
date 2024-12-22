@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Tuskfish mainfile script.
- * 
+ *
  * Access trust path, DB credentials and read preferences. Must be included in ALL pages.
  *
  * @copyright	Simon Wilkinson 2013+ (https://tuskfish.biz)
@@ -14,13 +14,13 @@ declare(strict_types=1);
  * @since		1.0
  * @package		core
  */
-/** 
+/**
  * Example paths (yours may vary):
- * 
+ *
  * TFISH_ROOT_PATH is the file path to your web root, eg: /home/youraccount/public_html/
  * TFISH_TRUST_PATH is the file path to your trust_path directory eg.: /home/youraccount/trust_path/
  * TFISH_URL is simply your domain with a trailing slash, eg: https://yourdomain.com/
- * 
+ *
  * When done, you MUST set the access permissions for this file (CHMOD) to 0400.
  */
 
