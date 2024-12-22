@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Tfish\ViewModel;
+namespace Tfish\Interface;
 
 /**
- * \Tfish\ViewModelModel\Listable class file.
+ * \Tfish\Interface\Viewable class file.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -16,7 +16,7 @@ namespace Tfish\ViewModel;
  */
 
 /**
- * Interface that ensures compliance with \Tfish\View\Listing.
+ * Interface that ensures compliance with \Tfish\View\Single.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -26,79 +26,8 @@ namespace Tfish\ViewModel;
  * @package     core
  */
 
-interface Listable
+interface Viewable
 {
-    /* Sorting support. */
-
-    /**
-     * Set primary field to sort query results by.
-     *
-     * @param   string $field Name of field.
-     */
-    public function setSort(string $field);
-
-    /**
-     * Set primary sorting order.
-     *
-     * @param   string $order Order (ASC or DESC).
-     */
-    public function setOrder(string $order);
-
-    /**
-     * Set secondary field to sort query results by.
-     *
-     * @param   string $field Name of field.
-     */
-    public function setSecondarySort(string $field);
-
-    /**
-     * Set secondary sorting order.
-     *
-     * @param   string $secondaryOrder Order (ASC or DESC).
-     */
-    public function setSecondaryOrder(string $secondaryOrder);
-
-    /* Pagination support. */
-
-    /**
-     * Count results matching query conditions.
-     *
-     * @return  int
-     */
-    public function contentCount(): int;
-
-    /**
-     * Return the query limit (number of results to retrieve).
-     *
-     * @return  int
-     */
-    public function limit(): int;
-
-    /**
-     * Return the query offset (starting position to retrieve results from result set).
-     *
-     * @return  int
-     */
-    public function start(): int;
-
-    /**
-     * Return tag filter.
-     *
-     * The ID of the tag being used to filter the result set, if any.
-     *
-     * @return  int
-     */
-    public function tag(): int;
-
-    /**
-     * Returns extra parameters used to filter queries.
-     *
-     * Also used to build pagination controls.
-     */
-    public function extraParams(): array;
-
-    /* View support. */
-
     /**
      * Return the page title.
      *
@@ -130,7 +59,7 @@ interface Listable
     /**
      * Return the layout file name for this page view.
      *
-     * @return  string $template Name of alternative HTML layout file, without the extension.
+     * @return  string
      */
     public function layout(): string;
 

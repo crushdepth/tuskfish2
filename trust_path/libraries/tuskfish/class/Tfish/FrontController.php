@@ -170,6 +170,7 @@ class FrontController
         $statement->bindValue(':path', $path, \PDO::PARAM_STR);
         $result = $statement->execute();
 
+        // Might need to pass in CriteriaFactory and Database here.
         $statement->setFetchMode(\PDO::FETCH_CLASS|\PDO::FETCH_CLASSTYPE);
         $rows = $statement->fetchAll();
 

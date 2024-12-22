@@ -29,7 +29,7 @@ namespace Tfish\Content\Block;
  * @var         object $viewModel Classname of the viewModel used to display this page.
  */
 
-class RecentContent
+class RecentContent implements \Tfish\Interface\Block
 {
     private string $type = '';
     private int $id = 0;
@@ -48,7 +48,14 @@ class RecentContent
     }
 
     /**
-     * Render the block and store output in $html.
+     * TODO:
+     *
+     * 1. Block options handling (serialise, unserialse, verify JSON).
+     * 2. Block management interface.
+     */
+
+    /**
+     * Render the block and store output in $html (output buffering is required).
      *
      * @return void
      */
@@ -56,6 +63,9 @@ class RecentContent
     {
         // To be fully functional need to read content from database.
         $content = [2 => "Sample title", 3 => "Another title", 4 => "Last title"];
+
+        // Retrieve last 5 content items from database.
+        
 
         $filepath = TFISH_CONTENT_BLOCK_PATH . $this->template . '.html';
 

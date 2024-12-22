@@ -274,6 +274,9 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_DOWNLOADS", "Downloads");
 \define("TFISH_ZERO_OPTION", "---");
 
+// Blocks.
+\define("TFISH_BLOCK_RECENT_CONTENT_COMPACT", "Recent content (compact)");
+
 // Errors.
 \define("TFISH_MEDIA_NOT_COMPATIBLE", "The selected media file is not compatible with the current "
         . "content type. Inline media players will not display.");

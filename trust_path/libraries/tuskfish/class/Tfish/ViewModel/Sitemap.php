@@ -26,10 +26,10 @@ namespace Tfish\ViewModel;
  * @package     content
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
- * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\View\Viewable interface.
+ * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\Interface\Viewable interface.
  * @var         object $model Classname of the model used to display this page.
  */
-class Sitemap implements Viewable
+class Sitemap implements \Tfish\Interface\Viewable
 {
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
@@ -39,6 +39,7 @@ class Sitemap implements Viewable
     private $backurl = '';
     private $response = '';
     private $action = '';
+    private $backUrl = '';
 
     /**
      * Constructor
