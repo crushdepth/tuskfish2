@@ -31,6 +31,8 @@ namespace Tfish\Content\Block;
 
 class RecentContent implements \Tfish\Interface\Block
 {
+    use \Tfish\Content\Traits\ContentTypes;
+    use \Tfish\Traits\IntegerCheck;
     use \Tfish\Traits\ValidateString;
 
     private int $id = 0;
@@ -53,7 +55,7 @@ class RecentContent implements \Tfish\Interface\Block
     }
 
     /**
-     * Populate object with row from database.
+     * Populate block object with row from database.
      *
      * @param array $row Database entry for this block.
      * @return void
@@ -80,15 +82,16 @@ class RecentContent implements \Tfish\Interface\Block
     public function content(\Tfish\Database $database, \Tfish\CriteriaFactory $criteriaFactory): void
     {
         $criteria = $criteriaFactory->criteria();
-        $criteria->setLimit(5);
+        $criteria->setLimit($this->config['items']);
         $criteria->setSort('date');
         $criteria->setOrder('DESC');
         $criteria->setSecondarySort('submissionTime');
         $criteria->setSecondaryOrder('DESC');
         $criteria->add($criteriaFactory->item('onlineStatus', 1));
+        // Tag(s) filter - single or multiple?
+        // Type(s) filter - single or multiple?
         // $criteria->setTag([$cleanParams['tag']]);
 
-        // Just want to select ID, title with a link
         $statement = $database->select('content', $criteria, ['id', 'title']);
         $this->content = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
     }
@@ -105,13 +108,32 @@ class RecentContent implements \Tfish\Interface\Block
         $filepath = TFISH_CONTENT_BLOCK_PATH . $this->template . '.html';
 
         if (!\file_exists($filepath)) {
-            \trigger_error(TFISH_ERROR_TEMPLATE_NOT_FOUND, E_USER_NOTICE);
+            \trigger_error(TFISH_ERROR_TEMPLATE_NOT_FOUND, E_USER_ERROR);
             exit;
         }
 
         \ob_start();
         include TFISH_CONTENT_BLOCK_PATH . $this->template . '.html';
         $this->html = \ob_get_clean();
+    }
+
+    /** Utilities */
+
+    /**
+     * Serialise config data as JSON in preparation for DB storage.
+     *
+     * @return string
+     */
+    public function serialiseConfig(): string
+    {
+        $json = \json_encode($this->config);
+
+        if ($json == false || !\json_validate($json, 3)) {
+            \trigger_error(TFISH_ERROR_INVALID_JSON, E_USER_ERROR);
+            exit;
+        }
+
+        return $json;
     }
 
     /**
@@ -157,5 +179,45 @@ class RecentContent implements \Tfish\Interface\Block
     public function title(): string
     {
         return $this->title;
+    }
+
+    /**
+     * Return config data as JSON.
+     *
+     * @return array
+     */
+    public function config(): array
+    {
+        return $this->config;
+    }
+
+    /**
+     * Set config data as JSON.
+     *
+     * @param array $json
+     * @return void
+     */
+    public function setConfig(array $json)
+    {
+        $validConfig = [];
+
+        // Number of content items.
+        $validConfig['items'] = $this->isInt($json['items'], 0, 20) ? $json['items'] : 0;
+
+        // Tag filters.
+        foreach ($json['tags'] as $tag) {
+            if ($this->isInt($tag, 0, null)) {
+                $validConfig['items'][] = $tag;
+            }
+        }
+
+        // Content type filter.
+        if (!empty($json['type']) && \array_key_exists($json['type'], $this->listTypes())) {
+            $validConfig['type'] = $json['type'];
+        } else {
+            $validConfig['type'] = '';
+        }
+
+        $this->config = $validConfig;
     }
 }

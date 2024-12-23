@@ -196,6 +196,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_ERROR_NOT_CRITERIA_ITEM_OBJECT", "Not a CriteriaItem object.");
 \define("TFISH_ERROR_ILLEGAL_TYPE", "Illegal data type (not whitelisted).");
 \define("TFISH_ERROR_ILLEGAL_TEMPLATE", "Illegal template (not whitelisted).");
+\define("TFISH_ERROR_INVALID_JSON", "JSON serialisation failed, data is invalid.");
 \define("TFISH_ERROR_TEMPLATE_NOT_FOUND", "Template not found.");
 \define("TFISH_ERROR_ILLEGAL_VALUE", "Illegal value (not whitelisted).");
 \define("TFISH_ERROR_NOT_INT", "Not an integer, or integer range violation.");
