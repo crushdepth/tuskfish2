@@ -1,0 +1,12 @@
+<?php declare(strict_types=1); ?>
+
+<?php if (!empty($content)): ?>
+<!-- div class="container">-->
+  <?php if (!empty($content->title())): ?>
+  <h3><a href="<?php echo TFISH_URL . '?id=' . xss($key); ?>"></a><?php echo xss($this->title()); ?></a></h3>
+  <?php endif; ?>
+  <?php if (!empty($content->teaser())): ?>
+  <?php echo $content->teaser(); ?>
+  <?php endif; ?>
+<!-- </div> -->
+<?php endif; ?>

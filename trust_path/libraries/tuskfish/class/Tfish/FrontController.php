@@ -187,7 +187,6 @@ class FrontController
         $statement->setFetchMode(\PDO::FETCH_UNIQUE); // Index by ID.
         $statement->execute();
         $rows = $statement->fetchAll();
-
         foreach ($rows as $key => $row) {
             $className = $row['type'];
             if (\class_exists($className)) {

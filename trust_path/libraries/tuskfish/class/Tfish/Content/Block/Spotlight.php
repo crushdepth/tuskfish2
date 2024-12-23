@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\Content\Block;
 
 /**
- * \Tfish\Content\Block\RecentContent class file.
+ * \Tfish\Content\Block\Spotlight class file.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -16,7 +16,7 @@ namespace Tfish\Content\Block;
  */
 
 /**
- * Block for displaying a list of recent content.
+ * Block for highlighting a pieces of content.
  *
  * @copyright   Simon Wilkinson 2024+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -24,27 +24,26 @@ namespace Tfish\Content\Block;
  * @version     Release: 2.0
  * @since       2.0
  * @package     content
- * @uses        trait \Tfish\Conten\Traits\ContentTypes
- * @uses        trait \Tfish\Traits\IntegerCheck
+ * @uses        trait \Tfish\Conten\Traits\ContentTypes Provides definition of permitted content object types.
+ * @uses        trait \Tfish\Traits\IntegerCheck Validate and range check integers.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  */
-
-class RecentContent implements \Tfish\Interface\Block
+class Spotlight implements \Tfish\Interface\Block
 {
     use \Tfish\Content\Traits\ContentTypes;
     use \Tfish\Traits\IntegerCheck;
     use \Tfish\Traits\ValidateString;
 
     private int $id = 0;
-    private string $type = '\Tfish\Content\Block\RecentContent';
+    private string $type = '\Tfish\Content\Block\Spotlight';
     private string $position = '';
-    private string $title = 'Recent content';
+    private string $title = 'Spotlight';
     private string $html = '';
     private array $config = [];
     private int $weight = 0;
-    private string $template = 'recent-content-compact';
+    private string $template = 'spotlight-compact';
     private int $onlineStatus = 0;
-    private array $content = [];
+    private mixed $content = false;
 
     /** Constructor. */
     public function __construct(array $row, \Tfish\Database $database, \Tfish\criteriaFactory $criteriaFactory)
@@ -68,17 +67,12 @@ class RecentContent implements \Tfish\Interface\Block
        $this->config = !empty($row['config']) ? \json_decode($row['config'], true) : [];
        $this->weight = (int)$row['weight'];
        $this->template = \in_array($row['template'], $this->listTemplates(), true)
-           ? $row['template'] : 'recent-content-compact';
+           ? $row['template'] : 'spotlight-compact';
        $this->onlineStatus = ($row['onlineStatus'] == 1) ? 1 : 0;
     }
 
     /**
      * Retrieve content data from database.
-     *
-     * Block options:
-     * 1. Number of content items to list (limit 20).
-     * 2. Filter by content type (multi-select).
-     * 3. Filter by tag (multi-select).
      *
      * @param \Tfish\Database $database
      * @param \Tfish\CriteriaFactory $criteriaFactory
@@ -86,48 +80,15 @@ class RecentContent implements \Tfish\Interface\Block
      */
     public function content(\Tfish\Database $database, \Tfish\CriteriaFactory $criteriaFactory): void
     {
-        $types = $this->config['type'] ?? [];
-        $tags  = $this->config['tag']  ?? [];
+        $id = $this->isInt($this->config['id'], 1) ? $this->config['id'] : 0;
 
-        $sql = "SELECT `content`.`id`, `title`
-        FROM `content`
-        INNER JOIN `taglink` ON `content`.`id` = `taglink`.`contentId`";
+        $criteria = $criteriaFactory->criteria();
+        $criteria->add($criteriaFactory->item('id', $id));
+        $criteria->add($criteriaFactory->item('onlineStatus', 1));
 
-        $conditions = ["`onlineStatus` = 1"];
-
-        // Filter by content types.
-        if (!empty($types)) {
-            $typePlaceholders = \implode(',', \array_fill(0, \count($types), '?'));
-            $conditions[] = "`type` IN ($typePlaceholders)";
-        }
-
-        // Filter by tags.
-        if (!empty($tags)) {
-            $tagPlaceholders = \implode(',', \array_fill(0, \count($tags), '?'));
-            $conditions[] = "`taglink`.`tagId` IN ($tagPlaceholders)";
-        }
-
-        $sql .= " WHERE " . \implode(' AND ', $conditions);
-        $sql .= " ORDER BY `date` DESC, `submissionTime` DESC LIMIT :limit";
-
-        $statement = $database->preparedStatement($sql);
-        $statement->bindValue(':limit', $this->config['items'], \PDO::PARAM_INT);
-
-        // Bind values for types
-        $bindIndex = 1;
-        foreach ($types as $type) {
-            $statement->bindValue($bindIndex++, $type, \PDO::PARAM_STR);
-        }
-
-        // Bind values for tags
-        foreach ($tags as $tag) {
-            $statement->bindValue($bindIndex++, $tag, \PDO::PARAM_INT);
-        }
-
-        $statement->setFetchMode(\PDO::FETCH_KEY_PAIR);
-        $statement->execute();
-
-        $this->content = $statement->fetchAll();
+        $statement = $database->select('content', $criteria);
+        $this->content = $statement->fetchObject('\Tfish\Content\Entity\Content');
+        $statement->closeCursor();
     }
 
     /**
@@ -180,7 +141,7 @@ class RecentContent implements \Tfish\Interface\Block
      */
     public function listTemplates(): array
     {
-        return ['recent-content-compact'];
+        return ['spotlight-compact'];
     }
 
     /** Accessors */
@@ -235,25 +196,13 @@ class RecentContent implements \Tfish\Interface\Block
     {
         $validConfig = [];
 
-        // Number of content items.
-        $validConfig['items'] = $this->isInt($json['items'], 0, 20) ? $json['items'] : 0;
+        // ID of spotlighted content.
+        $id = (int)$validConfig['id'];
+        $validConfig['id'] = $id > 0 ? $id : 0;
 
-        // Tag filters.
-        if (!empty($json['tag'])) {
+        // Show image?
 
-            foreach ($json['tag'] as $tag) {
-                if ($this->isInt($tag, 0, null)) {
-                    $validConfig['tag'][] = $tag;
-                }
-            }
-        }
-
-        // Content type filter.
-        if (!empty($json['type'])) {
-            foreach ($json['type'] as $type) {
-                $validConfig['type'][] = \array_key_exists($type, $this->listTypes()) ? $type : '';
-            }
-        }
+        // Show a different image?
 
         $this->config = $validConfig;
     }
