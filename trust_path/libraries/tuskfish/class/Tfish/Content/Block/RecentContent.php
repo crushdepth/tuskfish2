@@ -86,14 +86,25 @@ class RecentContent implements \Tfish\Interface\Block
      */
     public function content(\Tfish\Database $database, \Tfish\CriteriaFactory $criteriaFactory): void
     {
-        $types = $this->config['type'];
+        $types = $this->config['type'] ?? [];
+        $tags  = $this->config['tag']  ?? [];
+
         $sql = "SELECT `content`.`id`, `title`
-                FROM `content`";
+        FROM `content`
+        INNER JOIN `taglink` ON `content`.`id` = `taglink`.`contentId`";
+
         $conditions = ["`onlineStatus` = 1"];
 
+        // Filter by content types.
         if (!empty($types)) {
-            $placeholders = \implode(',', \array_fill(0, \count($types), '?'));
-            $conditions[] = "`type` IN ($placeholders)";
+            $typePlaceholders = \implode(',', \array_fill(0, \count($types), '?'));
+            $conditions[] = "`type` IN ($typePlaceholders)";
+        }
+
+        // Filter by tags.
+        if (!empty($tags)) {
+            $tagPlaceholders = \implode(',', \array_fill(0, \count($tags), '?'));
+            $conditions[] = "`taglink`.`tagId` IN ($tagPlaceholders)";
         }
 
         $sql .= " WHERE " . \implode(' AND ', $conditions);
@@ -102,8 +113,15 @@ class RecentContent implements \Tfish\Interface\Block
         $statement = $database->preparedStatement($sql);
         $statement->bindValue(':limit', $this->config['items'], \PDO::PARAM_INT);
 
-        foreach ($types as $index => $type) {
-            $statement->bindValue($index + 1, $type, \PDO::PARAM_STR);
+        // Bind values for types
+        $bindIndex = 1;
+        foreach ($types as $type) {
+            $statement->bindValue($bindIndex++, $type, \PDO::PARAM_STR);
+        }
+
+        // Bind values for tags
+        foreach ($tags as $tag) {
+            $statement->bindValue($bindIndex++, $tag, \PDO::PARAM_INT);
         }
 
         $statement->setFetchMode(\PDO::FETCH_KEY_PAIR);
