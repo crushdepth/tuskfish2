@@ -50,8 +50,8 @@ class RecentContent implements \Tfish\Interface\Block
     public function __construct(array $row, \Tfish\Database $database, \Tfish\criteriaFactory $criteriaFactory)
     {
         $this->load($row);
-        $content = $this->content($database, $criteriaFactory);
-        $this->render($content);
+        $this->content($database, $criteriaFactory);
+        $this->render();
     }
 
     /**
@@ -73,7 +73,12 @@ class RecentContent implements \Tfish\Interface\Block
     }
 
     /**
-     * Retrieve content from database.
+     * Retrieve content data from database.
+     *
+     * Block options:
+     * 1. Number of content items to list (limit 20).
+     * 2. Filter by content type (multi-select).
+     * 3. Filter by tag (multi-select).
      *
      * @param \Tfish\Database $database
      * @param \Tfish\CriteriaFactory $criteriaFactory
@@ -81,19 +86,30 @@ class RecentContent implements \Tfish\Interface\Block
      */
     public function content(\Tfish\Database $database, \Tfish\CriteriaFactory $criteriaFactory): void
     {
-        $criteria = $criteriaFactory->criteria();
-        $criteria->setLimit($this->config['items']);
-        $criteria->setSort('date');
-        $criteria->setOrder('DESC');
-        $criteria->setSecondarySort('submissionTime');
-        $criteria->setSecondaryOrder('DESC');
-        $criteria->add($criteriaFactory->item('onlineStatus', 1));
-        // Tag(s) filter - single or multiple?
-        // Type(s) filter - single or multiple?
-        // $criteria->setTag([$cleanParams['tag']]);
+        $types = $this->config['type'];
+        $sql = "SELECT `content`.`id`, `title`
+                FROM `content`";
+        $conditions = ["`onlineStatus` = 1"];
 
-        $statement = $database->select('content', $criteria, ['id', 'title']);
-        $this->content = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
+        if (!empty($types)) {
+            $placeholders = \implode(',', \array_fill(0, \count($types), '?'));
+            $conditions[] = "`type` IN ($placeholders)";
+        }
+
+        $sql .= " WHERE " . \implode(' AND ', $conditions);
+        $sql .= " ORDER BY `date` DESC, `submissionTime` DESC LIMIT :limit";
+
+        $statement = $database->preparedStatement($sql);
+        $statement->bindValue(':limit', $this->config['items'], \PDO::PARAM_INT);
+
+        foreach ($types as $index => $type) {
+            $statement->bindValue($index + 1, $type, \PDO::PARAM_STR);
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_KEY_PAIR);
+        $statement->execute();
+
+        $this->content = $statement->fetchAll();
     }
 
     /**
@@ -205,17 +221,20 @@ class RecentContent implements \Tfish\Interface\Block
         $validConfig['items'] = $this->isInt($json['items'], 0, 20) ? $json['items'] : 0;
 
         // Tag filters.
-        foreach ($json['tags'] as $tag) {
-            if ($this->isInt($tag, 0, null)) {
-                $validConfig['items'][] = $tag;
+        if (!empty($json['tag'])) {
+
+            foreach ($json['tag'] as $tag) {
+                if ($this->isInt($tag, 0, null)) {
+                    $validConfig['tag'][] = $tag;
+                }
             }
         }
 
         // Content type filter.
-        if (!empty($json['type']) && \array_key_exists($json['type'], $this->listTypes())) {
-            $validConfig['type'] = $json['type'];
-        } else {
-            $validConfig['type'] = '';
+        if (!empty($json['type'])) {
+            foreach ($json['type'] as $type) {
+                $validConfig['type'][] = \array_key_exists($type, $this->listTypes()) ? $type : '';
+            }
         }
 
         $this->config = $validConfig;

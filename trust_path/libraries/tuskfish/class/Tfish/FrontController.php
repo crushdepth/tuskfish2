@@ -184,9 +184,8 @@ class FrontController
 
         $statement = $this->database->preparedStatement($sql);
         $statement->bindValue(':path', $path, \PDO::PARAM_STR);
-        $result = $statement->execute();
-
         $statement->setFetchMode(\PDO::FETCH_UNIQUE); // Index by ID.
+        $statement->execute();
         $rows = $statement->fetchAll();
 
         foreach ($rows as $key => $row) {
