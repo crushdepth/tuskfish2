@@ -177,7 +177,7 @@ class Spotlight implements \Tfish\Interface\Block
     }
 
     /**
-     * Return config data as JSON.
+     * Return config data.
      *
      * @return array
      */
@@ -187,7 +187,7 @@ class Spotlight implements \Tfish\Interface\Block
     }
 
     /**
-     * Set config data as JSON.
+     * Set and validate config data from JSON.
      *
      * @param string $json
      * @return void

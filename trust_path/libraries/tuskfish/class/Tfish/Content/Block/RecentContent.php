@@ -216,7 +216,7 @@ class RecentContent implements \Tfish\Interface\Block
     }
 
     /**
-     * Return config data as JSON.
+     * Return config data.
      *
      * @return array
      */
@@ -226,12 +226,12 @@ class RecentContent implements \Tfish\Interface\Block
     }
 
     /**
-     * Set config data as JSON.
+     * Set and validate config data from JSON.
      *
      * @param string $json
      * @return void
      */
-    public function setConfig(string $json)
+    public function setConfig(string $json): void
     {
         $config = !empty($json) ? \json_decode($json, true) : [];
 

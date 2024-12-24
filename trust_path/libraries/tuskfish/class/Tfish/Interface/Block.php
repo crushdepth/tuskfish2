@@ -57,6 +57,21 @@ interface Block
     public function listTemplates(): array;
 
     /**
+     * Return config data.
+     *
+     * @return array
+     */
+    public function config();
+
+    /**
+     * Set and validate config data from JSON.
+     *
+     * @param string $json
+     * @return void
+     */
+    public function setConfig(string $json);
+
+    /**
      * Load a database row into a new block object.
      *
      * Call in constructor, before render().
