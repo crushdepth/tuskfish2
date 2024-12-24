@@ -101,13 +101,13 @@
         <div class="row">
         <div class="col-6">
         <!-- Recent Content Block -->
-        <?php if ($blocks ?? null): ?>
+        <?php if (empty($_GET['id']) && !empty($blocks)): ?>
         <?php echo $blocks[2]->html(); ?>
         <?php endif; ?>
         </div>
 
         <div class="col-6">
-        <?php if ($blocks ?? null): ?>
+        <?php if (empty($_GET['id']) && !empty($blocks)): ?>
         <?php echo $blocks[1]->html(); ?>
         <?php endif; ?>
         </div>
