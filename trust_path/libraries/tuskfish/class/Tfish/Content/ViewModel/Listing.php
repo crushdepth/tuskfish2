@@ -49,13 +49,13 @@ namespace Tfish\Content\ViewModel;
 class Listing implements \Tfish\Interface\Listable
 {
     use \Tfish\Content\Traits\ContentTypes;
+    use \Tfish\Traits\FetchBlock;
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
 
     private $model;
     private $preference;
-    private $blockFactory;
     private $blocks = [];
     private $content = '';
     private $contentTags = '';
@@ -131,27 +131,6 @@ class Listing implements \Tfish\Interface\Listable
     }
 
     /** Utilities. */
-
-    /**
-     * Retrieve content blocks from database.
-     *
-     * Blocks are retrieved and instantiated based on the URL path (route) associated with request.
-     * Blocks are sorted by ID. Display in layout.html via echo, eg: <?php echo $block[42]; ?>
-     *
-     * @param string $path URL path.
-     * @return array Blocked indexed by ID.
-     */
-    public function fetchBlocks(string $path): array
-    {
-        $blocks = [];
-        $blockData = $this->model->fetchBlockData($path) ?? [];
-
-        if (!empty($blockData)) {
-            $blocks = $this->blockFactory->makeBlocks($blockData);
-        }
-
-        return !empty($blocks) ? $blocks : [];
-    }
 
     /**
      * Return IDs and titles of tags that are actually in use with content objects.

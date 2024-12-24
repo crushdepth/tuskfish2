@@ -33,6 +33,8 @@ namespace Tfish\Content\Model;
 
 class Rss
 {
+    use \Tfish\Traits\FetchBlockData;
+
     private $database;
     private $criteriaFactory;
     private $preference;

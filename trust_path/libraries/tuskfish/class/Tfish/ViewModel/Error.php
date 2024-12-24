@@ -58,4 +58,6 @@ class Error implements \Tfish\Interface\Viewable
     {
         return TFISH_ERROR_SORRY_PAGE_DOES_NOT_EXIST;
     }
+
+    public function fetchBlocks(string $path): array { return []; }
 }

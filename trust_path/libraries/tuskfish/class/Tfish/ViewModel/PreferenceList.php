@@ -77,4 +77,6 @@ class PreferenceList implements \Tfish\Interface\Viewable
     {
         return $this->preference;
     }
+
+    public function fetchBlocks(string $path): array { return []; }
 }

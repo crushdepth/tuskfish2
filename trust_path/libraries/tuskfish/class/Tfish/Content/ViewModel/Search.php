@@ -42,6 +42,7 @@ namespace Tfish\Content\ViewModel;
 
 class Search implements \Tfish\Interface\Listable
 {
+    use \Tfish\Traits\FetchBlock;
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\ValidateString;
 
@@ -65,11 +66,12 @@ class Search implements \Tfish\Interface\Listable
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference)
+    public function __construct($model, \Tfish\Entity\Preference $preference, \Tfish\BlockFactory $blockFactory)
     {
         $this->pageTitle = TFISH_SEARCH;
         $this->model = $model;
         $this->preference = $preference;
+        $this->blockFactory = $blockFactory;
         $this->template = 'search';
         $this->theme = 'default';
         $this->sort = 'date';

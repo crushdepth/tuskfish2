@@ -134,4 +134,6 @@ class Cache implements \Tfish\Interface\Viewable
     {
         return $this->response;
     }
+
+    public function fetchBlocks(string $path): array { return []; }
 }

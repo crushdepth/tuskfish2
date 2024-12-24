@@ -30,6 +30,7 @@ namespace Tfish\Model;
 
 class Yubikey
 {
+    use \Tfish\Traits\FetchBlockData;
     use \Tfish\Traits\ValidateString;
 
     private $session;

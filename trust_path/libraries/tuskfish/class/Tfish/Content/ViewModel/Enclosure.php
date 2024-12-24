@@ -105,4 +105,6 @@ class Enclosure implements \Tfish\Interface\Viewable
     {
         return $this->backUrl;
     }
+
+    public function fetchBlocks(string $path): array { return []; }
 }

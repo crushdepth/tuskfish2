@@ -38,6 +38,7 @@ namespace Tfish\Content\Model;
 class Admin
     {
     use \Tfish\Content\Traits\ContentTypes;
+    use \Tfish\Traits\FetchBlockData;
     use \Tfish\Traits\Taglink;
     use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;

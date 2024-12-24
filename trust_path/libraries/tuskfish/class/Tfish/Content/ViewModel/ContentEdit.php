@@ -39,6 +39,7 @@ namespace Tfish\Content\ViewModel;
  */
 class ContentEdit implements \Tfish\Interface\Viewable
 {
+    use \Tfish\Traits\FetchBlock;
     use \Tfish\Traits\Timezones;
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
@@ -58,11 +59,13 @@ class ContentEdit implements \Tfish\Interface\Viewable
      *
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
+     * @param   \Tfish\BlockFactory $blockFactory
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference)
+    public function __construct($model, \Tfish\Entity\Preference $preference, \Tfish\BlockFactory $blockFactory)
     {
         $this->model = $model;
         $this->preference = $preference;
+        $this->blockFactory = $blockFactory;
         $this->theme = 'admin';
         $this->setMetadata(['robots' => 'noindex,nofollow']);
     }
