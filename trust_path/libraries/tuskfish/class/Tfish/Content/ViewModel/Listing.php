@@ -55,6 +55,8 @@ class Listing implements \Tfish\Interface\Listable
 
     private $model;
     private $preference;
+    private $blockFactory;
+    private $blocks = [];
     private $content = '';
     private $contentTags = '';
     private $contentList = [];
@@ -76,11 +78,13 @@ class Listing implements \Tfish\Interface\Listable
      *
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
+     * @param   \Tfish\BlockFactory $blockFactory
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference)
+    public function __construct($model, \Tfish\Entity\Preference $preference, \Tfish\BlockFactory $blockFactory)
     {
         $this->model = $model;
         $this->preference = $preference;
+        $this->blockFactory = $blockFactory;
         $this->theme = 'default';
         $this->pageTitle = TFISH_LATEST_POSTS;
     }
@@ -127,6 +131,27 @@ class Listing implements \Tfish\Interface\Listable
     }
 
     /** Utilities. */
+
+    /**
+     * Retrieve content blocks from database.
+     *
+     * Blocks are retrieved and instantiated based on the URL path (route) associated with request.
+     * Blocks are sorted by ID. Display in layout.html via echo, eg: <?php echo $block[42]; ?>
+     *
+     * @param string $path URL path.
+     * @return array Blocked indexed by ID.
+     */
+    public function fetchBlocks(string $path): array
+    {
+        $blocks = [];
+        $blockData = $this->model->fetchBlockData($path) ?? [];
+
+        if (!empty($blockData)) {
+            $blocks = $this->blockFactory->makeBlocks($blockData);
+        }
+
+        return !empty($blocks) ? $blocks : [];
+    }
 
     /**
      * Return IDs and titles of tags that are actually in use with content objects.

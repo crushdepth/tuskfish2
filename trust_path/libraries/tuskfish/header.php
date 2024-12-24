@@ -53,7 +53,8 @@ $rules = [
     '\\Tfish\\Cache' => ['shared' => true],
     '\\Tfish\\Session' => ['shared' => true],
     '\\Tfish\\Route' => ['shared' => true],
-    '\\Tfish\\Pagination' => ['shared' => true]
+    '\\Tfish\\Pagination' => ['shared' => true],
+    '\\Tfish\\BlockFactory' => ['shared' => true]
 ];
 $dice = $dice->addRules($rules);
 
