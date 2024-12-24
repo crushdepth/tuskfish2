@@ -75,6 +75,7 @@ class AdminSearch implements \Tfish\Interface\Listable
         $this->pageTitle = TFISH_ADMIN_SEARCH;
         $this->model = $model;
         $this->preference = $preference;
+        $this->blockFactory = $blockFactory;
         $this->template = 'adminSearch';
         $this->theme = 'admin';
         $this->sort = 'date';

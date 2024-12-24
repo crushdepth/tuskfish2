@@ -77,6 +77,7 @@ class Admin implements \Tfish\Interface\Listable
     {
         $this->model = $model;
         $this->preference = $preference;
+        $this->blockFactory = $blockFactory;
         $this->theme = 'admin';
         $this->sort = 'date';
         $this->order = 'DESC';
