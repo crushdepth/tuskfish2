@@ -64,7 +64,7 @@ class Spotlight implements \Tfish\Interface\Block
        $this->id = (int)$row['id'];
        $this->position = $this->trimString($row['position']);
        $this->title = $this->trimString($row['title']);
-       $this->config = !empty($row['config']) ? \json_decode($row['config'], true) : [];
+       $this->setConfig($row['config']);
        $this->weight = (int)$row['weight'];
        $this->template = \in_array($row['template'], $this->listTemplates(), true)
            ? $row['template'] : 'spotlight-compact';
@@ -189,16 +189,16 @@ class Spotlight implements \Tfish\Interface\Block
     /**
      * Set config data as JSON.
      *
-     * @param array $json
+     * @param string $json
      * @return void
      */
-    public function setConfig(array $json)
+    public function setConfig(string $json)
     {
         $validConfig = [];
+        $config = !empty($json) ? \json_decode($json, true) : [];
 
         // ID of spotlighted content.
-        $id = (int)$validConfig['id'];
-        $validConfig['id'] = $id > 0 ? $id : 0;
+        $validConfig['id'] = $this->isInt($config['id'], 0) ? (int)$config['id'] : 0;
 
         // Show image?
 

@@ -65,7 +65,7 @@ class RecentContent implements \Tfish\Interface\Block
        $this->id = (int)$row['id'];
        $this->position = $this->trimString($row['position']);
        $this->title = $this->trimString($row['title']);
-       $this->config = !empty($row['config']) ? \json_decode($row['config'], true) : [];
+       $this->setConfig($row['config']);
        $this->weight = (int)$row['weight'];
        $this->template = \in_array($row['template'], $this->listTemplates(), true)
            ? $row['template'] : 'recent-content-compact';
@@ -228,20 +228,20 @@ class RecentContent implements \Tfish\Interface\Block
     /**
      * Set config data as JSON.
      *
-     * @param array $json
+     * @param string $json
      * @return void
      */
-    public function setConfig(array $json)
+    public function setConfig(string $json)
     {
-        $validConfig = [];
+        $config = !empty($json) ? \json_decode($json, true) : [];
 
         // Number of content items.
-        $validConfig['items'] = $this->isInt($json['items'], 0, 20) ? $json['items'] : 0;
+        $validConfig['items'] = $this->isInt($config['items'], 0, 20) ? $config['items'] : 0;
 
         // Tag filters.
-        if (!empty($json['tag'])) {
+        if (!empty($config['tag'])) {
 
-            foreach ($json['tag'] as $tag) {
+            foreach ($config['tag'] as $tag) {
                 if ($this->isInt($tag, 0, null)) {
                     $validConfig['tag'][] = $tag;
                 }
@@ -249,8 +249,8 @@ class RecentContent implements \Tfish\Interface\Block
         }
 
         // Content type filter.
-        if (!empty($json['type'])) {
-            foreach ($json['type'] as $type) {
+        if (!empty($config['type'])) {
+            foreach ($config['type'] as $type) {
                 $validConfig['type'][] = \array_key_exists($type, $this->listTypes()) ? $type : '';
             }
         }
