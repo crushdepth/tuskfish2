@@ -3,8 +3,24 @@
 <?php if (!empty($content)): ?>
 <!-- div class="container">-->
   <?php if (!empty($content->title())): ?>
-  <h3><a href="<?php echo TFISH_URL . '?id=' . xss($key); ?>"></a><?php echo xss($this->title()); ?></a></h3>
+    <h3><a href="<?php echo TFISH_URL . '?id=' . xss($content->id()); ?>"><?php echo xss($this->title()); ?></a></h3>
   <?php endif; ?>
+
+  <?php if ($content->image()): ?>
+  <div>
+    <figure class="figure-left">
+      <a href="<?php echo TFISH_URL . '?id=' . xss($content->id()); ?>">
+      <img class="image img-fluid" src="<?php echo $content->cachedImage(500); ?>"
+        <?php if ($content->caption()): ?>
+          title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"/></a>
+        <figcaption><em><?php echo xss($content->caption()); ?></em></figcaption>
+        <?php else: ?>
+          alt="" /></a>
+        <?php endif; ?>
+      </figure>
+  </div>
+  <?php endif; ?>
+
   <?php if (!empty($content->teaser())): ?>
   <?php echo $content->teaser(); ?>
   <?php endif; ?>
