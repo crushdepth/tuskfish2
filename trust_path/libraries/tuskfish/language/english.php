@@ -60,6 +60,7 @@ namespace Tfish;
 \define("TFISH_SELECT_TAGS", "- Select tag -");
 \define("TFISH_SELECT_TYPE", "- Select type -");
 \define("TFISH_SELECT_PARENT", "- Select parent -");
+\define("TFISH_SELECT_ROUTE", "- Select route -");
 \define("TFISH_SELECT_BOX_ZERO_OPTION", "---");
 \define("TFISH_META_TAGS", "Meta tags");
 \define("TFISH_CHANGE_PASSWORD", "Change password");
@@ -140,6 +141,11 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 // Pagination controls.
 \define("TFISH_PAGINATION_FIRST", "First");
 \define("TFISH_PAGINATION_LAST", "Last");
+
+// Blocks
+\define("TFISH_ADMIN_BLOCKS", "Blocks");
+\define("TFISH_ROUTE", "Route");
+\define("TFISH_WEIGHT", "Weight");
 
 // Utilities
 \define("TFISH_STATE", "State");

@@ -2,52 +2,44 @@
 
 declare(strict_types=1);
 
-namespace Tfish\Content\Model;
+namespace Tfish\Model;
 
 /**
- * \Tfish\Content\Model\Admin class file.
+ * \Tfish\Model\Block class file.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0
  * @since       2.0
- * @package     content
+ * @package     core
  */
 
 /**
- * Model for admin interface operations.
+ * Model for block admin interface operations.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0
  * @since       2.0
- * @package     content
- * @uses        trait \Tfish\Traits\Content\ContentTypes	Provides definition of permitted content object types.
- * @uses        trait \Tfish\Traits\Taglink Manage object-tag associations via taglinks.
- * @uses        trait \Tfish\Traits\TagRead Retrieve tag information for display.
+ * @package     core
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         \Tfish\Database $database Instance of the Tuskfish database class.
  * @var         \Tfish\CriteriaFactory $criteriaFactory A factory class that returns instances of Criteria and CriteriaItem.
  * @var         \Tfish\Entity\Preference Instance of the Tfish site preferences class.
  * @var         \Tfish\Cache Instance of the Tfish cache class.
- * @var         \Tfish\FileHandler Instance of the Tfish filehandler class.
  */
 
-class Admin
+class Block
 {
-    use \Tfish\Content\Traits\ContentTypes;
     use \Tfish\Traits\FetchBlockData;
-    use \Tfish\Traits\Taglink;
-    use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
 
     private $database;
     private $criteriaFactory;
     private $preference;
     private $cache;
-    private $fileHandler;
 
     /**
      * Constructor.
@@ -55,29 +47,26 @@ class Admin
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.
      * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish site preferences class.
-     * @param   \Tfish\FileHandler $fileHandler Instance of the Tuskfish filehandler class.
      * @param   \Tfish\Cache Instance of the Tuskfish cache class.
      */
     public function __construct(
         \Tfish\Database $database,
         \Tfish\CriteriaFactory $criteriaFactory,
         \Tfish\Entity\Preference $preference,
-        \Tfish\FileHandler $fileHandler,
         \Tfish\Cache $cache)
     {
         $this->database = $database;
         $this->criteriaFactory = $criteriaFactory;
         $this->preference = $preference;
         $this->cache = $cache;
-        $this->fileHandler = $fileHandler;
     }
 
     /** Actions. */
 
     /**
-     * Delete content object.
+     * Delete block object.
      *
-     * @param   int $id ID of content object.
+     * @param   int $id ID of block object.
      * @return  bool True on success, false on failure.
      */
     public function delete(int $id): bool
@@ -92,32 +81,11 @@ class Admin
             return false;
         }
 
-        // Delete associated image.
-        if ($row['image'] && !$this->deleteImage($row['image'])) {
-            return false;
-        }
-
-        // Delete associated media.
-        if ($row['type'] !== 'TfVideo' && $row['media'] && !$this->deleteMedia($row['media'])) {
-            return false;
-        }
-
+        // Need to delete blockRoute entries for this block ID
         // Delete outbound taglinks owned by this content.
-        if ($row['type'] !== 'TfTag' && !$this->deleteTaglinks($id, 'content')) {
-            return false;
-        }
-
-        // If object is a tag, delete inbound taglinks referring to it.
-        if ($row['type'] === 'TfTag' && !$this->deleteReferencesToTag($id)) {
-            return false;
-        }
-
-        // If object is a collection delete related parent references in child content.
-        if ($row['type'] === 'TfCollection') {
-            if (!$this->deleteReferencesToParent($id)) {
-                return false;
-            }
-        }
+        //if ($row['type'] !== 'TfTag' && !$this->deleteTaglinks($id, 'block')) {
+        //    return false;
+        //}
 
         // Flush cache.
         if (!$this->cache->flush()) {
@@ -125,14 +93,14 @@ class Admin
         }
 
         // Finally, delete the object.
-        return $this->database->delete('content', $id);
+        return $this->database->delete('block', $id);
     }
 
     /**
-     * Get content objects.
+     * Get block objects.
      *
      * @param   array $params Filter criteria.
-     * @return  array Array of content objects.
+     * @return  array Array of block objects.
      */
     public function getObjects(array $params): array
     {
@@ -143,7 +111,7 @@ class Admin
     }
 
     /**
-     * Toggle a content object online or offline.
+     * Toggle a block object online or offline.
      *
      * @param   int $id ID of content object.
      * @return  bool True on success, false on failure.
@@ -154,24 +122,10 @@ class Admin
             return false;
         }
 
-        $result = $this->database->toggleBoolean($id, 'content', 'onlineStatus');
-        $this->clearExpiresOn($id);
+        $result = $this->database->toggleBoolean($id, 'block', 'onlineStatus');
         $this->cache->flush();
 
         return $result;
-    }
-
-    /**
-     * Clear the expiry date, if set, when an offline object is toggled online.
-     *
-     * @param integer $id
-     */
-    private function clearExpiresOn(int $id)
-    {
-        $sql = "UPDATE `content` set `expiresOn` = '' WHERE `id` = :id AND `onlineStatus` = '1';";
-        $statement = $this->database->preparedStatement($sql);
-        $statement->bindValue(':id', $id, \PDO::PARAM_INT);
-        $this->database->executeTransaction($statement);
     }
 
     /** Utilities. */
@@ -225,11 +179,12 @@ class Admin
         return $this->runQuery($criteria, $cleanColumns);
     }
 
+    // PROBABLY NOT REQUIRED?
     /**
-     * Return certain columns from a content object required to aid its deletion.
+     * Return certain columns from a block object required to aid its deletion.
      *
      * @param   int $id ID of content object.
-     * @return  array Associative array containing type, id, image and media values.
+     * @return  array Associative array containing type, id.
      */
     private function getRow(int $id)
     {
@@ -241,50 +196,8 @@ class Admin
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
 
-        return $this->database->select('content', $criteria, ['type', 'id', 'image', 'media'])
+        return $this->database->select('block', $criteria, ['type', 'id'])
             ->fetch(\PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Deletes an uploaded image file associated with a content object.
-     *
-     * @param string $filename Name of file.
-     * @return bool True on success, false on failure.
-     */
-    private function deleteImage(string $filename): bool
-    {
-        if ($filename) {
-            return $this->fileHandler->deleteFile('image/' . $filename);
-        }
-    }
-
-    /**
-     * Deletes an uploaded media file associated with a content object.
-     *
-     * @param string $filename Name of file.
-     * @return bool True on success, false on failure.
-     */
-    private function deleteMedia(string $filename): bool
-    {
-        if ($filename) {
-            return $this->fileHandler->deleteFile('media/' . $filename);
-        }
-    }
-
-    /**
-     * Removes references to a collection when it is deleted or changed to another type.
-     *
-     * @param int $id ID of the parent collection.
-     * @return boolean True on success, false on failure.
-     */
-    private function deleteReferencesToParent(int $id)
-    {
-        if ($id < 1) return false;
-
-        $criteria = $this->criteriaFactory->criteria();
-        $criteria->add($this->criteriaFactory->item('parent', $id));
-
-        return $this->database->updateAll('content', ['parent' => 0], $criteria);
     }
 
     /**
@@ -298,7 +211,7 @@ class Admin
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
 
-        $statement = $this->database->select('content', $criteria, ['title']);
+        $statement = $this->database->select('block', $criteria, ['title']);
 
         return $statement->fetch(\PDO::FETCH_COLUMN);
     }
@@ -311,7 +224,7 @@ class Admin
      */
     private function runCount(\Tfish\Criteria $criteria): int
     {
-        return $this->database->selectCount('content', $criteria);
+        return $this->database->selectCount('block', $criteria);
     }
 
     /**
@@ -319,11 +232,11 @@ class Admin
      *
      * @param   \Tfish\Criteria $criteria Filter criteria.
      * @param   array $columns Columns to select.
-     * @return  array Array of content objects.
+     * @return  array Array of block objects.
      */
     private function runQuery(\Tfish\Criteria $criteria, array|null $columns = null): array
     {
-        $statement = $this->database->select('content', $criteria, $columns);
+        $statement = $this->database->select('block', $criteria, $columns);
 
         return $statement->fetchAll(\PDO::FETCH_ASSOC);
     }
@@ -350,9 +263,6 @@ class Admin
 
         if (!empty($cleanParams['type']))
             $criteria->add($this->criteriaFactory->item('type', $cleanParams['type']));
-
-        if (!empty($cleanParams['tag']))
-            $criteria->setTag([$cleanParams['tag']]);
 
         if (!empty($cleanParams['start']))
             $criteria->setOffset($cleanParams['start']);
@@ -390,13 +300,6 @@ class Admin
 
         if ($params['start'] ?? 0)
             $cleanParams['start'] = (int) $params['start'];
-
-        if ($params['tag'] ?? 0)
-            $cleanParams['tag'] = (int) ($params['tag']);
-
-        if (isset($params['type']) && \array_key_exists($params['type'], $this->listTypes())) {
-            $cleanParams['type'] = $this->trimString($params['type']);
-        }
 
         if (isset($params['onlineStatus'])) {
             $onlineStatus = (int) $params['onlineStatus'];

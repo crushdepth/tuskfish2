@@ -30,6 +30,12 @@ return [
         '\\Tfish\\View\\Listing',
         '\\Tfish\\Content\\Controller\\Admin',
         2),
+    '/admin/blocks/' => new Route(
+        '\\Tfish\\Model\\Block',
+        '\\Tfish\\ViewModel\\Block',
+        '\\Tfish\\View\\Listing',
+        '\\Tfish\\Controller\\Block',
+        2),
     '/admin/content/' => new Route(
         '\\Tfish\\Content\\Model\\ContentEdit',
         '\\Tfish\\Content\\ViewModel\\ContentEdit',

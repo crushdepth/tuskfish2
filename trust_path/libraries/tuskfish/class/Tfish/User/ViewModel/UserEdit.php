@@ -223,4 +223,7 @@ class UserEdit implements \Tfish\Interface\Viewable
     {
         return $this->response;
     }
+
+    /** Unused but required for compliance with interface. */
+    public function fetchBlocks(string $path): array { return []; }
 }

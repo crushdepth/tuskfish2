@@ -91,7 +91,7 @@ interface Listable
     public function tag(): int;
 
     /**
-     * Returns extra parameters used to filter queries.
+     * Returns extra parameters used to filter queries.listTy
      *
      * Also used to build pagination controls.
      */
