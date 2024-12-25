@@ -56,6 +56,4 @@ class Yubikey implements \Tfish\Interface\Viewable
      * Display the login form.
      */
     public function displayForm() {}
-
-    public function fetchBlocks(string $path): array { return []; }
 }

@@ -44,17 +44,6 @@ class Single
     }
 
     /**
-     * Render blocks for display.
-     *
-     * @param string $path
-     * @return array
-     */
-    public function renderBlocks(string $path): array
-    {
-        return $this->viewModel->fetchBlocks($path);
-    }
-
-    /**
      * Render the template used by this page.
      *
      * @return  string Template output as HTML.

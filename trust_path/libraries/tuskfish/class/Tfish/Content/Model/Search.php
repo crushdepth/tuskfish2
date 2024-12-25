@@ -33,9 +33,6 @@ namespace Tfish\Content\Model;
 
 class Search
 {
-    use \Tfish\Traits\FetchBlockData;
-    use \Tfish\Traits\ValidateString;
-
     private $database;
     private $criteriaFactory;
     private $preference;

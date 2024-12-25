@@ -168,15 +168,4 @@ interface Listable
      * @param   array $metadata Overriden metadata properties.
      */
     public function setMetadata(array $metadata);
-
-    /**
-     * Retrieve content blocks from database.
-     *
-     * Blocks are retrieved and instantiated based on the URL path (route) associated with request.
-     * Blocks are sorted by ID. Display in layout.html via echo, eg: <?php echo $block[42]; ?>
-     *
-     * @param string $path URL path.
-     * @return array Blocked indexed by ID.
-     */
-    public function fetchBlocks(string $path): array;
 }

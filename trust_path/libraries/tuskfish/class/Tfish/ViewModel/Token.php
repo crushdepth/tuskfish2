@@ -65,6 +65,4 @@ class Token implements \Tfish\Interface\Viewable
     {
         return TFISH_SORRY_INVALID_TOKEN;
     }
-
-    public function fetchBlocks(string $path): array { return []; }
 }

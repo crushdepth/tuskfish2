@@ -244,5 +244,4 @@ class Admin implements \Tfish\Interface\Listable
     public function extraParams(): array { return []; }
     public function metadata(): array { return []; }
     public function setMetadata(array $metadata) {}
-    public function fetchBlocks(string $path): array { return []; }
 }

@@ -33,7 +33,6 @@ namespace Tfish\Model;
 
 class Block
 {
-    use \Tfish\Traits\FetchBlockData;
     use \Tfish\Traits\ValidateString;
 
     private $database;

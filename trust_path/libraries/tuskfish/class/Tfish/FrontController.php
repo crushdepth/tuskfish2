@@ -33,6 +33,8 @@ namespace Tfish;
  * @var         \Tfish\Session $session Instance of the Tuskfish session class.
  * @var         object $view
  * @var         object $controller
+ * @var         \Tfish\CriteriaFactory $criteriaFactory
+ * @var         \Tfish\Database $database Instance of the Tuskfish database class.
  */
 
 class FrontController
@@ -43,6 +45,8 @@ class FrontController
     private $session;
     private $view;
     private $controller;
+    private $criteriaFactory;
+    private $database;
 
     /**
      * Constructor
@@ -55,7 +59,6 @@ class FrontController
      * @param   \Tfish\Entity\Metadata  Instance of the Tfish metadata class.
      * @param   \Tfish\Cache Instance of the Tfish cache class.
      * @param   \Tfish\Route Instance of the Tfish route class.
-     * @param   \Tfish\BlockFactory $blockFactory A factory class for instantiating blocks.
      * @param   string $path URL path associated with this request.
      */
     public function __construct(
@@ -67,9 +70,10 @@ class FrontController
         Entity\Metadata $metadata,
         Cache $cache,
         Route $route,
-        BlockFactory $blockFactory,
         string $path)
     {
+        $this->database = $database;
+        $this->criteriaFactory = $criteriaFactory;
         $this->session = $session;
 
         $session->start();
@@ -79,7 +83,7 @@ class FrontController
         // Create MVVM components with dice (as they have variable dependencies).
         $pagination = $dice->create('\\Tfish\\Pagination', [$path]);
         $model = $dice->create($route->model());
-        $viewModel = $dice->create($route->viewModel(), [$model, $blockFactory]);
+        $viewModel = $dice->create($route->viewModel(), [$model]);
         $this->view = $dice->create($route->view(), [$viewModel]);
         $this->controller = $dice->create($route->controller(),[$model, $viewModel]);
 
@@ -99,7 +103,6 @@ class FrontController
         $this->renderLayout($metadata, $viewModel, $path);
         $cache->save($cacheParams, \ob_get_contents());
         $database->close();
-
         return \ob_end_flush();
     }
 
@@ -145,8 +148,8 @@ class FrontController
      */
     private function renderLayout(Entity\Metadata $metadata, $viewModel, string $path)
     {
-        $page = $this->view->render($path);
-        $blocks = $this->view->renderBlocks($path);
+        $page = $this->view->render();
+        $blocks = $this->renderBlocks($path);
         $metadata->update($viewModel->metadata());
         $session = $this->session;
 
@@ -159,5 +162,39 @@ class FrontController
         }
 
         include_once TFISH_THEMES_PATH . $theme . "/" . $layout . ".html";
+    }
+
+    /**
+     * Renders the blocks for insertion into the layout (main template) of a theme.
+     *
+     * Blocks are loaded based on the URL path (route) associated with this request.
+     * Blocks are sorted by ID. Display in layout.html via echo, eg: <?php echo $block[42]; ?>
+     *
+     * @param string $path URL path.
+     * @return array Blocked indexed by ID.
+     */
+    private function renderBlocks(string $path): array
+    {
+        $blocks = [];
+
+        $sql = "SELECT `block`.`id`, `type`, `position`, `title`, `config`, `weight`, "
+            . "`template`, `onlineStatus` FROM `block` "
+            . "INNER JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId` "
+            . "WHERE `blockRoute`.`route` = :path";
+
+        $statement = $this->database->preparedStatement($sql);
+        $statement->bindValue(':path', $path, \PDO::PARAM_STR);
+        $statement->setFetchMode(\PDO::FETCH_UNIQUE); // Index by ID.
+        $statement->execute();
+        $rows = $statement->fetchAll();
+
+        foreach ($rows as $key => $row) {
+            $className = $row['type'];
+            if (\class_exists($className)) {
+                $blocks[$row['id']] = new $className($row, $this->database, $this->criteriaFactory);
+            }
+        }
+
+        return $blocks;
     }
 }

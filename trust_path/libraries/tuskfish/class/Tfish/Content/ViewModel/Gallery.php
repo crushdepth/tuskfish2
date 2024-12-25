@@ -41,7 +41,6 @@ namespace Tfish\Content\ViewModel;
 class Gallery implements \Tfish\Interface\Listable
 {
     use \Tfish\Content\Traits\ContentTypes;
-    use \Tfish\Traits\FetchBlock;
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\ValidateString;
 
@@ -60,14 +59,12 @@ class Gallery implements \Tfish\Interface\Listable
      *
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
-     * @param   \Tfish\BlockFactory $blockFactory
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference, \Tfish\BlockFactory $blockFactory)
+    public function __construct($model, \Tfish\Entity\Preference $preference)
     {
         $this->pageTitle = TFISH_IMAGE_GALLERY;
         $this->model = $model;
         $this->preference = $preference;
-        $this->blockFactory = $blockFactory;
         $this->template = 'gallery';
         $this->theme = 'default';
         $this->setMetadata(['canonicalUrl' => $this->canonicalUrl()]);

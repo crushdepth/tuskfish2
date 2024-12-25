@@ -1,7 +1,5 @@
 http://localhost/
 http://localhost/?id=2
-http://localhost/?id=3
-http://localhost/?id=4
 http://localhost/?id=5
 http://localhost/?id=6
 http://localhost/?id=7

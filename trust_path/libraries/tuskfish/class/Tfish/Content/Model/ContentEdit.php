@@ -42,7 +42,6 @@ namespace Tfish\Content\Model;
 class ContentEdit
 {
     use \Tfish\Content\Traits\ContentTypes;
-    use \Tfish\Traits\FetchBlockData;
     use \Tfish\Traits\HtmlPurifier;
     use \Tfish\Traits\Mimetypes;
     use \Tfish\Traits\Taglink;

@@ -32,7 +32,6 @@ namespace Tfish\Content\Model;
 
 class Enclosure
 {
-    use \Tfish\Traits\FetchBlockData;
     use \Tfish\Traits\Mimetypes;
     use \Tfish\Traits\ValidateString;
 

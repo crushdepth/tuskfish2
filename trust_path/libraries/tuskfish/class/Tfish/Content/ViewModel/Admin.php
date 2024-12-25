@@ -46,7 +46,6 @@ namespace Tfish\Content\ViewModel;
 class Admin implements \Tfish\Interface\Listable
 {
     use \Tfish\Content\Traits\ContentTypes;
-    use \Tfish\Traits\FetchBlock;
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
@@ -71,13 +70,11 @@ class Admin implements \Tfish\Interface\Listable
      *
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
-     * @param   \Tfish\BlockFactory $blockFactory
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference, \Tfish\BlockFactory $blockFactory)
+    public function __construct($model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
         $this->preference = $preference;
-        $this->blockFactory = $blockFactory;
         $this->theme = 'admin';
         $this->sort = 'date';
         $this->order = 'DESC';

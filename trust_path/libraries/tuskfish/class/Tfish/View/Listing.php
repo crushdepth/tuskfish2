@@ -64,24 +64,11 @@ class Listing
     }
 
     /**
-     * Render blocks for display.
-     *
-     * @param string $path
-     * @return array
-     */
-    public function renderBlocks(string $path): array
-    {
-        return $this->viewModel->fetchBlocks($path);
-    }
-
-    /**
      * Render the template used by this page.
-     *
-     * @param string $path URL path for this request.
      *
      * @return  string Template output as HTML.
      */
-    public function render($path): string
+    public function render(): string
     {
         $this->template = $this->viewModel->template();
         $this->template->assign('viewModel', $this->viewModel);

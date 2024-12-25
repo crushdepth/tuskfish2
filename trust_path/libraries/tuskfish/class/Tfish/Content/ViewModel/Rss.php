@@ -36,7 +36,6 @@ namespace Tfish\Content\ViewModel;
 
 class Rss implements \Tfish\Interface\Viewable
 {
-    use \Tfish\Traits\FetchBlock;
     use \Tfish\Traits\Mimetypes;
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;
