@@ -31,7 +31,7 @@ trait BlockOption
     /**
      * Whitelist of routes that blocks are permitted to be displayed on.
      *
-     * You can customise this list, but don't delete or modify positions that currently have blocks
+     * You can customise this list, but don't delete or rename positions that currently have blocks
      * assigned. If you want to do that, you need to update the positions in the database too.
      *
      * @return array
@@ -39,14 +39,17 @@ trait BlockOption
     public function blockRoutes(): array
     {
         return [
-            "/"
+            "/",
+            "/error/",
+            "/gallery/",
+            "search/"
         ];
     }
 
     /**
      * Whitelist of permitted block positions.
      *
-     * You can customise this list, but don't delete or modify positions that currently have blocks
+     * You can customise this list, but don't delete or rename positions that currently have blocks
      * assigned. If you want to do that, you need to update the positions in the database too.
      *
      * @return array
