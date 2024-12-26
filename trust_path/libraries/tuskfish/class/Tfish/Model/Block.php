@@ -233,133 +233,118 @@ class Block
     }
 
     /**
- * Run the count query.
- *
- * @param   array $criteria Filter criteria.
- * @return  int Count.
- */
-private function runCount(array $params): int
-{
-    // Base SQL query to count rows
-    $sql = "SELECT COUNT(*) as count "
-         . "FROM `block` "
-         . "INNER JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId` ";
+     * Run the count query.
+     *
+     * @param   \Tfish\Criteria $criteria Filter criteria.
+     * @return  int Count.
+     */
+    private function runCount(array $criteria): int
+    {
+        // Base SQL query to count rows
+        $sql = "SELECT COUNT(*) as count "
+             . "FROM `block` "
+             . "INNER JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId` ";
 
-    // Filters
-    $whereClauses = [];
-    $bindings = []; // Array to store parameter bindings
+        // Prepare WHERE clauses and bindings
+        $queryComponents = $this->prepareQueryComponents((array) $criteria);
+        $sql .= $queryComponents['whereClause'];
 
-    if (!empty($criteria->id)) {
-        $whereClauses[] = "`block`.`id` = :id";
-        $bindings[':id'] = $params['id'];
+        // Prepare and execute query
+        $statement = $this->database->preparedStatement($sql);
+
+        // Bind parameters
+        foreach ($queryComponents['bindings'] as $key => $value) {
+            $statement->bindValue($key, $value, is_int($value) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
+        }
+
+        // Execute.
+        $statement->execute();
+        $result = (int) $statement->fetchColumn();
+
+        // Return the count (default to 0 if no result)
+        return $result ?? 0;
     }
 
-    if (!empty($criteria->route)) {
-        $whereClauses[] = "`blockRoute`.`route` = :route";
-        $bindings[':route'] = $params['route'];
+    /**
+     * Run the select query.
+     *
+     * @param   array $params Filter parameters.
+     * @return  array Array of block data.
+     */
+    private function runQuery(array $params): array
+    {
+        $blocks = [];
+
+        // Base SQL query
+        $sql = "SELECT `type`, `block`.`id`, `position`, `title`, `weight`, `template`,"
+             . "`onlineStatus`, `route` "
+             . "FROM `block` "
+             . "INNER JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId` ";
+
+        // Prepare WHERE clauses and bindings
+        $queryComponents = $this->prepareQueryComponents($params);
+        $sql .= $queryComponents['whereClause'];
+
+        // Add LIMIT and OFFSET
+        $limit = (int) $this->preference->adminPagination();
+        $start = !empty($params['start']) ? (int) $params['start'] : 0;
+        $sql .= "LIMIT :start, :limit";
+
+        // Prepare and execute query
+        $statement = $this->database->preparedStatement($sql);
+
+        // Bind parameters
+        foreach ($queryComponents['bindings'] as $key => $value) {
+            $statement->bindValue($key, $value, is_int($value) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
+        }
+
+        // Bind LIMIT and START
+        $statement->bindValue(':start', $start, \PDO::PARAM_INT);
+        $statement->bindValue(':limit', $limit, \PDO::PARAM_INT);
+
+        // Fetch results
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+        $blocks = $statement->fetchAll();
+
+        return $blocks;
     }
 
-    if (!empty($criteria->position)) {
-        $whereClauses[] = "`block`.`position` = :position";
-        $bindings[':position'] = $params['position'];
+    /**
+     * Prepare WHERE clauses and bindings.
+     *
+     * @param   array $criteria Filter criteria or parameters.
+     * @return  array An array with 'whereClause' (string) and 'bindings' (array).
+     */
+    private function prepareQueryComponents(array $criteria): array
+    {
+        $whereClauses = [];
+        $bindings = [];
+
+        if (!empty($criteria['id'])) {
+            $whereClauses[] = "`block`.`id` = :id";
+            $bindings[':id'] = $criteria['id'];
+        }
+
+        if (!empty($criteria['route'])) {
+            $whereClauses[] = "`blockRoute`.`route` = :route";
+            $bindings[':route'] = $criteria['route'];
+        }
+
+        if (!empty($criteria['position'])) {
+            $whereClauses[] = "`block`.`position` = :position";
+            $bindings[':position'] = $criteria['position'];
+        }
+
+        if (!empty($criteria['onlineStatus'])) {
+            $whereClauses[] = "`block`.`onlineStatus` = :onlineStatus";
+            $bindings[':onlineStatus'] = $criteria['onlineStatus'];
+        }
+
+        $whereClause = !empty($whereClauses) ? "WHERE " . implode(" AND ", $whereClauses) . " " : "";
+
+        return ['whereClause' => $whereClause, 'bindings' => $bindings];
     }
-
-    if (!empty($criteria->onlineStatus)) {
-        $whereClauses[] = "`block`.`onlineStatus` = :onlineStatus";
-        $bindings[':onlineStatus'] = $params['onlineStatus'];
-    }
-
-    // Combine WHERE clauses
-    if (!empty($whereClauses)) {
-        $sql .= "WHERE " . implode(" AND ", $whereClauses) . " ";
-    }
-
-    // Prepare and execute query
-    $statement = $this->database->preparedStatement($sql);
-
-    // Bind parameters
-    foreach ($bindings as $key => $value) {
-        $statement->bindValue($key, $value, is_int($value) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
-    }
-
-    // Execute the query and fetch the count
-    $statement->execute();
-    $result = $statement->fetch(\PDO::FETCH_ASSOC);
-
-    // Return the count (default to 0 if no result)
-    return $result['count'] ?? 0;
-}
-
-
-/**
- * Run the select query.
- *
- * @param   array $params Filter parameters.
- * @return  array Array of block data.
- */
-private function runQuery(array $params): array
-{
-    $blocks = [];
-
-    // Base SQL query
-    $sql = "SELECT `type`, `block`.`id`, `position`, `title`, `weight`, `template`,"
-         . "`onlineStatus`, `route` "
-         . "FROM `block` "
-         . "INNER JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId` ";
-
-    // Filters
-    $whereClauses = [];
-    $bindings = []; // Array to store parameter bindings
-
-    if (!empty($params['id'])) {
-        $whereClauses[] = "`block`.`id` = :id";
-        $bindings[':id'] = $params['id'];
-    }
-
-    if (!empty($params['route'])) {
-        $whereClauses[] = "`blockRoute`.`route` = :route";
-        $bindings[':route'] = $params['route'];
-    }
-
-    if (!empty($params['position'])) {
-        $whereClauses[] = "`block`.`position` = :position";
-        $bindings[':position'] = $params['position'];
-    }
-
-    if (!empty($params['onlineStatus'])) {
-        $whereClauses[] = "`block`.`onlineStatus` = :onlineStatus";
-        $bindings[':onlineStatus'] = $params['onlineStatus'];
-    }
-
-    // Combine WHERE clauses
-    if (!empty($whereClauses)) {
-        $sql .= "WHERE " . implode(" AND ", $whereClauses) . " ";
-    }
-
-    // Add LIMIT and OFFSET
-    $limit = (int) $this->preference->adminPagination();
-    $start = !empty($params['start']) ? (int) $params['start'] : 0;
-    $sql .= "LIMIT :start, :limit";
-
-    // Prepare and execute query
-    $statement = $this->database->preparedStatement($sql);
-
-    // Bind parameters
-    foreach ($bindings as $key => $value) {
-        $statement->bindValue($key, $value, is_int($value) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
-    }
-
-    // Bind LIMIT and START
-    $statement->bindValue(':start', $start, \PDO::PARAM_INT);
-    $statement->bindValue(':limit', $limit, \PDO::PARAM_INT);
-
-    // Fetch results
-    $statement->setFetchMode(\PDO::FETCH_ASSOC); // Fetch results as associative array
-    $statement->execute();
-    $blocks = $statement->fetchAll();
-
-    return $blocks;
-}
 
     /**
      * Set filter criteria on queries.
