@@ -148,6 +148,16 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_WEIGHT", "Weight");
 \define("TFISH_SELECT_ROUTE", "- Select route -");
 \define("TFISH_SELECT_POSITION", "- Select position -");
+\define("TFISH_BLOCK_BANNER", "Banner");
+\define("TFISH_BLOCK_TOP_LEFT", "Top left");
+\define("TFISH_BLOCK_TOP_RIGHT", "Top right");
+\define("TFISH_BLOCK_TOP_CENTRE", "Top centre");
+\define("TFISH_BLOCK_LEFT", "Left");
+\define("TFISH_BLOCK_RIGHT", "Right");
+\define("TFISH_BLOCK_BOTTOM_LEFT", "Bottom left");
+\define("TFISH_BLOCK_BOTTOM_RIGHT", "Bottom right");
+\define("TFISH_BLOCK_BOTTOM_CENTRE", "Bottom centre");
+\define("TFISH_BLOCK_FOOTER", "Bottom centre");
 
 // Utilities
 \define("TFISH_STATE", "State");

@@ -24,6 +24,7 @@ namespace Tfish\ViewModel;
  * @version     Release: 2.0
  * @since       2.0
  * @package     core
+ * @uses        trait \Tfish\Traits\BlockOption Provides block route and position whitelists.
  * @uses        trait \Tfish\Traits\Listable Provides a standard implementation of the \Tfish\View\Listable interface.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
@@ -43,6 +44,7 @@ namespace Tfish\ViewModel;
 
 class Block implements \Tfish\Interface\Listable
 {
+    use \Tfish\Traits\BlockOption;
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
@@ -192,6 +194,7 @@ class Block implements \Tfish\Interface\Listable
     {
         $extraParams = [];
 
+        if (!empty($this->route)) $extraParams['route'] = $this->route;
         if (!empty($this->position)) $extraParams['position'] = $this->position;
         if (isset($this->onlineStatus) && $this->onlineStatus == 0 || $this->onlineStatus == 1)
             $extraParams['onlineStatus'] = $this->onlineStatus;
@@ -419,7 +422,7 @@ class Block implements \Tfish\Interface\Listable
     /**
      * Return route.
      *
-     * @return  string Route filter.
+     * @return string Route filter.
      */
     public function route(): string
     {
@@ -431,7 +434,7 @@ class Block implements \Tfish\Interface\Listable
      *
      * Filter block list by route.
      *
-     * @param   string $route Route.
+     * @param string $route Route.
      */
     public function setRoute(string $route)
     {
@@ -441,7 +444,7 @@ class Block implements \Tfish\Interface\Listable
     /**
      * Return position.
      *
-     * @return  string Position filter.
+     * @return string Position filter.
      */
     public function position(): string
     {
@@ -453,7 +456,7 @@ class Block implements \Tfish\Interface\Listable
      *
      * Filter block list by position.
      *
-     * @param   string $position Position.
+     * @param string $position Position.
      */
     public function setPosition(string $position)
     {

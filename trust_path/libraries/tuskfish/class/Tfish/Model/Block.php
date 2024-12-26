@@ -306,53 +306,6 @@ class Block
     }
 
     /**
-     * Set filter criteria on queries.
-     *
-     * @param   array $cleanParams Parameters to filter the query.
-     * @return  \Tfish\Criteria
-     */
-    private function setCriteria(array $cleanParams): \Tfish\Criteria
-    {
-        $criteria = $this->criteriaFactory->criteria();
-
-        if (isset($cleanParams['onlineStatus']))
-            $criteria->add($this->criteriaFactory->item('onlineStatus', $cleanParams['onlineStatus']));
-
-        // If ID is set, retrieve a single object.
-        if (!empty($cleanParams['id'])) {
-            $criteria->add($this->criteriaFactory->item('id', $cleanParams['id']));
-
-            return $criteria;
-        }
-
-        if (!empty($cleanParams['route']))
-            $criteria->add($this->criteriaFactory->item('route', $cleanParams['route']));
-
-        if (!empty($cleanParams['position']))
-            $criteria->add($this->criteriaFactory->item('position', $cleanParams['position']));
-
-        if (!empty($cleanParams['start']))
-            $criteria->setOffset($cleanParams['start']);
-
-        if (!empty($cleanParams['sort']))
-            $criteria->setSort($cleanParams['sort']);
-
-        if (!empty($cleanParams['order']))
-            $criteria->setOrder($cleanParams['order']);
-
-        if (!empty($cleanParams['secondarySort'])) {
-            $criteria->setSecondarySort($cleanParams['secondarySort']);
-        }
-
-        if (!empty($cleanParams['secondaryOrder']))
-            $criteria->setSecondaryOrder($cleanParams['secondaryOrder']);
-
-        $criteria->setLimit($this->preference->adminPagination());
-
-        return $criteria;
-    }
-
-    /**
      * Validate criteria used to filter query.
      *
      * @param   array $params Filter criteria.

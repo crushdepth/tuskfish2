@@ -228,7 +228,7 @@ class Pagination
 
         foreach ($extraParams as $key => $value) {
             if ($this->hasTraversalorNullByte((string) $key) || $this->hasTraversalorNullByte((string) $value)) {
-                trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
+                \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
                 exit; // Hard stop due to high probability of abuse.
             }
 
