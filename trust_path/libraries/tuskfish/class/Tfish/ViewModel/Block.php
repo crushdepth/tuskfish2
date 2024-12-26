@@ -239,23 +239,11 @@ class Block implements \Tfish\Interface\Listable
      * @param   string $zeroOption Text to display as default select box option.
      * @return  array IDs and block types as key-value pairs.
      */
-    public function routeOptions($zeroOption = TFISH_SELECT_ROUTE)
+    public function routeOptions($zeroOption = TFISH_SELECT_ROUTE): array
     {
         $zeroOption = $this->trimString($zeroOption);
 
-        return [$zeroOption] + $this->listRoutes();
-    }
-
-    /**
-     * List routes for which blocks have been assigned.
-     *
-     * @return array
-     */
-    private function listRoutes(): array
-    {
-        $blockRoutes = $this->model->activeBlockRoutes();
-
-        return !empty($blockRoutes) ? $blockRoutes : [];
+        return [$zeroOption] + $this->model->activeBlockRoutes();
     }
 
     /**
@@ -264,17 +252,11 @@ class Block implements \Tfish\Interface\Listable
      * @param   string $zeroOption Text to display as default select box option.
      * @return  array IDs and block types as key-value pairs.
      */
-    public function positionOptions($zeroOption = TFISH_SELECT_POSITION)
+    public function positionOptions($zeroOption = TFISH_SELECT_POSITION): array
     {
         $zeroOption = $this->trimString($zeroOption);
 
-        //return [$zeroOption] + $this->listPositions();
-        return [$zeroOption];
-    }
-
-    public function listPositions(): array
-    {
-        return [];
+        return [$this->trimString($zeroOption)] + $this->model->activeBlockPositions();
     }
 
     /**
@@ -283,7 +265,7 @@ class Block implements \Tfish\Interface\Listable
      * @param   string $defaultOption Text to display as default select box option.
      * @return  array Online (1), offline (0) or both (2).
      */
-    public function statusOptions($defaultOption = TFISH_SELECT_STATUS)
+    public function statusOptions($defaultOption = TFISH_SELECT_STATUS): array
     {
         $defaultOption = $this->trimString($defaultOption);
 

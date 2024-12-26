@@ -74,17 +74,14 @@ class Block
             return false;
         }
 
-        $row = $this->getRow($id);
+        // Delete related blockRoute entries.
+        $sql = "DELETE FROM `blockRoute` WHERE `blockId` = :id";
+        $statement = $this->database->preparedStatement($sql);
+        $statement->bindValue(':id', $id, \PDO::PARAM_INT);
 
-        if (!$row) {
+        if (!$statement->execute()) {
             return false;
         }
-
-        // Need to delete blockRoute entries for this block ID
-        // Delete outbound taglinks owned by this content.
-        //if ($row['type'] !== 'TfTag' && !$this->deleteTaglinks($id, 'block')) {
-        //    return false;
-        //}
 
         // Flush cache.
         if (!$this->cache->flush()) {
@@ -126,25 +123,34 @@ class Block
         return $result;
     }
 
-    /** Utilities. */
-
     /**
-     * Return list of routes to which blocks are currently assigned.
+     * Return a unique list of routes to which blocks are currently assigned.
      *
      * @return array
      */
     public function activeBlockRoutes(): array
     {
-        $blockroutes = [];
-
-        $sql = "SELECT `route` FROM `blockRoute`";
+        $sql = "SELECT `id`, `route` FROM `blockRoute` GROUP BY `route`";
         $statement = $this->database->preparedStatement($sql);
         $statement->execute();
-        $rows = $statement->fetchAll(\PDO::FETCH_COLUMN);
+        $rows = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
 
-        print_r($rows);
+        return $rows ?: [];
+    }
 
-        return !empty($rows) ? $rows : [];
+    /**
+     * Return a unique list of positions to which blocks are currently assigned.
+     *
+     * @return array
+     */
+    public function activeBlockPositions(): array
+    {
+        $sql = "SELECT `id`, `position` FROM `block` GROUP BY `position`";
+        $statement = $this->database->preparedStatement($sql);
+        $statement->execute();
+        $rows = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
+
+        return $rows ?: [];
     }
 
     /**
@@ -167,53 +173,6 @@ class Block
         $cleanParams = $this->validateParams($params);
 
         return $this->runCount($cleanParams);
-    }
-
-    /**
-     * Return a list of options to build a select box.
-     *
-     * @param   array $params Filter criteria.
-     * @param   array $columns Columns to select to build the options.
-     * @return  array
-     */
-    public function getOptions(array $params, array $columns = [])
-    {
-        $cleanParams = $this->validateParams($params);
-        $criteria = $this->setCriteria($cleanParams);
-
-        $cleanColumns = [];
-
-        foreach ($columns as $key => $value) {
-            $cleanKey = (int) $key;
-            $cleanValue = $this->trimString($value);
-
-            if ($this->isAlnumUnderscore($cleanValue)) {
-                $cleanColumns[$cleanKey] = $cleanValue;
-            }
-        }
-
-        return $this->runQuery($criteria, $cleanColumns);
-    }
-
-    // PROBABLY NOT REQUIRED?
-    /**
-     * Return certain columns from a block object required to aid its deletion.
-     *
-     * @param   int $id ID of content object.
-     * @return  array Associative array containing type, id.
-     */
-    private function getRow(int $id)
-    {
-        if ($id < 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_NOTICE);
-            return [];
-        }
-
-        $criteria = $this->criteriaFactory->criteria();
-        $criteria->add($this->criteriaFactory->item('id', $id));
-
-        return $this->database->select('block', $criteria, ['type', 'id'])
-            ->fetch(\PDO::FETCH_ASSOC);
     }
 
     /**
