@@ -106,8 +106,10 @@ class Block
         $start = (int) ($_GET['start'] ?? 0);
         $this->viewModel->setStart($start);
 
-        $type = $this->trimString($_REQUEST['type'] ?? '');
-        $this->viewModel->setRoute($type);
+        $route = $this->trimString($_REQUEST['route'] ?? '');
+        $this->viewModel->setRoute($route);
+
+        $position = $this->trimString($_REQUEST['position'] ?? '');
 
         $onlineStatus = (int) ($_REQUEST['onlineStatus'] ?? 2);
         $this->viewModel->setOnlineStatus($onlineStatus);

@@ -60,7 +60,6 @@ namespace Tfish;
 \define("TFISH_SELECT_TAGS", "- Select tag -");
 \define("TFISH_SELECT_TYPE", "- Select type -");
 \define("TFISH_SELECT_PARENT", "- Select parent -");
-\define("TFISH_SELECT_ROUTE", "- Select route -");
 \define("TFISH_SELECT_BOX_ZERO_OPTION", "---");
 \define("TFISH_META_TAGS", "Meta tags");
 \define("TFISH_CHANGE_PASSWORD", "Change password");
@@ -145,7 +144,10 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 // Blocks
 \define("TFISH_ADMIN_BLOCKS", "Blocks");
 \define("TFISH_ROUTE", "Route");
+\define("TFISH_POSITION", "Position");
 \define("TFISH_WEIGHT", "Weight");
+\define("TFISH_SELECT_ROUTE", "- Select route -");
+\define("TFISH_SELECT_POSITION", "- Select position -");
 
 // Utilities
 \define("TFISH_STATE", "State");

@@ -55,7 +55,8 @@ class Block implements \Tfish\Interface\Listable
     private $id = 0;
     private $status = 0;
     private $start = 0;
-    private $type = '';
+    private $route = '';
+    private $position = '';
     private $onlineStatus = 2;
     private $action = '';
     private $backUrl = '';
@@ -130,8 +131,8 @@ class Block implements \Tfish\Interface\Listable
     public function displayTable()
     {
         $this->pageTitle = TFISH_ADMIN_BLOCKS;
-        $this->listContent();
-        $this->countContent();
+        $this->listItems();
+        $this->countItems();
         $this->template = 'blockTable';
     }
 
@@ -161,13 +162,13 @@ class Block implements \Tfish\Interface\Listable
     /**
      * Count block objects meeting filter criteria.
      */
-    public function countContent()
+    public function countItems()
     {
         $this->contentCount = $this->model->getCount(
             [
                 'id' => $this->id,
                 'start' => $this->start,
-                'type' => $this->type,
+                'position' => $this->position,
                 'onlineStatus' => $this->onlineStatus
             ]
         );
@@ -190,7 +191,7 @@ class Block implements \Tfish\Interface\Listable
     {
         $extraParams = [];
 
-        if (!empty($this->type)) $extraParams['type'] = $this->type;
+        if (!empty($this->position)) $extraParams['position'] = $this->position;
         if (isset($this->onlineStatus) && $this->onlineStatus == 0 || $this->onlineStatus == 1)
             $extraParams['onlineStatus'] = $this->onlineStatus;
 
@@ -198,17 +199,18 @@ class Block implements \Tfish\Interface\Listable
     }
 
     /**
-     * Get content objects matching cached filter criteria.
+     * Get data for blocks adminstration page (DB rows).
      *
      * Result is cached as $contentList property.
      */
-    public function listContent()
+    public function listItems()
     {
-        $this->contentList = $this->model->getObjects(
+        $this->contentList = $this->model->getItems(
             [
                 'id' => $this->id,
                 'start' => $this->start,
-                'type' => $this->type,
+                'route' => $this->route,
+                'position' => $this->position,
                 'onlineStatus' => $this->onlineStatus,
                 'sort' => $this->sort,
                 'order' => $this->order,
@@ -244,7 +246,26 @@ class Block implements \Tfish\Interface\Listable
         return [$zeroOption];
     }
 
-    public function listTypes(): array
+    public function listRoutes(): array
+    {
+        return [];
+    }
+
+    /**
+     * Return options for position select box control.
+     *
+     * @param   string $zeroOption Text to display as default select box option.
+     * @return  array IDs and block types as key-value pairs.
+     */
+    public function positionOptions($zeroOption = TFISH_SELECT_POSITION)
+    {
+        $zeroOption = $this->trimString($zeroOption);
+
+        //return [$zeroOption] + $this->listPositions();
+        return [$zeroOption];
+    }
+
+    public function listPositions(): array
     {
         return [];
     }
@@ -409,11 +430,11 @@ class Block implements \Tfish\Interface\Listable
     /**
      * Return route.
      *
-     * @return  string Route of content object.
+     * @return  string Route filter.
      */
-    public function type(): string
+    public function route(): string
     {
-        return $this->type;
+        return $this->route;
     }
 
     /**
@@ -423,9 +444,31 @@ class Block implements \Tfish\Interface\Listable
      *
      * @param   string $route Route.
      */
-    public function setRoute(string $type)
+    public function setRoute(string $route)
     {
-        $this->type = $this->trimString($type);
+        $this->route = $this->trimString($route);
+    }
+
+    /**
+     * Return position.
+     *
+     * @return  string Position filter.
+     */
+    public function position(): string
+    {
+        return $this->position;
+    }
+
+    /**
+     * Set position.
+     *
+     * Filter block list by position.
+     *
+     * @param   string $position Position.
+     */
+    public function setPosition(string $position)
+    {
+        $this->position = $this->trimString($position);
     }
 
     /** Required to satisfy Listable interface. */

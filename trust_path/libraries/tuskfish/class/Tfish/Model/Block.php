@@ -101,12 +101,39 @@ class Block
      * @param   array $params Filter criteria.
      * @return  array Array of block objects.
      */
-    public function getObjects(array $params): array
+    public function getItems(array $params): array
     {
+        // THIS NEEDS A CUSTOM QUERY TO JOIN TO THE BLOCKROUTE TABLE.
         $cleanParams = $this->validateParams($params);
         $criteria = $this->setCriteria($cleanParams);
 
         return $this->runQuery($criteria);
+
+
+
+
+        $blocks = [];
+
+        // Allow for filter by route, position, online status
+
+        $sql = "SELECT (*) FROM `block` "
+        . "INNER JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId` "
+        . "WHERE `blockRoute`.`route` = :path";
+
+        $statement = $this->database->preparedStatement($sql);
+        $statement->bindValue(':path', $path, \PDO::PARAM_STR);
+        $statement->setFetchMode(\PDO::FETCH_UNIQUE); // Index results by ID.
+        $statement->execute();
+        $rows = $statement->fetchAll();
+
+        foreach ($rows as $key => $row) {
+        $className = $row['type'];
+        if (\class_exists($className)) {
+            $blocks[$row['id']] = new $className($row, $this->database, $this->criteriaFactory);
+        }
+        }
+
+        return $blocks;
     }
 
     /**
@@ -231,7 +258,7 @@ class Block
      *
      * @param   \Tfish\Criteria $criteria Filter criteria.
      * @param   array $columns Columns to select.
-     * @return  array Array of block objects.
+     * @return  array Array of block data..
      */
     private function runQuery(\Tfish\Criteria $criteria, array|null $columns = null): array
     {
@@ -260,8 +287,11 @@ class Block
             return $criteria;
         }
 
-        if (!empty($cleanParams['type']))
-            $criteria->add($this->criteriaFactory->item('type', $cleanParams['type']));
+        if (!empty($cleanParams['route']))
+            $criteria->add($this->criteriaFactory->item('route', $cleanParams['route']));
+
+        if (!empty($cleanParams['position']))
+            $criteria->add($this->criteriaFactory->item('position', $cleanParams['position']));
 
         if (!empty($cleanParams['start']))
             $criteria->setOffset($cleanParams['start']);
@@ -299,6 +329,12 @@ class Block
 
         if ($params['start'] ?? 0)
             $cleanParams['start'] = (int) $params['start'];
+
+        if ($params['route'] ?? '')
+            $clearParams['route'] = $this->trimString($params['route']);
+
+        if ($params['position'] ?? '')
+            $clearParams['position'] = $this->trimString($params['position']);
 
         if (isset($params['onlineStatus'])) {
             $onlineStatus = (int) $params['onlineStatus'];
