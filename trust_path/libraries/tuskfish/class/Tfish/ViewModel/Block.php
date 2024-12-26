@@ -168,6 +168,7 @@ class Block implements \Tfish\Interface\Listable
             [
                 'id' => $this->id,
                 'start' => $this->start,
+                'route' => $this->route,
                 'position' => $this->position,
                 'onlineStatus' => $this->onlineStatus
             ]
@@ -242,13 +243,19 @@ class Block implements \Tfish\Interface\Listable
     {
         $zeroOption = $this->trimString($zeroOption);
 
-        //return [$zeroOption] + $this->listTypes();
-        return [$zeroOption];
+        return [$zeroOption] + $this->listRoutes();
     }
 
-    public function listRoutes(): array
+    /**
+     * List routes for which blocks have been assigned.
+     *
+     * @return array
+     */
+    private function listRoutes(): array
     {
-        return [];
+        $blockRoutes = $this->model->activeBlockRoutes();
+
+        return !empty($blockRoutes) ? $blockRoutes : [];
     }
 
     /**

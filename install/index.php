@@ -323,8 +323,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Create a blocks table - future public release.
         $sql = "CREATE TABLE IF NOT EXISTS `block` (
-            `type` TEXT NOT NULL,
             `id` INTEGER PRIMARY KEY,
+            `type` TEXT NOT NULL,
             `position` TEXT NOT NULL,
             `title` TEXT NOT NULL,
             `html` TEXT NOT NULL,
