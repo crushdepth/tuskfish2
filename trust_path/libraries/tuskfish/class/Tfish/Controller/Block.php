@@ -110,13 +110,14 @@ class Block
         $this->viewModel->setRoute($route);
 
         $position = $this->trimString($_REQUEST['position'] ?? '');
+        $this->viewModel->setPosition($position);
 
         $onlineStatus = (int) ($_REQUEST['onlineStatus'] ?? 2);
         $this->viewModel->setOnlineStatus($onlineStatus);
 
-        $this->viewModel->setSort('weight');
+        $this->viewModel->setSort('route');
         $this->viewModel->setOrder('ASC');
-        $this->viewModel->setSecondarySort('type');
+        $this->viewModel->setSecondarySort('weight');
         $this->viewModel->setSecondaryOrder('ASC');
 
         $this->viewModel->displayTable();

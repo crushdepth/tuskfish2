@@ -33,6 +33,7 @@ namespace Tfish\Model;
 
 class Block
 {
+    use \Tfish\Traits\BlockOption;
     use \Tfish\Traits\ValidateString;
 
     private $database;
@@ -130,12 +131,12 @@ class Block
      */
     public function activeBlockRoutes(): array
     {
-        $sql = "SELECT `id`, `route` FROM `blockRoute` GROUP BY `route`";
+        $sql = "SELECT DISTINCT `route` FROM `blockRoute` ORDER BY `route` ASC";
         $statement = $this->database->preparedStatement($sql);
         $statement->execute();
-        $rows = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
+        $routes = $statement->fetchAll(\PDO::FETCH_COLUMN);
 
-        return $rows ?: [];
+        return $routes ?: [];
     }
 
     /**
@@ -145,12 +146,12 @@ class Block
      */
     public function activeBlockPositions(): array
     {
-        $sql = "SELECT `id`, `position` FROM `block` GROUP BY `position`";
+        $sql = "SELECT DISTINCT `position` FROM `block` ORDER BY `position` ASC";
         $statement = $this->database->preparedStatement($sql);
         $statement->execute();
-        $rows = $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
+        $positions = $statement->fetchAll(\PDO::FETCH_COLUMN);
 
-        return $rows ?: [];
+        return $positions ?: [];
     }
 
     /**
@@ -234,34 +235,43 @@ class Block
     {
         $blocks = [];
 
-        // Base SQL query
+        // Base SQL query.
         $sql = "SELECT `type`, `block`.`id`, `position`, `title`, `weight`, `template`,"
              . "`onlineStatus`, `route` "
              . "FROM `block` "
              . "INNER JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId` ";
 
-        // Prepare WHERE clauses and bindings
+        // Prepare WHERE clauses and bindings.
         $queryComponents = $this->prepareQueryComponents($params);
         $sql .= $queryComponents['whereClause'];
+
+        // Sorting.
+        if (!empty($params['sort'])) {
+            $sql .= " ORDER BY `{$params['sort']}` {$params['order']} ";
+
+            if (!empty($params['secondarySort'])) {
+                $sql .= ", `{$params['secondarySort']}` {$params['secondaryOrder']} ";
+            }
+        }
 
         // Add LIMIT and OFFSET
         $limit = (int) $this->preference->adminPagination();
         $start = !empty($params['start']) ? (int) $params['start'] : 0;
         $sql .= "LIMIT :start, :limit";
 
-        // Prepare and execute query
+        // Prepare and execute query.
         $statement = $this->database->preparedStatement($sql);
 
-        // Bind parameters
+        // Bind parameters.
         foreach ($queryComponents['bindings'] as $key => $value) {
             $statement->bindValue($key, $value, is_int($value) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
         }
 
-        // Bind LIMIT and START
+        // Bind LIMIT and START.
         $statement->bindValue(':start', $start, \PDO::PARAM_INT);
         $statement->bindValue(':limit', $limit, \PDO::PARAM_INT);
 
-        // Fetch results
+        // Fetch results.
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
         $blocks = $statement->fetchAll();
@@ -322,10 +332,10 @@ class Block
             $cleanParams['start'] = (int) $params['start'];
 
         if ($params['route'] ?? '')
-            $clearParams['route'] = $this->trimString($params['route']);
+            $cleanParams['route'] = $this->trimString($params['route']);
 
         if ($params['position'] ?? '')
-            $clearParams['position'] = $this->trimString($params['position']);
+            $cleanParams['position'] = $this->trimString($params['position']);
 
         if (isset($params['onlineStatus'])) {
             $onlineStatus = (int) $params['onlineStatus'];

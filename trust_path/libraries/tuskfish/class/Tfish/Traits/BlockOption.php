@@ -54,7 +54,7 @@ trait BlockOption
      *
      * @return array
      */
-    public function blockPosition(): array
+    public function blockPositions(): array
     {
         return [
             'banner' => TFISH_BLOCK_BANNER,

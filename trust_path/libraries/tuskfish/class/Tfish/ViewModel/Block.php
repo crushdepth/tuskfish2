@@ -245,8 +245,10 @@ class Block implements \Tfish\Interface\Listable
     public function routeOptions($zeroOption = TFISH_SELECT_ROUTE): array
     {
         $zeroOption = $this->trimString($zeroOption);
+        $options = $this->model->activeBlockRoutes();
+        $routeOptions = \array_combine($options, $options);
 
-        return [$zeroOption] + $this->model->activeBlockRoutes();
+        return [$zeroOption] + $routeOptions;
     }
 
     /**
@@ -258,8 +260,19 @@ class Block implements \Tfish\Interface\Listable
     public function positionOptions($zeroOption = TFISH_SELECT_POSITION): array
     {
         $zeroOption = $this->trimString($zeroOption);
+        $whitelist = $this->blockPositions();
+        $options = $this->model->activeBlockPositions();
 
-        return [$this->trimString($zeroOption)] + $this->model->activeBlockPositions();
+        $positionOptions = [];
+
+        foreach ($options as $key => $route) {
+
+            if (\array_key_exists($route, $whitelist)) {
+                $positionOptions[$route] = $whitelist[$route];
+            }
+        }
+
+        return [$zeroOption] + $positionOptions;
     }
 
     /**
