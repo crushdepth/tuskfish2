@@ -42,7 +42,7 @@ trait BlockOption
             "/",
             "/error/",
             "/gallery/",
-            "search/"
+            "/search/"
         ];
     }
 

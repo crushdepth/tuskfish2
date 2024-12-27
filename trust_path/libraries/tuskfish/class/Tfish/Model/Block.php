@@ -295,12 +295,16 @@ class Block
             $bindings[':id'] = $criteria['id'];
         }
 
-        if (!empty($criteria['route'])) {
+        $routeWhitelist = $this->blockRoutes();
+
+        if (!empty($criteria['route']) && \in_array($criteria['route'], $routeWhitelist)) {
             $whereClauses[] = "`blockRoute`.`route` = :route";
             $bindings[':route'] = $criteria['route'];
         }
 
-        if (!empty($criteria['position'])) {
+        $positionWhitelist = $this->blockPositions();
+
+        if (!empty($criteria['position']) && \array_key_exists($criteria['position'], $positionWhitelist)) {
             $whereClauses[] = "`block`.`position` = :position";
             $bindings[':position'] = $criteria['position'];
         }
