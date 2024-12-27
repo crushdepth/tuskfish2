@@ -19,7 +19,7 @@
           <select class="form-control custom-select" name="route" id="route" onchange="this.form.submit()">
           <?php
             foreach ($viewModel->routeOptions() as $key => $value) {
-              echo ($key === $viewModel->route()) ?
+              echo ($option === $viewModel->route()) ?
                 '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>' :
                 '<option value="' . xss($key) . '">' . xss($value) . '</option>';
             }
@@ -30,10 +30,10 @@
         <div class="col-md-4">
           <select class="form-control custom-select" name="position" id="position" onchange="this.form.submit()">
           <?php
-            foreach ($viewModel->positionOptions() as $key => $value) {
-              echo ($key === $viewModel->position()) ?
-                '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>' :
-                '<option value="' . xss($key) . '">' . xss($value) . '</option>';
+            foreach ($viewModel->positionOptions() as $option) {
+              echo ($option === $viewModel->position()) ?
+                '<option value="' . xss($option) . '" selected>' . xss($option) . '</option>' :
+                '<option value="' . xss($option) . '">' . xss($option) . '</option>';
             }
           ?>
           </select>

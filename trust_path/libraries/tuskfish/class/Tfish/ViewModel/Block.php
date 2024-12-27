@@ -374,7 +374,7 @@ class Block implements \Tfish\Interface\Listable
      */
     public function onlineStatus(): int
     {
-        return $this->onlineStatus;
+        return (int) $this->onlineStatus;
     }
 
     /**
@@ -384,7 +384,7 @@ class Block implements \Tfish\Interface\Listable
      */
     public function setOnlineStatus(int $onlineStatus)
     {
-        $this->onlineStatus = $onlineStatus;
+        $this->onlineStatus = (int) $onlineStatus;
     }
 
     /**

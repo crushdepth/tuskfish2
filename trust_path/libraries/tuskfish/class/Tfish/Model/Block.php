@@ -295,7 +295,7 @@ class Block
             $bindings[':position'] = $criteria['position'];
         }
 
-        if (!empty($criteria['onlineStatus'])) {
+        if (isset($criteria['onlineStatus'])) {
             $whereClauses[] = "`block`.`onlineStatus` = :onlineStatus";
             $bindings[':onlineStatus'] = $criteria['onlineStatus'];
         }
