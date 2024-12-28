@@ -115,7 +115,7 @@ class Block
         $onlineStatus = (int) ($_REQUEST['onlineStatus'] ?? 2);
         $this->viewModel->setOnlineStatus($onlineStatus);
 
-        $this->viewModel->setSort('route');
+        $this->viewModel->setSort('position');
         $this->viewModel->setOrder('ASC');
         $this->viewModel->setSecondarySort('weight');
         $this->viewModel->setSecondaryOrder('ASC');

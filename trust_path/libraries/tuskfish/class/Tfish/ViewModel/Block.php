@@ -76,9 +76,9 @@ class Block implements \Tfish\Interface\Listable
         $this->model = $model;
         $this->preference = $preference;
         $this->theme = 'admin';
-        $this->sort = 'weight';
+        $this->sort = 'position';
         $this->order = 'ASC';
-        $this->secondarySort = 'type';
+        $this->secondarySort = 'weight';
         $this->secondaryOrder = 'ASC';
         $this->setMetadata(['robots' => 'noindex,nofollow']);
     }
