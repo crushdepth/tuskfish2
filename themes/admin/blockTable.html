@@ -65,18 +65,18 @@
 <?php endif; ?>
 
 <div class="row">
-  <div class="col form-buttons clearfix">
-    <form method="post">
-      <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
-      <button class="btn btn-primary float-start add-content" type="submit" formaction="<?php echo TFISH_ADMIN_URL . 'blocks/'; ?>"><?php echo TFISH_ADD; ?></button>
-    </form>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col main-content clearfix">
+  <div class="col">
     <form method="post" action="<?php echo TFISH_ADMIN_URL . 'blocks/'; ?>?action=updateWeights">
       <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
+      <div class="d-flex mb-3">
+        <button class="btn btn-primary me-2" type="submit" formaction="<?php echo TFISH_ADMIN_URL . 'blocks/'; ?>">
+          <?php echo TFISH_ADD; ?>
+        </button>
+        <button class="btn btn-primary" type="submit">
+          Update Weights
+        </button>
+      </div>
+
       <table class="table table-bordered table-striped table-hover text-left">
         <thead class="table-success">
           <tr>
@@ -114,7 +114,6 @@
                   size="3" 
                   pattern="\d+" 
                   oninput="this.value = this.value.replace(/\D/, '')" />
-
               </td>
               <td class="text-center text-nowrap">
                 <?php if ($row['onlineStatus']): ?>
@@ -133,9 +132,6 @@
           <?php endforeach; ?>
         </tbody>
       </table>
-      <div class="text-end mt-3">
-        <button type="submit" class="btn btn-primary">Update Weights</button>
-      </div>
     </form>
   </div>
 </div>
