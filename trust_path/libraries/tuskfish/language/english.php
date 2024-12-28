@@ -145,6 +145,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_ADMIN_BLOCKS", "Blocks");
 \define("TFISH_ROUTE", "Route");
 \define("TFISH_POSITION", "Position");
+\define("TFISH_BLOCK_TYPE", "Type");
 \define("TFISH_WEIGHT", "Weight");
 \define("TFISH_SELECT_ROUTE", "- Select route -");
 \define("TFISH_SELECT_POSITION", "- Select position -");
@@ -158,6 +159,9 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_BLOCK_BOTTOM_RIGHT", "Bottom right");
 \define("TFISH_BLOCK_BOTTOM_CENTRE", "Bottom centre");
 \define("TFISH_BLOCK_FOOTER", "Bottom centre");
+
+// Content blocks.
+\define("TFISH_BLOCK_RECENT_CONTENT_COMPACT", "Recent content (compact)");
 
 // Utilities
 \define("TFISH_STATE", "State");
@@ -263,7 +267,6 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 // Supported content types
 \define("TFISH_TYPE_ARTICLE", "Article");
 \define("TFISH_TYPE_AUDIO", "Audio");
-\define("TFISH_TYPE_BLOCK", "Block (static)");
 \define("TFISH_TYPE_BLOG", "Blog post");
 \define("TFISH_TYPE_COLLECTION", "Collection");
 \define("TFISH_TYPE_DOWNLOAD", "Download");
@@ -292,9 +295,6 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_DOWNLOAD", "Download");
 \define("TFISH_DOWNLOADS", "Downloads");
 \define("TFISH_ZERO_OPTION", "---");
-
-// Blocks.
-\define("TFISH_BLOCK_RECENT_CONTENT_COMPACT", "Recent content (compact)");
 
 // Errors.
 \define("TFISH_MEDIA_NOT_COMPATIBLE", "The selected media file is not compatible with the current "

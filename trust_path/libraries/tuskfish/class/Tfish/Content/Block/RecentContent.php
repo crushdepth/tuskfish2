@@ -64,6 +64,7 @@ class RecentContent implements \Tfish\Interface\Block
     {
        $this->id = (int)$row['id'];
        $this->position = $this->trimString($row['position']);
+       $this->type = $this->trimString($row['type']);
        $this->title = $this->trimString($row['title']);
        $this->setConfig($row['config']);
        $this->weight = (int)$row['weight'];
