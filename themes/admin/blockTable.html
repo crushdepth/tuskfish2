@@ -97,23 +97,23 @@
               <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell text-nowrap"><?php echo xss($row['id']); ?></td>
               <td><?php echo xss($row['position']); ?></td>
               <td>
-                <?php 
+                <?php
                   $type = \mb_substr($row['type'], mb_strrpos($row['type'], '\\') + 1);
                    echo xss($type);
                 ?>
               </td>
               <td><?php echo xss($row['title']); ?></td>
               <td class="text-center text-nowrap">
-                <input 
-                  type="number" 
-                  name="weights[<?php echo xss($row['id']); ?>]" 
-                  value="<?php echo xss($row['weight']); ?>" 
-                  class="form-control form-control-sm text-end" 
-                  step="1" 
-                  min="0" 
-                  size="3" 
-                  pattern="\d+" 
-                  oninput="this.value = this.value.replace(/\D/, '')" />
+                <input
+                  type="number"
+                  name="weights[<?php echo xss($row['id']); ?>]"
+                  value="<?php echo xss($row['weight']); ?>"
+                  class="form-control form-control-sm text-end"
+                  step="1"
+                  min="0"
+                  size="3"
+                  pattern="\d+"
+                  oninput="this.value = this.value.replace(/\D/g, '')" />
               </td>
               <td class="text-center text-nowrap">
                 <?php if ($row['onlineStatus']): ?>
