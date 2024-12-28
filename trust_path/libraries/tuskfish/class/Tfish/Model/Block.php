@@ -201,9 +201,9 @@ class Block
     private function runCount(array $criteria): int
     {
         // Base SQL query to count rows
-        $sql = "SELECT COUNT(*) as count "
-             . "FROM `block` "
-             . "INNER JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId` ";
+        $sql = "SELECT COUNT(DISTINCT `block`.`id`) as count "
+        . "FROM `block` "
+        . "LEFT JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId` ";
 
         // Prepare WHERE clauses and bindings
         $queryComponents = $this->prepareQueryComponents((array) $criteria);
@@ -237,9 +237,9 @@ class Block
 
         // Base SQL query.
         $sql = "SELECT `type`, `block`.`id`, `position`, `title`, `weight`, `template`,"
-             . "`onlineStatus`, `route` "
-             . "FROM `block` "
-             . "INNER JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId` ";
+         . "`onlineStatus`, `blockRoute`.`route` "
+         . "FROM `block` "
+         . "LEFT JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId` ";
 
         // Prepare WHERE clauses and bindings.
         $queryComponents = $this->prepareQueryComponents($params);

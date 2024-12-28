@@ -81,7 +81,6 @@
         <thead class="table-success">
           <tr>
             <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell text-nowrap"><?php echo TFISH_ID; ?></th>
-            <th><?php echo TFISH_ROUTE; ?></th>
             <th><?php echo TFISH_POSITION; ?></th>
             <th><?php echo TFISH_BLOCK_TYPE; ?></th>
             <th class="w-50"><?php echo TFISH_TITLE; ?></th>
@@ -96,7 +95,6 @@
           <?php foreach ($viewModel->contentList() as &$row): ?>
             <tr>
               <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell text-nowrap"><?php echo xss($row['id']); ?></td>
-              <td><?php echo xss($row['route']); ?></td>
               <td><?php echo xss($row['position']); ?></td>
               <td>
                 <?php 
