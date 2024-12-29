@@ -33,7 +33,7 @@ namespace Tfish\Model;
  */
 class BlockEdit
 {
-    use \Tfish\Traits\EmailCheck;
+    use \Tfish\Traits\BlockOption;
     use \Tfish\Traits\ValidateString;
 
     private $database;
@@ -143,6 +143,39 @@ class BlockEdit
         // ID.
         $id = ((int) ($form['id'] ?? 0));
         if ($id > 0) $clean['id'] = $id;
+
+        // Type.
+        $type = $this->trimString($form['type'] ?? '');
+
+        if (!\array_key_exists($type, $this->blockTypes())) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
+        }
+
+        $clean['type'] = $type;
+
+        // Template.
+
+
+        // Position.
+        $position = $this->trimString($form['position'] ?? '');
+
+        if (!\array_key_exists($type, $this->blockPositions())) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
+        }
+
+        $clean['position'] = $position;
+
+        // Weight.
+        $weight = ((int) ($form['weight'] ?? 0));
+        if ($weight >= 0) $clean['weight'] = $weight;
+
+        // Title.
+        $clean['title'] = $this->trimString($form['title'] ?? '');
+
+        // HTML.
+
+        // Config.
+        $clean['title'] = $this->trimString($form['title'] ?? '');
 
         $onlineStatus = !empty($form['onlineStatus']) ? (int) $form['onlineStatus'] : 0;
 

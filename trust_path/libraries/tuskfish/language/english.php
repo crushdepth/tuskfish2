@@ -59,6 +59,7 @@ namespace Tfish;
 \define("TFISH_SELECT_STATUS", "- Select status -");
 \define("TFISH_SELECT_TAGS", "- Select tag -");
 \define("TFISH_SELECT_TYPE", "- Select type -");
+\define("TFISH_SELECT_TEMPLATE", "- Select template -");
 \define("TFISH_SELECT_PARENT", "- Select parent -");
 \define("TFISH_SELECT_BOX_ZERO_OPTION", "---");
 \define("TFISH_META_TAGS", "Meta tags");

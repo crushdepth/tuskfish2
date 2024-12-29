@@ -15,18 +15,19 @@
   </script>
 
   <form class="form-horizontal" action="<?php echo TFISH_ADMIN_BLOCK_URL . 'edit/'; ?>" method="post"
-    enctype="multipart/form-data" role="form" accept-charset="UTF-8">
+    role="form" accept-charset="UTF-8">
 
     <!-- Row -->
     <div class="row justify-content-center">
 
     <!-- Type -->
     <div class="col-md-3 mb-3">
-      <label for="type"><strong>Type</strong></label>
+      <label for="type"><strong>Type</strong> <span class="text-danger">*</span></label>
       <div class="form-group">
         <select class="form-control" name="content[type]" id="type" onchange="updateTemplateOptions()" required>
+          <option value="" selected><?php echo TFISH_SELECT_TYPE; ?></option>
           <?php
-            $options = [TFISH_SELECT_TYPE] + $viewModel->blockTypes();
+            $options = $viewModel->blockTypes();
             foreach ($options as $value => $label) {
               echo '<option value="' . xss($value) . '">' . xss($label) . '</option>';
             }
@@ -37,32 +38,34 @@
 
     <!-- Template -->
       <div class="col-md-3 mb-3">
-        <label for="template"><strong>Template</strong></label>
+        <label for="template"><strong>Template</strong> <span class="text-danger">*</span></label>
         <div class="form-group">
           <select class="form-control" name="content[template]" id="template" required>
+            <option value="" disabled selected><?php echo TFISH_SELECT_TEMPLATE; ?></option>
             <!-- Options will be dynamically populated -->
           </select>
         </div>
       </div>
 
-    <!-- Position -->
-    <div class="col-md-4 mb-3">
-      <label for="position"><strong>Position</strong></label>
-      <div class="form-group">
-        <select class="form-control" name="content[position]" id="position" required>
-          <?php
-            $options = [TFISH_SELECT_POSITION] + $viewModel->blockPositions();
-            foreach ($options as $value => $label) {
-              echo '<option value="' . xss($value) . '">' . xss($label) . '</option>';
-            }
-          ?>
-        </select>
-      </div>
-    </div>
+      <!-- Position -->
+        <div class="col-md-4 mb-3">
+          <label for="position"><strong>Position</strong> <span class="text-danger">*</span></label>
+          <div class="form-group">
+            <select class="form-control" name="content[position]" id="position" required>
+              <option value="" disabled selected><?php echo TFISH_SELECT_POSITION; ?></option>
+              <?php
+                $options = $viewModel->blockPositions();
+                foreach ($options as $value => $label) {
+                  echo '<option value="' . xss($value) . '">' . xss($label) . '</option>';
+                }
+              ?>
+            </select>
+          </div>
+        </div>
 
     <!-- Weight -->
     <div class="col-md-2 mb-3">
-      <label for="weight"><strong>Weight</strong></label>
+      <label for="weight"><strong>Weight</strong> <span class="text-danger">*</span></label>
       <div class="form-group input-group">
         <input type="number" class="form-control" name="content[weight]" id="weight" value="0" required>
       </div>
@@ -78,20 +81,20 @@
     <div class="col-md-9 mb-3">
       <label for="title"><strong>Title</strong></label>
       <div class="form-group input-group">
-        <input type="text" class="form-control" name="content[title]" id="title" required>
+        <input type="text" class="form-control" name="content[title]" id="title">
       </div>
     </div>
 
     <!-- Online Status -->
     <div class="col-md-3 mb-3">
-      <label for="onlineStatus"><strong><?php echo TFISH_ONLINE_STATUS; ?></strong></label>
+      <label for="onlineStatus"><strong><?php echo TFISH_ONLINE_STATUS; ?></strong> <span class="text-danger">*</span></label>
       <div class="form-group">
         <div class="form-check form-check-inline">
           <input class="form-check-input" type="radio" name="content[onlineStatus]" id="online" value="1" required>
           <label class="form-check-label" for="online"><?php echo TFISH_ONLINE; ?></label>
         </div>
         <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="content[onlineStatus]" id="offline" value="0">
+          <input class="form-check-input" type="radio" name="content[onlineStatus]" id="offline" value="0" checked>
           <label class="form-check-label" for="offline"><?php echo TFISH_OFFLINE; ?></label>
         </div>
       </div>
@@ -107,7 +110,7 @@
     <div class="col-md-12 mb-3">
       <label for="html"><strong>HTML</strong></label>
       <div class="form-group">
-        <textarea class="form-control" name="content[html]" id="html" rows="4" required></textarea>
+        <textarea class="form-control" name="content[html]" id="html" rows="4"></textarea>
       </div>
     </div>
 
@@ -121,7 +124,7 @@
     <div class="col-md-12 mb-3">
       <label for="config"><strong>Config</strong></label>
       <div class="form-group">
-        <textarea class="form-control" name="content[config]" id="config" rows="4" required></textarea>
+        <textarea class="form-control" name="content[config]" id="config" rows="4"></textarea>
       </div>
     </div>
 
