@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\Controller;
 
 /**
- * \Tfish\Controller\Block class file.
+ * \Tfish\Controller\BlockAdmin class file.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -29,7 +29,7 @@ namespace Tfish\Controller;
  * @var         object $viewModel Classname of the viewModel used to display this page.
  */
 
-class Block
+class BlockAdmin
 {
     use \Tfish\Traits\ValidateString;
 

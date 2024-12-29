@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\Model;
 
 /**
- * \Tfish\Model\Block class file.
+ * \Tfish\Model\BlockAdmin class file.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -31,7 +31,7 @@ namespace Tfish\Model;
  * @var         \Tfish\Cache Instance of the Tfish cache class.
  */
 
-class Block
+class BlockAdmin
 {
     use \Tfish\Traits\BlockOption;
     use \Tfish\Traits\ValidateString;

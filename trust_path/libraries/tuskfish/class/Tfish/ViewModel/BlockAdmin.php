@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\ViewModel;
 
 /**
- * \Tfish\ViewModel\Block class file.
+ * \Tfish\ViewModel\BlockAdmin class file.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -42,7 +42,7 @@ namespace Tfish\ViewModel;
  * @var         string $response Message to display to the user after processing action (success/failure).
  */
 
-class Block implements \Tfish\Interface\Listable
+class BlockAdmin implements \Tfish\Interface\Listable
 {
     use \Tfish\Traits\BlockOption;
     use \Tfish\Traits\Listable;
@@ -84,6 +84,76 @@ class Block implements \Tfish\Interface\Listable
     }
 
     /** Actions */
+
+    /**
+     * Display Add user form.
+     */
+    public function displayAdd()
+    {
+        $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
+        $this->validateToken($token);
+        $this->pageTitle = TFISH_BLOCK_ADD;
+        $this->template = 'blockEntry';
+    }
+
+    /**
+     * Display edit user form.
+     */
+    public function displayEdit()
+    {
+        $id = (int) ($_GET['id'] ?? 0);
+
+        $this->pageTitle = TFISH_EDIT_USER;
+        $content = new \Tfish\User\Entity\User;
+
+        if ($data = $this->model->edit($id)) {
+            $content->load($data, false);
+            $this->setContent($content);
+            $this->action = 'update';
+            $this->template = 'userEdit';
+        } else {
+            $this->pageTitle = TFISH_FAILED;
+            $this->response = TFISH_ERROR_NO_SUCH_OBJECT;
+            $this->backUrl = TFISH_ADMIN_USER_URL;
+            $this->template = 'response';
+        }
+    }
+
+    /**
+     * Save user object (new or updated).
+     */
+    public function displaySave()
+    {
+        $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
+        $this->validateToken($token);
+
+        $id = (int) ($_POST['content']['id'] ?? 0);
+
+        if (empty($id)) {
+
+            if ($this->model->insert()) {
+                $this->pageTitle = TFISH_SUCCESS;
+                $this->response = TFISH_OBJECT_WAS_INSERTED;
+            } else {
+                $this->pageTitle = TFISH_FAILED;
+                $this->response = TFISH_OBJECT_INSERTION_FAILED;
+            }
+        }
+
+        if (!empty($id)) {
+
+            if ($this->model->update()) {
+                $this->pageTitle = TFISH_SUCCESS;
+                $this->response = TFISH_OBJECT_WAS_UPDATED;
+            } else {
+                $this->pageTitle = TFISH_FAILED;
+                $this->response = TFISH_OBJECT_UPDATE_FAILED;
+            }
+        }
+
+        $this->template = 'response';
+        $this->backUrl = TFISH_ADMIN_USER_URL;
+    }
 
     /**
      * Cancel action and redirect to admin page.

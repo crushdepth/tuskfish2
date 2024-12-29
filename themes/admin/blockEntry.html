@@ -1,0 +1,120 @@
+<?php declare(strict_types=1); ?>
+
+<?php $content = $viewModel->content(); ?>
+
+<!-- Container -->
+<div class="container">
+
+  <div class="row">
+    <div class="col">
+      <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+    </div>
+  </div>
+
+  <form class="form-horizontal" action="<?php echo TFISH_ADMIN_BLOCK_URL . 'edit/'; ?>" method="post"
+    enctype="multipart/form-data" role="form" accept-charset="UTF-8">
+
+    <!-- Type -->
+    <div class="row justify-content-center">
+      <div class="col-md-6 mb-3">
+        <label for="type"><strong>Type<span style="color:red">*</span></strong></label>
+        <div class="form-group input-group">
+          <input type="text" class="form-control" name="content[type]" id="type" required>
+          <span class="input-group-text"><i class="fas fa-tag"></i></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Position -->
+    <div class="row justify-content-center">
+      <div class="col-md-6 mb-3">
+        <label for="position"><strong>Position<span style="color:red">*</span></strong></label>
+        <div class="form-group input-group">
+          <input type="text" class="form-control" name="content[position]" id="position" required>
+          <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Title -->
+    <div class="row justify-content-center">
+      <div class="col-md-6 mb-3">
+        <label for="title"><strong>Title<span style="color:red">*</span></strong></label>
+        <div class="form-group input-group">
+          <input type="text" class="form-control" name="content[title]" id="title" required>
+          <span class="input-group-text"><i class="fas fa-heading"></i></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- HTML -->
+    <div class="row justify-content-center">
+      <div class="col-md-6 mb-3">
+        <label for="html"><strong>HTML<span style="color:red">*</span></strong></label>
+        <div class="form-group">
+          <textarea class="form-control" name="content[html]" id="html" rows="4" required></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Config -->
+    <div class="row justify-content-center">
+      <div class="col-md-6 mb-3">
+        <label for="config"><strong>Config<span style="color:red">*</span></strong></label>
+        <div class="form-group">
+          <textarea class="form-control" name="content[config]" id="config" rows="4" required></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weight -->
+    <div class="row justify-content-center">
+      <div class="col-md-6 mb-3">
+        <label for="weight"><strong>Weight<span style="color:red">*</span></strong></label>
+        <div class="form-group input-group">
+          <input type="number" class="form-control" name="content[weight]" id="weight" required>
+          <span class="input-group-text"><i class="fas fa-sort"></i></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Template -->
+    <div class="row justify-content-center">
+      <div class="col-md-6 mb-3">
+        <label for="template"><strong>Template<span style="color:red">*</span></strong></label>
+        <div class="form-group input-group">
+          <input type="text" class="form-control" name="content[template]" id="template" required>
+          <span class="input-group-text"><i class="fas fa-file-code"></i></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Online Status -->
+    <div class="row justify-content-center">
+      <div class="col-md-6 mb-3">
+        <label for="onlineStatus"><strong>Online Status<span style="color:red">*</span></strong></label>
+        <div class="form-group">
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="content[onlineStatus]" id="online" value="1" required>
+            <label class="form-check-label" for="online">Online</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="content[onlineStatus]" id="offline" value="0">
+            <label class="form-check-label" for="offline">Offline</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row justify-content-center">
+      <div class="col-md-6 text-left">
+        <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
+        <button name="action" value="save" type="submit" class="btn btn-primary"><?php echo TFISH_SUBMIT; ?></button>
+        <button name="action" value="cancel" type="submit" class="btn btn-secondary" formnovalidate><?php echo TFISH_CANCEL; ?></button>
+      </div>
+    </div>
+
+  </form>
+
+</div>

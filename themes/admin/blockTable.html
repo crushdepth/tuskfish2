@@ -66,10 +66,10 @@
 
 <div class="row">
   <div class="col">
-    <form method="post" action="<?php echo TFISH_ADMIN_URL . 'blocks/'; ?>?action=updateWeights">
+    <form method="post" action="<?php echo TFISH_ADMIN_URL . 'blocks/?action=updateWeights'; ?>">
       <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
       <div class="d-flex mb-3">
-        <button class="btn btn-primary me-2" type="submit" formaction="<?php echo TFISH_ADMIN_URL . 'blocks/'; ?>">
+        <button class="btn btn-primary me-2" type="submit" formaction="<?php echo TFISH_ADMIN_URL . 'blocks/?action=add'; ?>">
           <?php echo TFISH_ADD; ?>
         </button>
         <button class="btn btn-primary" type="submit">

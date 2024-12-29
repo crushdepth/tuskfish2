@@ -159,6 +159,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_BLOCK_BOTTOM_RIGHT", "Bottom right");
 \define("TFISH_BLOCK_BOTTOM_CENTRE", "Bottom centre");
 \define("TFISH_BLOCK_FOOTER", "Bottom centre");
+\define("TFISH_BLOCK_ADD", "Add block");
 
 // Content blocks.
 \define("TFISH_BLOCK_RECENT_CONTENT_COMPACT", "Recent content (compact)");
