@@ -143,6 +143,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 
 // Blocks
 \define("TFISH_ADMIN_BLOCKS", "Blocks");
+\define("TFISH_EDIT_BLOCK", "Edit block");
 \define("TFISH_ROUTE", "Route");
 \define("TFISH_POSITION", "Position");
 \define("TFISH_BLOCK_TYPE", "Type");
@@ -161,8 +162,11 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_BLOCK_FOOTER", "Bottom centre");
 \define("TFISH_BLOCK_ADD", "Add block");
 
-// Content blocks.
+// Content blocks and templates.
+\define("TFISH_BLOCK_RECENT_CONTENT", "Recent content");
 \define("TFISH_BLOCK_RECENT_CONTENT_COMPACT", "Recent content (compact)");
+\define("TFISH_BLOCK_SPOTLIGHT", "Spotlight");
+\define("TFISH_BLOCK_SPOTLIGHT_COMPACT", "Spotlight (compact)");
 
 // Utilities
 \define("TFISH_STATE", "State");

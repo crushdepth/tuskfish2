@@ -1,7 +1,5 @@
 <?php declare(strict_types=1); ?>
 
-<?php $content = $viewModel->content(); ?>
-
 <!-- Container -->
 <div class="container">
 
@@ -11,110 +9,161 @@
     </div>
   </div>
 
+  <!-- Embed PHP blockTemplates into a JavaScript variable -->
+  <script>
+    const templates = <?php echo \json_encode($viewModel->blockTemplates(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+  </script>
+
   <form class="form-horizontal" action="<?php echo TFISH_ADMIN_BLOCK_URL . 'edit/'; ?>" method="post"
     enctype="multipart/form-data" role="form" accept-charset="UTF-8">
 
+    <!-- Row -->
+    <div class="row justify-content-center">
+
     <!-- Type -->
-    <div class="row justify-content-center">
-      <div class="col-md-6 mb-3">
-        <label for="type"><strong>Type<span style="color:red">*</span></strong></label>
-        <div class="form-group input-group">
-          <input type="text" class="form-control" name="content[type]" id="type" required>
-          <span class="input-group-text"><i class="fas fa-tag"></i></span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Position -->
-    <div class="row justify-content-center">
-      <div class="col-md-6 mb-3">
-        <label for="position"><strong>Position<span style="color:red">*</span></strong></label>
-        <div class="form-group input-group">
-          <input type="text" class="form-control" name="content[position]" id="position" required>
-          <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Title -->
-    <div class="row justify-content-center">
-      <div class="col-md-6 mb-3">
-        <label for="title"><strong>Title<span style="color:red">*</span></strong></label>
-        <div class="form-group input-group">
-          <input type="text" class="form-control" name="content[title]" id="title" required>
-          <span class="input-group-text"><i class="fas fa-heading"></i></span>
-        </div>
-      </div>
-    </div>
-
-    <!-- HTML -->
-    <div class="row justify-content-center">
-      <div class="col-md-6 mb-3">
-        <label for="html"><strong>HTML<span style="color:red">*</span></strong></label>
-        <div class="form-group">
-          <textarea class="form-control" name="content[html]" id="html" rows="4" required></textarea>
-        </div>
-      </div>
-    </div>
-
-    <!-- Config -->
-    <div class="row justify-content-center">
-      <div class="col-md-6 mb-3">
-        <label for="config"><strong>Config<span style="color:red">*</span></strong></label>
-        <div class="form-group">
-          <textarea class="form-control" name="content[config]" id="config" rows="4" required></textarea>
-        </div>
-      </div>
-    </div>
-
-    <!-- Weight -->
-    <div class="row justify-content-center">
-      <div class="col-md-6 mb-3">
-        <label for="weight"><strong>Weight<span style="color:red">*</span></strong></label>
-        <div class="form-group input-group">
-          <input type="number" class="form-control" name="content[weight]" id="weight" required>
-          <span class="input-group-text"><i class="fas fa-sort"></i></span>
-        </div>
+    <div class="col-md-3 mb-3">
+      <label for="type"><strong>Type</strong></label>
+      <div class="form-group">
+        <select class="form-control" name="content[type]" id="type" onchange="updateTemplateOptions()" required>
+          <?php
+            $options = [TFISH_SELECT_TYPE] + $viewModel->blockTypes();
+            foreach ($options as $value => $label) {
+              echo '<option value="' . xss($value) . '">' . xss($label) . '</option>';
+            }
+          ?>
+        </select>
       </div>
     </div>
 
     <!-- Template -->
-    <div class="row justify-content-center">
-      <div class="col-md-6 mb-3">
-        <label for="template"><strong>Template<span style="color:red">*</span></strong></label>
-        <div class="form-group input-group">
-          <input type="text" class="form-control" name="content[template]" id="template" required>
-          <span class="input-group-text"><i class="fas fa-file-code"></i></span>
+      <div class="col-md-3 mb-3">
+        <label for="template"><strong>Template</strong></label>
+        <div class="form-group">
+          <select class="form-control" name="content[template]" id="template" required>
+            <!-- Options will be dynamically populated -->
+          </select>
         </div>
+      </div>
+
+    <!-- Position -->
+    <div class="col-md-4 mb-3">
+      <label for="position"><strong>Position</strong></label>
+      <div class="form-group">
+        <select class="form-control" name="content[position]" id="position" required>
+          <?php
+            $options = [TFISH_SELECT_POSITION] + $viewModel->blockPositions();
+            foreach ($options as $value => $label) {
+              echo '<option value="' . xss($value) . '">' . xss($label) . '</option>';
+            }
+          ?>
+        </select>
+      </div>
+    </div>
+
+    <!-- Weight -->
+    <div class="col-md-2 mb-3">
+      <label for="weight"><strong>Weight</strong></label>
+      <div class="form-group input-group">
+        <input type="number" class="form-control" name="content[weight]" id="weight" value="0" required>
+      </div>
+    </div>
+
+    <!-- /row -->
+    </div>
+
+    <!-- Row -->
+    <div class="row justify-content-center">
+
+    <!-- Title -->
+    <div class="col-md-9 mb-3">
+      <label for="title"><strong>Title</strong></label>
+      <div class="form-group input-group">
+        <input type="text" class="form-control" name="content[title]" id="title" required>
       </div>
     </div>
 
     <!-- Online Status -->
-    <div class="row justify-content-center">
-      <div class="col-md-6 mb-3">
-        <label for="onlineStatus"><strong>Online Status<span style="color:red">*</span></strong></label>
-        <div class="form-group">
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="content[onlineStatus]" id="online" value="1" required>
-            <label class="form-check-label" for="online">Online</label>
-          </div>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="content[onlineStatus]" id="offline" value="0">
-            <label class="form-check-label" for="offline">Offline</label>
-          </div>
+    <div class="col-md-3 mb-3">
+      <label for="onlineStatus"><strong><?php echo TFISH_ONLINE_STATUS; ?></strong></label>
+      <div class="form-group">
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="content[onlineStatus]" id="online" value="1" required>
+          <label class="form-check-label" for="online"><?php echo TFISH_ONLINE; ?></label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="content[onlineStatus]" id="offline" value="0">
+          <label class="form-check-label" for="offline"><?php echo TFISH_OFFLINE; ?></label>
         </div>
       </div>
     </div>
 
-    <!-- Action Buttons -->
+    <!-- /row -->
+    </div>
+
+    <!-- Row -->
     <div class="row justify-content-center">
-      <div class="col-md-6 text-left">
-        <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
-        <button name="action" value="save" type="submit" class="btn btn-primary"><?php echo TFISH_SUBMIT; ?></button>
-        <button name="action" value="cancel" type="submit" class="btn btn-secondary" formnovalidate><?php echo TFISH_CANCEL; ?></button>
+
+    <!-- HTML -->
+    <div class="col-md-12 mb-3">
+      <label for="html"><strong>HTML</strong></label>
+      <div class="form-group">
+        <textarea class="form-control" name="content[html]" id="html" rows="4" required></textarea>
       </div>
+    </div>
+
+    <!-- /row -->
+    </div>
+
+    <!-- Row -->
+    <div class="row justify-content-center">
+
+    <!-- Config -->
+    <div class="col-md-12 mb-3">
+      <label for="config"><strong>Config</strong></label>
+      <div class="form-group">
+        <textarea class="form-control" name="content[config]" id="config" rows="4" required></textarea>
+      </div>
+    </div>
+
+    <!-- /row -->
+    </div>
+
+    <!-- Row -->
+    <div class="row justify-content-center">
+
+    <!-- Action Buttons -->
+    <div class="col-md-12 text-left">
+      <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
+      <button name="action" value="save" type="submit" class="btn btn-primary"><?php echo TFISH_SUBMIT; ?></button>
+      <button name="action" value="cancel" type="submit" class="btn btn-primary" formnovalidate><?php echo TFISH_CANCEL; ?></button>
+    </div>
+
+    <!-- /row -->
     </div>
 
   </form>
 
 </div>
+
+<script>
+  // Function to update the 'template' select box options
+  function updateTemplateOptions() {
+    const typeField = document.getElementById('type'); // Type dropdown
+    const templateField = document.getElementById('template'); // Template dropdown
+    const selectedType = typeField.value; // Get selected 'type'
+
+    // Clear the current template options
+    templateField.innerHTML = '';
+
+    // Get the templates for the selected type
+    const typeTemplates = templates[selectedType] || {};
+
+    // Populate the template dropdown
+    for (const [value, label] of Object.entries(typeTemplates)) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      templateField.appendChild(option);
+    }
+  }
+</script>

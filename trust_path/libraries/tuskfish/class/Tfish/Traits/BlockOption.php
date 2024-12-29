@@ -29,24 +29,6 @@ namespace Tfish\Traits;
 trait BlockOption
 {
     /**
-     * Whitelist of routes that blocks are permitted to be displayed on.
-     *
-     * You can customise this list, but don't delete or rename positions that currently have blocks
-     * assigned. If you want to do that, you need to update the positions in the database too.
-     *
-     * @return array
-     */
-    public function blockRoutes(): array
-    {
-        return [
-            "/",
-            "/error/",
-            "/gallery/",
-            "/search/"
-        ];
-    }
-
-    /**
      * Whitelist of permitted block positions.
      *
      * You can customise this list, but don't delete or rename positions that currently have blocks
@@ -67,6 +49,56 @@ trait BlockOption
             'bottom-right' => TFISH_BLOCK_BOTTOM_RIGHT,
             'bottom-centre' => TFISH_BLOCK_BOTTOM_CENTRE,
             'footer' => TFISH_BLOCK_FOOTER
+        ];
+    }
+
+    /**
+     * Whitelist of routes that blocks are permitted to be displayed on.
+     *
+     * You can customise this list, but don't delete or rename positions that currently have blocks
+     * assigned. If you want to do that, you need to update the positions in the database too.
+     *
+     * @return array
+     */
+    public function blockRoutes(): array
+    {
+        return [
+            "/",
+            "/error/",
+            "/gallery/",
+            "/search/"
+        ];
+    }
+
+    /**
+     * Whitelist of templates available to each block type.
+     *
+     * If you add a custom block, add its templates to this list. Template name must match the
+     * file name (without .html extension).
+     *
+     * @return array
+     */
+    public function blockTemplates(): array
+    {
+        return [
+            '\Tfish\Content\Block\RecentContent' => ['recent-content-compact' => TFISH_BLOCK_RECENT_CONTENT_COMPACT],
+            '\Tfish\Content\Block\Spotlight' => ['spotlight-compact' => TFISH_BLOCK_SPOTLIGHT_COMPACT],
+        ];
+    }
+
+    /**
+     * Whitelist of block types available on the system.
+     *
+     * If you add a custom block type, add it to this list. The key is the fully qualified
+     * class name.
+     *
+     * @return array
+     */
+    public function blockTypes(): array
+    {
+        return [
+            '\Tfish\Content\Block\RecentContent' => TFISH_BLOCK_RECENT_CONTENT,
+            '\Tfish\Content\Block\Spotlight' => TFISH_BLOCK_SPOTLIGHT,
         ];
     }
 }
