@@ -140,4 +140,16 @@ class BlockAdmin
         $this->viewModel->displayToggle();
         exit;
     }
+
+    /**
+     * Update block weights.
+     *
+     * @return array Empty array (the output of this action is not cached).
+     */
+    public function weights(): array
+    {
+        $this->viewModel->displayWeights();
+
+        return [];
+    }
 }

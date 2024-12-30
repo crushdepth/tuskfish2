@@ -124,6 +124,59 @@ class BlockAdmin
         return $result;
     }
 
+
+    /**
+     * Update block weights from the admin page.
+     *
+     * @param array $weights Array of block IDs and their respective weights.
+     * @return bool True on success, false on failure.
+     */
+    public function updateWeights(array $weights): bool
+    {
+        $cleanWeights = [];
+        $parameters = [];
+        $placeholders = [];
+
+        foreach ($weights as $id => $weight) {
+            $cleanId = (int) $id;
+            $cleanWeight = (int) $weight;
+
+            if ($cleanId > 0 && $cleanWeight >= 0) {
+                $cleanWeights[$cleanId] = $cleanWeight;
+            }
+        }
+
+        if (empty($cleanWeights)) return false;
+
+        $sql = "UPDATE `block` SET `weight` = CASE `id` ";
+
+        foreach ($cleanWeights as $id => $weight) {
+            $paramWeight = ":weight_$id";
+            $paramId = ":id_$id";
+
+            $sql .= "WHEN $paramId THEN $paramWeight ";
+            $parameters[$paramWeight] = $weight;
+            $parameters[$paramId] = $id;
+            $placeholders[] = $paramId;
+        }
+
+        $sql .= "END WHERE `id` IN (" . implode(', ', $placeholders) . ")";
+
+        $statement = $this->database->preparedStatement($sql);
+        $result = $statement->execute($parameters);
+
+        if ($result) {
+            $this->cache->flush();
+
+            return true;
+        }
+
+        // Log error here.
+
+        return false;
+    }
+
+
     /**
      * Return a unique list of routes to which blocks are currently assigned.
      *

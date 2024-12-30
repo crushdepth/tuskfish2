@@ -229,6 +229,31 @@ class BlockAdmin implements \Tfish\Interface\Listable
         exit; // Prevents proceeding to full page reload.
     }
 
+    /**
+     * Update block weights from the block admin page.
+     *
+     * @return void
+     */
+    public function displayWeights()
+    {
+        $weights = $_POST['weights'] ?? [];
+        $this->template ='response';
+        $this->backUrl = TFISH_ADMIN_URL . 'blocks/';
+
+        if (empty($weights)) {
+            $this->pageTitle = 'No changes';
+            $this->response = 'No weights were altered.';
+        }
+
+        if ($this->model->updateWeights($weights)) {
+            $this->pageTitle = TFISH_SUCCESS;
+            $this->response = TFISH_OBJECT_WAS_DELETED;
+        } else {
+            $this->pageTitle = TFISH_FAILED;
+            $this->response = TFISH_OBJECT_DELETION_FAILED;
+        }
+    }
+
     /** output */
 
     /**
