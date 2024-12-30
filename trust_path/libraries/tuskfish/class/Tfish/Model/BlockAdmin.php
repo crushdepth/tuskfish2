@@ -235,11 +235,11 @@ class BlockAdmin
     {
         $blocks = [];
 
-        // Base SQL query.
-        $sql = "SELECT `type`, `block`.`id`, `position`, `title`, `weight`, `template`,"
-         . "`onlineStatus`, `blockRoute`.`route` "
-         . "FROM `block` "
-         . "LEFT JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId` ";
+        $sql = "SELECT DISTINCT "
+        . "`type`, `block`.`id`, `position`, `title`, `weight`, `template`, `onlineStatus` "
+        . "FROM `block` "
+        . "LEFT JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId`";
+
 
         // Prepare WHERE clauses and bindings.
         $queryComponents = $this->prepareQueryComponents($params);

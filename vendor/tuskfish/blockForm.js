@@ -20,9 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Attach the function to the onchange event of the 'type' dropdown
+    // Attach the event listener to the 'type' select box
     const typeField = document.getElementById('type');
     if (typeField) {
         typeField.addEventListener('change', updateTemplateOptions);
+    } else {
+        console.error('The #type element does not exist in the DOM.');
     }
 });

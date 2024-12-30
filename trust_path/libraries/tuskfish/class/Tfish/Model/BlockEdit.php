@@ -92,9 +92,39 @@ class BlockEdit
     {
         $content = $this->validateForm($_POST['content'], true);
 
-        // Insert new content.
+        // Insert block.
         if (!$this->database->insert('block', $content)) {
             return false;
+        }
+
+        // Insert associated blockRoutes.
+        $blockId = $this->database->lastInsertId();
+
+        if (!empty($_POST['route'])) {
+            $routes = $this->validateRoutes($_POST['route']);
+
+            if (!$this->saveblockRoutes($blockId, $routes)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Insert the routes associated with a block into the blockRoute table.
+     *
+     * @param   int $id of the block associated with these routes.
+     * @param   array $routes Array of routes associated with this block.
+     * @return boolean
+     */
+    private function saveBlockRoutes(int $id, array $routes): bool
+    {
+        foreach ($routes as $route) {
+
+            if (!$this->database->insert('blockRoute', ['blockId' => $id, 'route' => $route])) {
+                return false;
+            }
         }
 
         return true;
@@ -135,10 +165,9 @@ class BlockEdit
      * Validate submitted form data for block.
      *
      * @param   array $form Submitted form data.
-     * @param   bool $passwordRequired True if inserting new record, false if editing existing record.
      * @return  array Validated form data.
      */
-    public function validateForm(array $form, bool $passwordRequired): array
+    public function validateForm(array $form): array
     {
         $clean = [];
 
@@ -168,7 +197,7 @@ class BlockEdit
         // Position.
         $position = $this->trimString($form['position'] ?? '');
 
-        if (!\array_key_exists($position, $this->blockPositions())) {
+        if ($position && !\array_key_exists($position, $this->blockPositions())) {
             \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
         }
 
@@ -207,9 +236,29 @@ class BlockEdit
             }
         }
 
-        $clean['config'] = $json;
+        $clean['config'] = $json ?? '';
 
         return $clean;
+    }
+
+    /**
+     * Validate submitted form data for block.
+     *
+     * @param array $routes Submitted route data from form.
+     * @return void Validated route data.
+     */
+    public function validateRoutes(array $routes): array
+    {
+        $verified = [];
+        $blockRoutes = $this->blockRoutes();
+
+        foreach ($routes as $route) {
+            if (\in_array($route, $blockRoutes)) {
+                $verified[] = $route;
+            }
+        }
+
+        return $verified;
     }
 
 }

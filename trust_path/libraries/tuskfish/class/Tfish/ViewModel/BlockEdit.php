@@ -75,7 +75,6 @@ class BlockEdit implements \Tfish\Interface\Viewable
         $this->validateToken($token);
 
         $this->pageTitle = TFISH_BLOCK_ADD;
-        //$this->content = new \Tfish\User\Entity\User;
         $this->template = 'blockEntry';
     }
 

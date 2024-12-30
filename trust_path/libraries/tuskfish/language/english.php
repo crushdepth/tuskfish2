@@ -42,6 +42,7 @@ namespace Tfish;
 \define("TFISH_META_TITLE", "Title");
 \define("TFISH_META_DESCRIPTION", "Description");
 \define("TFISH_SEO", "SEO");
+\define("TFISH_HTML", "HTML");
 
 // Login.
 \define("TFISH_LOGIN", "Login");
@@ -146,9 +147,11 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_ADMIN_BLOCKS", "Blocks");
 \define("TFISH_EDIT_BLOCK", "Edit block");
 \define("TFISH_ROUTE", "Route");
+\define("TFISH_ROUTES", "Visible on:");
 \define("TFISH_POSITION", "Position");
 \define("TFISH_BLOCK_TYPE", "Type");
 \define("TFISH_WEIGHT", "Weight");
+\define("TFISH_BLOCK_CONFIG", "Block configuration");
 \define("TFISH_SELECT_ROUTE", "- Select routes -");
 \define("TFISH_SELECT_POSITION", "- Select position -");
 \define("TFISH_BLOCK_BANNER", "Banner");
