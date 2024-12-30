@@ -16,7 +16,7 @@ namespace Tfish\Model;
  */
 
 /**
- * Model for editing block objects.
+ * Model for adding and editing block objects.
  *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -24,7 +24,8 @@ namespace Tfish\Model;
  * @version     Release: 2.0
  * @since       2.0
  * @package     core
- * @uses        trait \Tfish\Traits\EmailCheck Validate that email address conforms to specification.
+ * @uses        trait \Tfish\Traits\BlockOption Validate that email address conforms to specification.
+ * @uses        trait \Tfish\Traits\HtmlPurifier Instance of HTMLPurifier class.
  * @uses        trait \Tfish\Traits\ValidateString Provides methods for validating UTF-8 character encoding and string composition.
  * @var         \Tfish\Database $database Instance of the Tuskfish database class.
  * @var         \Tfish\Session $session Instance of the Tuskfish session manager class.
@@ -34,6 +35,7 @@ namespace Tfish\Model;
 class BlockEdit
 {
     use \Tfish\Traits\BlockOption;
+    use \Tfish\Traits\HtmlPurifier;
     use \Tfish\Traits\ValidateString;
 
     private $database;
@@ -154,12 +156,19 @@ class BlockEdit
         $clean['type'] = $type;
 
         // Template.
+        $template = $this->trimString($form['template'] ?? '');
+        $blockTemplates = $this->blockTemplates()[$clean['type']];
 
+        if (!\array_key_exists($template, $blockTemplates)) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
+        }
+
+        $clean['template'] = $template;
 
         // Position.
         $position = $this->trimString($form['position'] ?? '');
 
-        if (!\array_key_exists($type, $this->blockPositions())) {
+        if (!\array_key_exists($position, $this->blockPositions())) {
             \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
         }
 
@@ -172,11 +181,7 @@ class BlockEdit
         // Title.
         $clean['title'] = $this->trimString($form['title'] ?? '');
 
-        // HTML.
-
-        // Config.
-        $clean['title'] = $this->trimString($form['title'] ?? '');
-
+        // Online status.
         $onlineStatus = !empty($form['onlineStatus']) ? (int) $form['onlineStatus'] : 0;
 
         if ($onlineStatus < 0 || $onlineStatus > 1) {
@@ -184,6 +189,25 @@ class BlockEdit
         }
 
         $clean['onlineStatus'] = $onlineStatus;
+
+        // HTML.
+        $html = $this->trimString($form['html'] ?? '');
+        $html = \str_replace(TFISH_LINK, 'TFISH_LINK', $html);
+        $htmlPurifier = $this->getHtmlPurifier();
+        $clean['html'] = $html ? $htmlPurifier->purify($html) : '';
+
+        // Config.
+        $config = $this->trimString($form['config'] ?? '');
+
+        if ($config) {
+            $json = \json_encode($config);
+
+            if (!\json_validate($json)) {
+                throw new \Exception('Invalid JSON encoding');
+            }
+        }
+
+        $clean['config'] = $json;
 
         return $clean;
     }

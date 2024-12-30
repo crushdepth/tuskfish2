@@ -83,6 +83,7 @@ trait BlockOption
         return [
             '\Tfish\Content\Block\RecentContent' => ['recent-content-compact' => TFISH_BLOCK_RECENT_CONTENT_COMPACT],
             '\Tfish\Content\Block\Spotlight' => ['spotlight-compact' => TFISH_BLOCK_SPOTLIGHT_COMPACT],
+            '\Tfish\Content\Block\Html' => ['html' => TFISH_BLOCK_HTML],
         ];
     }
 
@@ -99,6 +100,7 @@ trait BlockOption
         return [
             '\Tfish\Content\Block\RecentContent' => TFISH_BLOCK_RECENT_CONTENT,
             '\Tfish\Content\Block\Spotlight' => TFISH_BLOCK_SPOTLIGHT,
+            '\Tfish\Content\Block\Html' => TFISH_BLOCK_HTML,
         ];
     }
 }

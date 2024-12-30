@@ -45,7 +45,7 @@
     <!-- TinyMCE editor -->
     <script src="<?php echo TFISH_VENDOR_URL . 'tinymce/tinymce.min.js'; ?>"></script>
     <script>tinymce.init({
-        selector: "#teaser,#description,#experience,#projects,#publications",
+        selector: "#teaser,#description,#experience,#projects,#publications,#html",
         autoresize_max_height: 700,
         entity_encoding: "raw",
         plugins: "anchor,autosave,autoresize,charmap,code,codesample,emoticons,image,link,lists,media,table,wordcount",
@@ -54,6 +54,7 @@
         pasteastext: true,
         image_caption: true,
         convert_urls: false,
+        promotion: false,
   });
     </script>
 

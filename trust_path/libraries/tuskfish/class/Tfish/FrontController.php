@@ -177,7 +177,7 @@ class FrontController
     {
         $blocks = [];
 
-        $sql = "SELECT `block`.`id`, `type`, `position`, `title`, `config`, `weight`, "
+        $sql = "SELECT `block`.`id`, `type`, `position`, `title`, `html`, `config`, `weight`, "
             . "`template`, `onlineStatus` FROM `block` "
             . "INNER JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId` "
             . "WHERE `blockRoute`.`route` = :path";

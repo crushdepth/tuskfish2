@@ -168,6 +168,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_BLOCK_RECENT_CONTENT_COMPACT", "Recent content (compact)");
 \define("TFISH_BLOCK_SPOTLIGHT", "Spotlight");
 \define("TFISH_BLOCK_SPOTLIGHT_COMPACT", "Spotlight (compact)");
+\define("TFISH_BLOCK_HTML", "HTML (static)");
 
 // Utilities
 \define("TFISH_STATE", "State");

@@ -42,6 +42,7 @@ include TFISH_DEFAULT_LANGUAGE;
 \define("TFISH_CONTENT_BLOCK_PATH", TFISH_PATH . 'class/Tfish/Content/Block/');
 \define("\Tfish\Content\Block\RecentContent", TFISH_BLOCK_RECENT_CONTENT);
 \define("\Tfish\Content\Block\Spotlight", TFISH_BLOCK_SPOTLIGHT);
+\define("\Tfish\Content\Block\Html", TFISH_BLOCK_HTML);
 
 // Block constants - move to config.php
 \define("TFISH_ADMIN_BLOCK_URL", TFISH_URL . 'admin/blocks/');

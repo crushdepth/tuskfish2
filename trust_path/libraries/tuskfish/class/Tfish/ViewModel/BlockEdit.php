@@ -144,7 +144,7 @@ class BlockEdit implements \Tfish\Interface\Viewable
         }
 
         $this->template = 'response';
-        $this->backUrl = TFISH_ADMIN_USER_URL;
+        $this->backUrl = TFISH_ADMIN_BLOCK_URL;
     }
 
     /** Utilities */
