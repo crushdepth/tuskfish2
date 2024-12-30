@@ -149,7 +149,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_POSITION", "Position");
 \define("TFISH_BLOCK_TYPE", "Type");
 \define("TFISH_WEIGHT", "Weight");
-\define("TFISH_SELECT_ROUTE", "- Select route -");
+\define("TFISH_SELECT_ROUTE", "- Select routes -");
 \define("TFISH_SELECT_POSITION", "- Select position -");
 \define("TFISH_BLOCK_BANNER", "Banner");
 \define("TFISH_BLOCK_TOP_LEFT", "Top left");

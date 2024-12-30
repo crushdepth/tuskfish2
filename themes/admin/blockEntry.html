@@ -37,39 +37,47 @@
     </div>
 
     <!-- Template -->
+    <div class="col-md-3 mb-3">
+      <label for="template"><strong>Template</strong> <span class="text-danger">*</span></label>
+      <div class="form-group">
+        <select class="form-control" name="content[template]" id="template" required>
+          <option value="" disabled selected><?php echo TFISH_SELECT_TEMPLATE; ?></option>
+          <!-- Options will be dynamically populated -->
+        </select>
+      </div>
+    </div>
+
+      <!-- Position -->
       <div class="col-md-3 mb-3">
-        <label for="template"><strong>Template</strong> <span class="text-danger">*</span></label>
+        <label for="position"><strong>Position</strong> <span class="text-danger">*</span></label>
         <div class="form-group">
-          <select class="form-control" name="content[template]" id="template" required>
-            <option value="" disabled selected><?php echo TFISH_SELECT_TEMPLATE; ?></option>
-            <!-- Options will be dynamically populated -->
+          <select class="form-control" name="content[position]" id="position" required>
+            <option value="" disabled selected><?php echo TFISH_SELECT_POSITION; ?></option>
+            <?php
+              $options = $viewModel->blockPositions();
+              foreach ($options as $value => $label) {
+                echo '<option value="' . xss($value) . '">' . xss($label) . '</option>';
+              }
+            ?>
           </select>
         </div>
       </div>
 
-      <!-- Position -->
-        <div class="col-md-4 mb-3">
-          <label for="position"><strong>Position</strong> <span class="text-danger">*</span></label>
-          <div class="form-group">
-            <select class="form-control" name="content[position]" id="position" required>
-              <option value="" disabled selected><?php echo TFISH_SELECT_POSITION; ?></option>
-              <?php
-                $options = $viewModel->blockPositions();
-                foreach ($options as $value => $label) {
-                  echo '<option value="' . xss($value) . '">' . xss($label) . '</option>';
-                }
-              ?>
-            </select>
-          </div>
+      <!-- Route -->
+      <div class="col-md-3 mb-3">
+        <label for="route"><strong>Route</strong> <span class="text-danger">*</span></label>
+        <div class="form-group">
+          <select class="form-control" name="content[route][]" id="route" multiple size="5">
+            <option value=""><?php echo TFISH_SELECT_ROUTE; ?></option>
+            <?php
+              $options = $viewModel->blockRoutes();
+              foreach ($options as $value => $label) {
+                echo '<option value="' . xss($value) . '">' . xss($label) . '</option>';
+              }
+            ?>
+          </select>
         </div>
-
-    <!-- Weight -->
-    <div class="col-md-2 mb-3">
-      <label for="weight"><strong>Weight</strong> <span class="text-danger">*</span></label>
-      <div class="form-group input-group">
-        <input type="number" class="form-control" name="content[weight]" id="weight" value="0" required>
       </div>
-    </div>
 
     <!-- /row -->
     </div>
@@ -78,10 +86,18 @@
     <div class="row justify-content-center">
 
     <!-- Title -->
-    <div class="col-md-9 mb-3">
+    <div class="col-md-6 mb-3">
       <label for="title"><strong>Title</strong></label>
       <div class="form-group input-group">
         <input type="text" class="form-control" name="content[title]" id="title">
+      </div>
+    </div>
+
+    <!-- Weight -->
+    <div class="col-md-3 mb-3">
+      <label for="weight"><strong>Weight</strong> <span class="text-danger">*</span></label>
+      <div class="form-group input-group">
+        <input type="number" class="form-control" name="content[weight]" id="weight" value="0" required>
       </div>
     </div>
 
