@@ -144,12 +144,27 @@ class BlockEdit
      */
     public function update(): bool
     {
-        $content = $this->validateForm($_POST['content'], false);
-        $id = (int) $content['id'];
+        $content = $_POST['content'] ?? [];
+        $validContent = $this->validateForm($content) ?? [];
+
+        $routes = $_POST['route'] ?? [];
+        $validRoutes = $this->validateRoutes($routes) ?? [];
+
+        $id = (int) $validContent['id'];
+
+        // Replace block routes.
+        if (!$this->updateBlockRoutes($id, $validRoutes)) {
+            return false;
+        }
+
+        // Update block.
+        if (!$this->database->update('block', $id, $validContent)) {
+            return false;
+        }
 
         $this->cache->flush();
 
-        return $this->database->update('block', $id, $content);
+        return true;
     }
 
     /** Utilities. */
@@ -191,6 +206,64 @@ class BlockEdit
 
         return $row ?: [];
     }
+
+    /**
+     * Update routes for a block.
+     *
+     * @param   int $id ID of the block.
+     * @param   array $routes Array of routes this block should be displayed on.
+     * @return  bool True on success, false on failure.
+     */
+    private function updateBlockRoutes(int $id, array $routes): bool
+    {
+        try {
+            // Begin transaction.
+            $this->database->beginTransaction();
+
+            // Delete existing routes for this block.
+            $sql = "DELETE FROM `blockRoute` WHERE `blockId` = :blockId";
+            $statement = $this->database->preparedStatement($sql);
+
+            $statement->bindValue(':blockId', $id, \PDO::PARAM_INT);
+            if (!$statement->execute()) {
+                $this->database->rollBack();
+                \trigger_error(TFISH_BLOCK_ROUTE_UPDATE_FAILED, E_USER_ERROR);
+
+                return false;
+            }
+
+            // Insert new routes, if any.
+            if (!empty($routes)) {
+                $sql = "INSERT INTO `blockRoute` (`blockId`, `route`) VALUES (:blockId, :route)";
+                $statement = $this->database->preparedStatement($sql);
+                $statement->bindValue(':blockId', $id, \PDO::PARAM_INT);
+
+                $route = null;
+                $statement->bindParam(':route', $route, \PDO::PARAM_STR);
+
+                foreach ($routes as $routeValue) {
+                    $route = $routeValue;
+                    if (!$statement->execute()) {
+                        $this->database->rollBack();
+                        \trigger_error(TFISH_BLOCK_ROUTE_UPDATE_FAILED, E_USER_ERROR);
+
+                        return false;
+                    }
+                }
+            }
+
+            // Commit transaction.
+            $this->database->commit();
+            return true;
+
+        } catch (\Exception $e) {
+            $this->database->rollBack();
+            \trigger_error(TFISH_BLOCK_ROUTE_UPDATE_FAILED, E_USER_ERROR);
+
+            return false;
+        }
+    }
+
 
     /**
      * Validate submitted form data for block.

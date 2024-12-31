@@ -253,6 +253,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
         . "value).");
 \define("TFISH_ERROR_BAD_ACTION", "Bad action submitted to front controller, high probability attempted abuse.");
 \define("TFISH_ERROR_UNSPECIFIED", "Unspecified error.");
+\define("TFISH_BLOCK_ROUTE_UPDATE_FAILED", "Block route update failed.");
 
 // Token errors.
 \define("TFISH_INVALID_TOKEN", "Invalid token error");

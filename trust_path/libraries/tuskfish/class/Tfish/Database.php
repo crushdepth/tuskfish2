@@ -405,6 +405,21 @@ class Database
         return true;
     }
 
+    public function beginTransaction()
+    {
+        $this->database->beginTransaction();
+    }
+
+    public function commit()
+    {
+        $this->database->commit();
+    }
+
+    public function rollback()
+    {
+        $this->database->rollback();
+    }
+
     /**
      * Insert a single row into the database within a transaction.
      *

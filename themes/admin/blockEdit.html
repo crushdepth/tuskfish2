@@ -30,6 +30,9 @@
   <form class="form-horizontal" action="<?php echo TFISH_ADMIN_BLOCK_URL . 'edit/'; ?>" method="post"
     role="form" accept-charset="UTF-8">
 
+    <!-- ID -->
+    <input type="hidden" name="content[id]" value="<?php echo xss($content['id']); ?>">
+
     <!-- Row -->
     <div class="row justify-content-center">
 
@@ -184,7 +187,7 @@
     <!-- Action Buttons -->
     <div class="col-md-12 text-left">
       <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
-      <button name="action" value="save" type="submit" class="btn btn-primary"><?php echo TFISH_SUBMIT; ?></button>
+      <button name="action" value="save" type="submit" class="btn btn-primary"><?php echo TFISH_UPDATE; ?></button>
       <button name="action" value="cancel" type="submit" class="btn btn-primary" formnovalidate><?php echo TFISH_CANCEL; ?></button>
     </div>
 
