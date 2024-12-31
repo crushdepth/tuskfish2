@@ -94,9 +94,7 @@ class BlockEdit implements \Tfish\Interface\Viewable
     {
         $id = (int) ($_GET['id'] ?? 0);
 
-        if ($row = $this->model->edit($id)) {
-            $className = $row['type'];
-            $block = new $className($row, $this->model->database(), $this->model->criteriaFactory());
+        if ($block = $this->model->edit($id)) {
             $this->pageTitle = TFISH_EDIT_BLOCK;
             $this->setContent($block);
             $this->action = 'update';

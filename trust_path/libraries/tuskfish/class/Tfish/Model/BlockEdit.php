@@ -31,6 +31,7 @@ namespace Tfish\Model;
  * @var         \Tfish\Session $session Instance of the Tuskfish session manager class.
  * @var         \Tfish\CriteriaFactory $criteriaFactory A factory class that returns instances of Criteria and CriteriaItem.
  * @var         \Tfish\Entity\Preference Instance of the Tfish site preferences class.
+ * @var         \Tfish\Cache Instance of the Tfish cache class.
  */
 class BlockEdit
 {
@@ -42,6 +43,7 @@ class BlockEdit
     private $session;
     private $criteriaFactory;
     private $preference;
+    private $cache;
 
     /**
      * Constructor.
@@ -50,18 +52,21 @@ class BlockEdit
      * @param   \Tfish\Session $session Instance of the Tuskfish session manager class.
      * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
      * @param   \Tfish\Entity\Preference Instance of the Tfish site preferences class.
+     * @param   \Tfish\Cache $cache Instance of the Tuskfish cache class.
      */
     public function __construct(
         \Tfish\Database $database,
         \Tfish\Session $session,
         \Tfish\CriteriaFactory $criteriaFactory,
-        \Tfish\Entity\Preference $preference
+        \Tfish\Entity\Preference $preference,
+        \Tfish\Cache $cache
         )
     {
         $this->database = $database;
         $this->session = $session;
         $this->criteriaFactory = $criteriaFactory;
         $this->preference = $preference;
+        $this->cache = $cache;
     }
 
     /** Actions. */
@@ -69,18 +74,18 @@ class BlockEdit
     /**
      * Edit block object.
      *
-     * @param   int $id ID of block object.
-     * @return  array Block object data as associative array.
+     * @param   int $id ID of block.
+     * @return  object Block as object.
      */
-    public function edit(int $id): array
+    public function edit(int $id): object
     {
-        $row = $this->getRow($id);
+        $block = $this->getBlock($id);
 
-        if (empty($row)) {
+        if (empty($block)) {
             return [];
         }
 
-        return $row;
+        return $block;
     }
 
     /**
@@ -107,6 +112,8 @@ class BlockEdit
                 return false;
             }
         }
+
+        $this->cache->flush();
 
         return true;
     }
@@ -137,9 +144,10 @@ class BlockEdit
      */
     public function update(): bool
     {
-
         $content = $this->validateForm($_POST['content'], false);
         $id = (int) $content['id'];
+
+        $this->cache->flush();
 
         return $this->database->update('block', $id, $content);
     }
@@ -147,18 +155,29 @@ class BlockEdit
     /** Utilities. */
 
     /**
-     * Get a single content object as an associative array.
+     * Get a single block as object .
      *
      * @param   int $id ID of block.
-     * @return  array
+     * @return  object|bool Return block on success, false on failure.
      */
-    private function getRow(int $id): array
+    private function getBlock(int $id): object|bool
     {
-        $criteria = $this->criteriaFactory->criteria();
-        $criteria->add($this->criteriaFactory->item('id', $id));
-        $row = $this->database->select('block', $criteria)->fetch(\PDO::FETCH_ASSOC);
+        $sql = "SELECT * FROM `block` WHERE `id` = :id";
+        $statement = $this->database->preparedStatement($sql);
+        $statement->bindValue(':id', $id, \PDO::PARAM_INT);
 
-        return !empty($row) ? $row : [];
+        if (!$statement->execute()) {
+            return false;
+        }
+
+        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$row) return false;
+
+        $className = $row['type'];
+        $block = new $className($row, $this->database, $this->criteriaFactory);
+
+        return $block;
     }
 
     /**
@@ -260,27 +279,4 @@ class BlockEdit
 
         return $verified;
     }
-
-    /** Accessors */
-
-    /**
-     * Return database.
-     *
-     * @return \Tfish\Database
-     */
-    public function database(): \Tfish\Database
-    {
-        return $this->database;
-    }
-
-    /**
-     * Return CriteriaFactory.
-     *
-     * @return \Tfish\CriteriaFactory
-     */
-    public function criteriaFactory(): \Tfish\CriteriaFactory
-    {
-        return $this->criteriaFactory;
-    }
-
 }
