@@ -126,7 +126,7 @@
                     <i class="fas fa-times"></i></a>
                 <?php endif; ?>
               </td>
-              <td class="text-center text-nowrap"><a href="<?php echo TFISH_ADMIN_URL . 'blocks/'; ?>?action=edit&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-edit"></i></a></td>
+              <td class="text-center text-nowrap"><a href="<?php echo TFISH_ADMIN_URL . 'blocks/edit/'; ?>?action=edit&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-edit"></i></a></td>
               <td class="text-center text-nowrap"><a href="<?php echo TFISH_ADMIN_URL . 'blocks/'; ?>?action=confirmDelete&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-trash-alt"></i></a></td>
             </tr>
           <?php endforeach; ?>

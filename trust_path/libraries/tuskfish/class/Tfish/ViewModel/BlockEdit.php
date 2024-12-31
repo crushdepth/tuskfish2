@@ -94,12 +94,11 @@ class BlockEdit implements \Tfish\Interface\Viewable
     {
         $id = (int) ($_GET['id'] ?? 0);
 
-        $this->pageTitle = TFISH_EDIT_BLOCK;
-        $block = new \Tfish\User\Entity\User;
-
-        if ($data = $this->model->edit($id)) {
-            $content->load($data, false);
-            $this->setContent($content);
+        if ($row = $this->model->edit($id)) {
+            $className = $row['type'];
+            $block = new $className($row, $this->model->database(), $this->model->criteriaFactory());
+            $this->pageTitle = TFISH_EDIT_BLOCK;
+            $this->setContent($block);
             $this->action = 'update';
             $this->template = 'blockEdit';
         } else {

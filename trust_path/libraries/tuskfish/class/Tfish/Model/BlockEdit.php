@@ -101,7 +101,7 @@ class BlockEdit
         $blockId = $this->database->lastInsertId();
 
         if (!empty($_POST['route'])) {
-            $routes = $this->validateRoutes($_POST['route']);
+            $routes = $this->validateRoutes($_POST['route']) ?? [];
 
             if (!$this->saveblockRoutes($blockId, $routes)) {
                 return false;
@@ -259,6 +259,28 @@ class BlockEdit
         }
 
         return $verified;
+    }
+
+    /** Accessors */
+
+    /**
+     * Return database.
+     *
+     * @return \Tfish\Database
+     */
+    public function database(): \Tfish\Database
+    {
+        return $this->database;
+    }
+
+    /**
+     * Return CriteriaFactory.
+     *
+     * @return \Tfish\CriteriaFactory
+     */
+    public function criteriaFactory(): \Tfish\CriteriaFactory
+    {
+        return $this->criteriaFactory;
     }
 
 }
