@@ -333,7 +333,7 @@ class BlockEdit
         $config = $this->trimString($form['config'] ?? '');
 
         if ($config) {
-            $json = \json_encode($config);
+            $json = \json_encode(\json_decode($config, true));
 
             if (!\json_validate($json)) {
                 throw new \Exception('Invalid JSON encoding');
