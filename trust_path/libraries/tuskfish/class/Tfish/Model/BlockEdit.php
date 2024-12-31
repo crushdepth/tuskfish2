@@ -75,17 +75,17 @@ class BlockEdit
      * Edit block object.
      *
      * @param   int $id ID of block.
-     * @return  object Block as object.
+     * @return  object Block data as array.
      */
-    public function edit(int $id): object
+    public function edit(int $id): array
     {
-        $block = $this->getBlock($id);
+        $row = $this->getRow($id);
 
-        if (empty($block)) {
+        if (empty($row)) {
             return [];
         }
 
-        return $block;
+        return $row;
     }
 
     /**
@@ -155,12 +155,12 @@ class BlockEdit
     /** Utilities. */
 
     /**
-     * Get a single block as object .
+     * Get a single block data as array.
      *
      * @param   int $id ID of block.
-     * @return  object|bool Return block on success, false on failure.
+     * @return  array Block data on success, empty array on failure.
      */
-    private function getBlock(int $id): object|bool
+    private function getRow(int $id): array
     {
         $sql = "SELECT * FROM `block` WHERE `id` = :id";
         $statement = $this->database->preparedStatement($sql);
@@ -172,12 +172,9 @@ class BlockEdit
 
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
 
+        return !empty($row) ? $row : [];
+
         if (!$row) return false;
-
-        $className = $row['type'];
-        $block = new $className($row, $this->database, $this->criteriaFactory);
-
-        return $block;
     }
 
     /**
