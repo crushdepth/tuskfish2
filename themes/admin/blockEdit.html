@@ -1,6 +1,14 @@
 <?php declare(strict_types=1); ?>
 
-<?php $content = $viewModel->content(); ?>
+<?php
+  $content = $viewModel->content();
+
+  function doubleEscape(string $value): string
+  {
+    $value = (string) $value;
+    return \htmlspecialchars($value, ENT_NOQUOTES, 'UTF-8', true);
+  }
+?>
 
 <!-- Container -->
 <div class="container">
@@ -33,8 +41,12 @@
           <option value="" selected><?php echo TFISH_SELECT_TYPE; ?></option>
           <?php
             $options = $viewModel->blockTypes();
-            foreach ($options as $value => $label) {
-              echo '<option value="' . xss($value) . '">' . xss($label) . '</option>';
+            foreach ($options as $key => $value) {
+              if ($content['type'] === $key) {
+                  echo '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>';
+              } else {
+                echo '<option value="' . xss($key) . '">' . xss($value) . '</option>';
+              }
             }
           ?>
         </select>
@@ -42,46 +54,59 @@
     </div>
 
     <!-- Template -->
+    <?php
+      $template = $content['template'] ?? '';
+      $typeTemplates = $viewModel->blockTemplates()[$content['type']] ?? [];
+    ?>
+
     <div class="col-md-3 mb-3">
       <label for="template"><strong><?php echo TFISH_TEMPLATE; ?></strong> <span class="text-danger">*</span></label>
       <div class="form-group">
         <select class="form-control" name="content[template]" id="template" required>
-          <option value="" disabled selected><?php echo TFISH_SELECT_TEMPLATE; ?></option>
-          <!-- Options will be dynamically populated -->
+          <option value="" disabled <?php echo empty($template) ? 'selected' : ''; ?>><?php echo TFISH_SELECT_TEMPLATE; ?></option>
+          <?php foreach ($typeTemplates as $key => $label): ?>
+            <option value="<?php echo xss($key); ?>" <?php echo $key === $template ? 'selected' : ''; ?>>
+              <?php echo xss($label); ?>
+            </option>
+          <?php endforeach; ?>
         </select>
       </div>
     </div>
 
-      <!-- Position -->
-      <div class="col-md-3 mb-3">
-        <label for="position"><strong><?php echo TFISH_POSITION; ?></strong></label>
-        <div class="form-group">
-          <select class="form-control" name="content[position]" id="position">
-            <option value="" disabled selected><?php echo TFISH_SELECT_POSITION; ?></option>
-            <?php
-              $options = $viewModel->blockPositions();
-              foreach ($options as $value => $label) {
-                echo '<option value="' . xss($value) . '">' . xss($label) . '</option>';
+    <!-- Position -->
+    <div class="col-md-3 mb-3">
+      <label for="position"><strong><?php echo TFISH_POSITION; ?></strong></label>
+      <div class="form-group">
+        <select class="form-control" name="content[position]" id="position">
+          <option value="" disabled selected><?php echo TFISH_SELECT_POSITION; ?></option>
+          <?php
+            $options = $viewModel->blockPositions();
+            foreach ($options as $key => $value) {
+              if ($content['position'] === $key) {
+                  echo '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>';
+              } else {
+                echo '<option value="' . xss($key) . '">' . xss($value) . '</option>';
               }
-            ?>
-          </select>
-        </div>
+            }
+          ?>
+        </select>
       </div>
+    </div>
 
-      <!-- Route -->
-      <div class="col-md-3 mb-3">
-        <label for="route"><strong><?php echo TFISH_ROUTES; ?></strong></label>
-        <div class="form-group">
-          <select class="form-control" name="route[]" id="route" multiple size="5">
-            <?php
-              $options = $viewModel->blockRoutes();
-              foreach ($options as $option) {
-                echo '<option value="' . xss($option) . '">' . xss($option) . '</option>';
-              }
-            ?>
-          </select>
-        </div>
+    <!-- Route -->
+    <div class="col-md-3 mb-3">
+      <label for="route"><strong><?php echo TFISH_ROUTES; ?></strong></label>
+      <div class="form-group">
+        <select class="form-control" name="route[]" id="route" multiple size="5">
+          <?php
+            $options = $viewModel->blockRoutes();
+            foreach ($options as $option) {
+              echo '<option value="' . xss($option) . '">' . xss($option) . '</option>';
+            }
+          ?>
+        </select>
       </div>
+    </div>
 
     <!-- /row -->
     </div>
@@ -93,7 +118,7 @@
     <div class="col-md-6 mb-3">
       <label for="title"><strong><?php echo TFISH_TITLE; ?></strong></label>
       <div class="form-group input-group">
-        <input type="text" class="form-control" name="content[title]" id="title">
+        <input type="text" class="form-control" name="content[title]" id="title" value="<?php if (!empty($content['title'])) echo xss($content['title']); ?>">
       </div>
     </div>
 
@@ -105,19 +130,17 @@
       </div>
     </div>
 
-    <!-- Online Status -->
-    <div class="col-md-3 mb-3">
-      <label for="onlineStatus"><strong><?php echo TFISH_ONLINE_STATUS; ?></strong> <span class="text-danger">*</span></label>
-      <div class="form-group">
+    <!-- Online status -->
+    <div class="col-md-3 mb-3 text-left" id="onlineContainer">
+      <p><strong><?php echo TFISH_ONLINE_STATUS; ?> <span class="text-danger">*</span></strong></p>
         <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="content[onlineStatus]" id="online" value="1" required>
+          <input class="form-check-input" type="radio" id="online" name="content[onlineStatus]" value="1" <?php if ($content['onlineStatus']) { echo 'checked="checked"'; } ?> checked>
           <label class="form-check-label" for="online"><?php echo TFISH_ONLINE; ?></label>
         </div>
         <div class="form-check form-check-inline">
-          <input class="form-check-input" type="radio" name="content[onlineStatus]" id="offline" value="0" checked>
+          <input class="form-check-input" type="radio" id="offline" name="content[onlineStatus]" value="0" <?php if (!$content['onlineStatus']) { echo 'checked="checked"'; } ?> required>
           <label class="form-check-label" for="offline"><?php echo TFISH_OFFLINE; ?></label>
         </div>
-      </div>
     </div>
 
     <!-- /row -->
@@ -130,7 +153,7 @@
     <div class="col-md-12 mb-3">
       <label for="html"><strong><?php echo TFISH_HTML; ?></strong></label>
       <div class="form-group">
-        <textarea class="form-control" name="content[html]" id="html" rows="4"></textarea>
+        <textarea class="form-control" name="content[html]" id="html" rows="4"><?php if (!empty($content['html'])) { echo doubleEscape($content['html']); } ?></textarea>
       </div>
     </div>
 
@@ -144,7 +167,7 @@
     <div class="col-md-12 mb-3">
       <label for="config"><strong><?php echo TFISH_BLOCK_CONFIG; ?></strong></label>
       <div class="form-group">
-        <textarea class="form-control" name="content[config]" id="config" rows="4"></textarea>
+        <textarea class="form-control" name="content[config]" id="config" rows="4"><?php if (!empty($content['config'])) { echo $content['config']; } ?></textarea>
       </div>
     </div>
 
@@ -167,26 +190,3 @@
   </form>
 
 </div>
-
-<script>
-  // Function to update the 'template' select box options
-  function updateTemplateOptions() {
-    const typeField = document.getElementById('type'); // Type dropdown
-    const templateField = document.getElementById('template'); // Template dropdown
-    const selectedType = typeField.value; // Get selected 'type'
-
-    // Clear the current template options
-    templateField.innerHTML = '';
-
-    // Get the templates for the selected type
-    const typeTemplates = templates[selectedType] || {};
-
-    // Populate the template dropdown
-    for (const [value, label] of Object.entries(typeTemplates)) {
-      const option = document.createElement('option');
-      option.value = value;
-      option.textContent = label;
-      templateField.appendChild(option);
-    }
-  }
-</script>

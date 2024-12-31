@@ -1,15 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Function to update the 'template' select box options
+    const typeField = document.getElementById('type');
+    const templateField = document.getElementById('template');
+    const templates = <?php echo json_encode($viewModel->blockTemplates(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+
     function updateTemplateOptions() {
-        const typeField = document.getElementById('type'); // Type dropdown
-        const templateField = document.getElementById('template'); // Template dropdown
-        const selectedType = typeField.value; // Get selected 'type'
-
-        // Clear the current template options
-        templateField.innerHTML = '';
-
-        // Get the templates for the selected type
+        const selectedType = typeField.value;
         const typeTemplates = templates[selectedType] || {};
+
+        // Clear the template dropdown
+        templateField.innerHTML = '<option value="" disabled selected><?php echo TFISH_SELECT_TEMPLATE; ?></option>';
 
         // Populate the template dropdown
         for (const [value, label] of Object.entries(typeTemplates)) {
@@ -20,11 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Attach the event listener to the 'type' select box
-    const typeField = document.getElementById('type');
-    if (typeField) {
-        typeField.addEventListener('change', updateTemplateOptions);
-    } else {
-        console.error('The #type element does not exist in the DOM.');
-    }
+    // Attach event listener for type changes
+    typeField.addEventListener('change', updateTemplateOptions);
 });
