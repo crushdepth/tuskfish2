@@ -70,7 +70,7 @@
       <div class="col-md-3 mb-3">
         <label for="route"><strong><?php echo TFISH_ROUTES; ?></strong></label>
         <div class="form-group">
-          <select class="form-control" name="route[]" id="route" multiple size="5">
+          <select class="form-control" name="route[]" id="route" multiple size="4">
             <?php
               $options = $viewModel->blockRoutes();
               foreach ($options as $option) {

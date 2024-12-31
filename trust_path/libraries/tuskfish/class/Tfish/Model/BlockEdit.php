@@ -157,24 +157,39 @@ class BlockEdit
     /**
      * Get a single block data as array.
      *
+     * Retrieves block-routes as a comma-delimited string, which must be converted to an array.
+     *
      * @param   int $id ID of block.
      * @return  array Block data on success, empty array on failure.
      */
     private function getRow(int $id): array
     {
-        $sql = "SELECT * FROM `block` WHERE `id` = :id";
+        $sql = "SELECT "
+                . "`b`.*, "
+                . "GROUP_CONCAT(`br`.`route`, ',') AS route "
+            . "FROM "
+                . "`block` AS `b` "
+            . "LEFT JOIN "
+                . "`blockRoute` AS `br` ON `b`.`id` = `br`.`blockId` "
+            . "WHERE "
+                . "`b`.`id` = :id "
+            . "GROUP BY "
+                . "`b`.`id`";
+
         $statement = $this->database->preparedStatement($sql);
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);
 
         if (!$statement->execute()) {
-            return false;
+            return [];
         }
 
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
 
-        return !empty($row) ? $row : [];
+        if ($row) {
+            $row['route'] = $row['route'] ? explode(',', $row['route']) : [];
+        }
 
-        if (!$row) return false;
+        return $row ?: [];
     }
 
     /**

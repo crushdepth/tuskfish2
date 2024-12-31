@@ -97,11 +97,15 @@
     <div class="col-md-3 mb-3">
       <label for="route"><strong><?php echo TFISH_ROUTES; ?></strong></label>
       <div class="form-group">
-        <select class="form-control" name="route[]" id="route" multiple size="5">
+        <select class="form-control" name="route[]" id="route" multiple size="4">
           <?php
             $options = $viewModel->blockRoutes();
-            foreach ($options as $option) {
-              echo '<option value="' . xss($option) . '">' . xss($option) . '</option>';
+            foreach ($options as $key => $value) {
+              if (\in_array($value, $content['route'])) {
+                  echo '<option value="' . xss($value) . '" selected>' . xss($value) . '</option>';
+              } else {
+                echo '<option value="' . xss($value) . '">' . xss($value) . '</option>';
+              }
             }
           ?>
         </select>
