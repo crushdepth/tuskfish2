@@ -165,6 +165,8 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_BLOCK_BOTTOM_CENTRE", "Bottom centre");
 \define("TFISH_BLOCK_FOOTER", "Bottom centre");
 \define("TFISH_BLOCK_ADD", "Add block");
+\define("TFISH_WEIGHTS_WERE_UPDATED", "Block weights updated");
+\define("TFISH_WEIGHTS_UPDATE_FAILED", "Failed to update block weights");
 
 // Content blocks and templates.
 \define("TFISH_BLOCK_RECENT_CONTENT", "Recent content");

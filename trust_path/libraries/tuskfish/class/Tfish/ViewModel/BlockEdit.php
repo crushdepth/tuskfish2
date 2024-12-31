@@ -95,7 +95,7 @@ class BlockEdit implements \Tfish\Interface\Viewable
         $id = (int) ($_GET['id'] ?? 0);
 
         $this->pageTitle = TFISH_EDIT_BLOCK;
-        $content = new \Tfish\User\Entity\User;
+        $block = new \Tfish\User\Entity\User;
 
         if ($data = $this->model->edit($id)) {
             $content->load($data, false);

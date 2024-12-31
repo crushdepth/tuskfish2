@@ -247,10 +247,10 @@ class BlockAdmin implements \Tfish\Interface\Listable
 
         if ($this->model->updateWeights($weights)) {
             $this->pageTitle = TFISH_SUCCESS;
-            $this->response = TFISH_OBJECT_WAS_DELETED;
+            $this->response = TFISH_WEIGHTS_WERE_UPDATED;
         } else {
             $this->pageTitle = TFISH_FAILED;
-            $this->response = TFISH_OBJECT_DELETION_FAILED;
+            $this->response = TFISH_WEIGHTS_UPDATE_FAILED;
         }
     }
 
