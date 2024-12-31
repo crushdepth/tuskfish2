@@ -15,6 +15,7 @@
   </script>
 
   <!-- Block entry form interactives -->
+  <script>const TFISH_SELECT_TEMPLATE = '<?php echo xss(TFISH_SELECT_TEMPLATE); ?>';</script>
   <script src="<?php echo TFISH_VENDOR_URL . 'tuskfish/blockForm.js'; ?>"></script>
 
   <form class="form-horizontal" action="<?php echo TFISH_ADMIN_BLOCK_URL . 'edit/'; ?>" method="post"
@@ -70,7 +71,7 @@
       <div class="col-md-3 mb-3">
         <label for="route"><strong><?php echo TFISH_ROUTES; ?></strong></label>
         <div class="form-group">
-          <select class="form-control" name="route[]" id="route" multiple size="4">
+          <select class="form-control" name="route[]" id="route" multiple size="5">
             <?php
               $options = $viewModel->blockRoutes();
               foreach ($options as $option) {
@@ -165,3 +166,26 @@
   </form>
 
 </div>
+
+<script>
+  // Function to update the 'template' select box options
+  function updateTemplateOptions() {
+    const typeField = document.getElementById('type'); // Type dropdown
+    const templateField = document.getElementById('template'); // Template dropdown
+    const selectedType = typeField.value; // Get selected 'type'
+
+    // Clear the current template options
+    templateField.innerHTML = '';
+
+    // Get the templates for the selected type
+    const typeTemplates = templates[selectedType] || {};
+
+    // Populate the template dropdown
+    for (const [value, label] of Object.entries(typeTemplates)) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      templateField.appendChild(option);
+    }
+  }
+</script>
