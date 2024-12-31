@@ -187,16 +187,6 @@ class RecentContent implements \Tfish\Interface\Block
     /** Accessors */
 
     /**
-     * Return block content (html).
-     *
-     * @return string
-     */
-    public function html(): string
-    {
-        return $this->html;
-    }
-
-    /**
      * Return ID.
      *
      * @return integer
@@ -207,6 +197,26 @@ class RecentContent implements \Tfish\Interface\Block
     }
 
     /**
+     * Return position.
+     *
+     * @return string
+     */
+    public function position(): string
+    {
+        return $this->position;
+    }
+
+    /**
+     * Return weight.
+     *
+     * @return integer
+     */
+    public function weight(): int
+    {
+        return $this->weight;
+    }
+
+    /**
      * Return title.
      *
      * @return string
@@ -214,6 +224,16 @@ class RecentContent implements \Tfish\Interface\Block
     public function title(): string
     {
         return $this->title;
+    }
+
+    /**
+     * Return block content (html).
+     *
+     * @return string
+     */
+    public function html(): string
+    {
+        return $this->html;
     }
 
     /**

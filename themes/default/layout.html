@@ -99,19 +99,14 @@
         <!-- Testing blocks -->
         <div class="container">
         <div class="row">
-        <div class="col-6">
-        <!-- Recent Content Block -->
-        <?php if (empty($_GET['id']) && !empty($blocks[22])): ?>
-        <?php echo $blocks[22]->html(); ?>
-        <?php endif; ?>
+        <div class="col">
+            <?php
+            foreach ($blocks['position']['top-centre'] as $row => $block) {
+            echo $block->html();
+            echo '<br>' . $block->weight() . '<br>';
+            }
+            ?>
         </div>
-
-        <div class="col-6">
-        <?php if (empty($_GET['id']) && !empty($blocks[1])): ?>
-        <?php echo $blocks[1]->html(); ?>
-        <?php endif; ?>
-        </div>
-
         <!-- End test -->
 
         <!-- Main page -->

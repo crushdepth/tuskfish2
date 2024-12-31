@@ -43,6 +43,20 @@ interface Block
     public function title(): string;
 
     /**
+     * Return position.
+     *
+     * @return string
+     */
+    public function position(): string;
+
+    /**
+     * Return weight.
+     *
+     * @return integer
+     */
+    public function weight(): int;
+
+    /**
      * Return block contents (html).
      *
      * @return string

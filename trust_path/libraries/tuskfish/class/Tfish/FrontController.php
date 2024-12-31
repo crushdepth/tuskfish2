@@ -149,7 +149,10 @@ class FrontController
     private function renderLayout(Entity\Metadata $metadata, $viewModel, string $path)
     {
         $page = $this->view->render();
+
+        // If you don't want to use blocks, comment out the next line to conserve resources.
         $blocks = $this->renderBlocks($path);
+
         $metadata->update($viewModel->metadata());
         $session = $this->session;
 
@@ -169,6 +172,9 @@ class FrontController
      *
      * Blocks are loaded based on the URL path (route) associated with this request.
      * Blocks are sorted by ID. Display in layout.html via echo, eg: <?php echo $block[42]; ?>
+     * Blocks are also available by position, sorted by weight. A position may be accessed using
+     * its name as key, eg. $blocks['position']['top-left'] is an array containing the blocks for
+     * that position.
      *
      * @param string $path URL path.
      * @return array Blocked indexed by ID.
@@ -184,15 +190,41 @@ class FrontController
 
         $statement = $this->database->preparedStatement($sql);
         $statement->bindValue(':path', $path, \PDO::PARAM_STR);
-        $statement->setFetchMode(\PDO::FETCH_UNIQUE); // Index results by ID.
+        $statement->setFetchMode(\PDO::FETCH_UNIQUE); // Index by ID.
         $statement->execute();
         $rows = $statement->fetchAll();
+
+        if (empty($rows)) {
+            return $blocks;
+        }
 
         foreach ($rows as $key => $row) {
             $className = $row['type'];
             if (\class_exists($className)) {
                 $blocks[$row['id']] = new $className($row, $this->database, $this->criteriaFactory);
             }
+        }
+
+        // Add block positions.
+        $blocks['position'] = [];
+
+        foreach ($blocks as $id => &$block) {
+            if (\is_numeric($id)) {
+                $position = $block->position();
+
+                if (!isset($blocks['position'][$position])) {
+                    $blocks['position'][$position] = [];
+                }
+
+                $blocks['position'][$position][] = &$block; // Reference (not copy) existing rows.
+            }
+        }
+
+        // Sort each position by weight, ascending.
+        foreach ($blocks['position'] as $position => &$rows) {
+            \usort($rows, function ($a, $b) {
+                return $a->weight() <=> $b->weight();
+            });
         }
 
         return $blocks;
