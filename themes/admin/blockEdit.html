@@ -40,19 +40,11 @@
     <div class="col-md-3 mb-3">
       <label for="type"><strong><?php echo TFISH_TYPE; ?></strong> <span class="text-danger">*</span></label>
       <div class="form-group">
-        <select class="form-control" name="content[type]" id="type" required>
-          <option value="" selected><?php echo TFISH_SELECT_TYPE; ?></option>
-          <?php
-            $options = $viewModel->blockTypes();
-            foreach ($options as $key => $value) {
-              if ($content['type'] === $key) {
-                  echo '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>';
-              } else {
-                echo '<option value="' . xss($key) . '">' . xss($value) . '</option>';
-              }
-            }
-          ?>
+        <select class="form-control" name="content[type]" id="type" disabled>
+          <option value="<?php echo xss($content['type']); ?>" selected><?php echo xss($viewModel->blockTypes()[$content['type']] ?? ''); ?></option>
         </select>
+        <!-- Hidden input to ensure the type is submitted -->
+        <input type="hidden" name="content[type]" value="<?php echo xss($content['type']); ?>">
       </div>
     </div>
 
