@@ -42,6 +42,7 @@ class Html implements \Tfish\Interface\Block
     private array $config = [];
     private int $weight = 0;
     private string $template = 'html';
+    private string $configTemplate = 'html-config';
     private int $onlineStatus = 0;
     private mixed $content = false;
 
@@ -148,6 +149,16 @@ class Html implements \Tfish\Interface\Block
     }
 
     /**
+     * Return block type (fully qualified class).
+     *
+     * @return string
+     */
+    public function type(): string
+    {
+        return $this->type;
+    }
+
+    /**
      * Return position.
      *
      * @return string
@@ -158,13 +169,23 @@ class Html implements \Tfish\Interface\Block
     }
 
     /**
-     * Return weight.
+     * Return currently selected template file name.
      *
-     * @return integer
+     * @return string
      */
-    public function weight(): int
+    public function template(): string
     {
-        return $this->weight;
+        return $this->template;
+    }
+
+    /**
+     * Return configuration template file name.
+     *
+     * @return string
+     */
+    public function configTemplate(): string
+    {
+        return $this->configTemplate;
     }
 
     /**
@@ -178,6 +199,16 @@ class Html implements \Tfish\Interface\Block
     }
 
     /**
+     * Return weight.
+     *
+     * @return integer
+     */
+    public function weight(): int
+    {
+        return $this->weight;
+    }
+
+    /**
      * Return block content (html).
      *
      * @return string
@@ -185,6 +216,16 @@ class Html implements \Tfish\Interface\Block
     public function html(): string
     {
         return $this->html;
+    }
+
+    /**
+     * Return online status (0 = offline, 1 = online).
+     *
+     * @return integer
+     */
+    public function onlineStatus(): int
+    {
+        return $this->onlineStatus;
     }
 
     /**
@@ -196,6 +237,7 @@ class Html implements \Tfish\Interface\Block
     {
         return $this->config;
     }
+
 
     /**
      * Set and validate config data from JSON.

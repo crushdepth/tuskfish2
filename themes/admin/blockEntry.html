@@ -12,6 +12,7 @@
   <!-- Embed PHP blockTemplates into a JavaScript variable -->
   <script>
     const templates = <?php echo \json_encode($viewModel->blockTemplates(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+    const blockConfigTemplates = <?php echo \json_encode($viewModel->blockConfigTemplates(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
   </script>
 
   <!-- Block entry form interactives -->
@@ -141,8 +142,13 @@
     <!-- Config -->
     <div class="col-md-12 mb-3">
       <label for="config"><strong><?php echo TFISH_BLOCK_CONFIG; ?></strong></label>
-      <div class="form-group">
-        <textarea class="form-control" name="content[config]" id="config" rows="4"></textarea>
+      <div id="config-container">
+        <!-- Default config template -->
+        <?php
+          $defaultType = '\\Tfish\\Content\\Block\\Html';
+          $defaultTemplate = $viewModel->blockConfigTemplates()[$defaultType];
+          include TFISH_CONTENT_BLOCK_PATH . $defaultTemplate . '.html';
+        ?>
       </div>
     </div>
 
@@ -165,26 +171,3 @@
   </form>
 
 </div>
-
-<script>
-  // Function to update the 'template' select box options
-  function updateTemplateOptions() {
-    const typeField = document.getElementById('type'); // Type dropdown
-    const templateField = document.getElementById('template'); // Template dropdown
-    const selectedType = typeField.value; // Get selected 'type'
-
-    // Clear the current template options
-    templateField.innerHTML = '';
-
-    // Get the templates for the selected type
-    const typeTemplates = templates[selectedType] || {};
-
-    // Populate the template dropdown
-    for (const [value, label] of Object.entries(typeTemplates)) {
-      const option = document.createElement('option');
-      option.value = value;
-      option.textContent = label;
-      templateField.appendChild(option);
-    }
-  }
-</script>

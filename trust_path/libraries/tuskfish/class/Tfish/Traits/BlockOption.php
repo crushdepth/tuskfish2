@@ -88,6 +88,24 @@ trait BlockOption
     }
 
     /**
+     * Return the configuration template options for each block type.
+     *
+     * Each block type has different configuration options. A sub-template is used to provide the
+     * to provide custom config form fields in the block entry / edit forms. If you add a custom
+     * block, add its config template to this list.
+     *
+     * @return array
+     */
+    public function blockConfigTemplates(): array
+    {
+        return [
+            '\Tfish\Content\Block\RecentContent' => 'recent-content-config',
+            '\Tfish\Content\Block\Spotlight' => 'spotlight-config',
+            '\Tfish\Content\Block\Html' => 'html-config',
+        ];
+    }
+
+    /**
      * Whitelist of block types available on the system.
      *
      * If you add a custom block type, add it to this list. The key is the fully qualified

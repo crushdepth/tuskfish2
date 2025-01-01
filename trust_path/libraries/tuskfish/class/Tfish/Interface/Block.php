@@ -28,6 +28,8 @@ namespace Tfish\Interface;
 
 interface Block
 {
+    /** Accessors */
+
     /**
      * Return block ID.
      *
@@ -36,11 +38,11 @@ interface Block
     public function id(): int;
 
     /**
-     * Return block title.
+     * Return block type (fully qualified class).
      *
      * @return string
      */
-    public function title(): string;
+    public function type(): string;
 
     /**
      * Return position.
@@ -50,6 +52,27 @@ interface Block
     public function position(): string;
 
     /**
+     * Return currently selected template file name.
+     *
+     * @return string
+     */
+    public function template(): string;
+
+    /**
+     * Return configuration template file name.
+     *
+     * @return string
+     */
+    public function configTemplate(): string;
+
+    /**
+     * Return block title.
+     *
+     * @return string
+     */
+    public function title(): string;
+
+    /**
      * Return weight.
      *
      * @return integer
@@ -57,18 +80,18 @@ interface Block
     public function weight(): int;
 
     /**
-     * Return block contents (html).
+     * Return static block contents from database (html).
      *
      * @return string
      */
     public function html(): string;
 
     /**
-     * Return template options for this block.
+     * Return online status (0 = offline, 1 = online).
      *
-     * @return array
+     * @return integer
      */
-    public function listTemplates(): array;
+    public function onlineStatus(): int;
 
     /**
      * Return config data.
@@ -86,6 +109,24 @@ interface Block
     public function setConfig(string $json);
 
     /**
+     * Retrieve dynamically generated block content.
+     *
+     * @param \Tfish\Database $database
+     * @param \Tfish\CriteriaFactory $criteriaFactory
+     * @return void
+     */
+    public function content(\Tfish\Database $database, \Tfish\CriteriaFactory $criteriaFactory): void;
+
+    /** Utilities */
+
+    /**
+     * Return template options for this block.
+     *
+     * @return array
+     */
+    public function listTemplates(): array;
+
+    /**
      * Load a database row into a new block object.
      *
      * Call in constructor, before render().
@@ -93,15 +134,6 @@ interface Block
      * @return void
      */
     public function load(array $row): void;
-
-    /**
-     * Retrieve content from database.
-     *
-     * @param \Tfish\Database $database
-     * @param \Tfish\CriteriaFactory $criteriaFactory
-     * @return void
-     */
-    public function content(\Tfish\Database $database, \Tfish\CriteriaFactory $criteriaFactory): void;
 
     /**
      * Render the block.
