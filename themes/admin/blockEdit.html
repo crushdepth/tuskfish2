@@ -8,7 +8,7 @@
       $templateContents = [];
 
       foreach ($templates as $type => $templateName) {
-          $templatePath = TFISH_CONTENT_BLOCK_PATH . $templateName . '.html';
+          $templatePath = $viewModel->configPath($type) . $templateName . '.html';
           $templateContents[$type] = file_exists($templatePath) ?
               file_get_contents($templatePath) : '<p>' . TFISH_ERROR_TEMPLATE_NOT_FOUND . '</p>';
       }

@@ -121,4 +121,20 @@ trait BlockOption
             '\Tfish\Content\Block\Html' => TFISH_BLOCK_HTML,
         ];
     }
+
+    /**
+     * Calculate block config template path from fully qualified class name.
+     *
+     * @param string $class Fully qualified class name for a block.
+     * @return string File path to the config template for the block.
+     */
+    public function configPath(string $class): string
+    {
+        $class = $this->trimString($class);
+        $path = \mb_substr($class, 0, \mb_strrpos($class, '\\') + 1);
+        $convertedPath = \str_replace('\\', '/', $path);
+        $finalPath = ltrim($convertedPath, '/');
+
+        return TFISH_CLASS_PATH . $finalPath;
+    }
 }
