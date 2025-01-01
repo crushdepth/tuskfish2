@@ -1,5 +1,25 @@
 <?php declare(strict_types=1); ?>
 
+<!-- Embed PHP block templates and config templates into a JavaScript variable. -->
+<script>
+  const templates = <?php echo \json_encode($viewModel->blockTemplates(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+  const blockConfigTemplates = <?php
+      $templates = $viewModel->blockConfigTemplates();
+      $templateContents = [];
+
+      foreach ($templates as $type => $templateName) {
+          $templatePath = TFISH_CONTENT_BLOCK_PATH . $templateName . '.html';
+          $templateContents[$type] = file_exists($templatePath) ?
+              file_get_contents($templatePath) : '<p>' . TFISH_ERROR_TEMPLATE_NOT_FOUND . '</p>';
+      }
+
+      echo json_encode($templateContents, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
+  ?>;
+</script>
+
+<!-- Dynamically update template options and block configuration sub-template. -->
+<script src="<?php echo TFISH_VENDOR_URL . 'tuskfish/blockForm.js'; ?>"></script>
+
 <?php
   $content = $viewModel->content();
 
@@ -18,14 +38,6 @@
       <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
     </div>
   </div>
-
-  <!-- Embed PHP blockTemplates into a JavaScript variable -->
-  <script>
-    const templates = <?php echo \json_encode($viewModel->blockTemplates(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
-  </script>
-
-  <!-- Block entry form interactives -->
-  <script src="<?php echo TFISH_VENDOR_URL . 'tuskfish/blockForm.js'; ?>"></script>
 
   <form class="form-horizontal" action="<?php echo TFISH_ADMIN_BLOCK_URL . 'edit/'; ?>" method="post"
     role="form" accept-charset="UTF-8">
@@ -165,8 +177,8 @@
     <!-- Config -->
     <div class="col-md-12 mb-3">
       <label for="config"><strong><?php echo TFISH_BLOCK_CONFIG; ?></strong></label>
-      <div class="form-group">
-        <textarea class="form-control" name="content[config]" id="config" rows="4"><?php if (!empty($content['config'])) { echo $content['config']; } ?></textarea>
+      <div id="config-container">
+        <!-- This will be replaced by JavaScript -->
       </div>
     </div>
 
