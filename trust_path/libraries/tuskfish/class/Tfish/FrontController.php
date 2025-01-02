@@ -186,7 +186,8 @@ class FrontController
         $sql = "SELECT `block`.`id`, `type`, `position`, `title`, `html`, `config`, `weight`, "
             . "`template`, `onlineStatus` FROM `block` "
             . "INNER JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId` "
-            . "WHERE `blockRoute`.`route` = :path";
+            . "WHERE `blockRoute`.`route` = :path "
+            . "AND `onlineStatus` = '1'";
 
         $statement = $this->database->preparedStatement($sql);
         $statement->bindValue(':path', $path, \PDO::PARAM_STR);
