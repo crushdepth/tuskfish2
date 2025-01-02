@@ -45,6 +45,7 @@ class BlockEdit implements \Tfish\Interface\Viewable
     private $model;
     private $id = 0;
     private $content = '';
+    private $route = [];
     private $action = '';
     private $response = '';
     private $backUrl = '';
@@ -75,9 +76,10 @@ class BlockEdit implements \Tfish\Interface\Viewable
         $this->validateToken($token);
 
         if ($_POST['isReload'] ?? '') {
-            $content = $_POST['content'];
+            $content = $_POST['content'] ?? [];
             $this->setContent($content);
-            // what about routes
+            $route = $_POST['route'] ?? [];
+            $this->setRoute($route);
         }
 
         $this->pageTitle = TFISH_BLOCK_ADD;
@@ -205,6 +207,27 @@ class BlockEdit implements \Tfish\Interface\Viewable
     public function setContent(mixed $content)
     {
         $this->content = $content;
+    }
+
+    /**
+     * Return route(s).
+     *
+     * @return array
+     */
+    public function route(): array
+    {
+        return $this->route;
+    }
+
+    /**
+     * Set route(s).
+     *
+     * @param array $route
+     * @return void
+     */
+    public function setRoute(array $route)
+    {
+        $this->route = $route;
     }
 
     /**
