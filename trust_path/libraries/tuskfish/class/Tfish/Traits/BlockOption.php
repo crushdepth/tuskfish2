@@ -94,15 +94,27 @@ trait BlockOption
      * to provide custom config form fields in the block entry / edit forms. If you add a custom
      * block, add its config template to this list.
      *
-     * @return array
+     * @var string $class Fully qualified block class name.
+     * @return string $template Name of config template for this block class.
      */
-    public function blockConfigTemplates(): array
+    public function blockConfigTemplate(string $class): string
     {
-        return [
+        $template = '';
+
+        $configTemplates = [
             '\Tfish\Content\Block\RecentContent' => 'recent-content-config',
             '\Tfish\Content\Block\Spotlight' => 'spotlight-config',
             '\Tfish\Content\Block\Html' => 'html-config',
         ];
+
+        if (\array_key_exists($class, $configTemplates)) {
+            $path = $this->blockPath($class);
+            $template = $configTemplates[$class];
+        } else {
+            \trigger_error(TFISH_ERROR_TEMPLATE_NOT_FOUND, E_USER_ERROR);
+        }
+
+        return $path . $template . '.html';
     }
 
     /**
@@ -123,12 +135,12 @@ trait BlockOption
     }
 
     /**
-     * Calculate block config template path from fully qualified class name.
+     * Calculate block path from fully qualified class name.
      *
      * @param string $class Fully qualified class name for a block.
      * @return string File path to the config template for the block.
      */
-    public function configPath(string $class): string
+    private function blockPath(string $class): string
     {
         $class = $this->trimString($class);
         $path = \mb_substr($class, 0, \mb_strrpos($class, '\\') + 1);

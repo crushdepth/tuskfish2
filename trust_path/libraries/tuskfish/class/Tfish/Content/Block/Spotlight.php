@@ -24,7 +24,7 @@ namespace Tfish\Content\Block;
  * @version     Release: 2.0
  * @since       2.0
  * @package     content
- * @uses        trait \Tfish\Conten\Traits\ContentTypes Provides definition of permitted content object types.
+ * @uses        trait \Tfish\Content\Traits\ContentTypes Provides definition of permitted content object types.
  * @uses        trait \Tfish\Traits\IntegerCheck Validate and range check integers.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  */

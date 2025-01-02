@@ -74,6 +74,12 @@ class BlockEdit implements \Tfish\Interface\Viewable
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
 
+        if ($_POST['isReload'] ?? '') {
+            $content = $_POST['content'];
+            $this->setContent($content);
+            // what about routes
+        }
+
         $this->pageTitle = TFISH_BLOCK_ADD;
         $this->template = 'blockEntry';
     }
