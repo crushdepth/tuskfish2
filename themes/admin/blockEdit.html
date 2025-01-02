@@ -1,28 +1,20 @@
 <?php declare(strict_types=1); ?>
 
-<!-- Embed PHP block templates and config templates into a JavaScript variable. -->
+<!-- Make block data available. -->
+<?php
+  $content = $viewModel->content() ?? '';
+  $configTemplate = $viewModel->blockConfigTemplate($content['type']);
+?>
+
+<!-- Embed PHP block templates into a JavaScript variable. -->
 <script>
   const templates = <?php echo \json_encode($viewModel->blockTemplates(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
-  const blockConfigTemplates = <?php
-      $templates = $viewModel->blockConfigTemplates();
-      $templateContents = [];
-
-      foreach ($templates as $type => $templateName) {
-          $templatePath = $viewModel->configPath($type) . $templateName . '.html';
-          $templateContents[$type] = file_exists($templatePath) ?
-              file_get_contents($templatePath) : '<p>' . TFISH_ERROR_TEMPLATE_NOT_FOUND . '</p>';
-      }
-
-      echo json_encode($templateContents, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
-  ?>;
 </script>
 
 <!-- Dynamically update template options and block configuration sub-template. -->
 <script src="<?php echo TFISH_VENDOR_URL . 'tuskfish/blockForm.js'; ?>"></script>
 
 <?php
-  $content = $viewModel->content();
-
   function doubleEscape(string $value): string
   {
     $value = (string) $value;
@@ -137,7 +129,7 @@
     <div class="col-md-3 mb-3">
       <label for="weight"><strong><?php echo TFISH_WEIGHT; ?></strong> <span class="text-danger">*</span></label>
       <div class="form-group input-group">
-        <input type="number" class="form-control" name="content[weight]" id="weight" value="<?php echo !empty($content['weight']) ? xss($content['weight']) : 0; ?>" required>
+        <input type="number" class="form-control" name="content[weight]" id="weight" value="<?php echo !empty($content['weight']) ? xss($content['weight']) : 0; ?>" min="0" required>
       </div>
     </div>
 
@@ -161,29 +153,24 @@
     <div class="row justify-content-center">
 
     <!-- HTML -->
+    <?php if (!empty($content['type']) && $content['type'] === '\Tfish\Content\Block\Html'): ?>
     <div class="col-md-12 mb-3">
       <label for="html"><strong><?php echo TFISH_HTML; ?></strong></label>
       <div class="form-group">
-        <textarea class="form-control" name="content[html]" id="html" rows="4"><?php if (!empty($content['html'])) { echo doubleEscape($content['html']); } ?></textarea>
+        <textarea class="form-control" name="content[html]" id="html" rows="4">
+          <?php if (!empty($content['html'])) { echo ($content['html']); } ?>
+        </textarea>
       </div>
     </div>
+    <?php else: ?>
+      <input type="hidden" name="html" value="<?php echo $content['html'] ?? ''; ?>" />
+    <?php endif; ?>
 
     <!-- /row -->
     </div>
-
-    <!-- Row -->
-    <div class="row justify-content-center">
 
     <!-- Config -->
-    <div class="col-md-12 mb-3">
-      <label for="config"><strong><?php echo TFISH_BLOCK_CONFIG; ?></strong></label>
-      <div id="config-container">
-        <!-- This will be replaced by JavaScript -->
-      </div>
-    </div>
-
-    <!-- /row -->
-    </div>
+    <?php include $configTemplate; ?>
 
     <!-- Row -->
     <div class="row justify-content-center">
