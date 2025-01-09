@@ -250,6 +250,18 @@ class BlockEdit implements \Tfish\Interface\Viewable
         return $this->response;
     }
 
+    /** Utilities */
+
+    /**
+     * Returns a list of options for the tag select box.
+     *
+     * @return  array Array of tag IDs and titles as key-value pairs.
+     */
+    public function listTags(): array
+    {
+        return [0 => TFISH_ZERO_OPTION] + $this->model->onlineTagSelectOptions();
+    }
+
     /** Unused but required for compliance with interface. */
     public function fetchBlocks(string $path): array { return []; }
 }

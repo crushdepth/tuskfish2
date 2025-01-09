@@ -26,6 +26,7 @@ namespace Tfish\Model;
  * @package     core
  * @uses        trait \Tfish\Traits\BlockOption Validate that email address conforms to specification.
  * @uses        trait \Tfish\Traits\HtmlPurifier Instance of HTMLPurifier class.
+ * @uses        trait \Tfish\Traits\TagRead Retrieve tag information for display.
  * @uses        trait \Tfish\Traits\ValidateString Provides methods for validating UTF-8 character encoding and string composition.
  * @var         \Tfish\Database $database Instance of the Tuskfish database class.
  * @var         \Tfish\Session $session Instance of the Tuskfish session manager class.
@@ -37,6 +38,7 @@ class BlockEdit
 {
     use \Tfish\Traits\BlockOption;
     use \Tfish\Traits\HtmlPurifier;
+    use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
 
     private $database;
@@ -85,6 +87,9 @@ class BlockEdit
             return [];
         }
 
+        if (!empty($row['config']))
+            $row['config'] = \json_decode($row['config'], true);
+
         return $row;
     }
 
@@ -95,7 +100,7 @@ class BlockEdit
      */
     public function insert(): bool
     {
-        $content = $this->validateForm($_POST['content'], true);
+        $content = $this->validateForm($_POST['content']);
 
         // Insert block.
         if (!$this->database->insert('block', $content)) {
@@ -330,17 +335,17 @@ class BlockEdit
         $clean['html'] = $html ? $htmlPurifier->purify($html) : '';
 
         // Config.
-        $config = $this->trimString($form['config'] ?? '');
+        $config = $form['config'] ?? [];
 
-        if ($config) {
-            $json = \json_encode(\json_decode($config, true));
+        if ($config && \is_array($config)) {
+            $json = \json_encode($config);
 
             if (!\json_validate($json)) {
-                throw new \Exception('Invalid JSON encoding');
+                \trigger_error(TFISH_ERROR_INVALID_JSON, E_USER_ERROR);
             }
         }
 
-        $clean['config'] = $json ?? '';
+        $clean['config'] = $json ?? [];
 
         return $clean;
     }

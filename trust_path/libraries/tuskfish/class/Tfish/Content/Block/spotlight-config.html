@@ -1,1 +1,8 @@
-<p>This is the Spotlight configuration sub-template.</p>
+<div class="row">
+  <div class="col-md-3 mb-3">
+    <label for="content[config]"><strong><?php echo 'ID of content to spotlight'; ?></strong> <span class="text-danger">*</span></label>
+      <div class="form-group input-group">
+        <input type="number" class="form-control" name="content[config][id]" id="content[config][id]" value="<?php echo !empty($content['config']['id']) ? xss($content['config']['id']) : '0'; ?>" min="0" required>
+      </div>
+   </div>
+</div>

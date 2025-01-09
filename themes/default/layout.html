@@ -100,13 +100,15 @@
         <div class="container">
         <div class="row">
         <div class="col">
-            <?php
+          <?php
             if (!empty($blocks['position'])) {
-              foreach ($blocks['position']['top-centre'] as $row => $block) {
-              echo $block->html();
-              }
+
+              if (!empty($blocks['position']['top-centre'])) {
+                foreach ($blocks['position']['top-centre'] as $row => $block) {
+                echo $block->html();
+                }
             }
-            ?>
+          ?>
         </div>
         <!-- End test -->
 

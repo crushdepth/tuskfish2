@@ -259,7 +259,7 @@ class Spotlight implements \Tfish\Interface\Block
         $config = !empty($json) ? \json_decode($json, true) : [];
 
         // ID of spotlighted content.
-        $validConfig['id'] = $this->isInt($config['id'], 0) ? (int)$config['id'] : 0;
+        $validConfig['id'] = (int)$config['id'] ?? 0;
 
         // Show image?
 
