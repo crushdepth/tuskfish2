@@ -242,13 +242,13 @@ class Html implements \Tfish\Interface\Block
     /**
      * Set and validate config data from JSON.
      *
+     * There are no configuration options for HTML blocks at this time.
+     *
      * @param string $json
      * @return void
      */
     public function setConfig(string $json)
     {
-        $validConfig = [];
-        $config = !empty($json) ? \json_decode($json, true) : [];
-        $this->config = $validConfig;
+        $this->config = [];
     }
 }

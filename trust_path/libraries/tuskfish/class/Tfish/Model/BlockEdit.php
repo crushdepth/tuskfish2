@@ -336,16 +336,13 @@ class BlockEdit
 
         // Config.
         $config = $form['config'] ?? [];
+        $json = \json_encode($config);
 
-        if ($config && \is_array($config)) {
-            $json = \json_encode($config);
-
-            if (!\json_validate($json)) {
-                \trigger_error(TFISH_ERROR_INVALID_JSON, E_USER_ERROR);
-            }
+        if (!\json_validate($json)) {
+            \trigger_error(TFISH_ERROR_INVALID_JSON, E_USER_ERROR);
         }
 
-        $clean['config'] = $json ?? [];
+        $clean['config'] = $json ?? '';
 
         return $clean;
     }

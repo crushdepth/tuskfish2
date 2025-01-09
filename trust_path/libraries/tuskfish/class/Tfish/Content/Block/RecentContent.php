@@ -298,7 +298,8 @@ class RecentContent implements \Tfish\Interface\Block
         $config = !empty($json) ? \json_decode($json, true) : [];
 
         // Number of content items.
-        $validConfig['items'] = $this->isInt($config['items'], 0, 20) ? $config['items'] : 0;
+        $numItems = (int) $config['numItems'] ?? 0;
+        $validConfig['items'] = $this->isInt($numItems, 0, 20) ? $numItems : 0;
 
         // Tag filters.
         if (!empty($config['tag'])) {
