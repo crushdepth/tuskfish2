@@ -50,6 +50,8 @@ class RecentContent implements \Tfish\Interface\Block
     /** Constructor. */
     public function __construct(array $row, \Tfish\Database $database, \Tfish\criteriaFactory $criteriaFactory)
     {
+        if (empty($row['id'])) return;
+
         $this->load($row);
         $this->content($database, $criteriaFactory);
         $this->render();
@@ -63,15 +65,17 @@ class RecentContent implements \Tfish\Interface\Block
      */
     public function load(array $row): void
     {
-       $this->id = (int)$row['id'];
-       $this->position = $this->trimString($row['position']);
-       $this->type = $this->trimString($row['type']);
-       $this->title = $this->trimString($row['title']);
-       $this->setConfig($row['config']);
-       $this->weight = (int)$row['weight'];
-       $this->template = \in_array($row['template'], $this->listTemplates(), true)
-           ? $row['template'] : 'recent-content-compact';
-       $this->onlineStatus = ($row['onlineStatus'] == 1) ? 1 : 0;
+        if (empty($row['id'])) return;
+
+        $this->id = (int)$row['id'];
+        $this->position = $this->trimString($row['position']);
+        $this->type = $this->trimString($row['type']);
+        $this->title = $this->trimString($row['title']);
+        $this->setConfig($row['config'] ?? '');
+        $this->weight = (int)$row['weight'];
+        $this->template = \in_array($row['template'], $this->listTemplates(), true)
+            ? $row['template'] : 'recent-content-compact';
+        $this->onlineStatus = ($row['onlineStatus'] == 1) ? 1 : 0;
     }
 
     /**
@@ -295,7 +299,7 @@ class RecentContent implements \Tfish\Interface\Block
      * @param string $json
      * @return void
      */
-    public function setConfig(string $json): void
+    public function setConfig(string $json)
     {
         $config = !empty($json) ? \json_decode($json, true) : [];
         $this->config = $this->validateConfig($config);
@@ -314,7 +318,7 @@ class RecentContent implements \Tfish\Interface\Block
         $validConfig = [];
 
         // Number of content items.
-        $numItems = (int) $config['numItems'] ?? 0;
+        $numItems = (int) $config['items'] ?? 0;
         $validConfig['items'] = $this->isInt($numItems, 0, 20) ? $numItems : 0;
 
         // Tag filters.

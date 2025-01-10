@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tfish\Model;
 
+use Exception;
+
 /**
  * \Tfish\Model\BlockEdit class file.
  *
@@ -100,6 +102,7 @@ class BlockEdit
      */
     public function insert(): bool
     {
+        // Validate form.
         $content = $this->validateForm($_POST['content']);
 
         // Insert block.
@@ -150,6 +153,7 @@ class BlockEdit
     public function update(): bool
     {
         $content = $_POST['content'] ?? [];
+
         $validContent = $this->validateForm($content) ?? [];
 
         $routes = $_POST['route'] ?? [];
@@ -335,16 +339,31 @@ class BlockEdit
         $clean['html'] = $html ? $htmlPurifier->purify($html) : '';
 
         // Config.
-        $config = $form['config'] ?? [];
+        $clean['config'] = $this->validateEncodeConfig($form);
+
+        return $clean;
+    }
+
+    /**
+     * Validate configuration options and encode as JSON.
+     *
+     * @param array $form
+     * @return string JSON-encoded block configuration data.
+     */
+    public function validateEncodeConfig(array $form): string
+    {
+        $type = $form['type'];
+        $config = !empty($form['config']) ? $form['config'] : [];
+
+        $block = new $type([], $this->database, $this->criteriaFactory);
+        $config = $block->validateConfig($config);
         $json = \json_encode($config);
 
         if (!\json_validate($json)) {
             \trigger_error(TFISH_ERROR_INVALID_JSON, E_USER_ERROR);
         }
 
-        $clean['config'] = $json ?? '';
-
-        return $clean;
+        return $json;
     }
 
     /**

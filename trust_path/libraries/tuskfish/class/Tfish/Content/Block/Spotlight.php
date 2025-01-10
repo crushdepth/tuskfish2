@@ -49,6 +49,8 @@ class Spotlight implements \Tfish\Interface\Block
     /** Constructor. */
     public function __construct(array $row, \Tfish\Database $database, \Tfish\criteriaFactory $criteriaFactory)
     {
+        if (empty($row['id'])) return;
+
         $this->load($row);
         $this->content($database, $criteriaFactory);
         $this->render();
@@ -62,14 +64,14 @@ class Spotlight implements \Tfish\Interface\Block
      */
     public function load(array $row): void
     {
-       $this->id = (int)$row['id'];
-       $this->position = $this->trimString($row['position']);
-       $this->title = $this->trimString($row['title']);
-       $this->setConfig($row['config']);
-       $this->weight = (int)$row['weight'];
-       $this->template = \in_array($row['template'], $this->listTemplates(), true)
-           ? $row['template'] : 'spotlight-compact';
-       $this->onlineStatus = ($row['onlineStatus'] == 1) ? 1 : 0;
+        $this->id = (int)$row['id'];
+        $this->position = $this->trimString($row['position']);
+        $this->title = $this->trimString($row['title']);
+        $this->setConfig($row['config'] ?? '');
+        $this->weight = (int)$row['weight'];
+        $this->template = \in_array($row['template'], $this->listTemplates(), true)
+            ? $row['template'] : 'spotlight-compact';
+        $this->onlineStatus = ($row['onlineStatus'] == 1) ? 1 : 0;
     }
 
     /**
@@ -255,7 +257,7 @@ class Spotlight implements \Tfish\Interface\Block
      */
     public function setConfig(string $json)
     {
-        $config = !empty($json) ? \json_decode($json, true) : [];
+        $config = \json_decode($json, true);
         $this->config = $this->validateConfig($config);
     }
 
@@ -274,7 +276,6 @@ class Spotlight implements \Tfish\Interface\Block
         // ID of spotlighted content.
         $validConfig['id'] = (int)$config['id'] ?? 0;
 
-        // Future options:
         // Show a different image (ID).
 
         return $validConfig;

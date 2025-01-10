@@ -61,15 +61,17 @@ class Html implements \Tfish\Interface\Block
      */
     public function load(array $row): void
     {
-       $this->id = (int)$row['id'];
-       $this->position = $this->trimString($row['position']);
-       $this->title = $this->trimString($row['title']);
-       $this->html = $this->trimString($row['html']);
-       $this->setConfig($row['config']);
-       $this->weight = (int)$row['weight'];
-       $this->template = \in_array($row['template'], $this->listTemplates(), true)
-           ? $row['template'] : 'html';
-       $this->onlineStatus = ($row['onlineStatus'] == 1) ? 1 : 0;
+        if (empty($row['id'])) return;
+
+        $this->id = (int)$row['id'];
+        $this->position = $this->trimString($row['position']);
+        $this->title = $this->trimString($row['title']);
+        $this->html = $this->trimString($row['html']);
+        $this->setConfig($row['config'] ?? '');
+        $this->weight = (int)$row['weight'];
+        $this->template = \in_array($row['template'], $this->listTemplates(), true)
+            ? $row['template'] : 'html';
+        $this->onlineStatus = ($row['onlineStatus'] == 1) ? 1 : 0;
     }
 
     /**
@@ -244,7 +246,7 @@ class Html implements \Tfish\Interface\Block
      *
      * There are no configuration options for HTML blocks at this time.
      *
-     * @param string $json
+     * @param array $json
      * @return void
      */
     public function setConfig(string $json)
@@ -260,5 +262,5 @@ class Html implements \Tfish\Interface\Block
      * @param array $config
      * @return array Validated configuration data (whitelisted, type and range checked).
      */
-    public function validateConfig(array $config): array { return []; }
+    public function validateConfig(array $config): array { return $config; }
 }
