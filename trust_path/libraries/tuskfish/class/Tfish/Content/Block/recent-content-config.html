@@ -8,11 +8,11 @@
   </div>
 
   <div class="col-md-3 mb-3">
-    <label for="content[config][tags]"><strong><?php echo 'Filter content by tag(s)'; ?></strong></label>
-    <select multiple class="form-control custom-select" size="5"  name="content[config][tags][]" id="content[config][tags]">
+    <label for="content[config][tag]"><strong><?php echo 'Filter content by tag(s)'; ?></strong></label>
+    <select multiple class="form-control custom-select" size="5"  name="content[config][tag][]" id="content[config][tag]">
       <?php
           foreach ($viewModel->listTags() as $tagId => $tagTitle) {
-            if (!empty($content['config']['tags']) && \in_array($tagId, $content['config']['tags'])) {
+            if (!empty($content['config']['tag']) && \in_array($tagId, $content['config']['tag'])) {
               echo '<option value="' . xss($tagId) . '" selected>' . xss($tagTitle) . '</option>';
             } else {
                 echo '<option value="' . xss($tagId) . '">' . xss($tagTitle) . '</option>';

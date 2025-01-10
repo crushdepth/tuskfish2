@@ -90,10 +90,12 @@ class RecentContent implements \Tfish\Interface\Block
     {
         $types = $this->config['type'] ?? [];
         $tags  = $this->config['tag']  ?? [];
-
         $sql = "SELECT `content`.`id`, `title`
-        FROM `content`
-        INNER JOIN `taglink` ON `content`.`id` = `taglink`.`contentId`";
+        FROM `content` ";
+
+        if (!empty($tags)) {
+            $sql .= "INNER JOIN `taglink` ON `content`.`id` = `taglink`.`contentId` ";
+        }
 
         $conditions = ["`onlineStatus` = 1"];
 
@@ -304,8 +306,9 @@ class RecentContent implements \Tfish\Interface\Block
         // Tag filters.
         if (!empty($config['tag'])) {
 
-            foreach ($config['tag'] as $tag) {
-                if ($this->isInt($tag, 0, null)) {
+            foreach ($config['tag'] as $key => $tag) {
+                $tag = (int) $tag;
+                if ($tag > 0) {
                     $validConfig['tag'][] = $tag;
                 }
             }

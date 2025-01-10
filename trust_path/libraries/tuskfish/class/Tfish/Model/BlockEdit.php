@@ -87,8 +87,7 @@ class BlockEdit
             return [];
         }
 
-        if (!empty($row['config']))
-            $row['config'] = \json_decode($row['config'], true);
+        $row['config'] = \json_decode($row['config'], true);
 
         return $row;
     }
