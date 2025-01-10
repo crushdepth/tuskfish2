@@ -147,4 +147,14 @@ interface Block
      * @return void
      */
     public function render(): void;
+
+    /**
+     * Validate configuration settings.
+     *
+     * Invalid configuration options will be zeroed or set to default values.
+     *
+     * @param array $config
+     * @return array Validated configuration data (whitelisted, type and range checked).
+     */
+    public function validateConfig(array $config): array;
 }

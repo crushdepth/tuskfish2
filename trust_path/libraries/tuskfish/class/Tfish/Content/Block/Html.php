@@ -251,4 +251,14 @@ class Html implements \Tfish\Interface\Block
     {
         $this->config = [];
     }
+
+    /**
+     * Validate configuration settings.
+     *
+     * Not in use as no configuration options for this block type.
+     *
+     * @param array $config
+     * @return array Validated configuration data (whitelisted, type and range checked).
+     */
+    public function validateConfig(array $config): array { return []; }
 }

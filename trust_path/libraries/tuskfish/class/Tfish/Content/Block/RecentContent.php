@@ -298,6 +298,20 @@ class RecentContent implements \Tfish\Interface\Block
     public function setConfig(string $json): void
     {
         $config = !empty($json) ? \json_decode($json, true) : [];
+        $this->config = $this->validateConfig($config);
+    }
+
+    /**
+     * Validate configuration settings.
+     *
+     * Invalid configuration options will be zeroed or set to default values.
+     *
+     * @param array $config
+     * @return array Validated configuration data (whitelisted, type and range checked).
+     */
+    public function validateConfig(array $config): array
+    {
+        $validConfig = [];
 
         // Number of content items.
         $numItems = (int) $config['numItems'] ?? 0;
@@ -322,6 +336,6 @@ class RecentContent implements \Tfish\Interface\Block
             }
         }
 
-        $this->config = $validConfig;
+        return $validConfig;
     }
 }

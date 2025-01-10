@@ -255,16 +255,28 @@ class Spotlight implements \Tfish\Interface\Block
      */
     public function setConfig(string $json)
     {
-        $validConfig = [];
         $config = !empty($json) ? \json_decode($json, true) : [];
+        $this->config = $this->validateConfig($config);
+    }
+
+    /**
+     * Validate configuration settings.
+     *
+     * Invalid configuration options will be zeroed or set to default values.
+     *
+     * @param array $config
+     * @return array Validated configuration data (whitelisted, type and range checked).
+     */
+    public function validateConfig(array $config): array
+    {
+        $validConfig = [];
 
         // ID of spotlighted content.
         $validConfig['id'] = (int)$config['id'] ?? 0;
 
-        // Show image?
+        // Future options:
+        // Show a different image (ID).
 
-        // Show a different image?
-
-        $this->config = $validConfig;
+        return $validConfig;
     }
 }
