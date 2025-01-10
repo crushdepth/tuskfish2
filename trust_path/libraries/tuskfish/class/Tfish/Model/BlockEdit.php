@@ -36,6 +36,7 @@ namespace Tfish\Model;
  */
 class BlockEdit
 {
+    use \Tfish\Content\Traits\ContentTypes;
     use \Tfish\Traits\BlockOption;
     use \Tfish\Traits\HtmlPurifier;
     use \Tfish\Traits\TagRead;

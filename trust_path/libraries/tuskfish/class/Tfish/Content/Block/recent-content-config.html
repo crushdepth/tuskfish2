@@ -22,4 +22,19 @@
     </select>
   </div>
 
+  <div class="col-md-3 mb-3">
+    <label for="content[config][type]"><strong><?php echo 'Filter content by type(s)'; ?></strong></label>
+    <select multiple class="form-control custom-select" size="5"  name="content[config][type][]" id="content[config][type]">
+      <?php
+          foreach ($viewModel->listTypes() as $key => $value) {
+            if (!empty($content['config']['type']) && \in_array($key, $content['config']['type'])) {
+              echo '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>';
+            } else {
+                echo '<option value="' . xss($key) . '">' . xss($value) . '</option>';
+            }
+          }
+      ?>
+    </select>
+  </div>
+
 </div>

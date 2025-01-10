@@ -316,8 +316,9 @@ class RecentContent implements \Tfish\Interface\Block
 
         // Content type filter.
         if (!empty($config['type'])) {
+            $types = $this->listTypes();
             foreach ($config['type'] as $type) {
-                $validConfig['type'][] = \array_key_exists($type, $this->listTypes()) ? $type : '';
+                $validConfig['type'][] = \array_key_exists($type, $types) ? $type : '';
             }
         }
 

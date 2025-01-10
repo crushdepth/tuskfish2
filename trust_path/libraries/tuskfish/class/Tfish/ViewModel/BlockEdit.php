@@ -262,6 +262,16 @@ class BlockEdit implements \Tfish\Interface\Viewable
         return [0 => TFISH_ZERO_OPTION] + $this->model->onlineTagSelectOptions();
     }
 
+    /**
+     * Returns a list of options for the content type select box.
+     *
+     * @return  array Array of content types and titles as key-value pairs.
+     */
+    public function listTypes(): array
+    {
+        return [0 => TFISH_ZERO_OPTION] + $this->model->listTypes();
+    }
+
     /** Unused but required for compliance with interface. */
     public function fetchBlocks(string $path): array { return []; }
 }
