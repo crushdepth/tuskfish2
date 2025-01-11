@@ -100,11 +100,11 @@
         <?php if (!empty($blocks['position']['top-centre'])): ?>
         <div class="container">
           <div class="row">
-            <div class="col">
               <?php foreach ($blocks['position']['top-centre'] ?? [] as $block): ?>
-              <?= $block->html(); ?>
+              <div class="col-4">
+                <?= $block->html(); ?>
+              </div>
               <?php endforeach; ?>
-            </div>
           </div>
         </div>
         <?php endif; ?>
@@ -116,11 +116,11 @@
         <?php if (!empty($blocks['position']['bottom-centre'])): ?>
         <div class="container">
           <div class="row">
-            <div class="col">
               <?php foreach ($blocks['position']['bottom-centre'] ?? [] as $block): ?>
-              <?= $block->html(); ?>
+              <div class="col-4">
+                <?= $block->html(); ?>
+              </div>
               <?php endforeach; ?>
-            </div>
           </div>
         </div>
         <?php endif; ?>
