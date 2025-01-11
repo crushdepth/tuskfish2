@@ -149,8 +149,6 @@ class FrontController
     private function renderLayout(Entity\Metadata $metadata, $viewModel, string $path)
     {
         $page = $this->view->render();
-
-        // If you don't want to use blocks, comment out the next line to conserve resources.
         $blocks = $this->renderBlocks($path);
 
         $metadata->update($viewModel->metadata());
