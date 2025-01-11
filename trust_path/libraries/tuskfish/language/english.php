@@ -163,7 +163,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_BLOCK_BOTTOM_LEFT", "Bottom left");
 \define("TFISH_BLOCK_BOTTOM_RIGHT", "Bottom right");
 \define("TFISH_BLOCK_BOTTOM_CENTRE", "Bottom centre");
-\define("TFISH_BLOCK_FOOTER", "Bottom centre");
+\define("TFISH_BLOCK_FOOTER", "Footer");
 \define("TFISH_BLOCK_ADD", "Add block");
 \define("TFISH_WEIGHTS_WERE_UPDATED", "Block weights updated");
 \define("TFISH_WEIGHTS_UPDATE_FAILED", "Failed to update block weights");
