@@ -10,103 +10,50 @@ namespace Tfish\Traits;
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
- * @version     Release: 2.1
- * @since       2.1
+ * @version     Release: 2.0
+ * @since       2.0
  * @package     core
  */
 
- /**
+/**
  * Validate that email address conforms to specification.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
- * @version     Release: 2.1
- * @since       2.1
+ * @version     Release: 2.0
+ * @since       2.0
  * @package     core
  */
 
 trait EmailCheck
 {
     /**
-     * Validates an email address with rigorous validation of the domain part.
+     * Check if an email address is valid.
      *
-     * Does NOT support internationalised domains.
+     * Note that valid email addresses can contain database-unsafe characters such as single quotes.
      *
-     * @param string $email The email address to validate.
-     * @param bool $checkDns Whether to check for the existence of the domain via DNS records.
-     * @return bool True if valid, false otherwise.
+     * @param string $email Input to be tested.
+     * @return bool True if a valid email address, otherwise false.
      */
-    public function isEmail(string $email, bool $checkDns = false): bool
+    public function isEmail(string $email): bool
     {
-        // Trim the email to remove unwanted whitespace.
+        // Trim whitespace from the email address.
         $email = trim($email);
 
-        // Reject empty email input after trimming.
-        if ($email === '') {
+        // Check if the email address meets minimum length requirements.
+        if (strlen($email) < 3) {
             return false;
         }
 
-        // Reject email if it contains any non-ASCII characters.
-        if (preg_match('/[^\x00-\x7F]/', $email)) {
-            return false; // Contains non-ASCII characters.
+        // FILTER_VALIDATE_EMAIL has some really stupid behaviour:
+        // If the email is valid, it returns the email as a string (not 'true').
+        // If the email is an invalid string, or does not contain '@', it returns null (not 'false')
+        if (filter_var($email, FILTER_VALIDATE_EMAIL) !== false &&
+                filter_var($email, FILTER_VALIDATE_EMAIL) !== null) {
+            return true;
         }
 
-        // Define the email pattern according to RFC 5322 (simplified).
-        $atom             = '[a-zA-Z0-9!#$%&\'*+/=?^_`{|}~-]+';
-        $dotAtom          = $atom . '(?:\.' . $atom . ')*';
-        $quotedString     = '"(?:\\[\x00-\x7F]|[^"\\])*"';
-        $localPartPattern = '(?:' . $dotAtom . '|' . $quotedString . ')';
-
-        $label          = '[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?';
-        $domainPattern  = $label . '(?:\.' . $label . ')*\.[a-zA-Z]{2,63}';
-
-        $pattern = '/^' . $localPartPattern . '@' . $domainPattern . '$/';
-
-        // Validate the email format using the regex.
-        if (!preg_match($pattern, $email)) {
-            return false; // Invalid email format.
-        }
-
-        // Split the email into local and domain parts.
-        [$localPart, $domainPart] = explode('@', $email, 2);
-
-        if (empty($localPart) || empty($domainPart)) {
-            return false; // Invalid email structure.
-        }
-
-        // Ensure the local part, domain part, and entire email are within valid length limits.
-        if (strlen($localPart) > 64 || strlen($domainPart) > 255 || strlen($email) > 254) {
-            return false; // Exceeds length limits.
-        }
-
-        // Additional checks on the domain part.
-        if ($domainPart[0] === '.' || strpos($domainPart, '..') !== false) {
-            return false; // Invalid domain structure.
-        }
-
-        // Validate each domain label.
-        $labels = explode('.', $domainPart);
-        foreach ($labels as $label) {
-            $labelLength = strlen($label);
-            if ($label === '' || $labelLength < 1 || $labelLength > 63) {
-                return false; // Invalid label length or empty label.
-            }
-            if (!preg_match('/^[a-zA-Z0-9-]+$/', $label)) {
-                return false; // Invalid label characters.
-            }
-            if ($label[0] === '-' || $label[$labelLength - 1] === '-') {
-                return false; // Label starts or ends with a hyphen.
-            }
-        }
-
-        // Check for MX or A records, but only if $checkDns is true.
-        if ($checkDns && function_exists('checkdnsrr')) {
-            if (!checkdnsrr($domainPart, 'MX') && !checkdnsrr($domainPart, 'A')) {
-                return false; // Domain doesn't have valid DNS records.
-            }
-        }
-
-        return true; // Email format and domain are valid.
+        return false;
     }
 }
