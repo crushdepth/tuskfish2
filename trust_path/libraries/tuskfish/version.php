@@ -17,3 +17,4 @@ namespace Tfish;
 
 $version = 'Tuskfish V2.0.8';
 $released = '28 November 2024';
+// $minPhpVersion = '8.3';
