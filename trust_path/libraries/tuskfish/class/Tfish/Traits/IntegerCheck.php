@@ -36,7 +36,7 @@ trait IntegerCheck
      * @param int|null $max Maximum acceptable value.
      * @return bool True if valid int and within optional range check, false otherwise.
      */
-    public function isInt(int $int, ?int $min = null, ?int $max = null): bool
+    public function isInt(int $int, int|null $min = null, int|null $max = null): bool
     {
         $int = \is_int($int) ? $int : null;
         $min = \is_int($min) ? $min : null;

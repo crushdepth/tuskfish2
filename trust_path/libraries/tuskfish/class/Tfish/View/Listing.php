@@ -38,10 +38,10 @@ class Listing
     /**
      * Constructor
      *
-     * @param   \Tfish\ViewModel\Listable $viewModel Instance of the viewModel required by this route.
+     * @param   \Tfish\Interface\Listable $viewModel Instance of the viewModel required by this route.
      * @param   \Tfish\Pagination Instance of the Tuskfish pagination class.
      */
-    public function __construct(\Tfish\ViewModel\Listable $viewModel, \Tfish\Pagination $pagination)
+    public function __construct(\Tfish\Interface\Listable $viewModel, \Tfish\Pagination $pagination)
     {
         $this->viewModel = $viewModel;
         $this->pagination = $pagination;
@@ -50,7 +50,7 @@ class Listing
     /**
      * Render the pagination control.
      *
-     * @return  string Pagination control output as HTML.
+     * @return string Pagination control output as HTML.
      */
     public function pagination()
     {

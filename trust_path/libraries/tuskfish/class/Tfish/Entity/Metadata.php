@@ -41,15 +41,15 @@ class Metadata
 {
     use \Tfish\Traits\ValidateString;
 
-    public $siteName = '';
-    public $title = '';
-    public $description = '';
-    public $author = '';
-    public $copyright = '';
-    public $seo = '';
-    public $robots = '';
-    public $canonicalUrl = '';
-    public $language = '';
+    public string $siteName = '';
+    public string $title = '';
+    public string $description = '';
+    public string $author = '';
+    public string $copyright = '';
+    public string $seo = '';
+    public string $robots = '';
+    public string $canonicalUrl = '';
+    public string $language = '';
     /**
      * Constructor.
      *

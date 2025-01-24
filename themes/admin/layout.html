@@ -45,7 +45,8 @@
     <!-- TinyMCE editor -->
     <script src="<?php echo TFISH_VENDOR_URL . 'tinymce/tinymce.min.js'; ?>"></script>
     <script>tinymce.init({
-        selector: "#teaser,#description,#experience,#projects,#publications",
+        license_key: 'gpl',
+        selector: "#teaser,#description,#experience,#projects,#publications,#html",
         autoresize_max_height: 700,
         entity_encoding: "raw",
         plugins: "anchor,autosave,autoresize,charmap,code,codesample,emoticons,image,link,lists,media,table,wordcount",
@@ -54,6 +55,7 @@
         pasteastext: true,
         image_caption: true,
         convert_urls: false,
+        promotion: false,
   });
     </script>
 
@@ -85,6 +87,9 @@
               <?php if ($session->isEditor()): ?>
               <li class="nav-item">
                   <a class="nav-link"  href="<?php echo TFISH_ADMIN_URL; ?>"><?php echo TFISH_ADMIN; ?></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link"  href="<?php echo TFISH_URL . 'admin/blocks/'; ?>"><?php echo TFISH_ADMIN_BLOCKS; ?></a>
               </li>
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" id="settings" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo TFISH_SETTINGS; ?></a>

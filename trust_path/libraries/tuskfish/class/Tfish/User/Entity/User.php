@@ -44,15 +44,15 @@ class User
 {
     use \Tfish\Traits\ValidateString;
 
-    private $id = 0;
-    private $adminEmail = '';
-    private $passwordHash = '';
-    private $userGroup = 0;
-    private $yubikeyId = '';
-    private $yubikeyId2 = '';
-    private $yubikeyId3 = '';
-    private $loginErrors = 0;
-    private $onlineStatus = 0;
+    private int $id = 0;
+    private string $adminEmail = '';
+    private string $passwordHash = '';
+    private int $userGroup = 0;
+    private string $yubikeyId = '';
+    private string $yubikeyId2 = '';
+    private string $yubikeyId3 = '';
+    private int $loginErrors = 0;
+    private int $onlineStatus = 0;
 
     /**
      * Load properties.

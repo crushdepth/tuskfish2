@@ -28,13 +28,13 @@ namespace Tfish\ViewModel;
  * @since       2.0
  * @package     core
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
- * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\View\Viewable interface.
+ * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\Interface\Viewable interface.
  * @var         object $model Classname of the model used to display this page.
  * @var         string $theme Name of the theme used to display this page.
  * @var         string $template Name of the HTML template used to display this page (without the file extension).
  */
 
-class Token implements Viewable
+class Token implements \Tfish\Interface\Viewable
 {
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;

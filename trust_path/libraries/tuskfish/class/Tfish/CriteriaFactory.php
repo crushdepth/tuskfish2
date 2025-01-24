@@ -50,7 +50,7 @@ class CriteriaFactory
      * acceptable operators.
      * @return \Tfish\CriteriaItem
      */
-    public function item(string $column, $value, string $operator = '='): CriteriaItem
+    public function item(string $column, mixed $value, string $operator = '='): CriteriaItem
     {
         return new CriteriaItem($column, $value, $operator);
     }

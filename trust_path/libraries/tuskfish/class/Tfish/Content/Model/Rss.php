@@ -76,7 +76,6 @@ class Rss
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
         $criteria->add($this->criteriaFactory->item('type', 'TfStatic', '!='));
-        $criteria->add($this->criteriaFactory->item('type', 'TfBlock', '!='));
         $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
         $statement = $this->database->select('content', $criteria, ['title', 'description']);
 
@@ -98,7 +97,6 @@ class Rss
         $criteria->setOrder("DESC");
         $criteria->add($this->criteriaFactory->item('type', 'TfStatic', '!='));
         $criteria->add($this->criteriaFactory->item('type', 'TfTag', '!='));
-        $criteria->add($this->criteriaFactory->item('type', 'TfBlock', '!='));
         $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
 
         if ($parentId > 0) {
@@ -125,11 +123,10 @@ class Rss
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('module', 'content'));
         $criteria->add($this->criteriaFactory->item('tagId', $tagId));
-        $criteria->add($this->criteriaFactory->item('contentType', 'TfBlock', '!='));
 
         $statement = $this->database->select('taglink', $criteria, ['contentId']);
 
-        $params = $this->database->selectDistinct('taglink', $criteria, ['contentId'])
+        $params = $this->database->selectDistinct('taglink', ['contentId'], $criteria)
             ->fetchAll(\PDO::FETCH_COLUMN);
 
         if (empty($params)) {

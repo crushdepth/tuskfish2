@@ -57,31 +57,31 @@ class Preference
     use \Tfish\Traits\Timezones;
     use \Tfish\Traits\ValidateString;
 
-    private $database;
+    private \Tfish\Database $database;
 
-    private $siteName = ''; // global
-    private $siteDescription = ''; // viewmodel
-    private $siteAuthor = ''; // viewmodel
-    private $siteEmail = ''; // viewmodel
-    private $siteCopyright = ''; // viewmodel
-    private $closeSite = 0; // global
-    private $serverTimezone = 0; // global
-    private $siteTimezone = 0; // global
-    private $minSearchLength = 0; // model
-    private $searchPagination = 0; // viewmodel
-    private $userPagination = 0; // viewmodel
-    private $adminPagination = 0; // viewmodel
-    private $galleryPagination = 0; // viewmodel
-    private $rssPosts = 0; // viewmodel
-    private $paginationElements = 0; // viewmodel
-    private $minimumViews = 0;
-    private $sessionName = ''; // global
-    private $sessionLife = 0; // global
-    private $defaultLanguage = ''; // ??
-    private $dateFormat = ''; // global
-    private $enableCache = 0; // global
-    private $cacheLife = 0; // global
-    private $mapsApiKey = ''; // global
+    private string $siteName = ''; // global
+    private string $siteDescription = ''; // viewmodel
+    private string $siteAuthor = ''; // viewmodel
+    private string $siteEmail = ''; // viewmodel
+    private string $siteCopyright = ''; // viewmodel
+    private int $closeSite = 0; // global
+    private int $serverTimezone = 0; // global
+    private int $siteTimezone = 0; // global
+    private int $minSearchLength = 0; // model
+    private int $searchPagination = 0; // viewmodel
+    private int $userPagination = 0; // viewmodel
+    private int $adminPagination = 0; // viewmodel
+    private int $galleryPagination = 0; // viewmodel
+    private int $rssPosts = 0; // viewmodel
+    private int $paginationElements = 0; // viewmodel
+    private int $minimumViews = 0;
+    private string $sessionName = ''; // global
+    private int $sessionLife = 0; // global
+    private string $defaultLanguage = ''; // ??
+    private string $dateFormat = ''; // global
+    private int $enableCache = 0; // global
+    private int $cacheLife = 0; // global
+    private string $mapsApiKey = ''; // global
 
     /**
      * Constructor.

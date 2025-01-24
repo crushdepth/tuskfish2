@@ -1,0 +1,13 @@
+<?php declare(strict_types=1); ?>
+
+<?php if ($this->title() || $this->html()): ?>
+
+  <?php if (!empty($this->title())): ?>
+    <h3><?php echo xss($this->title()); ?></h3>
+  <?php endif; ?>
+
+  <?php if (!empty($this->html())): ?>
+    <?php echo $this->html(); ?>
+  <?php endif; ?>
+
+<?php endif; ?>

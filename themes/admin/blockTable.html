@@ -1,0 +1,147 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Container -->
+<div class="container">
+
+<div class="row">
+  <div class="col">
+    <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+  </div>
+</div>
+
+<!-- Select filters -->
+<div class="row">
+  <div class="col col-md-12 col-lg-8 mx-auto select-filters">
+    <form class="form-horizontal" name="selectFilters" method="post">
+      <div class="row">
+
+        <div class="col-md-4">
+          <select class="form-control custom-select" name="route" id="route" onchange="this.form.submit()">
+          <?php
+            foreach ($viewModel->routeOptions() as $key => $value) {
+              echo ($key === $viewModel->route()) ?
+                '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>' :
+                '<option value="' . xss($key) . '">' . xss($value) . '</option>';
+            }
+          ?>
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <select class="form-control custom-select" name="position" id="position" onchange="this.form.submit()">
+          <?php
+            foreach ($viewModel->positionOptions() as $key => $value) {
+              echo ($key === $viewModel->position()) ?
+                '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>' :
+                '<option value="' . xss($key) . '">' . xss($value) . '</option>';
+            }
+          ?>
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <select class="form-control custom-select" name="onlineStatus" id="onlineStatus" onchange="this.form.submit()">
+          <?php
+            foreach ($viewModel->statusOptions() as $key => $value) {
+              echo ($key === $viewModel->onlineStatus()) ?
+                '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>' :
+                '<option value="' . xss($key) . '">' . xss($value) . '</option>';
+            }
+          ?>
+          </select>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>
+
+<?php if ($pagination ?? null): ?>
+<div class="row">
+  <div class="col d-flex justify-content-end pagination-top clearfix">
+    <?php echo $pagination; ?>
+  </div>
+</div>
+<?php endif; ?>
+
+<div class="row">
+  <div class="col">
+    <form method="post" action="<?php echo TFISH_ADMIN_URL . 'blocks/?action=weights'; ?>">
+      <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
+      <div class="d-flex mb-3">
+        <button class="btn btn-primary me-2" type="submit" formaction="<?php echo TFISH_ADMIN_URL . 'blocks/edit/'; ?>">
+          <?php echo TFISH_ADD; ?>
+        </button>
+        <button class="btn btn-primary" type="submit">
+          Update Weights
+        </button>
+      </div>
+
+      <table class="table table-bordered table-striped table-hover text-left">
+        <thead class="table-success">
+          <tr>
+            <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell text-nowrap"><?php echo TFISH_ID; ?></th>
+            <th><?php echo TFISH_POSITION; ?></th>
+            <th><?php echo TFISH_BLOCK_TYPE; ?></th>
+            <th class="w-50"><?php echo TFISH_TITLE; ?></th>
+            <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell text-center text-nowrap">
+              <?php echo TFISH_WEIGHT; ?>
+            </th>
+            <th class="text-center text-nowrap"><?php echo TFISH_ONLINE; ?></th>
+            <th colspan="2" class="text-center text-nowrap"><?php echo TFISH_ACTION; ?></th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($viewModel->contentList() as &$row): ?>
+            <tr>
+              <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell text-nowrap"><?php echo xss($row['id']); ?></td>
+              <td><?php echo xss($row['position']); ?></td>
+              <td>
+                <?php
+                  $type = \mb_substr($row['type'], mb_strrpos($row['type'], '\\') + 1);
+                   echo xss($type);
+                ?>
+              </td>
+              <td><?php echo xss($row['title']); ?></td>
+              <td class="text-center text-nowrap">
+                <input
+                  type="number"
+                  name="weights[<?php echo xss($row['id']); ?>]"
+                  value="<?php echo xss($row['weight']); ?>"
+                  class="form-control form-control-sm text-end"
+                  step="1"
+                  min="0"
+                  size="3"
+                  pattern="\d+"
+                  oninput="this.value = this.value.replace(/\D/g, '')" />
+              </td>
+              <td class="text-center text-nowrap">
+                <?php if ($row['onlineStatus']): ?>
+                  <a class="text-success" hx-post="<?php echo TFISH_ADMIN_URL . 'blocks/'; ?>?action=toggle" target="closest td"
+                    hx-vals='{"id": "<?php echo xss($row['id']); ?>", "status": "1"}' hx-swap="outerHTML">
+                    <i class="fas fa-check"></i></a>
+                <?php else: ?>
+                  <a class="text-danger" hx-post="<?php echo TFISH_ADMIN_URL . 'blocks/'; ?>?action=toggle" target="closest td"
+                    hx-vals='{"id": "<?php echo xss($row['id']); ?>", "status": "0"}' hx-swap="outerHTML">
+                    <i class="fas fa-times"></i></a>
+                <?php endif; ?>
+              </td>
+              <td class="text-center text-nowrap"><a href="<?php echo TFISH_ADMIN_URL . 'blocks/edit/'; ?>?action=edit&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-edit"></i></a></td>
+              <td class="text-center text-nowrap"><a href="<?php echo TFISH_ADMIN_URL . 'blocks/'; ?>?action=confirmDelete&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-trash-alt"></i></a></td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </form>
+  </div>
+</div>
+
+<?php if ($pagination ?? null): ?>
+<div class="row">
+  <div class="col d-flex justify-content-end pagination-bottom clearfix">
+    <?php echo $pagination; ?>
+  </div>
+</div>
+<?php endif; ?>
+
+</div>

@@ -50,16 +50,16 @@ class Criteria
     use Traits\TraversalCheck;
     use Traits\ValidateString;
 
-    public $item = [];
-    public $condition = [];
-    public $groupBy = '';
-    public $limit = 0;
-    public $offset = 0;
-    public $sort = '';
-    public $order = "DESC";
-    public $secondarySort = '';
-    public $secondaryOrder = "DESC";
-    public $tag = [];
+    public array $item = [];
+    public array $condition = [];
+    public string $groupBy = '';
+    public int $limit = 0;
+    public int $offset = 0;
+    public string $sort = '';
+    public string $order = "DESC";
+    public string $secondarySort = '';
+    public string $secondaryOrder = "DESC";
+    public array $tag = [];
 
     /**
      * Constructor.

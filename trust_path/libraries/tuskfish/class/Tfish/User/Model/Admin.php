@@ -167,7 +167,7 @@ class Admin
      * @param   array $columns Columns to select.
      * @return  array Array of user objects.
      */
-    private function runQuery(\Tfish\Criteria $criteria, array $columns = null): array
+    private function runQuery(\Tfish\Criteria $criteria, array|null $columns = null): array
     {
         $statement = $this->database->select('user', $criteria, $columns);
 

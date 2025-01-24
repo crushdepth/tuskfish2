@@ -25,13 +25,13 @@ namespace Tfish\Content\ViewModel;
  * @since       2.0
  * @package     content
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
- * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\View\Viewable interface.
+ * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\Interface\Viewable interface.
  * @var         object $model Classname of the model used to display this page.
  * @var         int $id ID of the content object whose media attachment will be streamed.
  * @var         string $backUrl $backUrl URL to return to if the user cancels the action.
  */
 
-class Enclosure implements \Tfish\ViewModel\Viewable
+class Enclosure implements \Tfish\Interface\Viewable
 {
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;

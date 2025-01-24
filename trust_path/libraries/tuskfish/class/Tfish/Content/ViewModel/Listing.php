@@ -46,7 +46,7 @@ namespace Tfish\Content\ViewModel;
  * @var         string $type Filter search results by content type.
  * @var         int $onlineStatus Filter search results by online (1) or offline (0) status.
  */
-class Listing implements \Tfish\ViewModel\Listable
+class Listing implements \Tfish\Interface\Listable
 {
     use \Tfish\Content\Traits\ContentTypes;
     use \Tfish\Traits\Listable;

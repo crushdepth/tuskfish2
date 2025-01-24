@@ -1,0 +1,199 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Make block data available. -->
+<?php
+  $content = $viewModel->content() ?? '';
+  $configTemplate = $viewModel->blockConfigTemplate($content['type']);
+?>
+
+<!-- Embed PHP block templates into a JavaScript variable. -->
+<script>
+  const templates = <?php echo \json_encode($viewModel->blockTemplates(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>;
+</script>
+
+<!-- Dynamically update template options and block configuration sub-template. -->
+<script src="<?php echo TFISH_VENDOR_URL . 'tuskfish/blockForm.js'; ?>"></script>
+
+<?php
+  function doubleEscape(string $value): string
+  {
+    $value = (string) $value;
+    return \htmlspecialchars($value, ENT_NOQUOTES, 'UTF-8', true);
+  }
+?>
+
+<!-- Container -->
+<div class="container">
+
+  <div class="row">
+    <div class="col">
+      <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+    </div>
+  </div>
+
+  <form class="form-horizontal" action="<?php echo TFISH_ADMIN_BLOCK_URL . 'edit/'; ?>" method="post"
+    role="form" accept-charset="UTF-8">
+
+    <!-- ID -->
+    <input type="hidden" name="content[id]" value="<?php echo xss($content['id']); ?>">
+
+    <!-- Row -->
+    <div class="row justify-content-center">
+
+    <!-- Type -->
+    <div class="col-md-3 mb-3">
+      <label for="type"><strong><?php echo TFISH_TYPE; ?></strong> <span class="text-danger">*</span></label>
+      <div class="form-group">
+        <select class="form-control" name="content[type]" id="type" disabled>
+          <option value="<?php echo xss($content['type']); ?>" selected><?php echo xss($viewModel->blockTypes()[$content['type']] ?? ''); ?></option>
+        </select>
+        <!-- Hidden input to ensure the type is submitted -->
+        <input type="hidden" name="content[type]" value="<?php echo xss($content['type']); ?>">
+      </div>
+    </div>
+
+    <!-- Template -->
+    <?php
+      $template = $content['template'] ?? '';
+      $typeTemplates = $viewModel->blockTemplates()[$content['type']] ?? [];
+    ?>
+
+    <div class="col-md-3 mb-3">
+      <label for="template"><strong><?php echo TFISH_TEMPLATE; ?></strong> <span class="text-danger">*</span></label>
+      <div class="form-group">
+        <select class="form-control" name="content[template]" id="template" required>
+          <option value="" disabled <?php echo empty($template) ? 'selected' : ''; ?>><?php echo TFISH_SELECT_TEMPLATE; ?></option>
+          <?php foreach ($typeTemplates as $key => $label): ?>
+            <option value="<?php echo xss($key); ?>" <?php echo $key === $template ? 'selected' : ''; ?>>
+              <?php echo xss($label); ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+    </div>
+
+    <!-- Position -->
+    <div class="col-md-3 mb-3">
+      <label for="position"><strong><?php echo TFISH_POSITION; ?></strong></label>
+      <div class="form-group">
+        <select class="form-control" name="content[position]" id="position">
+          <option value="" disabled selected><?php echo TFISH_SELECT_POSITION; ?></option>
+          <?php
+            $options = $viewModel->blockPositions();
+            foreach ($options as $key => $value) {
+              if ($content['position'] === $key) {
+                  echo '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>';
+              } else {
+                echo '<option value="' . xss($key) . '">' . xss($value) . '</option>';
+              }
+            }
+          ?>
+        </select>
+      </div>
+    </div>
+
+    <!-- Route -->
+    <div class="col-md-3 mb-3">
+      <label for="route"><strong><?php echo TFISH_ROUTES; ?></strong></label>
+      <div class="form-group">
+        <select class="form-control" name="route[]" id="route" multiple size="4">
+          <?php
+            $options = $viewModel->blockRoutes();
+            foreach ($options as $key => $value) {
+              if (\in_array($value, $content['route'])) {
+                  echo '<option value="' . xss($value) . '" selected>' . xss($value) . '</option>';
+              } else {
+                echo '<option value="' . xss($value) . '">' . xss($value) . '</option>';
+              }
+            }
+          ?>
+        </select>
+      </div>
+    </div>
+
+    <!-- /row -->
+    </div>
+
+    <!-- Row -->
+    <div class="row justify-content-center">
+
+    <!-- Title -->
+    <div class="col-md-6 mb-3">
+      <label for="title"><strong><?php echo TFISH_TITLE; ?></strong></label>
+      <div class="form-group input-group">
+        <input type="text" class="form-control" name="content[title]" id="title" value="<?php if (!empty($content['title'])) echo xss($content['title']); ?>">
+      </div>
+    </div>
+
+    <!-- Weight -->
+    <div class="col-md-3 mb-3">
+      <label for="weight"><strong><?php echo TFISH_WEIGHT; ?></strong> <span class="text-danger">*</span></label>
+      <div class="form-group input-group">
+        <input type="number" class="form-control" name="content[weight]" id="weight" value="<?php echo !empty($content['weight']) ? xss($content['weight']) : 0; ?>" min="0" required>
+      </div>
+    </div>
+
+    <!-- Online status -->
+    <div class="col-md-3 mb-3 text-left" id="onlineContainer">
+      <p><strong><?php echo TFISH_ONLINE_STATUS; ?> <span class="text-danger">*</span></strong></p>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" id="online" name="content[onlineStatus]" value="1" <?php if ($content['onlineStatus']) { echo 'checked="checked"'; } ?> checked>
+          <label class="form-check-label" for="online"><?php echo TFISH_ONLINE; ?></label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" id="offline" name="content[onlineStatus]" value="0" <?php if (!$content['onlineStatus']) { echo 'checked="checked"'; } ?> required>
+          <label class="form-check-label" for="offline"><?php echo TFISH_OFFLINE; ?></label>
+        </div>
+    </div>
+
+    <!-- /row -->
+    </div>
+
+    <!-- Row -->
+    <div class="row justify-content-center">
+
+    <!-- HTML -->
+    <?php if (!empty($content['type']) && $content['type'] === '\Tfish\Content\Block\Html'): ?>
+    <div class="col-md-12 mb-3">
+      <label for="html"><strong><?php echo TFISH_HTML; ?></strong></label>
+      <div class="form-group">
+        <textarea class="form-control" name="content[html]" id="html" rows="4">
+          <?php if (!empty($content['html'])) { echo ($content['html']); } ?>
+        </textarea>
+      </div>
+    </div>
+    <?php else: ?>
+      <input type="hidden" name="html" value="" />
+    <?php endif; ?>
+
+    <!-- /row -->
+    </div>
+
+    <!-- Row -->
+    <div class="row justify-content-center">
+      <div class="col mb-3">
+      <label for="config"><h4><?php echo TFISH_BLOCK_CONFIG; ?></h4></label>
+    </div>
+
+    <!-- /row -->
+    </div>
+
+    <!-- Config -->
+    <?php include $configTemplate; ?>
+
+    <!-- Row -->
+    <div class="row justify-content-center">
+
+    <!-- Action Buttons -->
+    <div class="col-md-12 text-left">
+      <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
+      <button name="action" value="save" type="submit" class="btn btn-primary"><?php echo TFISH_UPDATE; ?></button>
+      <button name="action" value="cancel" type="submit" class="btn btn-primary" formnovalidate><?php echo TFISH_CANCEL; ?></button>
+    </div>
+
+    <!-- /row -->
+    </div>
+
+  </form>
+
+</div>

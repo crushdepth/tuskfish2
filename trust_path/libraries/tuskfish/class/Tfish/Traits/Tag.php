@@ -29,7 +29,7 @@ namespace Tfish\Traits;
 
 trait Tag
 {
-    private $tags = [];
+    private array $tags = [];
 
     /**
      * Return tags.

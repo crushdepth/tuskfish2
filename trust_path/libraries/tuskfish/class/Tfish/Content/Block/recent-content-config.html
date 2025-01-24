@@ -1,0 +1,40 @@
+<div class="row">
+
+  <div class="col-md-3 mb-3">
+    <label for="content[config][items]"><strong><?php echo 'Number of items to display'; ?></strong> <span class="text-danger">*</span></label>
+      <div class="form-group input-group">
+        <input type="number" class="form-control" name="content[config][items]" id="content[config][items]" value="<?php echo !empty($content['config']['items']) ? xss($content['config']['items']) : '5'; ?>" min="0" required>
+      </div>
+  </div>
+
+  <div class="col-md-3 mb-3">
+    <label for="content[config][tag]"><strong><?php echo 'Filter content by tag(s)'; ?></strong></label>
+    <select multiple class="form-control custom-select" size="5"  name="content[config][tag][]" id="content[config][tag]">
+      <?php
+          foreach ($viewModel->listTags() as $tagId => $tagTitle) {
+            if (!empty($content['config']['tag']) && \in_array($tagId, $content['config']['tag'])) {
+              echo '<option value="' . xss($tagId) . '" selected>' . xss($tagTitle) . '</option>';
+            } else {
+                echo '<option value="' . xss($tagId) . '">' . xss($tagTitle) . '</option>';
+            }
+          }
+      ?>
+    </select>
+  </div>
+
+  <div class="col-md-3 mb-3">
+    <label for="content[config][type]"><strong><?php echo 'Filter content by type(s)'; ?></strong></label>
+    <select multiple class="form-control custom-select" size="5"  name="content[config][type][]" id="content[config][type]">
+      <?php
+          foreach ($viewModel->listTypes() as $key => $value) {
+            if (!empty($content['config']['type']) && \in_array($key, $content['config']['type'])) {
+              echo '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>';
+            } else {
+                echo '<option value="' . xss($key) . '">' . xss($value) . '</option>';
+            }
+          }
+      ?>
+    </select>
+  </div>
+
+</div>

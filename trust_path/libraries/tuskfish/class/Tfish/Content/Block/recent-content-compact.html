@@ -1,0 +1,12 @@
+<?php declare(strict_types=1); ?>
+
+<?php if (!empty($content)): ?>
+<!--<div class="container">-->
+  <h3><?php echo xss($this->title()); ?></h3>
+  <ul>
+  <?php foreach ($content as $key => $value): ?>
+  <li><a href="<?php echo TFISH_URL . '?id=' . xss($key); ?>"><?php echo xss($value); ?></a></li>
+  <?php endforeach; ?>
+  </ul>
+<!--</div>-->
+<?php endif; ?>

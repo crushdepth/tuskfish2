@@ -26,14 +26,14 @@ namespace Tfish\ViewModel;
  * @package     core
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
- * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\View\Viewable interface.
+ * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\Interface\Viewable interface.
  * @var         object $model Classname of the model used to display this page.
  * @var         string $action Name of the action that should be embedded in the form, which will execute on submission.
  * @var         string $backUrl URL to return to if the user cancels the action.
  * @var         string $response Message to display to the user after processing action (success/failure).
  */
 
-class Cache implements Viewable
+class Cache implements \Tfish\Interface\Viewable
 {
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;

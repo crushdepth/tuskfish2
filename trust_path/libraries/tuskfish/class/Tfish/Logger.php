@@ -42,24 +42,19 @@ class Logger
     /**
      * Tuskfish custom error logger class.
      *
-     * Errors are logged to TFISH_ERROR_LOG_PATH (default is /trust_path/log/tuskfish_log.txt). For
-     * debugging purpose you can reverse the comment status of the last two lines to display errors
-     * on screen. Be aware, however, that this will prevent script execution from halting when an
-     * error is triggered, which has security implications. You must therefore CLOSE your site via
-     * the admin preferences before doing this. Comment the lines back out before re-opening your
-     * site.
+     * Errors are logged to TFISH_ERROR_LOG_PATH (default is /trust_path/log/tuskfish_log.txt).
      *
-     * @param int $errno The level of the error raised.
+     * @param int|null $errno The level of the error raised.
      * @param string $error The error message.
      * @param string $file Name of the file where the error occurred.
-     * @param int $line Line number the error was raised at.
+     * @param int|null $line Line number the error was raised at.
      * @return bool Returns false to halt script execution.
      */
     public function logError(
-        int $errno = null,
+        int|null $errno = null,
         string $error = '',
         string $file = '',
-        int $line = null
+        int|null $line = null
         )
     {
         $errno = isset($errno) ? $this->trimString($errno) : TFISH_ERROR_UNSPECIFIED;
@@ -71,10 +66,6 @@ class Logger
         $message .= "[$file:$line]\n";
         \error_log($message, 3, TFISH_ERROR_LOG_PATH);
 
-        // Debug only - comment OUT in production site to display errors on screen.
-        // echo '<p>' . print($message) . '</p>';
-
-        // Debug only - UNCOMMENT in production site.
         return false;
     }
 }

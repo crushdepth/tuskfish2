@@ -207,10 +207,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $sql = "CREATE TABLE IF NOT EXISTS `taglink` (
             `id` INTEGER PRIMARY KEY,
-            `tagId` INTEGER  NOT NULL,
-            `contentType` TEXT  NOT NULL,
-            `contentId` INTEGER  NOT NULL,
-            `module` TEXT  NOT NULL
+            `tagId` INTEGER NOT NULL,
+            `contentType` TEXT NOT NULL,
+            `contentId` INTEGER NOT NULL,
+            `module` TEXT NOT NULL
         );";
         $statement = $database->preparedStatement($sql);
         $statement->execute();
@@ -316,10 +316,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "counter" => "INTEGER",
             "onlineStatus" => "INTEGER",
             "metaTitle" => "TEXT",
-            "metaDescription" => "TEXT",
+            "metaDescription" => "TEXT", NOT NULL
             "metaSeo" => "TEXT"
         ];
         $database->createTable('expert', $expertColumns, 'id');*/
+
+        // Create a blocks table - future public release.
+        $sql = "CREATE TABLE IF NOT EXISTS `block` (
+            `id` INTEGER PRIMARY KEY,
+            `type` TEXT NOT NULL,
+            `position` TEXT NOT NULL,
+            `title` TEXT NOT NULL,
+            `html` TEXT NOT NULL,
+            `config` TEXT NOT NULL,
+            `weight` INTEGER NOT NULL,
+            `template` TEXT NOT NULL,
+            `onlineStatus` INTEGER NOT NULL
+        );";
+        $statement = $database->preparedStatement($sql);
+        $statement->execute();
+
+        // Create a blockRoute table - future public release.
+        $sql = "CREATE TABLE IF NOT EXISTS `blockRoute` (
+            `id` INTEGER PRIMARY KEY,
+            `blockId` INTEGER NOT NULL,
+            `route` TEXT NOT NULL
+        );";
+
+        $statement = $database->preparedStatement($sql);
+        $statement->execute();
 
         // Close the database connection.
         $database->close();
