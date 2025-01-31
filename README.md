@@ -26,12 +26,13 @@ Features include:
 * Lightweight core library.
 
 System requirements
-* PHP 7.2+ (tested up to 8.3)
+* PHP 8.3+
 * SQLite3 extension.
 * PDO extension.
 * pdo_sqlite extension.
 * GD2 extension.
 * [Optional]: curl extension + a Yubikey hardware token are required if you want to use two-factor Yubikey authentication.
+* [Optional]: ImageMagick 6 if you prefer to use that over GD2 for thumbnail generation.
 * Apache webserver.
 
 Documentation
