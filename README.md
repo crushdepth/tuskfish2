@@ -17,6 +17,7 @@ Features include:
 * Organise your content with tags, collections and content types.
 * Bootstrap-based templates with responsive, mobile-first themes.
 * Native PHP template engine; easily create new template sets.
+* Native and seamless multi-language support.
 * PHP 8, HTML5 and SQLite3 database.
 * Single admin system: There is no user rights management system to worry about. They don't have any.
 * SQLite database: There is no database server to worry about.
