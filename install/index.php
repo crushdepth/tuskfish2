@@ -19,15 +19,15 @@ declare(strict_types=1);
 // Include installation language files
 include_once "./english.php";
 
-// Check PHP version 7.2+
-if (PHP_VERSION_ID < 70200) {
+// Check PHP version 8.3+
+if (PHP_VERSION_ID < 80300) {
     echo TFISH_PHP_VERSION_TOO_LOW;
     exit;
 }
 
 // Check path to mainfile.
 if (\is_readable("../mainfile.php")) {
-    require_once "../mainfile.php";
+    require_once '../mainfile.php';
 } else {
     echo TFISH_PATH_TO_MAINFILE_INVALID;
     exit;
