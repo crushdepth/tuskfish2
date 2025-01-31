@@ -177,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sql = "CREATE TABLE `content` (
             `type` TEXT NOT NULL,
             `template` TEXT NOT NULL,
-            `id` INTEGER PRIMARY KEY,
+            `id` INTEGER NOT NULL,
             `title` TEXT NOT NULL,
             `teaser` TEXT NOT NULL,
             `description` TEXT NOT NULL,
@@ -200,7 +200,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             `counter` INTEGER NOT NULL,
             `metaTitle` TEXT NOT NULL,
             `metaDescription` TEXT NOT NULL,
-            `metaSeo` TEXT NOT NULL
+            `metaSeo` TEXT NOT NULL,
+            PRIMARY KEY (`id`, `language`)
         );";
         $statement = $database->preparedStatement($sql);
         $statement->execute();
@@ -210,7 +211,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             `tagId` INTEGER NOT NULL,
             `contentType` TEXT NOT NULL,
             `contentId` INTEGER NOT NULL,
-            `module` TEXT NOT NULL
+            `language` TEXT NOT NULL,
+            `module` TEXT NOT NULL,
+            FOREIGN KEY (`contentId`, `language`) REFERENCES content(`id`, `language`)
         );";
         $statement = $database->preparedStatement($sql);
         $statement->execute();
