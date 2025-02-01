@@ -1037,28 +1037,34 @@ class Database
      * @param string $column Name of column to update.
      * @return bool True on success, false on failure.
      */
-    public function toggleBoolean(int $id, string $table, string $column)
+    public function toggleBoolean(int $id, string $table, string $column, string $lang = '')
     {
         $cleanId = $this->validateId($id);
         $cleanTable = $this->validateTableName($table);
         $cleanColumn = $this->validateColumns([$column]);
         $cleanColumn = reset($cleanColumn);
+        $cleanLang = $this->validateLanguage($lang);
 
-        return $this->_toggleBoolean($cleanId, $cleanTable, $cleanColumn);
+        return $this->_toggleBoolean($cleanId, $cleanTable, $cleanColumn, $cleanLang);
     }
 
     /** @internal */
-    private function _toggleBoolean(int $id, string $table, string $column)
+    private function _toggleBoolean(int $id, string $table, string $column, string $language)
     {
         $sql = "UPDATE " . $this->addBackticks($table) . " SET " . $this->addBackticks($column)
                 . " = CASE WHEN " . $this->addBackticks($column)
                 . " = 1 THEN 0 ELSE 1 END WHERE `id` = :id";
+
+        if (!empty($language)) {
+            $sql .= " AND `language` = :language";
+        }
 
         // Prepare the statement and bind the ID value.
         $statement = $this->preparedStatement($sql);
 
         if ($statement) {
             $statement->bindValue(":id", $id, \PDO::PARAM_INT);
+            $statement->bindValue(":language", $language, \PDO::PARAM_STR);
         }
 
         return $this->executeTransaction($statement);
@@ -1452,5 +1458,25 @@ class Database
             \trigger_error(TFISH_ERROR_NOT_ALNUM, E_USER_ERROR);
             exit;
         }
+    }
+
+    /**
+     * Validate and escape a language code to be used in constructing a database query.
+     *
+     * @param string $lang 2-letter ISO language code.
+     * @return string Valid and escaped ISO code or empty string.
+     */
+    public function validateLanguage(string $lang)
+    {
+        $language = $this->escapeIdentifier($lang);
+
+        if (empty($language)) return '';
+
+        if (!$this->isAlpha($language) || !\mb_strlen($language, "UTF-8") === 2) {
+            \trigger_error(TFISH_ERROR_NOT_ALPHA, E_USER_ERROR);
+            exit;
+        }
+
+        return $language;
     }
 }

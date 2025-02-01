@@ -76,7 +76,8 @@
   <table class="table table-bordered table-striped table-hover text-left">
     <thead class="table-success">
       <tr>
-        <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_ID; ?></th>
+        <th><?php echo TFISH_ID; ?></th>
+        <th><?php echo TFISH_LANGUAGE; ?></th>
         <th><?php echo TFISH_TYPE; ?></th>
         <th><?php echo TFISH_TITLE; ?></th>
         <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_SUBMISSION_TIME; ?></th>
@@ -89,9 +90,10 @@
     <tbody>
     <?php foreach($viewModel->contentList() as &$row): ?>
       <tr>
-        <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['id']); ?></td>
+        <td><?php echo xss($row['id']); ?></td>
+        <td><?php echo xss($row['language']); ?></td>
         <td><?php echo xss($viewModel->listTypes()[$row['type']]); ?></td>
-        <td><a href="<?php echo TFISH_URL . '?id=' . xss($row['id']); ?>"><?php echo xss($row['title']); ?></a></td>
+        <td><a href="<?php echo TFISH_URL . '?id=' . xss($row['id']) . '&amp;lang=' . xss($row['language']); ?>"><?php echo xss($row['title']); ?></a></td>
         <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss(\date('j M Y', (int) $row['submissionTime'])); ?></td>
         <td class="d-none d-md-table-cell d-lg-table-call d=xl-table-cell">
           <?php if (!empty($row['expiresOn'])):
@@ -105,18 +107,18 @@
         <?php if ($row['onlineStatus']): ?>
         <td class="text-center">
           <a class="text-success" hx-post="<?php echo TFISH_ADMIN_URL; ?>?action=toggle" target="closest td"
-            hx-vals='{"id": "<?php echo xss($row['id']); ?>", "status": "1"}' hx-swap="outerHTML">
+            hx-vals='{"id": "<?php echo xss($row['id']); ?>", "status": "1", "lang": "<?php echo xss($row['language']); ?>"}' hx-swap="outerHTML">
             <i class="fas fa-check"></i></a>
         </td>
         <?php else: ?>
         <td class="text-center">
           <a class="text-danger" hx-post="<?php echo TFISH_ADMIN_URL; ?>?action=toggle" target="closest td"
-            hx-vals='{"id": "<?php echo xss($row['id']); ?>", "status": "0"}' hx-swap="outerHTML">
+            hx-vals='{"id": "<?php echo xss($row['id']); ?>", "status": "0", "lang": "<?php echo xss($row['language']); ?>"}' hx-swap="outerHTML">
             <i class="fas fa-times"></i></a>
         </td>
         <?php endif; ?>
-        <td class="text-center"><a href="<?php echo TFISH_ADMIN_URL . 'content/'; ?>?action=edit&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-edit"></i></a></td>
-        <td class="text-center"><a href="<?php echo TFISH_ADMIN_URL; ?>?action=confirmDelete&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-trash-alt"></i></a></td>
+        <td class="text-center"><a href="<?php echo TFISH_ADMIN_URL . 'content/'; ?>?action=edit&amp;id=<?php echo xss($row['id']); ?>&amp;lang=<?php echo xss($row['language']); ?>"><i class="fas fa-edit"></i></a></td>
+        <td class="text-center"><a href="<?php echo TFISH_ADMIN_URL; ?>?action=confirmDelete&amp;id=<?php echo xss($row['id']); ?>&amp;lang=<?php echo xss($row['language']); ?>"><i class="fas fa-trash-alt"></i></a></td>
         <?php unset($row); ?>
       </tr>
     <?php endforeach; ?>

@@ -145,15 +145,16 @@ class Admin
      * Toggle a content object online or offline.
      *
      * @param   int $id ID of content object.
+     * @param   string $lang 2-letter ISO 639-1 language code.
      * @return  bool True on success, false on failure.
      */
-    public function toggleOnlineStatus(int $id): bool
+    public function toggleOnlineStatus(int $id, string $lang): bool
     {
         if ($id < 1) {
             return false;
         }
 
-        $result = $this->database->toggleBoolean($id, 'content', 'onlineStatus');
+        $result = $this->database->toggleBoolean($id, 'content', 'onlineStatus', $lang);
         $this->clearExpiresOn($id);
         $this->cache->flush();
 

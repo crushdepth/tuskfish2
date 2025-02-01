@@ -25,6 +25,7 @@ namespace Tfish\Content\ViewModel;
  * @since       2.0
  * @package     content
  * @uses        trait \Tfish\Traits\Content\ContentTypes	Provides definition of permitted content object types.
+ * @uses        trait \Tfish\Traits\Language Provides a whitelist of supported languages on the system.
  * @uses        trait \Tfish\Traits\Listable Provides a standard implementation of the \Tfish\View\Listable interface.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
@@ -46,6 +47,7 @@ namespace Tfish\Content\ViewModel;
 class Admin implements \Tfish\Interface\Listable
 {
     use \Tfish\Content\Traits\ContentTypes;
+    use \Tfish\Traits\Language;
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
@@ -56,6 +58,7 @@ class Admin implements \Tfish\Interface\Listable
     private $contentList = [];
     private $contentCount = 0;
     private $id = 0;
+    private $language = 'en';
     private $status = 0;
     private $start = 0;
     private $tag = 0;
@@ -143,17 +146,24 @@ class Admin implements \Tfish\Interface\Listable
      */
     public function displayToggle(): string
     {
-        $this->model->toggleOnlineStatus($this->id);
+        $lang = $this->trimString($_POST['lang']);
+
+        if (!$this->isAlpha($lang) || !\mb_strlen($lang, 'UTF-8') == 2) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            exit;
+        }
+
+        $this->model->toggleOnlineStatus($this->id, $lang);
 
         if ($this->status === 1) {
             $this->status = 0;
             echo '<a class="text-danger" hx-post="' . TFISH_ADMIN_URL . '?action=toggle"'
-            . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "0"}\' '
+            . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "0", "lang": "' . xss($lang) . '"}\' '
             . 'hx-swap="outerHTML"><i class="fas fa-times"></i></a>';
         } else {
             $this->status = 1;
             echo '<a class="text-success" hx-post="' . TFISH_ADMIN_URL . '?action=toggle"'
-              . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "1"}\' '
+              . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "1", "lang": "' . xss($lang) . '"}\' '
               . 'hx-swap="outerHTML"><i class="fas fa-check"></i></a>';
         }
         exit; // Prevents proceeding to full page reload.
@@ -351,6 +361,31 @@ class Admin implements \Tfish\Interface\Listable
     public function setId(int $id)
     {
         $this->id = $id;
+    }
+
+    /**
+     * Return language
+     *
+     * @return string 2-letter ISO 639-1 language code.
+     */
+    public function language(): string
+    {
+        return $this->language;
+    }
+
+    /**
+     * Set language.
+     *
+     * @param string $language
+     * @return void
+     */
+    public function setLanguage(string $language)
+    {
+        if (!\array_key_exists($language, $this->listLanguages())) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        }
+
+        $this->language = $language;
     }
 
     /**
