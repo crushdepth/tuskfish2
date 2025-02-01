@@ -265,6 +265,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Insert a "General" tag content object.
         $contentData = array(
             "type" => "TfTag",
+            "id" => 1,
             "template" => 'tag',
             "title" => "General",
             "teaser" => "Default content tag.",
