@@ -28,6 +28,7 @@ namespace Tfish;
  * @version     Release: 2.0
  * @since       2.0
  * @package     core
+ * @uses        trait \Tfish\Traits\Language
  * @uses        trait \Tfish\Traits\TraversalCheck
  * @uses        trait \Tfish\Traits\ValidateString
  * @var         \Tfish\Session $session Instance of the Tuskfish session class.
@@ -39,6 +40,7 @@ namespace Tfish;
 
 class FrontController
 {
+    use Traits\Language;
     use Traits\TraversalCheck;
     use Traits\ValidateString;
 
@@ -77,6 +79,7 @@ class FrontController
         $this->session = $session;
 
         $session->start();
+        $this->setLanguage($_GET['lang'] ?? "");
         $this->checkSiteClosed($preference, $path);
         $this->checkAccessRights($route);
 
@@ -136,6 +139,26 @@ class FrontController
         if ($preference->closeSite() && !$this->session->isAdmin() && $path !== '/login/') {
             \header('Location: ' . TFISH_URL . 'login/');
             exit;
+        }
+    }
+
+    /**
+     * Set the TuskfishCMS interface language.
+     *
+     * The interface will be switched to the langauge specified by $_GET['lang'] parameter, if it exists.
+     * Note that a valid translation file must exist. By convention, the name of the file must match the
+     * two-letter ISO-639 language code, eg. en.php for English, ru.php for Russian. Each available
+     * translation should also be listed in \TfishTraits\Language->listLanguages().
+     */
+    private function setLanguage(string $lang) {
+        if (!empty($lang) && \array_key_exists($lang, $this->listLanguages())) {
+            $_SESSION['lang'] = \trim($_GET['lang']);
+        }
+
+        if (!empty($_SESSION['lang'])) {
+            include TFISH_LANGUAGE_PATH . "/" . $_SESSION['lang'] . ".php";
+        } else {
+            include TFISH_DEFAULT_LANGUAGE;
         }
     }
 

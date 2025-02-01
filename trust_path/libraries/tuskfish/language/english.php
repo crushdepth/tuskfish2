@@ -314,3 +314,9 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
         . "content type. Inline media players will not display.");
 \define("TFISH_ERROR_PARENT_UPDATE_FAILED", "Attempt to update references to a non-extant collection"
         . " failed.");
+
+// Content module block constants.
+\define("TFISH_CONTENT_BLOCK_PATH", TFISH_PATH . 'class/Tfish/Content/Block/');
+\define("\Tfish\Content\Block\RecentContent", TFISH_BLOCK_RECENT_CONTENT);
+\define("\Tfish\Content\Block\Spotlight", TFISH_BLOCK_SPOTLIGHT);
+\define("\Tfish\Content\Block\Html", TFISH_BLOCK_HTML);
