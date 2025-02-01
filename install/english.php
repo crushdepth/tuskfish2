@@ -59,6 +59,7 @@
 \define("TFISH_WELCOME", "Welcome to Tuskfish CMS");
 \define("TFISH_LOGIN", "Login");
 \define("TFISH_SUBMIT", "Submit");
+\define("TFISH_LANGUAGE", "Language");
 
 // Errors
 \define("TFISH_ERROR_BAD_PATH", "Bad file path.");

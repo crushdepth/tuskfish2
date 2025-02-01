@@ -79,7 +79,7 @@ class FrontController
         $this->session = $session;
 
         $session->start();
-        $this->setLanguage($_GET['lang'] ?? "");
+        $this->setLanguage($preference, $_GET['lang'] ?? "");
         $this->checkSiteClosed($preference, $path);
         $this->checkAccessRights($route);
 
@@ -149,16 +149,19 @@ class FrontController
      * Note that a valid translation file must exist. By convention, the name of the file must match the
      * two-letter ISO-639 language code, eg. en.php for English, ru.php for Russian. Each available
      * translation should also be listed in \TfishTraits\Language->listLanguages().
+     *
+     * @param   \Tfish\Entity\Preference $preference Tfish preference object.
+     * @param   string $lang Language preferrence as ISO-639 code.
      */
-    private function setLanguage(string $lang) {
+    private function setLanguage(Entity\Preference $preference, string $lang) {
         if (!empty($lang) && \array_key_exists($lang, $this->listLanguages())) {
             $_SESSION['lang'] = \trim($_GET['lang']);
         }
 
         if (!empty($_SESSION['lang'])) {
-            include TFISH_LANGUAGE_PATH . "/" . $_SESSION['lang'] . ".php";
+            include TFISH_LANGUAGE_PATH . $_SESSION['lang'] . ".php";
         } else {
-            include TFISH_DEFAULT_LANGUAGE;
+            include $preference->defaultLanguage();
         }
     }
 
