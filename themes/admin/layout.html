@@ -118,6 +118,17 @@
               <li class="nav-item">
                 <a class="nav-link" href="<?php echo TFISH_RSS_URL; ?>"><i class="fas fa-rss"></i></a>
               </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" id="lang" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo TFISH_LANGUAGE; ?></a>
+                <ul class="dropdown-menu" araia-labelledby="language">
+                  <a class="dropdown-item" href="?lang=ar">العربية</a>
+                  <a class="dropdown-item" href="?lang=zh">中文</a>
+                  <a class="dropdown-item" href="?lang=en">English</a>
+                  <a class="dropdown-item" href="?lang=fr">Français</a>
+                  <a class="dropdown-item" href="?lang=ru">Русский</a>
+                  <a class="dropdown-item" href="?lang=es">Español</a>
+                </ul>
+              </li>
             </ul>
             <form class="d-flex" method="post" accept-charset="UTF-8" action="<?php echo TFISH_URL . 'admin/search/'; ?>">
               <input class="form-control me-2" name="searchTerms" type="search" placeholder="<?php echo TFISH_KEYWORDS; ?>" aria-label="<?php echo TFISH_KEYWORDS; ?>">
