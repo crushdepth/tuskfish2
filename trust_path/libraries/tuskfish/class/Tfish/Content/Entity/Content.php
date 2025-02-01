@@ -235,7 +235,7 @@ class Content
             $url .= $this->trimString($customRoute);
         }
 
-        $url .= '?id=' . $this->id;
+        $url .= '?id=' . $this->id . '&amp;lang=' . $this->language;
 
         return $url;
     }
