@@ -24,6 +24,7 @@ namespace Tfish\Content\ViewModel;
  * @version     Release: 2.0
  * @since       2.0
  * @package     content
+ * @uses        trait \Tfish\Traits\Language Provides a whitelist of languages supported on this system.
  * @uses        trait \Tfish\Traits\Mimetypes	Provides a list of common (permitted) mimetypes for file uploads.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\Interface\Viewable interface.
@@ -36,12 +37,14 @@ namespace Tfish\Content\ViewModel;
 
 class Rss implements \Tfish\Interface\Viewable
 {
+    use \Tfish\Traits\Language;
     use \Tfish\Traits\Mimetypes;
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;
 
     private $model;
     private $id = 0;
+    private $language = '';
     private $tag = 0;
     private $title = '';
     private $description = '';
@@ -72,7 +75,7 @@ class Rss implements \Tfish\Interface\Viewable
      */
     public function listContent()
     {
-        $this->items = $this->model->getObjects($this->id);
+        $this->items = $this->model->getObjects($this->id, $this->language);
     }
 
     /**
@@ -82,7 +85,7 @@ class Rss implements \Tfish\Interface\Viewable
      */
     public function listContentForTag()
     {
-        $this->items = $this->model->getObjectsForTag($this->tag);
+        $this->items = $this->model->getObjectsForTag($this->tag, $this->language);
     }
 
     /* Utilities. */
@@ -94,7 +97,7 @@ class Rss implements \Tfish\Interface\Viewable
      */
     private function customFeed(int $id)
     {
-        $customFeed = $this->model->customFeed($id);
+        $customFeed = $this->model->customFeed($id, $this->language);
 
         if (!empty($customFeed)) {
             $this->title = $this->trimString($customFeed['title']);
@@ -146,9 +149,9 @@ class Rss implements \Tfish\Interface\Viewable
         $url = TFISH_RSS_URL;
 
         if (!empty($this->id)) {
-            $url .= '?id=' . $this->id;
+            $url .= '?id=' . $this->id . '&amp;lang=' . $this->language;
         } elseif (!empty($this->tag)) {
-            $url .= '?tag=' . $this->tag;
+            $url .= '?tag=' . $this->tag . '&amp;lang=' . $this->language;
         }
 
         return $url;
@@ -163,6 +166,18 @@ class Rss implements \Tfish\Interface\Viewable
     {
         $this->id = $id;
         $this->customFeed($id);
+    }
+
+    /**
+     * Set language
+     *
+     * @param string $lang 2-letter ISO 639-1 language code or empty string.
+     * @return void
+     */
+    public function setLanguage(string $lang)
+    {
+        $this->language = \array_key_exists($lang, $this->listLanguages())
+            ? $lang : $this->preference->defaultLanguage();
     }
 
     /**

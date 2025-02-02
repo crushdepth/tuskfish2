@@ -60,7 +60,10 @@ class Rss
      */
     public function display(): array
     {
-        $cacheParams = ['lang' => $_SESSION['lang']];
+        $cacheParams = !empty($_SESSION['lang']) ? ['lang' => $_SESSION['lang']] : [];
+
+        // Language, setting a new preference takes precedence over old.
+        $this->viewModel->setLanguage($_SESSION['lang'] ?? $_GET['lang'] ?? '');
 
         // RSS feed for a tag.
         $tag = (int) ($_GET['tag'] ?? 0);

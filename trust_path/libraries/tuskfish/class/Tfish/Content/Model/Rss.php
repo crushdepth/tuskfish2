@@ -67,7 +67,7 @@ class Rss
      * @param   int $id ID of a target tag or collection object.
      * @return array Array containing title and description of custom feed.
      */
-    public function customFeed(int $id)
+    public function customFeed(int $id, string $lang)
     {
         if ($id < 1) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
@@ -75,6 +75,8 @@ class Rss
 
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
+        if (!empty($lang))
+            $criteria->add($this->criteriaFactory->item('language', $lang));
         $criteria->add($this->criteriaFactory->item('type', 'TfStatic', '!='));
         $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
         $statement = $this->database->select('content', $criteria, ['title', 'description']);
@@ -111,51 +113,58 @@ class Rss
     /**
      * Return content objects for a given tag.
      *
-     * @param   int $tagId ID of the tag.
-     * @return  array Array of content objects.
+     * @param   int    $tagId ID of the tag.
+     * @param   string $lang  Language code.
+     * @return  array  Array of content objects.
      */
-    public function getObjectsforTag(int $tagId): array
+    public function getObjectsforTag(int $tagId, string $lang): array
     {
         if ($tagId < 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
         }
 
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('module', 'content'));
         $criteria->add($this->criteriaFactory->item('tagId', $tagId));
+        if (!empty($lang)) {
+            $criteria->add($this->criteriaFactory->item('language', $lang));
+        }
 
-        $statement = $this->database->select('taglink', $criteria, ['contentId']);
+        // Get distinct composite keys (contentId and language)
+        $rows = $this->database->selectDistinct('taglink', ['contentId', 'language'], $criteria)
+            ->fetchAll(\PDO::FETCH_ASSOC);
 
-        $params = $this->database->selectDistinct('taglink', ['contentId'], $criteria)
-            ->fetchAll(\PDO::FETCH_COLUMN);
-
-        if (empty($params)) {
+        if (empty($rows)) {
             return [];
         }
 
-        $sql = "SELECT * FROM `content` WHERE `id` IN (";
+        // Build the SQL with composite conditions
+        $sql = "SELECT * FROM `content` WHERE ";
+        $conditions = [];
+        $values = [];
 
-        foreach ($params as $id) {
-            $sql .= "?,";
+        foreach ($rows as $row) {
+            $conditions[] = "(id = ? AND language = ?)";
+            $values[] = $row['contentId'];
+            $values[] = $row['language'];
         }
 
-        $sql = rtrim($sql, ",");
-        $sql .= ") ";
-        $sql .= "AND `onlineStatus` = '1' ";
+        $sql .= implode(" OR ", $conditions);
+        $sql .= " AND `onlineStatus` = '1' ";
         $sql .= "ORDER BY `date` DESC, `submissionTime` DESC ";
-
         $sql .= "LIMIT ? OFFSET 0";
-        $params[] = $this->preference->rssPosts();
-        $statement = $this->database->preparedStatement($sql);
 
-        $result = $statement->execute($params);
+        // Append the limit value to the parameter values array.
+        $values[] = $this->preference->rssPosts();
+
+        $statement = $this->database->preparedStatement($sql);
+        $result = $statement->execute($values);
 
         if (!$result) {
-            \trigger_error(TFISH_ERROR_INSERTION_FAILED, E_USER_ERROR);
-            return false;
+            trigger_error(TFISH_ERROR_INSERTION_FAILED, E_USER_ERROR);
+            return [];
         }
 
         return $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Content\Entity\Content');
-
     }
 }
