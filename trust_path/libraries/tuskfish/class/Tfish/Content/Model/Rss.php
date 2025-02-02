@@ -124,8 +124,6 @@ class Rss
         $criteria->add($this->criteriaFactory->item('module', 'content'));
         $criteria->add($this->criteriaFactory->item('tagId', $tagId));
 
-        $statement = $this->database->select('taglink', $criteria, ['contentId']);
-
         $params = $this->database->selectDistinct('taglink', ['contentId'], $criteria)
             ->fetchAll(\PDO::FETCH_COLUMN);
 
