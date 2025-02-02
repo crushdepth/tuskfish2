@@ -20,6 +20,9 @@
         <![CDATA[<?php if (!empty($item->image())): ?><img src="<?php echo $item->cachedImage(400); ?>" /><?php endif; ?>
         <?php echo $item->teaserForDisplay(); ?>]]>
       </description>
+      <?php if (!empty($_SESSION['lang'])): ?>
+      <language><?php echo xss($_SESSION['lang']); ?></language>
+      <?php endif; ?>
       <?php endif; ?>
       <?php if (($item->media()) && is_readable(TFISH_MEDIA_PATH . $item->media())):
       $length = filesize(TFISH_MEDIA_PATH . $item->media());
