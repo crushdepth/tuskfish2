@@ -27,7 +27,6 @@ namespace Tfish;
  * @version     Release: 1.0
  * @since       1.1
  * @package     core
- * @uses        trait \Tfish\Traits\Language Whitelist of supported languages on this system.
  * @uses        trait \Tfish\Traits\TraversalCheck	Validates that a filename or path does NOT contain directory traversals in any form.
  * @uses        trait \Tfish\Traits\UrlCheck	Validate that a URL meets the specification.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
@@ -44,7 +43,6 @@ namespace Tfish;
 
 class Pagination
 {
-    use \Tfish\Traits\Language;
     use \Tfish\Traits\TraversalCheck;
     use \Tfish\Traits\UrlCheck;
     use \Tfish\Traits\ValidateString;
@@ -263,7 +261,7 @@ class Pagination
     {
         $lang = $this->trimString($lang);
 
-        $this->language = \array_key_exists($lang, $this->listLanguages())
+        $this->language = \array_key_exists($lang, $this->preference->listLanguages())
             ? $lang : $this->preference->defaultLanguage();
     }
 

@@ -25,7 +25,6 @@ namespace Tfish\Content\Model;
  * @since       2.0
  * @package     content
  * @uses        trait \Tfish\Traits\Content\ContentTypes	Provides definition of permitted content object types.
- * @uses        trait \Tfish\Traits\Language Whitelist of supported languages on this system.
  * @uses        trait \Tfish\Traits\TagRead Retrieve tag information for display.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         \Tfish\Database $database Instance of the Tuskfish database class.
@@ -36,7 +35,6 @@ namespace Tfish\Content\Model;
 class Listing
 {
     use \Tfish\Content\Traits\ContentTypes;
-    use \Tfish\Traits\Language;
     use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
 
@@ -277,7 +275,7 @@ class Listing
         if ($params['id'] ?? 0)
             $cleanParams['id'] = (int) $params['id'];
 
-        if (isset($params['language']) && \array_key_exists($params['language'], $this->listLanguages())) {
+        if (isset($params['language']) && \array_key_exists($params['language'], $this->preference->listLanguages())) {
             $cleanParams['language'] = $this->trimString($params['language']);
         }
 

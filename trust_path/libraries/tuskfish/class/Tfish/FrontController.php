@@ -28,7 +28,6 @@ namespace Tfish;
  * @version     Release: 2.0
  * @since       2.0
  * @package     core
- * @uses        trait \Tfish\Traits\Language
  * @uses        trait \Tfish\Traits\TraversalCheck
  * @uses        trait \Tfish\Traits\ValidateString
  * @var         \Tfish\Session $session Instance of the Tuskfish session class.
@@ -41,7 +40,6 @@ namespace Tfish;
 
 class FrontController
 {
-    use Traits\Language;
     use Traits\TraversalCheck;
     use Traits\ValidateString;
 
@@ -156,7 +154,7 @@ class FrontController
      * @param   string $lang Language preferrence as ISO 639-1 code.
      */
     private function setLanguage(string $lang) {
-        if (!empty($lang) && \array_key_exists($lang, $this->listLanguages())) {
+        if (!empty($lang) && \array_key_exists($lang, $this->preference->listLanguages())) {
             $_SESSION['lang'] = $this->trimString($_GET['lang']);
         }
 

@@ -26,7 +26,6 @@ namespace Tfish\Content\ViewModel;
  * @package     content
  * @uses        trait \Tfish\Traits\Content\ContentTypes	Provides definition of permitted content object types.
  * @uses        trait \Tfish\Traits\TagRead Retrieve tag information for display.
- * @uses        trait \Tfish\Traits\Language Whitelist of languages supported on this system.
  * @uses        trait \Tfish\Traits\Listable Provides a standard implementation of the \Tfish\View\Listable interface.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         object $model Classname of the model used to display this page.
@@ -51,7 +50,6 @@ namespace Tfish\Content\ViewModel;
 class Listing implements \Tfish\Interface\Listable
 {
     use \Tfish\Content\Traits\ContentTypes;
-    use \Tfish\Traits\Language;
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
@@ -408,7 +406,7 @@ class Listing implements \Tfish\Interface\Listable
     {
         $lang = $this->trimString($lang);
 
-        $this->language = \array_key_exists($lang, $this->listLanguages())
+        $this->language = \array_key_exists($lang, $this->preference->listLanguages())
             ? $lang : $this->preference->defaultLanguage();
     }
 
