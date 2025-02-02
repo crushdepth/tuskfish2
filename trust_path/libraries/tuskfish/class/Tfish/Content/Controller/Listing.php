@@ -57,7 +57,7 @@ class Listing
      */
     public function display(): array
     {
-        $cacheParams = ['page' => 'home'];
+        $cacheParams = ['page' => 'home', 'lang' => $_SESSION['lang']];
 
         $this->viewModel->setLanguage($_SESSION['lang']);
 

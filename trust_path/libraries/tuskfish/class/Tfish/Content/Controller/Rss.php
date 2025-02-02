@@ -60,7 +60,7 @@ class Rss
      */
     public function display(): array
     {
-        $cacheParams = [];
+        $cacheParams = ['lang' => $_SESSION['lang']];
 
         // RSS feed for a tag.
         $tag = (int) ($_GET['tag'] ?? 0);
