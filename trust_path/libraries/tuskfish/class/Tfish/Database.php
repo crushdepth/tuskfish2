@@ -1056,7 +1056,7 @@ class Database
      * you run this method against.
      *
      * @param int $id ID of the row to update.
-     * @param string $lang 2-letter ISO-639 language code.
+     * @param string $lang 2-letter ISO 639-1 language code.
      * @param string $table Name of table.
      * @param string $column Name of column to update.
      * @return bool True on success, false on failure.

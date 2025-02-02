@@ -42,7 +42,7 @@ namespace Tfish\Content\ViewModel;
  * @var         string $backUrl $backUrl URL to return to if the user cancels the action.
  * @var         string $response Message to display to the user after processing action (success/failure).
  * @var         int $id ID of a single content object to be displayed.
- * @var         string $language 2-letter ISO-639 language code.
+ * @var         string $language 2-letter ISO 639-1 language code.
  * @var         int $start Position in result set to retrieve objects from.
  * @var         int $tag Filter search results by tag ID.
  * @var         string $type Filter search results by content type.
@@ -401,7 +401,7 @@ class Listing implements \Tfish\Interface\Listable
     /**
      * Set Language.
      *
-     * @param string $lang 2-letter ISO-639 code.
+     * @param string $lang 2-letter ISO 639-1 code.
      * @return void
      */
     public function setLanguage(string $lang)

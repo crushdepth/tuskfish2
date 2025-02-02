@@ -150,10 +150,10 @@ class FrontController
      *
      * The interface will be switched to the langauge specified by $_GET['lang'] parameter, if it exists.
      * Note that a valid translation file must exist. By convention, the name of the file must match the
-     * two-letter ISO-639 language code, eg. en.php for English, ru.php for Russian. Each available
+     * two-letter ISO 639-1 language code, eg. en.php for English, ru.php for Russian. Each available
      * translation should also be listed in \TfishTraits\Language->listLanguages().
      *
-     * @param   string $lang Language preferrence as ISO-639 code.
+     * @param   string $lang Language preferrence as ISO 639-1 code.
      */
     private function setLanguage(string $lang) {
         if (!empty($lang) && \array_key_exists($lang, $this->listLanguages())) {
