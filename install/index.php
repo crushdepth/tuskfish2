@@ -178,6 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             `type` TEXT NOT NULL,
             `template` TEXT NOT NULL,
             `id` INTEGER NOT NULL,
+            `uid` INTEGER NOT NULL,
             `title` TEXT NOT NULL,
             `teaser` TEXT NOT NULL,
             `description` TEXT NOT NULL,
@@ -266,6 +267,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $contentData = array(
             "type" => "TfTag",
             "id" => 1,
+            "uid" => 1,
             "template" => 'tag',
             "title" => "General",
             "teaser" => "Default content tag.",

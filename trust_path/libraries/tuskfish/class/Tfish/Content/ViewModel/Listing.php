@@ -113,7 +113,7 @@ class Listing implements \Tfish\Interface\Listable
             $this->pageTitle = $this->content->metaTitle();
             $this->description = $this->content->metaDescription();
             $this->author = $this->content->creator();
-            $this->parent = $this->getParent($this->content->parent()); // parent must move to UID.
+            $this->parent = $this->getParent($this->content->parent());
 
             if ($this->content->type() === 'TfCollection' || $this->content->type() === 'TfTag') {
                 $this->listChildren();
@@ -190,7 +190,7 @@ class Listing implements \Tfish\Interface\Listable
         }
 
         if (!empty($this->content) && $this->content->type() === 'TfCollection') {
-            $params['parent'] = $this->content->id();
+            $params['parent'] = $this->content->uid();
         }
 
         $this->contentCount = $this->model->getCount($params);

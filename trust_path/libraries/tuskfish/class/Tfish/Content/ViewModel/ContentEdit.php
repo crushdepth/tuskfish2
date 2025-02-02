@@ -47,7 +47,7 @@ class ContentEdit implements \Tfish\Interface\Viewable
     private $model;
     private $id = 0;
     private $content = '';
-    private $parentOptions = '';
+    private $parentOptions = [];
     private $action = '';
     private $response = '';
     private $backUrl = '';
@@ -192,7 +192,7 @@ class ContentEdit implements \Tfish\Interface\Viewable
     public function parentOptions()
     {
         $collections = $this->model->collections();
-        $parentTree = new \Tfish\Tree($collections, 'id', 'parent');
+        $parentTree = new \Tfish\Tree($collections, 'uid', 'parent');
 
         return $parentTree->makeParentSelectBox();
     }

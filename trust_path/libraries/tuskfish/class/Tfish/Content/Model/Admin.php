@@ -115,7 +115,7 @@ class Admin
 
         // If object is a collection delete related parent references in child content.
         if ($row['type'] === 'TfCollection') {
-            if (!$this->deleteReferencesToParent($id)) {
+            if (!$this->deleteReferencesToParent($row['uid'])) {
                 return false;
             }
         }
@@ -282,15 +282,15 @@ class Admin
     /**
      * Removes references to a collection when it is deleted or changed to another type.
      *
-     * @param int $id ID of the parent collection.
+     * @param int uid UID of the parent collection.
      * @return boolean True on success, false on failure.
      */
-    private function deleteReferencesToParent(int $id)
+    private function deleteReferencesToParent(int $uid)
     {
-        if ($id < 1) return false;
+        if ($uid < 1) return false;
 
         $criteria = $this->criteriaFactory->criteria();
-        $criteria->add($this->criteriaFactory->item('parent', $id));
+        $criteria->add($this->criteriaFactory->item('parent', $uid));
 
         return $this->database->updateAll('content', ['parent' => 0], $criteria);
     }

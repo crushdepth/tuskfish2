@@ -37,7 +37,8 @@ namespace Tfish\Content\Entity;
  * @uses        trait \Tfish\Traits\TraversalCheck	Validates that a filename or path does NOT contain directory traversals in any form.
  * @uses        trait \Tfish\Traits\UrlCheck    Validate that a URL meets the specification.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
- * @var         int $id Auto-increment, set by database.
+ * @var         int $id ID used together with language as composite primary key.
+ * @var         int $uid Unique and immutable ID used to maintain parent-child content linkages.
  * @var         string $type Content object type eg. TfArticle etc. [ALPHA]
  * @var         string $title The name of this content.
  * @var         string $teaser A short (one paragraph) summary or abstract for this content. [HTML]
@@ -77,6 +78,7 @@ class Content
     use \Tfish\Traits\ValidateString;
 
     private $id = 0;
+    private $uid = 0;
     private $type = '';
     private $title = '';
     private $teaser = '';
@@ -114,6 +116,7 @@ class Content
     public function load(array $row, bool $convertUrlToConstant = true)
     {
         $this->setId((int) ($row['id'] ?? 0));
+        $this->setUid((int) ($row['uid'] ?? 0));
         $this->setType((string) ($row['type'] ?? ''));
         $this->setTemplate((string) ($row['template'] ?? ''));
         $this->setTitle((string) ($row['title'] ?? ''));
@@ -276,6 +279,20 @@ class Content
         }
 
         $this->id = $id;
+    }
+
+    public function uid(): int
+    {
+        return (int) $this->uid;
+    }
+
+    public function setUid(int $uid)
+    {
+        if ($uid < 0) {
+            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+        }
+
+        $this->uid = $uid;
     }
 
     /**
@@ -800,11 +817,13 @@ class Content
      */
     public function setParent(int $parent)
     {
+        $parent = (int) $parent;
+
         if ($parent < 0) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
         }
 
-        if ($parent === $this->id && $parent > 0) {
+        if ($parent === $this->uid && $parent > 0) {
             \trigger_error(TFISH_ERROR_CIRCULAR_PARENT_REFERENCE);
         }
 

@@ -257,7 +257,7 @@ class ContentEdit
         if ($savedContent['type'] === 'TfCollection' && $content['type'] !== 'TfCollection') {
 
             $criteria = $this->criteriaFactory->criteria();
-            $criteria->add($this->criteriaFactory->item('parent', (int) $content['id']));
+            $criteria->add($this->criteriaFactory->item('parent', (int) $content['uid']));
 
             if (!$this->database->updateAll('content', array('parent' => 0), $criteria)) {
                 \trigger_error(TFISH_ERROR_PARENT_UPDATE_FAILED, E_USER_NOTICE);
