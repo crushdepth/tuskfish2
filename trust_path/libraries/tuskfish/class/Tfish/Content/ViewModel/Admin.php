@@ -152,12 +152,12 @@ class Admin implements \Tfish\Interface\Listable
         if ($this->status === 1) {
             $this->status = 0;
             echo '<a class="text-danger" hx-post="' . TFISH_ADMIN_URL . '?action=toggle"'
-            . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "0", "lang": "' . xss($lang) . '"}\' '
+            . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "0", "lang": "' . xss($this->language) . '"}\' '
             . 'hx-swap="outerHTML"><i class="fas fa-times"></i></a>';
         } else {
             $this->status = 1;
             echo '<a class="text-success" hx-post="' . TFISH_ADMIN_URL . '?action=toggle"'
-              . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "1", "lang": "' . xss($lang) . '"}\' '
+              . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "1", "lang": "' . xss($this->language) . '"}\' '
               . 'hx-swap="outerHTML"><i class="fas fa-check"></i></a>';
         }
         exit; // Prevents proceeding to full page reload.
@@ -373,15 +373,12 @@ class Admin implements \Tfish\Interface\Listable
      * @param string $language
      * @return void
      */
-    public function setLanguage(string $language)
+    public function setLanguage(string $lang)
     {
-        $language = $this->trimString($language);
+        $lang = $this->trimString($lang);
 
-        if (!\array_key_exists($language, $this->listLanguages())) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
-        }
-
-        $this->language = $language;
+        $this->language = \array_key_exists($lang, $this->listLanguages())
+            ? $lang : $this->preference->defaultLanguage();
     }
 
     /**

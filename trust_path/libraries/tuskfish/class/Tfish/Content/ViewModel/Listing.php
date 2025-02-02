@@ -408,11 +408,8 @@ class Listing implements \Tfish\Interface\Listable
     {
         $lang = $this->trimString($lang);
 
-        if (!\array_key_exists($lang, $this->listLanguages())) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
-        }
-
-        $this->language = $lang;
+        $this->language = \array_key_exists($lang, $this->listLanguages())
+            ? $lang : $this->preference->defaultLanguage();
     }
 
     /**

@@ -253,15 +253,18 @@ class Pagination
         }
     }
 
+    /**
+     * Set Language
+     *
+     * @param string $lang 2-letter ISO 639-1 code.
+     * @return void
+     */
     public function setLanguage(string $lang)
     {
-        $language = $this->trimString($lang);
+        $lang = $this->trimString($lang);
 
-        if (!\array_key_exists($language, $this->listLanguages())) {
-            $this->language = $this->preference->defaultLanguage();
-        }
-
-        $this->language = $language;
+        $this->language = \array_key_exists($lang, $this->listLanguages())
+            ? $lang : $this->preference->defaultLanguage();
     }
 
     /**
