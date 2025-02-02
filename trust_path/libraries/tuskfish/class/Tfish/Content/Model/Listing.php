@@ -25,6 +25,7 @@ namespace Tfish\Content\Model;
  * @since       2.0
  * @package     content
  * @uses        trait \Tfish\Traits\Content\ContentTypes	Provides definition of permitted content object types.
+ * @uses        trait \Tfish\Traits\Language Whitelist of supported languages on this system.
  * @uses        trait \Tfish\Traits\TagRead Retrieve tag information for display.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         \Tfish\Database $database Instance of the Tuskfish database class.
@@ -35,6 +36,7 @@ namespace Tfish\Content\Model;
 class Listing
 {
     use \Tfish\Content\Traits\ContentTypes;
+    use \Tfish\Traits\Language;
     use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
 
@@ -70,9 +72,10 @@ class Listing
      * Get a single content object.
      *
      * @param   int $id ID of the content object to retrieve.
+     * @param   string $lang Language code of content object.
      * @return  \Tfish\Content\Entity\Content|bool
      */
-    public function getObject(int $id): \Tfish\Content\Entity\Content|bool
+    public function getObject(int $id, string $lang): \Tfish\Content\Entity\Content|bool
     {
         $params = [];
 
@@ -81,6 +84,7 @@ class Listing
         }
 
         $params['id'] = $id;
+        $params['language'] = $lang;
 
         if (!$this->session->isAdmin()) { // NOT admin.
             $params['onlineStatus'] = 1;
@@ -95,13 +99,38 @@ class Listing
         $statement->closeCursor();
 
         if ($content && $content->type() !== 'TfDownload') {
-            $this->updateCounter($id);
+            $this->updateCounter($cleanParams['id'], $cleanParams['language']);
         }
 
         // Pass in the minimum views preference value.
         if ($content) {
             $content->setMinimumViews($this->preference->minimumViews());
         }
+
+        return $content;
+    }
+
+    /**
+     * Get a parent of a content object.
+     *
+     * @param integer $uid UID of the parent object.
+     * @return \Tfish\Content\Entity\Content|bool Parent object on success, false on failure.
+     */
+    public function getParent(int $uid)
+    {
+        if ($uid < 1) {
+            return false;
+        }
+
+        $criteria = $this->criteriaFactory->criteria();
+
+        if (!empty($uid)) {
+            $criteria->add($this->criteriaFactory->item('uid', $uid));
+        }
+
+        $statement = $this->database->select('content', $criteria);
+        $content = $statement->fetchObject('\Tfish\Content\Entity\Content');
+        $statement->closeCursor();
 
         return $content;
     }
@@ -228,10 +257,11 @@ class Listing
      * Increment the view/download counter for a content object.
      *
      * @param   int $id ID of content object.
+     * @param   string $lang Language code of content object.
      */
-    private function updateCounter(int $id)
+    private function updateCounter(int $id, string $lang)
     {
-        $this->database->updateCounter($id, 'content', 'counter');
+        $this->database->updateCounter($id, 'content', 'counter', $lang);
     }
 
     /**
@@ -246,6 +276,10 @@ class Listing
 
         if ($params['id'] ?? 0)
             $cleanParams['id'] = (int) $params['id'];
+
+        if (isset($params['language']) && \array_key_exists($params['language'], $this->listLanguages())) {
+            $cleanParams['language'] = $this->trimString($params['language']);
+        }
 
         if ($params['parent'] ?? 0)
             $cleanParams['parent'] = (int) $params['parent'];

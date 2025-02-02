@@ -36,6 +36,7 @@ namespace Tfish;
  * @var         object $controller
  * @var         \Tfish\CriteriaFactory $criteriaFactory
  * @var         \Tfish\Database $database Instance of the Tuskfish database class.
+ * @var         \Tfish\Entity\Preference Instance of Tuskfish preference class.
  */
 
 class FrontController
@@ -49,6 +50,7 @@ class FrontController
     private $controller;
     private $criteriaFactory;
     private $database;
+    private $preference;
 
     /**
      * Constructor
@@ -76,15 +78,16 @@ class FrontController
     {
         $this->database = $database;
         $this->criteriaFactory = $criteriaFactory;
+        $this->preference = $preference;
         $this->session = $session;
 
         $session->start();
-        $this->setLanguage($preference, $_GET['lang'] ?? "");
-        $this->checkSiteClosed($preference, $path);
+        $this->setLanguage($_GET['lang'] ?? "");
+        $this->checkSiteClosed($path);
         $this->checkAccessRights($route);
 
         // Create MVVM components with dice (as they have variable dependencies).
-        $pagination = $dice->create('\\Tfish\\Pagination', [$path]);
+        $pagination = $dice->create('\\Tfish\\Pagination', [$path, $_SESSION['lang']]);
         $model = $dice->create($route->model());
         $viewModel = $dice->create($route->viewModel(), [$model]);
         $this->view = $dice->create($route->view(), [$viewModel]);
@@ -132,11 +135,11 @@ class FrontController
     /**
      * Check if site is closed and redirect non-admins to login.
      *
-     * @param   \Tfish\Entity\Preference $preference Tfish preference object.
+     * @param   string $path URL path of this request.
      */
-    private function checkSiteClosed(Entity\Preference $preference, string $path)
+    private function checkSiteClosed(string $path)
     {
-        if ($preference->closeSite() && !$this->session->isAdmin() && $path !== '/login/') {
+        if ($this->preference->closeSite() && !$this->session->isAdmin() && $path !== '/login/') {
             \header('Location: ' . TFISH_URL . 'login/');
             exit;
         }
@@ -150,18 +153,18 @@ class FrontController
      * two-letter ISO-639 language code, eg. en.php for English, ru.php for Russian. Each available
      * translation should also be listed in \TfishTraits\Language->listLanguages().
      *
-     * @param   \Tfish\Entity\Preference $preference Tfish preference object.
      * @param   string $lang Language preferrence as ISO-639 code.
      */
-    private function setLanguage(Entity\Preference $preference, string $lang) {
+    private function setLanguage(string $lang) {
         if (!empty($lang) && \array_key_exists($lang, $this->listLanguages())) {
-            $_SESSION['lang'] = \trim($_GET['lang']);
+            $_SESSION['lang'] = $this->trimString($_GET['lang']);
         }
 
         if (!empty($_SESSION['lang'])) {
             include TFISH_LANGUAGE_PATH . $_SESSION['lang'] . ".php";
         } else {
-            include $preference->defaultLanguage();
+            $_SESSION['lang'] = $this->preference->defaultLanguage();
+            include $this->preference->defaultLanguage();
         }
     }
 

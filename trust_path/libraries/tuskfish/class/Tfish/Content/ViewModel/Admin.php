@@ -35,6 +35,7 @@ namespace Tfish\Content\ViewModel;
  * @var         array $contentList An array of content objects to be displayed in this page view.
  * @var         int $contentCount The number of content objects that match filtering criteria. Used to build pagination control.
  * @var         int $id ID of a single content object to be displayed.
+ * @var         string $language 2-letteer ISO-639 language code used to filter content.
  * @var         int $status The online status of a single content item being toggled on or offline.
  * @var         int $start Position in result set to retrieve objects from.
  * @var         int $tag Filter search results by tag ID.
@@ -146,14 +147,7 @@ class Admin implements \Tfish\Interface\Listable
      */
     public function displayToggle(): string
     {
-        $lang = $this->trimString($_POST['lang']);
-
-        if (!$this->isAlpha($lang) || !\mb_strlen($lang, 'UTF-8') == 2) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
-            exit;
-        }
-
-        $this->model->toggleOnlineStatus($this->id, $lang);
+        $this->model->toggleOnlineStatus($this->id, $this->language);
 
         if ($this->status === 1) {
             $this->status = 0;
@@ -381,6 +375,8 @@ class Admin implements \Tfish\Interface\Listable
      */
     public function setLanguage(string $language)
     {
+        $language = $this->trimString($language);
+
         if (!\array_key_exists($language, $this->listLanguages())) {
             \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
         }

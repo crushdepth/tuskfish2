@@ -27,6 +27,7 @@ namespace Tfish;
  * @version     Release: 1.0
  * @since       1.1
  * @package     core
+ * @uses        trait \Tfish\Traits\Language Whitelist of supported languages on this system.
  * @uses        trait \Tfish\Traits\TraversalCheck	Validates that a filename or path does NOT contain directory traversals in any form.
  * @uses        trait \Tfish\Traits\UrlCheck	Validate that a URL meets the specification.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
@@ -34,6 +35,7 @@ namespace Tfish;
  * @var         int $count Number of records in the result set.
  * @var         int $limit Maximum number (subset) of records to retrieve in on page view.
  * @var         int $start ID of first record to retrieve in subset.
+ * @var         string $language 2-letter ISO 639-1 language filter.
  * @var         string $url Base URL for constructing pagination links.
  * @var         int $tag ID of tag filter.
  * @var         array $extraParams Extra parameters to be included in pagination control links as key => value pairs.
@@ -42,6 +44,7 @@ namespace Tfish;
 
 class Pagination
 {
+    use \Tfish\Traits\Language;
     use \Tfish\Traits\TraversalCheck;
     use \Tfish\Traits\UrlCheck;
     use \Tfish\Traits\ValidateString;
@@ -50,6 +53,7 @@ class Pagination
     private int $count;
     private int $limit;
     private int $start;
+    private string $language;
     private string $url;
 
     private int $tag;
@@ -62,13 +66,14 @@ class Pagination
      * @param   \Tfish\Entity\Preference $preference An instance of the Tuskfish site preferences class.
      * @param   string $path Base URL for constructing pagination links.
      */
-    function __construct(Entity\Preference $preference, string $path)
+    function __construct(Entity\Preference $preference, string $path, string $language)
     {
         $this->preference = $preference;
         $this->setUrl($path);
         $this->count = 0;
         $this->limit = 0;
         $this->start = 0;
+        $this->setLanguage($language);
         $this->tag = 0;
         $this->extraParams = [];
     }
@@ -162,11 +167,15 @@ class Pagination
         foreach ($pageSlots as $key => $slot) {
             $this->start = (int) ($key * $this->limit);
 
-            if ($this->start || $this->tag || $this->extraParamsString) {
+            if ($this->start || $this->tag || $this->language || $this->extraParamsString) {
                 $args = [];
 
                 if (!empty($this->extraParamsString)) {
                     $args[] = $this->extraParamsString;
+                }
+
+                if (!empty($this->language)) {
+                    $args[] = 'lang=' . $this->language;
                 }
 
                 if (!empty($this->tag)) {
@@ -242,6 +251,17 @@ class Pagination
         } else {
             $this->extraParamsString = \implode("&", $clean_extraParams);
         }
+    }
+
+    public function setLanguage(string $lang)
+    {
+        $language = $this->trimString($lang);
+
+        if (!\array_key_exists($language, $this->listLanguages())) {
+            $this->language = $this->preference->defaultLanguage();
+        }
+
+        $this->language = $language;
     }
 
     /**

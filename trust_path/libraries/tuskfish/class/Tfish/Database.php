@@ -29,6 +29,7 @@ namespace Tfish;
  * @since       1.0
  * @package     database
  * @uses        trait \Tfish\Traits\IntegerCheck	Validate and range check integers.
+ * @uses        trait \Tfish\Traits\Language Whitelist of languages supported on this system.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         \PDO $database Instance of the \PDO database abstraction layer.
  * @var         \Tfish\FileHandler $fileHandler Instance of the Tuskfish file handler.
@@ -37,6 +38,7 @@ namespace Tfish;
 class Database
 {
     use Traits\IntegerCheck;
+    use Traits\Language;
     use Traits\ValidateString;
 
     private $database;
@@ -461,6 +463,26 @@ class Database
         }
 
         return $this->executeTransaction($statement);
+    }
+
+   /**
+    * Returns the maximum value of an integer column (eg. an ID).
+    *
+    * @param string $column
+    * @param string $table
+    * @return int Maximum value of column
+    */
+    public function maxVal(string $column, string $table) {
+        $cleanColumn = $this->validateColumns([$column]);
+        $cleanTable = $this->validateTableName($table);
+        $cleanColumn = reset($cleanColumn);
+
+        $sql = "SELECT MAX(" . $this->addBackticks($column) . ") as max FROM " . $this->addBackticks($table);
+        $statement = $this->preparedStatement($sql);
+        $statement->execute();
+        $row = $statement->fetch(\PDO::FETCH_OBJ);
+
+        return (int) $row->max;
     }
 
     /**
@@ -1030,9 +1052,11 @@ class Database
     /**
      * Toggle the online status of a column between 0 and 1, use for columns representing booleans.
      *
-     * Note that the $id MUST represent a column called ID for whatever table you want to run it on.
+     * Convention: $id and $lang MUST represent columns called 'id' and 'language' for any table
+     * you run this method against.
      *
      * @param int $id ID of the row to update.
+     * @param string $lang 2-letter ISO-639 language code.
      * @param string $table Name of table.
      * @param string $column Name of column to update.
      * @return bool True on success, false on failure.
@@ -1064,7 +1088,10 @@ class Database
 
         if ($statement) {
             $statement->bindValue(":id", $id, \PDO::PARAM_INT);
-            $statement->bindValue(":language", $language, \PDO::PARAM_STR);
+
+            if (!empty($language)) {
+                $statement->bindValue(":language", $language, \PDO::PARAM_STR);
+            }
         }
 
         return $this->executeTransaction($statement);
@@ -1081,27 +1108,35 @@ class Database
      * @param string $column Name of column.
      * @return bool True on success false on failure.
      */
-    public function updateCounter(int $id, string $table, string $column)
+    public function updateCounter(int $id, string $table, string $column, $lang = '')
     {
         $cleanId = $this->validateId($id);
         $cleanTable = $this->validateTableName($table);
         $cleanColumn = $this->validateColumns([$column]);
         $cleanColumn = reset($cleanColumn);
+        $cleanLang = $this->validateLanguage($lang);
 
-        return $this->_updateCounter($cleanId, $cleanTable, $cleanColumn);
+        return $this->_updateCounter($cleanId, $cleanTable, $cleanColumn, $cleanLang);
     }
 
     /** @internal */
-    private function _updateCounter(int $id, string $table, string $column)
+    private function _updateCounter(int $id, string $table, string $column, string $language)
     {
         $sql = "UPDATE " . $this->addBackticks($table) . " SET " . $this->addBackticks($column)
                 . " = " . $this->addBackticks($column) . " + 1 WHERE `id` = :id";
+        if (!empty($language)) {
+            $sql .= " AND `language` = :language";
+        }
 
         // Prepare the statement and bind the ID value.
         $statement = $this->preparedStatement($sql);
 
         if ($statement) {
             $statement->bindValue(":id", $id, \PDO::PARAM_INT);
+
+            if (!empty($language)) {
+                $statement->bindValue(":language", $language, \PDO::PARAM_STR);
+            }
         }
 
         return $this->executeTransaction($statement);
@@ -1472,8 +1507,8 @@ class Database
 
         if (empty($language)) return '';
 
-        if (!$this->isAlpha($language) || !\mb_strlen($language, "UTF-8") === 2) {
-            \trigger_error(TFISH_ERROR_NOT_ALPHA, E_USER_ERROR);
+        if (!\array_key_exists($lang, $this->listLanguages())) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
             exit;
         }
 

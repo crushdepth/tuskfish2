@@ -25,6 +25,7 @@ namespace Tfish\Content\Model;
  * @since       2.0
  * @package     content
  * @uses        trait \Tfish\Traits\Content\ContentTypes	Provides definition of permitted content object types.
+ * @uses        trait \Tfish\Traits\Language Whitelist of supported languages on this system.
  * @uses        trait \Tfish\Traits\Taglink Manage object-tag associations via taglinks.
  * @uses        trait \Tfish\Traits\TagRead Retrieve tag information for display.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
@@ -38,6 +39,7 @@ namespace Tfish\Content\Model;
 class Admin
 {
     use \Tfish\Content\Traits\ContentTypes;
+    use \Tfish\Traits\Language;
     use \Tfish\Traits\Taglink;
     use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
@@ -151,6 +153,12 @@ class Admin
     public function toggleOnlineStatus(int $id, string $lang): bool
     {
         if ($id < 1) {
+            return false;
+        }
+
+        $lang = $this->trimString($lang);
+
+        if (!\array_key_exists($lang, $this->listLanguages())) {
             return false;
         }
 

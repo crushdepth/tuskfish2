@@ -103,6 +103,8 @@ class Admin
         $id = (int) ($_GET['id'] ?? 0);
         $this->viewModel->setId($id);
 
+        $this->viewModel->setLanguage($_SESSION['lang']);
+
         $start = (int) ($_GET['start'] ?? 0);
         $this->viewModel->setStart($start);
 
@@ -134,7 +136,10 @@ class Admin
     public function toggle()
     {
         $id = (int) ($_POST['id'] ?? 0);
+        $lang = $this->trimString($_GET['lang']);
         $status = (int) ($_POST['status'] ?? 0); // online status of individual content item.
+
+        $this->viewModel->setLanguage($lang);
         $this->viewModel->setId($id);
         $this->viewModel->setStatus($status);
         $this->viewModel->displayToggle();

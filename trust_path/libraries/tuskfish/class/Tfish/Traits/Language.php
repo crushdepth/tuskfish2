@@ -34,8 +34,9 @@ trait Language
      *
      * In the interests of brevity and sanity a full list is not provided. Add entries that you
      * want to use to the array using ISO 639-1 two-letter language codes, which you can find at:
-     * https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes. Be aware that deleting entries that
-     * are in use by your content objects will cause errors.
+     * https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes.
+     *
+     * Be aware that deleting entries that are in use by your content objects will break your site.
      *
      * @return array Array of languages in ISO 639-1 code => name format.
      */

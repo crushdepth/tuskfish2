@@ -26,6 +26,7 @@ namespace Tfish\Content\ViewModel;
  * @package     content
  * @uses        trait \Tfish\Traits\Content\ContentTypes	Provides definition of permitted content object types.
  * @uses        trait \Tfish\Traits\TagRead Retrieve tag information for display.
+ * @uses        trait \Tfish\Traits\Language Whitelist of languages supported on this system.
  * @uses        trait \Tfish\Traits\Listable Provides a standard implementation of the \Tfish\View\Listable interface.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         object $model Classname of the model used to display this page.
@@ -41,6 +42,7 @@ namespace Tfish\Content\ViewModel;
  * @var         string $backUrl $backUrl URL to return to if the user cancels the action.
  * @var         string $response Message to display to the user after processing action (success/failure).
  * @var         int $id ID of a single content object to be displayed.
+ * @var         string $language 2-letter ISO-639 language code.
  * @var         int $start Position in result set to retrieve objects from.
  * @var         int $tag Filter search results by tag ID.
  * @var         string $type Filter search results by content type.
@@ -49,6 +51,7 @@ namespace Tfish\Content\ViewModel;
 class Listing implements \Tfish\Interface\Listable
 {
     use \Tfish\Content\Traits\ContentTypes;
+    use \Tfish\Traits\Language;
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
@@ -66,6 +69,7 @@ class Listing implements \Tfish\Interface\Listable
     private $backUrl = '';
     private $response = '';
     private $id = 0;
+    private $language = '';
     private $start = 0;
     private $tag = 0;
     private $type = '';
@@ -103,13 +107,13 @@ class Listing implements \Tfish\Interface\Listable
      */
     public function displayObject()
     {
-        $this->content = $this->getObject($this->id);
+        $this->content = $this->getObject($this->id, $this->language);
 
         if ($this->content) {
             $this->pageTitle = $this->content->metaTitle();
             $this->description = $this->content->metaDescription();
             $this->author = $this->content->creator();
-            $this->parent = $this->getObject($this->content->parent());
+            $this->parent = $this->getParent($this->content->parent()); // parent must move to UID.
 
             if ($this->content->type() === 'TfCollection' || $this->content->type() === 'TfTag') {
                 $this->listChildren();
@@ -177,6 +181,7 @@ class Listing implements \Tfish\Interface\Listable
         $params = [
             'tag' => $this->tag,
             'type' => $this->type,
+            'language' => $this->language,
             'onlineStatus' => $this->onlineStatus
         ];
 
@@ -229,10 +234,23 @@ class Listing implements \Tfish\Interface\Listable
      * Get a content object.
      *
      * @param   int $id ID of content object.
+     * @param   string $lang Language of content object.
      */
-    public function getObject(int $id)
+    private function getObject(int $id, string $lang)
     {
-        return $this->model->getObject($id);
+        return $this->model->getObject($id, $lang);
+    }
+
+    /**
+     * Get a parent of a content object.
+     *
+     * @param   int $uid UID of parent.
+     */
+    private function getParent(int $uid)
+    {
+        $uid = (int) $uid;
+
+        return $this->model->getParent($uid);
     }
 
     /**
@@ -264,7 +282,7 @@ class Listing implements \Tfish\Interface\Listable
         ];
 
         if ($this->content->type() === 'TfTag') $params['tag'] = $this->content->id();
-        if ($this->content->type() === 'TfCollection') $params['parent'] = $this->content->id();
+        if ($this->content->type() === 'TfCollection') $params['parent'] = $this->content->uid();
 
         $this->children = $this->model->getObjects($params);
     }
@@ -279,6 +297,7 @@ class Listing implements \Tfish\Interface\Listable
         $this->contentList = $this->model->getObjects(
             [
                 'id' => $this->id,
+                'language' => $this->language,
                 'start' => $this->start,
                 'limit' => $this->limit(),
                 'tag' => $this->tag,
@@ -372,6 +391,28 @@ class Listing implements \Tfish\Interface\Listable
     public function setId(int $id)
     {
         $this->id = $id;
+    }
+
+    public function language(): string
+    {
+        return $this->language;
+    }
+
+    /**
+     * Set Language.
+     *
+     * @param string $lang 2-letter ISO-639 code.
+     * @return void
+     */
+    public function setLanguage(string $lang)
+    {
+        $lang = $this->trimString($lang);
+
+        if (!\array_key_exists($lang, $this->listLanguages())) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        }
+
+        $this->language = $lang;
     }
 
     /**

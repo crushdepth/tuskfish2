@@ -26,6 +26,7 @@ namespace Tfish\Content\Model;
  * @package     content
  * @uses        trait \Tfish\Traits\Content\ContentTypes Provides definition of permitted content object types.
  * @uses        trait \Tfish\Traits\HtmlPurifier Includes HTMLPurifier library.
+ * @uses        trait \Tfish\Traits\Language Whitelist of supported languages on this system.
  * @uses        trait \Tfish\Traits\Mimetypes Provides a list of common (permitted) mimetypes for file uploads.
  * @uses        trait \Tfish\Traits\Taglink Manage object-tag associations via taglinks.
  * @uses        trait \Tfish\Traits\TagRead Retrieve tag information for display.
@@ -43,6 +44,7 @@ class ContentEdit
 {
     use \Tfish\Content\Traits\ContentTypes;
     use \Tfish\Traits\HtmlPurifier;
+    use \Tfish\Traits\Language;
     use \Tfish\Traits\Mimetypes;
     use \Tfish\Traits\Taglink;
     use \Tfish\Traits\TagRead;
@@ -112,6 +114,8 @@ class ContentEdit
     {
         $content = $this->validateForm($_POST['content']);
         $tags = $this->validateTags($_POST['tags'] ?? []);
+
+        $content['id'] = $this->database->maxVal('id', 'content') + 1; // Increment to next highest available ID slot.
         $content['submissionTime'] = \time();
         $content['lastUpdated'] = 0;
         $content['counter'] = 0;
@@ -130,7 +134,7 @@ class ContentEdit
 
         // Insert the taglinks, which requires knowledge of the ID.
         $contentId = $this->database->lastInsertId();
-        if (!$this->saveTaglinks($contentId, $content['type'], 'content', $tags)) {
+        if (!$this->saveTaglinks($content['id'], $content['type'], 'content', $tags)) {
             return false;
         }
 
@@ -428,7 +432,7 @@ class ContentEdit
         $clean['counter'] = (int) ($form['counter'] ?? 0);
         $clean['onlineStatus'] = (int) ($form['onlineStatus'] ?? 0);
         $clean['parent'] = (int) ($form['parent'] ?? 0);
-        $clean['language'] = $this->trimString($form['language'] ?? '');
+        $clean['language'] = \array_key_exists($form['language'], $this->listLanguages()) ? $form['language'] : $this->preference->defaultLanguage();
         $clean['rights'] = (int) ($form['rights'] ?? 0);
         $clean['publisher'] = $this->trimString($form['publisher'] ?? '');
         $clean['metaTitle'] = $this->trimString($form['metaTitle'] ?? '');

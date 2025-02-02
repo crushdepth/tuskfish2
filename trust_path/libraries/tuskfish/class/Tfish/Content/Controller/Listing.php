@@ -59,6 +59,8 @@ class Listing
     {
         $cacheParams = ['page' => 'home'];
 
+        $this->viewModel->setLanguage($_SESSION['lang']);
+
         $start = (int) ($_GET['start'] ?? 0);
 
         $this->viewModel->setStart($start);
