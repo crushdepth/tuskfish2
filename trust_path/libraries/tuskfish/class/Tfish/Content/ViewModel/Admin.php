@@ -60,6 +60,7 @@ class Admin implements \Tfish\Interface\Listable
     private $contentCount = 0;
     private $id = 0;
     private $language = 'en';
+    private $languageFilter = '';
     private $status = 0;
     private $start = 0;
     private $tag = 0;
@@ -173,6 +174,7 @@ class Admin implements \Tfish\Interface\Listable
         $this->contentCount = $this->model->getCount(
             [
                 'id' => $this->id,
+                'language' => $this->languageFilter,
                 'start' => $this->start,
                 'tag' => $this->tag,
                 'type' => $this->type,
@@ -198,6 +200,7 @@ class Admin implements \Tfish\Interface\Listable
     {
         $extraParams = [];
 
+        if (!empty($this->languageFilter)) $extraParams['lang'] = $this->languageFilter;
         if (!empty($this->tag)) $extraParams['tag'] = $this->tag;
         if (!empty($this->type)) $extraParams['type'] = $this->type;
         if (isset($this->onlineStatus) && $this->onlineStatus == 0 || $this->onlineStatus == 1)
@@ -216,6 +219,7 @@ class Admin implements \Tfish\Interface\Listable
         $this->contentList = $this->model->getObjects(
             [
                 'id' => $this->id,
+                'language' => $this->languageFilter,
                 'start' => $this->start,
                 'tag' => $this->tag,
                 'type' => $this->type,
@@ -238,6 +242,21 @@ class Admin implements \Tfish\Interface\Listable
     public function limit(): int
     {
         return $this->preference->adminPagination();
+    }
+
+
+    /**
+     * Return options for language select box control.
+     *
+     * @param string $zeroOption
+     * @return array
+     */
+    public function languageOptions($zeroOption = TFISH_SELECT_LANGUAGE)
+    {
+        $zeroOption = $this->trimString($zeroOption);
+        $options = $this->preference->listLanguages();
+
+        return [$zeroOption] + $options;
     }
 
     /**
@@ -378,6 +397,29 @@ class Admin implements \Tfish\Interface\Listable
         $lang = $this->trimString($lang);
 
         $this->language = \array_key_exists($lang, $this->listLanguages())
+            ? $lang : $this->preference->defaultLanguage();
+    }
+
+    /**
+     * Return language filter.
+     *
+     * @return string
+     */
+    public function languageFilter(): string
+    {
+        return $this->languageFilter;
+    }
+
+    /**
+     * Set Language filter.
+     *
+     * @param string $lang 2-letter ISO 639-1 language code.
+     * @return void
+     */
+    public function setLanguageFilter(string $lang) {
+        $lang = $this->trimString($lang);
+
+        $this->languageFilter = \array_key_exists($lang, $this->listLanguages())
             ? $lang : $this->preference->defaultLanguage();
     }
 

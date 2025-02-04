@@ -290,7 +290,7 @@ class Admin
      * @param int uid UID of the parent collection.
      * @return boolean True on success, false on failure.
      */
-    private function deleteReferencesToParent(int $uid)
+    public function deleteReferencesToParent(int $uid)
     {
         if ($uid < 1) return false;
 
@@ -354,9 +354,10 @@ class Admin
         if (isset($cleanParams['onlineStatus']))
             $criteria->add($this->criteriaFactory->item('onlineStatus', $cleanParams['onlineStatus']));
 
-        // If ID is set, retrieve a single object.
-        if (!empty($cleanParams['id'])) {
+        // If ID/language is set, retrieve a single object.
+        if (!empty($cleanParams['id'] && !empty($cleanParams['language']))) {
             $criteria->add($this->criteriaFactory->item('id', $cleanParams['id']));
+            $criteria->add($this->criteriaFactory->item('language', $cleanParams['language']));
 
             return $criteria;
         }
@@ -400,6 +401,9 @@ class Admin
 
         if ($params['id'] ?? 0)
             $cleanParams['id'] = (int) $params['id'];
+
+        if (!empty($params['language']) && \array_key_exists($params['language'], $this->preference->listLanguages()))
+            $cleanParams['language'] = $params['language'];
 
         if ($params['start'] ?? 0)
             $cleanParams['start'] = (int) $params['start'];

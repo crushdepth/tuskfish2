@@ -107,7 +107,11 @@ class Admin
         $id = (int) ($_GET['id'] ?? 0);
         $this->viewModel->setId($id);
 
+        // Controls interface language.
         $this->viewModel->setLanguage($_SESSION['lang']);
+
+        // Controls language filter.
+        $this->viewModel->setLanguageFilter($_REQUEST['language'] ?? '');
 
         $start = (int) ($_GET['start'] ?? 0);
         $this->viewModel->setStart($start);

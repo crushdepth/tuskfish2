@@ -1117,6 +1117,7 @@ class Database
      * @param int $id ID of content object.
      * @param string $table Name of table.
      * @param string $column Name of column.
+     * @param string $lang 2-letter ISO 639-1 language code.
      * @return bool True on success false on failure.
      */
     public function updateCounter(int $id, string $table, string $column, $lang = '')

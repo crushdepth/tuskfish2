@@ -259,7 +259,7 @@ class Listing
      */
     private function updateCounter(int $id, string $lang)
     {
-        $this->database->updateCounter($id, 'content', 'counter', $lang);
+        $this->database->updateCounter($id, 'content', $lang);
     }
 
     /**

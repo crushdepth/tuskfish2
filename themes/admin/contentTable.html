@@ -15,7 +15,7 @@
     <form class="form-horizontal" name="selectFilters" method="post">
       <div class="row">
 
-        <div class="col-md-4">
+        <div class="col-md-3">
           <select class="form-control custom-select" name="tag" id="tag" onchange="this.form.submit()">
           <?php foreach ($viewModel->tagOptions() as $key => $value) {
             echo ($key === $viewModel->tag()) ?
@@ -25,7 +25,7 @@
           </select>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-3">
           <select class="form-control custom-select" name="type" id="type" onchange="this.form.submit()">
           <?php
             foreach ($viewModel->typeOptions() as $key => $value) {
@@ -37,7 +37,19 @@
           </select>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-3">
+            <select class="form-control custom-select" name="language" id="language" onchange="this.form.submit()">
+            <?php
+              foreach ($viewModel->languageOptions() as $key => $value) {
+                echo ($key === $viewModel->languageFilter()) ?
+                  '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>' :
+                  '<option value="' . xss($key) . '">' . xss($value) . '</option>';
+              }
+            ?>
+            </select>
+          </div>
+
+        <div class="col-md-3">
           <select class="form-control custom-select" name="onlineStatus" id="onlineStatus" onchange="this.form.submit()">
           <?php
             foreach ($viewModel->statusOptions() as $key => $value) {

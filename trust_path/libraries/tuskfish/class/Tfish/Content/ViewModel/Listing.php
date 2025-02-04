@@ -220,6 +220,10 @@ class Listing implements \Tfish\Interface\Listable
         // tag, country, status
         $extraParams = [];
 
+        if (!empty($this->language)) {
+            $extraParams['lang'] = $this->trimString($this->language);
+        }
+
         if (!empty($this->type)) {
             $extraParams['type'] = $this->trimString($this->type);
         }
