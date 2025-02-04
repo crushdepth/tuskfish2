@@ -77,15 +77,20 @@ class Admin
      * Delete content object.
      *
      * @param   int $id ID of content object.
+     * @param   string $lang 2-letter ISO 639-1 language code.
      * @return  bool True on success, false on failure.
      */
-    public function delete(int $id): bool
+    public function delete(int $id, string $lang): bool
     {
         if ($id < 1) {
             return false;
         }
 
-        $row = $this->getRow($id);
+        if (!\array_key_exists($lang, $this->preference->listLanguages())) {
+            return false;
+        }
+
+        $row = $this->getRow($id, $lang);
 
         if (!$row) {
             return false;
@@ -124,7 +129,7 @@ class Admin
         }
 
         // Finally, delete the object.
-        return $this->database->delete('content', $id);
+        return $this->database->delete('content', $id, $lang);
     }
 
     /**
@@ -235,9 +240,10 @@ class Admin
      * Return certain columns from a content object required to aid its deletion.
      *
      * @param   int $id ID of content object.
+     * @param   string $lang 2-letter ISO 639-1 language code.
      * @return  array Associative array containing type, id, image and media values.
      */
-    private function getRow(int $id)
+    private function getRow(int $id, string $lang)
     {
         if ($id < 1) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_NOTICE);
@@ -246,8 +252,9 @@ class Admin
 
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
+        $criteria->add($this->criteriaFactory->item('language', $lang));
 
-        return $this->database->select('content', $criteria, ['type', 'id', 'image', 'media'])
+        return $this->database->select('content', $criteria, ['type', 'id', 'language', 'image', 'media'])
             ->fetch(\PDO::FETCH_ASSOC);
     }
 

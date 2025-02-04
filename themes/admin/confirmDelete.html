@@ -15,6 +15,7 @@
   <form class="form-horizontal" action="<?php echo TFISH_ADMIN_URL; ?>" method="post" accept-charset="UTF-8">
     <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
     <input name="id" value="<?php echo xss($viewModel->id()); ?>" type="hidden">
+    <input name="language" value="<?php echo xss($viewModel->language()); ?>" type="hidden">
     <button name="action" value="delete" type="submit" class="btn btn-primary"><?php echo TFISH_YES; ?></button>
     <button name="action" value="cancel" type="submit" class="btn btn-primary"><?php echo TFISH_NO; ?></button>
   </form>

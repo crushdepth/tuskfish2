@@ -264,24 +264,35 @@ class Database
      *
      * @param string $table Name of table.
      * @param int $id ID of row to be deleted.
+     * @param string $lang 2-letter ISO 639-1 language code.
      * @return bool True on success false on failure.
      */
-    public function delete(string $table, int $id)
+    public function delete(string $table, int $id, string $lang = '')
     {
         $cleanTable = $this->validateTableName($table);
         $cleanId = $this->validateId($id);
+        $cleanLang = $this->validateLanguage($lang);
 
-        return $this->_delete($cleanTable, $cleanId);
+        return $this->_delete($cleanTable, $cleanId, $cleanLang);
     }
 
     /** @internal */
-    private function _delete(string $table, int $id)
+    private function _delete(string $table, int $id, string $lang)
     {
         $sql = "DELETE FROM " . $this->addBackticks($table) . " WHERE `id` = :id";
+
+        if (!empty($lang)) {
+            $sql .= " AND `language` = :language";
+        }
+
         $statement = $this->preparedStatement($sql);
 
         if ($statement) {
             $statement->bindValue(':id', $id, \PDO::PARAM_INT);
+
+            if (!empty($lang)) {
+                $statement->bindValue(':language', $lang, \PDO::PARAM_STR);
+            }
         } else {
             return false;
         }
