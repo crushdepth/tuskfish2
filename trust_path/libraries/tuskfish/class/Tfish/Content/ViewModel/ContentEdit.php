@@ -102,7 +102,14 @@ class ContentEdit implements \Tfish\Interface\Viewable
         $this->pageTitle = TFISH_EDIT;
         $content = new \Tfish\Content\Entity\Content();
 
-        if ($data = $this->model->edit($id)) {
+        $id = (int) ($_GET['id'] ?? 0);
+        $lang = $this->trimString($_GET['language'] ?? '');
+
+        if (!\array_key_exists($lang, $this->preference->listLanguages())) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        }
+
+        if ($data = $this->model->edit($id, $lang)) {
             $content->load($data, false);
             $this->setContent($content);
             $this->action = 'update';
