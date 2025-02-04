@@ -96,14 +96,18 @@ class Admin
             return false;
         }
 
-        // Delete associated image.
-        if ($row['image'] && !$this->deleteImage($row['image'])) {
-            return false;
+        // Delete associated image, but only if no other translation is using it.
+        if ($row['image'] && $this->soleReferenceToFile('image', $row['image'])) {
+            if (!$this->deleteImage($row['image'])) {
+                return false;
+            }
         }
 
-        // Delete associated media.
-        if ($row['type'] !== 'TfVideo' && $row['media'] && !$this->deleteMedia($row['media'])) {
-            return false;
+        // Delete associated media, but only if no other translation is using it.
+        if ($row['media'] && $this->soleReferenceToFile('media', $row['media'])) {
+            if (!$this->deleteMedia($row['media'])) {
+                return false;
+            }
         }
 
         // Delete outbound taglinks owned by this content.
@@ -388,6 +392,27 @@ class Admin
 
         return $criteria;
     }
+
+    /**
+     * Checks to see if an image or media file attachment is in use by another translation of this
+     * content object, in order to avoid deleting files that are in service.
+     *
+     * @param string $field Name of file field, ie. 'image' or 'media'.
+     * @param string $filename Name of file.
+     * @return boolean True if there is only one reference to a file, false if there are more.
+     */
+    private function soleReferenceToFile(string $field, string $filename): bool {
+
+        if ($field !== 'image' && $field !== 'media') {
+            return false;
+        }
+        $criteria = $this->criteriaFactory->criteria();
+        $criteria->add($this->criteriaFactory->item($field, $filename));
+        $count = $this->runCount($criteria);
+
+        return $count === 1 ? true : false;
+    }
+
 
     /**
      * Validate criteria used to filter query.
