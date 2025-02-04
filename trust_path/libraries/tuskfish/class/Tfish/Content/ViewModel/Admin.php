@@ -254,9 +254,8 @@ class Admin implements \Tfish\Interface\Listable
     public function languageOptions($zeroOption = TFISH_SELECT_LANGUAGE)
     {
         $zeroOption = $this->trimString($zeroOption);
-        $options = $this->preference->listLanguages();
 
-        return [$zeroOption] + $options;
+        return [$zeroOption] + $this->preference->listLanguages();
     }
 
     /**

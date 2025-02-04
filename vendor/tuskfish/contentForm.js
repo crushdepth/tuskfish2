@@ -329,7 +329,7 @@ function showHide() {
     });
     if ($("#type").val() === 'TfTag') {
         var disabledProperties = [
-            'creatorContainer', 'expiresOnContainer', 'languageContainer', 'rightsContainer',
+            'creatorContainer', 'expiresOnContainer', 'rightsContainer',
             'publisherContainer', 'tagsContainer'];
         $.each(disabledProperties, function (i, value) {
             $('#' + value).hide();
