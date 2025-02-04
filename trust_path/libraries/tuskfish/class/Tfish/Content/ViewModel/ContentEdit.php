@@ -103,7 +103,7 @@ class ContentEdit implements \Tfish\Interface\Viewable
         $content = new \Tfish\Content\Entity\Content();
 
         $id = (int) ($_GET['id'] ?? 0);
-        $lang = $this->trimString($_GET['language'] ?? '');
+        $lang = $this->trimString($_GET['lang'] ?? '');
 
         if (!\array_key_exists($lang, $this->preference->listLanguages())) {
             \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);

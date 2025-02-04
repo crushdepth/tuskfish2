@@ -355,7 +355,7 @@ class Admin
             $criteria->add($this->criteriaFactory->item('onlineStatus', $cleanParams['onlineStatus']));
 
         // If ID/language is set, retrieve a single object.
-        if (!empty($cleanParams['id'] && !empty($cleanParams['language']))) {
+        if (!empty($cleanParams['id']) && !empty($cleanParams['language'])) {
             $criteria->add($this->criteriaFactory->item('id', $cleanParams['id']));
             $criteria->add($this->criteriaFactory->item('language', $cleanParams['language']));
 
