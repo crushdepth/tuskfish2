@@ -178,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             `type` TEXT NOT NULL,
             `template` TEXT NOT NULL,
             `id` INTEGER NOT NULL,
-            `uid` INTEGER NOT NULL,
+            `uid` INTEGER PRIMARY KEY,
             `title` TEXT NOT NULL,
             `teaser` TEXT NOT NULL,
             `description` TEXT NOT NULL,
@@ -201,8 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             `counter` INTEGER NOT NULL,
             `metaTitle` TEXT NOT NULL,
             `metaDescription` TEXT NOT NULL,
-            `metaSeo` TEXT NOT NULL,
-            PRIMARY KEY (`uid`)
+            `metaSeo` TEXT NOT NULL
         );";
         $statement = $database->preparedStatement($sql);
         $statement->execute();

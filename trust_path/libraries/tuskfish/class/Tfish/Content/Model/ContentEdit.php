@@ -127,7 +127,6 @@ class ContentEdit
 
         // Increment to next highest available ID slot.
         $content['id'] = $this->database->maxVal('id', 'content') + 1;
-        $content['uid'] = $this->database->maxVal('uid', 'content') + 1;
         $content['submissionTime'] = \time();
         $content['lastUpdated'] = 0;
         $content['counter'] = 0;
