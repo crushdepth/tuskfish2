@@ -114,21 +114,23 @@ class Listing
      * @param integer $uid UID of the parent object.
      * @return \Tfish\Content\Entity\Content|bool Parent object on success, false on failure.
      */
-    public function getParent(int $uid)
-    {
+    public function getParent(int $uid) {
+        $params = [];
+
         if ($uid < 1) {
             return false;
         }
 
-        $criteria = $this->criteriaFactory->criteria();
+        $params['uid'] = $uid;
 
-        if (!empty($uid)) {
-            $criteria->add($this->criteriaFactory->item('uid', $uid));
+        if (!$this->session->isAdmin()) { // NOT admin.
+            $params['onlineStatus'] = 1;
         }
 
+        $cleanParams = $this->validateParams($params);
+        $criteria = $this->setCriteria($cleanParams);
         $statement = $this->database->select('content', $criteria);
         $content = $statement->fetchObject('\Tfish\Content\Entity\Content');
-        $statement->closeCursor();
 
         return $content;
     }
@@ -209,7 +211,20 @@ class Listing
         if (isset($cleanParams['onlineStatus']))
             $criteria->add($this->criteriaFactory->item('onlineStatus', $cleanParams['onlineStatus']));
 
-        if (!empty($cleanParams['id'])) {
+        // If uid (parent) is set, return immediately (single object call).
+        if (!empty($cleanParams['uid'])) {
+            $criteria->add($this->criteriaFactory->item('uid', $cleanParams['uid']));
+
+            return $criteria;
+        }
+
+        // If ID and language are set, return immediately (single object call).
+        if (!empty($cleanParams['language'])) {
+            $criteria->add($this->criteriaFactory->item('language', $cleanParams['language']));
+        }
+
+        // If ID and language are set, return immediately (single object call).
+        if (!empty($cleanParams['id'] && !empty($cleanParams['language']))) {
             $criteria->add($this->criteriaFactory->item('id', $cleanParams['id']));
 
             return $criteria;
@@ -274,6 +289,9 @@ class Listing
 
         if ($params['id'] ?? 0)
             $cleanParams['id'] = (int) $params['id'];
+
+        if ($params['uid'] ?? 0)
+            $cleanParams['uid'] = (int) $params['uid'];
 
         if (isset($params['language']) && \array_key_exists($params['language'], $this->preference->listLanguages())) {
             $cleanParams['language'] = $this->trimString($params['language']);

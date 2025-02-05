@@ -281,13 +281,26 @@ class Content
         $this->id = $id;
     }
 
+    /**
+     * Return UID.
+     *
+     * @return integer
+     */
     public function uid(): int
     {
         return (int) $this->uid;
     }
 
+    /**
+     * Set UID.
+     *
+     * @param integer $uid
+     * @return void
+     */
     public function setUid(int $uid)
     {
+        $uid = (int) $uid;
+
         if ($uid < 0) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
         }

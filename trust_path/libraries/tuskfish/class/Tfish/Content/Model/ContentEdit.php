@@ -125,7 +125,9 @@ class ContentEdit
         $content = $this->validateForm($_POST['content']);
         $tags = $this->validateTags($_POST['tags'] ?? []);
 
-        $content['id'] = $this->database->maxVal('id', 'content') + 1; // Increment to next highest available ID slot.
+        // Increment to next highest available ID slot.
+        $content['id'] = $this->database->maxVal('id', 'content') + 1;
+        $content['uid'] = $this->database->maxVal('uid', 'content') + 1;
         $content['submissionTime'] = \time();
         $content['lastUpdated'] = 0;
         $content['counter'] = 0;
@@ -427,6 +429,9 @@ class ContentEdit
 
         $id = ((int) ($form['id'] ?? 0));
         if ($id > 0) $clean['id'] = $id;
+
+        $uid = ((int) ($form['uid'] ?? 0));
+        if ($uid > 0) $clean['uid'] = $uid;
 
         $lang = $this->trimString($form['language'] ?? '');
         if (!\array_key_exists($lang, $this->listLanguages())) {
