@@ -82,7 +82,7 @@ trait TagLink
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('contentId', $id));
         $criteria->add($this->criteriaFactory->item('language', $lang));
-        $criteria->add($this->criteriaFactory->item('module', 'content'));
+        $criteria->add($this->criteriaFactory->item('module', $module));
 
         return $this->database->select('taglink', $criteria, $columns)
             ->fetchAll(\PDO::FETCH_COLUMN);
@@ -112,8 +112,6 @@ trait TagLink
             \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_NOTICE);
             return false;
         }
-
-        $cleanTaglinks = [];
 
         foreach ($tags as $tag) {
             $taglink = [];
@@ -150,10 +148,12 @@ trait TagLink
             return false;
         }
 
-        // Save the updated taglinks for this content.
-        $content['tags'] = $tags;
+        $cleanTags = $this->validateTags($tags);
 
-        if (!$this->saveTaglinks($contentId, $lang, $contentType, $module, $tags)) {
+        // Save the updated taglinks for this content.
+        $content['tags'] = $cleanTags;
+
+        if (!$this->saveTaglinks($contentId, $lang, $contentType, $module, $cleanTags)) {
             return false;
         }
 

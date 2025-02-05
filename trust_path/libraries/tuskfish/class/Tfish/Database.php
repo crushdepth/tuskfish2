@@ -1159,7 +1159,7 @@ class Database
      *
      * @param string $table Name of table.
      * @param int $id ID of row to update.
-     * @param string $lang 2-letter ISO 639-1 language code.
+     * @param string $lang 2-letter ISO 639-1 language code (old record).
      * @param array $keyValues Array of column names and values to update.
      * @return bool True on success, false on failure.
      */
@@ -1174,7 +1174,7 @@ class Database
     }
 
     /** @internal */
-    private function _update(string $table, int $id, array $keyValues, string $lang)
+    private function _update(string $table, int $id, array $keyValues, string $oldLang)
     {
         // Prepare the statement
         $sql = "UPDATE " . $this->addBackticks($table) . " SET ";
@@ -1186,18 +1186,17 @@ class Database
         $sql = \trim($sql, ", ");
         $sql .= " WHERE `id` = :id";
 
-        if (!empty($lang)) {
-            $sql .= " AND `language` = :language";
+        if (!empty($oldLang)) {
+            $sql .= " AND `language` = :oldLang";
         }
 
-        // Prepare the statement and bind the values.
         $statement = $this->preparedStatement($sql);
 
         if ($statement) {
             $statement->bindValue(":id", $id, \PDO::PARAM_INT);
 
-            if (!empty($lang))
-                $statement->bindValue(":language", $lang, \PDO::PARAM_STR);
+            if (!empty($oldLang))
+                $statement->bindValue(":oldLang", $oldLang, \PDO::PARAM_STR);
 
             foreach ($keyValues as $key => $value) {
                 $type = \gettype($value);
