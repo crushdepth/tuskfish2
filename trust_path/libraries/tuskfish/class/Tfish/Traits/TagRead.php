@@ -38,20 +38,28 @@ trait TagRead
      * Return IDs and titles of tags that are actually in use with content objects for a given module.
      *
      * @param   string  Module name to filter results by.
+     * @param   string 2-letter ISO 639-1 language code.
      * @return  array IDs and titles as key-value pairs.
      */
-    public function activeTagOptions(string $module)
+    public function activeTagOptions(string $module, string $lang)
     {
         $module = $this->trimString($module); // Alphanumeric and underscores, only.
+        $lang = $this->trimString($lang); // Alpha only.
 
         if (!$this->isAlnumUnderscore($module)) {
             \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
             exit;
         }
 
+        if (!$this->isAlpha($lang) || \mb_strlen($lang, 'UTF-8') !== 2) {
+            \trigger_error(TFISH_ERROR_NOT_ALPHA, E_USER_ERROR);
+            exit;
+        }
+
         // Get a list of active tag IDs (those listed in the taglnks table).
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('module', $module));
+        $criteria->add($this->criteriaFactory->item('language', $lang));
 
         $taglinks = $this->database->selectDistinct('taglink', ['tagId'], $criteria)
             ->fetchAll(\PDO::FETCH_COLUMN);
@@ -109,14 +117,22 @@ trait TagRead
      * Get tags associated with an object.
      *
      * @param   int $id ID of content object.
+     * @param   string $lang 2-letter ISO 639-1 language code.
      * @param   string $module Name of module associated with this object.
      * @param   string $table Name of DB table associated with this object.
      * @return  array Tag IDs and titles as key-value pairs.
      */
-    public function getTagsForObject(int $id, string $module, string $table)
+    public function getTagsForObject(int $id, string $lang, string $module, string $table)
     {
         if ($id < 1) {
             return [];
+        }
+
+        $lang = $this->trimString($lang); // Alpha only.
+
+        if (!$this->isAlpha($lang) || \mb_strlen($lang, 'UTF-8') !== 2) {
+            \trigger_error(TFISH_ERROR_NOT_ALPHA, E_USER_ERROR);
+            exit;
         }
 
         $module = $this->trimString($module); // Alphanumeric and underscores, only.
@@ -170,11 +186,11 @@ trait TagRead
     }
 
     /**
-     * Returns a list of options for the tag select box.
+     * Returns a list of options for the tag select box, optionally filtered by langauge.
      *
      * @return  array Array of tag IDs and titles as key-value pairs.
      */
-    public function onlineTagSelectOptions()
+    public function onlineTagSelectOptions($lang = '')
     {
         $columns = ['id', 'title'];
 
@@ -182,6 +198,11 @@ trait TagRead
 
         $criteria->add($this->criteriaFactory->item('type', 'TfTag'));
         $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
+
+        if (!empty($lang) && $this->isAlpha($lang) && \mb_strlen($lang, 'UTF-8') === 2) {
+            $criteria->add($this->criteriaFactory->item('language', $this->trimString($lang)));
+        }
+
         $criteria->setSort('title');
         $criteria->setOrder('ASC');
         $criteria->setSecondarySort('submissionTime');

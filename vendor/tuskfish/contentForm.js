@@ -340,13 +340,4 @@ function showHide() {
     } else {
         $("#externalMediaContainer").hide();
     }
-    if ($("#type").val() === 'TfBlock') {
-        var disabledProperties = [
-            'teaserContainer', 'creatorContainer', 'parentContainer', 'rightsContainer',
-            'publisherContainer', 'metaHeader', 'metaTitleContainer', 'seoContainer',
-            'metaDescriptionContainer'];
-        $.each(disabledProperties, function (i, value) {
-            $('#' + value).hide();
-        });
-    }
 }

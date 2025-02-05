@@ -144,7 +144,7 @@ class ContentEdit
 
         // Insert the taglinks, which requires knowledge of the ID.
         $contentId = $this->database->lastInsertId();
-        if (!$this->saveTaglinks($content['id'], $content['type'], 'content', $tags)) {
+        if (!$this->saveTaglinks($content['id'], $content['language'], $content['type'], 'content', $tags)) {
             return false;
         }
 
@@ -177,19 +177,26 @@ class ContentEdit
         }
 
         // Check if there are any redundant image/media files that should be deleted.
-        if (!empty($savedContent['image']) && $savedContent['image'] !== $content['image']) {
+        if (!empty($savedContent['image'])
+                && $savedContent['image'] !== $content['image']
+                && $this->soleReferenceToFile('image', $savedContent['image'])) {
             $this->fileHandler->deleteFile('image/' . $savedContent['image']);
         }
 
         // Check if delete flag was set.
         if ($_POST['deleteImage'] === '1' && !empty($savedContent['image'])) {
             $content['image'] = '';
-            $this->fileHandler->deleteFile('image/' . $savedContent['image']);
+
+            if ($this->soleReferenceToFile('image', $savedContent['image'])) {
+                $this->fileHandler->deleteFile('image/' . $savedContent['image']);
+            }
         }
 
         if ($savedContent['type'] !== 'TfVideo') {
 
-            if (!empty($savedContent['media']) && $savedContent['media'] !== $content['media']) {
+            if (!empty($savedContent['media'])
+                    && $savedContent['media'] !== $content['media']
+                    && $this->soleReferenceToFile('media', $savedContent['media'])) {
                 $this->fileHandler->deleteFile('media/' . $savedContent['media']);
             }
 
@@ -197,7 +204,10 @@ class ContentEdit
                 $content['media'] = '';
                 $content['format'] = '';
                 $content['fileSize'] = 0;
-                $this->fileHandler->deleteFile('media/' . $savedContent['media']);
+
+                if ($this->soleReferenceToFile('media', $savedContent['media'])) {
+                    $this->fileHandler->deleteFile('media/' . $savedContent['media']);
+                }
             }
         }
 
@@ -209,7 +219,7 @@ class ContentEdit
         }
 
         // Update taglinks.
-        $this->updateTaglinks($id, $content['type'], 'content', $tags);
+        $this->updateTaglinks($id, $content['language'], $content['type'], 'content', $tags);
 
         // Flush cache.
         $this->cache->flush();
@@ -318,6 +328,37 @@ class ContentEdit
             ->fetch(\PDO::FETCH_ASSOC);
 
         return !empty($row) ? $row : [];
+    }
+
+    /**
+     * Checks to see if an image or media file attachment is in use by another translation of this
+     * content object, in order to avoid deleting files that are in service.
+     *
+     * @param string $field Name of file field, ie. 'image' or 'media'.
+     * @param string $filename Name of file.
+     * @return boolean True if there is only one reference to a file, false if there are more.
+     */
+    private function soleReferenceToFile(string $field, string $filename): bool {
+
+        if ($field !== 'image' && $field !== 'media') {
+            return false;
+        }
+        $criteria = $this->criteriaFactory->criteria();
+        $criteria->add($this->criteriaFactory->item($field, $filename));
+        $count = $this->runCount($criteria);
+
+        return $count === 1 ? true : false;
+    }
+
+    /**
+     * Run the count query.
+     *
+     * @param   \Tfish\Criteria $criteria Filter criteria.
+     * @return  int Count.
+     */
+    private function runCount(\Tfish\Criteria $criteria): int
+    {
+        return $this->database->selectCount('content', $criteria);
     }
 
     /**
