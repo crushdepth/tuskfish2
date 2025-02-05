@@ -202,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             `metaTitle` TEXT NOT NULL,
             `metaDescription` TEXT NOT NULL,
             `metaSeo` TEXT NOT NULL,
-            PRIMARY KEY (`id`, `language`)
+            PRIMARY KEY (`uid`)
         );";
         $statement = $database->preparedStatement($sql);
         $statement->execute();
@@ -213,8 +213,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             `contentType` TEXT NOT NULL,
             `contentId` INTEGER NOT NULL,
             `language` TEXT NOT NULL,
-            `module` TEXT NOT NULL,
-            FOREIGN KEY (`contentId`, `language`) REFERENCES content(`id`, `language`)
+            `module` TEXT NOT NULL
         );";
         $statement = $database->preparedStatement($sql);
         $statement->execute();
@@ -349,6 +348,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             `route` TEXT NOT NULL
         );";
 
+        $statement = $database->preparedStatement($sql);
+        $statement->execute();
+
+        // Create indexes to accelerate queries.
+        $sql = "CREATE INDEX IF NOT EXISTS idx_content_id_language ON content (id, language, type);";
+        $statement = $database->preparedStatement($sql);
+        $statement->execute();
+
+        $sql = "CREATE INDEX IF NOT EXISTS idx_taglink_module_language_content ON taglink (module, language, contentId);";
         $statement = $database->preparedStatement($sql);
         $statement->execute();
 

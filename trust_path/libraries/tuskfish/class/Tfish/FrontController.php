@@ -162,7 +162,7 @@ class FrontController
             include TFISH_LANGUAGE_PATH . $_SESSION['lang'] . ".php";
         } else {
             $_SESSION['lang'] = $this->preference->defaultLanguage();
-            include TFISH_LANGUAGE_PATH . $this->preference->defaultLanguage() . "php";
+            include TFISH_LANGUAGE_PATH . $this->preference->defaultLanguage() . ".php";
         }
     }
 
