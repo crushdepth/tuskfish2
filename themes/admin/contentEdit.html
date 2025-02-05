@@ -359,6 +359,8 @@
           submit()" formnovalidate><?php echo TFISH_CANCEL; ?></button>
     </div>
 
+    <input type="hidden" name="content[uid]" id="uid" value="<?php echo xss($content->uid()); ?>" />
+    <input type="hidden" name="lang" id="lang" value="<?php echo xss($content->language()); ?>" />
     <input type="hidden" name="content[submissionTime]" id="submissionTime" value="<?php echo xss($content->submissionTime()); ?>" />
     <input type="hidden" name="action" id="action" value="<?php echo xss($viewModel->action()); ?>" />
 

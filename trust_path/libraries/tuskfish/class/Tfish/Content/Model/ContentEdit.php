@@ -168,10 +168,11 @@ class ContentEdit
 
         $id = (int) $content['id'];
         $lang = $this->trimString($content['language']);
+        $savedLang = $this->trimString($_POST['lang']);
         $content['lastUpdated'] = \time();
 
         // Set image/media to currently stored values.
-        $savedContent = $this->getRow($id, $lang);
+        $savedContent = $this->getRow($id, $savedLang);
         $content['image'] = $savedContent['image'];
 
         if ($content['type'] !== 'TfVideo') {

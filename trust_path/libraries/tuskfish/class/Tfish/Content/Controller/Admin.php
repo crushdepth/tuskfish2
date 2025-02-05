@@ -70,7 +70,7 @@ class Admin
     public function confirmDelete(): array
     {
         $id = (int) ($_GET['id'] ?? 0);
-        $lang = $this->trimString($_GET['language']);
+        $lang = $this->trimString($_GET['lang']);
         $this->viewModel->setId($id);
         $this->viewModel->setLanguage($lang);
         $this->viewModel->setContentTitle();

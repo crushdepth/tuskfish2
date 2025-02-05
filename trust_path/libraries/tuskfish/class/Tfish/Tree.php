@@ -87,7 +87,7 @@ class Tree
      * @param string|null $rootId Name of root object ID field. This is the object that will be used as
      * the base node for building a tree (or subtree) from the $objectArr.
      * */
-    function __construct(array &$objectArr, string $myId, string $parentId, string $rootId = null)
+    function __construct(array &$objectArr, string $myId, string $parentId, string|null $rootId = null)
     {
         $this->_objects = & $objectArr;
         $this->_myId = $myId;

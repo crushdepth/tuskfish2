@@ -1196,7 +1196,8 @@ class Database
         if ($statement) {
             $statement->bindValue(":id", $id, \PDO::PARAM_INT);
 
-            if (!empty($lang)) $statement->bindValue(":language", \PDO::PARAM_STR);
+            if (!empty($lang))
+                $statement->bindValue(":language", $lang, \PDO::PARAM_STR);
 
             foreach ($keyValues as $key => $value) {
                 $type = \gettype($value);

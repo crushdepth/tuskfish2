@@ -116,7 +116,7 @@ class Admin
         }
 
         // If object is a tag, delete inbound taglinks referring to it.
-        if ($row['type'] === 'TfTag' && !$this->deleteReferencesToTag($id)) {
+        if ($row['type'] === 'TfTag' && !$this->deleteReferencesToTag($id, $lang)) {
             return false;
         }
 
