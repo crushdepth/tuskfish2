@@ -59,7 +59,7 @@ trait TagRead
         // Get a list of active tag IDs (those listed in the taglnks table).
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('module', $module));
-        $criteria->add($this->criteriaFactory->item('language', $lang));
+        $criteria->add($this->criteriaFactory->item('contentLang', $lang));
 
         $taglinks = $this->database->selectDistinct('taglink', ['tagId'], $criteria)
             ->fetchAll(\PDO::FETCH_COLUMN);

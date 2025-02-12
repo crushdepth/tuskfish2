@@ -224,7 +224,7 @@ class Listing
         }
 
         // If ID and language are set, return immediately (single object call).
-        if (!empty($cleanParams['id'] && !empty($cleanParams['language']))) {
+        if (!empty($cleanParams['id']) && !empty($cleanParams['language'])) {
             $criteria->add($this->criteriaFactory->item('id', $cleanParams['id']));
 
             return $criteria;
@@ -274,7 +274,7 @@ class Listing
      */
     private function updateCounter(int $id, string $lang)
     {
-        $this->database->updateCounter($id, 'content', $lang);
+        $this->database->updateCounter($id, 'content', 'counter', $lang);
     }
 
     /**

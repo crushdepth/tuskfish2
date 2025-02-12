@@ -201,7 +201,7 @@ class Listing implements \Tfish\Interface\Listable
      */
     public function contentTags()
     {
-        $tags = $this->model->getTagsForObject($this->id, 'content', 'content');
+        $tags = $this->model->getTagsForObject($this->id, $this->language, 'content', 'content');
 
         return $tags;
     }

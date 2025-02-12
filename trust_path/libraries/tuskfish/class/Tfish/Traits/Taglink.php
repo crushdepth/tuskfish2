@@ -40,7 +40,7 @@ trait TagLink
     {
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('contentId', $contentId));
-        $criteria->add($this->criteriaFactory->item('language', $lang));
+        $criteria->add($this->criteriaFactory->item('contentLang', $lang));
         $criteria->add($this->criteriaFactory->item('module', $module));
 
         return $this->database->deleteAll('taglink', $criteria);
@@ -61,7 +61,7 @@ trait TagLink
 
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('tagId', $id));
-        $criteria->add($this->criteriaFactory->item('language', $lang));
+        $criteria->add($this->criteriaFactory->item('contentLang', $lang));
 
         return $this->database->deleteAll('taglink', $criteria);
     }
@@ -81,7 +81,7 @@ trait TagLink
         $columns = ['tagId'];
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('contentId', $id));
-        $criteria->add($this->criteriaFactory->item('language', $lang));
+        $criteria->add($this->criteriaFactory->item('contentLang', $lang));
         $criteria->add($this->criteriaFactory->item('module', $module));
 
         return $this->database->select('taglink', $criteria, $columns)
@@ -116,7 +116,7 @@ trait TagLink
         foreach ($tags as $tag) {
             $taglink = [];
             $taglink['tagId'] = (int) $tag;
-            $taglink['language'] = $lang;
+            $taglink['contentLang'] = $lang;
             $taglink['contentType'] = $contentType;
             $taglink['contentId'] = $contentId;
             $taglink['module'] = $module;

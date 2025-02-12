@@ -211,7 +211,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             `tagId` INTEGER NOT NULL,
             `contentType` TEXT NOT NULL,
             `contentId` INTEGER NOT NULL,
-            `language` TEXT NOT NULL,
+            `contentLang` TEXT NOT NULL,
             `module` TEXT NOT NULL
         );";
         $statement = $database->preparedStatement($sql);
@@ -351,13 +351,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->execute();
 
         // Create indexes to accelerate queries.
-        $sql = "CREATE INDEX IF NOT EXISTS idx_content_id_language ON content (id, language, type);";
+        /*$sql = "CREATE INDEX IF NOT EXISTS idx_content_id_language ON content (id, language, type);";
         $statement = $database->preparedStatement($sql);
         $statement->execute();
 
         $sql = "CREATE INDEX IF NOT EXISTS idx_taglink_module_language_content ON taglink (module, language, contentId);";
         $statement = $database->preparedStatement($sql);
-        $statement->execute();
+        $statement->execute();*/
 
         // Close the database connection.
         $database->close();
