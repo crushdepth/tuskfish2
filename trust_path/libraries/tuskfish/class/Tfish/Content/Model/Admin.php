@@ -366,6 +366,9 @@ class Admin
             return $criteria;
         }
 
+        if (!empty($cleanParams['language']))
+            $criteria->add($this->criteriaFactory->item('language', $cleanParams['language']));
+
         if (!empty($cleanParams['type']))
             $criteria->add($this->criteriaFactory->item('type', $cleanParams['type']));
 
@@ -428,6 +431,7 @@ class Admin
             $cleanParams['id'] = (int) $params['id'];
 
         if (!empty($params['language']) && \array_key_exists($params['language'], $this->preference->listLanguages()))
+
             $cleanParams['language'] = $params['language'];
 
         if ($params['start'] ?? 0)

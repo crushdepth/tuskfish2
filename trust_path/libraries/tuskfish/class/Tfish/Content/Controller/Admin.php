@@ -111,7 +111,7 @@ class Admin
         $this->viewModel->setLanguage($_SESSION['lang']);
 
         // Controls language filter.
-        $this->viewModel->setLanguageFilter($_REQUEST['language'] ?? '');
+        $this->viewModel->setLanguageFilter($_REQUEST['languageFilter'] ?? '');
 
         $start = (int) ($_GET['start'] ?? 0);
         $this->viewModel->setStart($start);

@@ -38,7 +38,7 @@
         </div>
 
         <div class="col-md-3">
-            <select class="form-control custom-select" name="language" id="language" onchange="this.form.submit()">
+            <select class="form-control custom-select" name="languageFilter" id="languageFilter" onchange="this.form.submit()">
             <?php
               foreach ($viewModel->languageOptions() as $key => $value) {
                 echo ($key === $viewModel->languageFilter()) ?

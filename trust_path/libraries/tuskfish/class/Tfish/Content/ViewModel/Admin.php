@@ -418,8 +418,7 @@ class Admin implements \Tfish\Interface\Listable
     public function setLanguageFilter(string $lang) {
         $lang = $this->trimString($lang);
 
-        $this->languageFilter = \array_key_exists($lang, $this->listLanguages())
-            ? $lang : $this->preference->defaultLanguage();
+        $this->languageFilter = \array_key_exists($lang, $this->listLanguages()) ? $lang : '';
     }
 
     /**

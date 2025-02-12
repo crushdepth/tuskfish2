@@ -151,7 +151,7 @@ class FrontController
      * two-letter ISO 639-1 language code, eg. en.php for English, ru.php for Russian. Each available
      * translation should also be listed in \TfishTraits\Language->listLanguages().
      *
-     * @param   string $lang Language preferrence as ISO 639-1 code.
+     * @param   string $lang Language preference as ISO 639-1 code.
      */
     private function setLanguage(string $lang) {
         if (!empty($lang) && \array_key_exists($lang, $this->preference->listLanguages())) {
