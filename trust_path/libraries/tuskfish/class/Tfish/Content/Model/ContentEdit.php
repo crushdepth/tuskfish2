@@ -125,8 +125,11 @@ class ContentEdit
         $content = $this->validateForm($_POST['content']);
         $tags = $this->validateTags($_POST['tags'] ?? []);
 
-        // Increment to next highest available ID slot.
-        $content['id'] = $this->database->maxVal('id', 'content') + 1;
+        if (empty($content['id'])) {
+            $content['id'] = $this->database->maxVal('id', 'content') + 1;
+        }
+
+        unset($content['uid']);
         $content['submissionTime'] = \time();
         $content['lastUpdated'] = 0;
         $content['counter'] = 0;
@@ -172,6 +175,7 @@ class ContentEdit
 
         // Set image/media to currently stored values.
         $savedContent = $this->getRow($id, $savedLang);
+
         $content['image'] = $savedContent['image'];
 
         if ($content['type'] !== 'TfVideo') {
@@ -361,6 +365,32 @@ class ContentEdit
     private function runCount(\Tfish\Criteria $criteria): int
     {
         return $this->database->selectCount('content', $criteria);
+    }
+
+    /**
+     * Return a list of existing translations for this content.
+     *
+     * @param integer $id
+     * @return array 2-letter ISO 639-1 language codes.
+     */
+    public function translations(int $id): array
+    {
+        $id = (int) $id;
+
+        if ($id < 1) return [];
+
+        $criteria = $this->criteriaFactory->criteria();
+        $criteria->add($this->criteriaFactory->item('id', $id));
+
+        $statement = $this->database->selectDistinct('content', ['language'], $criteria);
+
+        if(!$statement) {
+            \trigger_error(TFISH_ERROR_NO_RESULT, E_USER_ERROR);
+        }
+
+        $result = $statement->fetchAll(\PDO::FETCH_COLUMN);
+
+        return $result;
     }
 
     /**

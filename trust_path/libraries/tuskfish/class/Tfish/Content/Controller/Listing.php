@@ -57,9 +57,9 @@ class Listing
      */
     public function display(): array
     {
-        $cacheParams = ['page' => 'home', 'lang' => $_SESSION['lang']];
+        $cacheParams = ['page' => 'home', 'lang' => $_SESSION['displayLang']];
 
-        $this->viewModel->setLanguage($_SESSION['lang']);
+        $this->viewModel->setLanguage($_SESSION['displayLang']);
 
         $start = (int) ($_GET['start'] ?? 0);
 
@@ -74,7 +74,7 @@ class Listing
         $type = $this->trimString($_GET['type'] ?? '');
 
         $this->viewModel->setType($type);
-        if (!empty($type)) $cacheParams['type'] = $viewModel->type();
+        if (!empty($type)) $cacheParams['type'] = $this->viewModel->type();
 
         $this->viewModel->setSort('date');
         $this->viewModel->setOrder('DESC');

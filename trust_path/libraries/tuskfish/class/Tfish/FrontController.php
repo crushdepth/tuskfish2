@@ -80,12 +80,12 @@ class FrontController
         $this->session = $session;
 
         $session->start();
-        $this->setLanguage($_GET['lang'] ?? "");
+        $this->setLanguage($_GET['displayLang'] ?? "");
         $this->checkSiteClosed($path);
         $this->checkAccessRights($route);
 
         // Create MVVM components with dice (as they have variable dependencies).
-        $pagination = $dice->create('\\Tfish\\Pagination', [$path, $_SESSION['lang']]);
+        $pagination = $dice->create('\\Tfish\\Pagination', [$path, $_SESSION['displayLang']]);
         $model = $dice->create($route->model());
         $viewModel = $dice->create($route->viewModel(), [$model]);
         $this->view = $dice->create($route->view(), [$viewModel]);
@@ -146,7 +146,7 @@ class FrontController
     /**
      * Set the TuskfishCMS interface language.
      *
-     * The interface will be switched to the langauge specified by $_GET['lang'] parameter, if it exists.
+     * The interface will be switched to the langauge specified by $_GET['displayLang'] parameter, if it exists.
      * Note that a valid translation file must exist. By convention, the name of the file must match the
      * two-letter ISO 639-1 language code, eg. en.php for English, ru.php for Russian. Each available
      * translation should also be listed in \TfishTraits\Language->listLanguages().
@@ -154,16 +154,19 @@ class FrontController
      * @param   string $lang Language preference as ISO 639-1 code.
      */
     private function setLanguage(string $lang) {
+        echo 'Lang overide ' . $lang . '<br>';
         if (!empty($lang) && \array_key_exists($lang, $this->preference->listLanguages())) {
-            $_SESSION['lang'] = $this->trimString($_GET['lang']);
+            $_SESSION['displayLang'] = $this->trimString($lang);
         }
 
-        if (!empty($_SESSION['lang'])) {
-            include TFISH_LANGUAGE_PATH . $_SESSION['lang'] . ".php";
+        if (!empty($_SESSION['displayLang'])) {
+            include TFISH_LANGUAGE_PATH . $_SESSION['displayLang'] . ".php";
         } else {
-            $_SESSION['lang'] = $this->preference->defaultLanguage();
+            $_SESSION['displayLang'] = $this->preference->defaultLanguage();
             include TFISH_LANGUAGE_PATH . $this->preference->defaultLanguage() . ".php";
         }
+
+        echo 'session lang: ' . $_SESSION['displayLang'];
     }
 
     /**

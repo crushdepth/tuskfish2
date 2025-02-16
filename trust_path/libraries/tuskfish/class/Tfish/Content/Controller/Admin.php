@@ -108,7 +108,7 @@ class Admin
         $this->viewModel->setId($id);
 
         // Controls interface language.
-        $this->viewModel->setLanguage($_SESSION['lang']);
+        $this->viewModel->setLanguage($_SESSION['displayLang']);
 
         // Controls language filter.
         $this->viewModel->setLanguageFilter($_REQUEST['languageFilter'] ?? '');

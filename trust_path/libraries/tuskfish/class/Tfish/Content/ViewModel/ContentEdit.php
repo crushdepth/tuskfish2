@@ -33,6 +33,8 @@ namespace Tfish\Content\ViewModel;
  * @var         int $id ID of a single content object to be displayed.
  * @var         \Tfish\Content\Entity\Content $content Content object to be edited.
  * @var         array $parentOptions A list of parents (collections) IDs and titles.
+ * @var         array $translationOptions A list of translations options for a content object.
+ * @var         string Language of the source content object for a translation.
  * @var         string $action Action to be embedded in the form and executed after next submission.
  * @var         string $response Message to display to the user after processing action (success/failure).
  * @var         string $backUrl $backUrl URL to return to if the user cancels the action.
@@ -48,6 +50,8 @@ class ContentEdit implements \Tfish\Interface\Viewable
     private $id = 0;
     private $content = '';
     private $parentOptions = [];
+    private $translationOptions = [];
+    private $sourceLang = '';
     private $action = '';
     private $response = '';
     private $backUrl = '';
@@ -98,12 +102,10 @@ class ContentEdit implements \Tfish\Interface\Viewable
     public function displayEdit()
     {
         $id = (int) ($_GET['id'] ?? 0);
+        $lang = $this->trimString($_GET['lang'] ?? '');
 
         $this->pageTitle = TFISH_EDIT;
         $content = new \Tfish\Content\Entity\Content();
-
-        $id = (int) ($_GET['id'] ?? 0);
-        $lang = $this->trimString($_GET['lang'] ?? '');
 
         if (!\array_key_exists($lang, $this->preference->listLanguages())) {
             \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
@@ -132,6 +134,7 @@ class ContentEdit implements \Tfish\Interface\Viewable
         $this->validateToken($token);
 
         $id = (int) ($_POST['content']['id'] ?? 0);
+        $lang = $this->trimString($_POST['content']['language'] ?? '');
 
         if (empty($id)) {
 
@@ -157,6 +160,66 @@ class ContentEdit implements \Tfish\Interface\Viewable
 
         $this->template = 'response';
         $this->backUrl = TFISH_ADMIN_URL;
+    }
+
+    /**
+     * Save content object (new or updated).
+     */
+    public function displaySaveTranslation()
+    {
+        $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
+        $this->validateToken($token);
+
+        $id = (int) ($_POST['content']['id'] ?? 0);
+        $lang = $this->trimString($_POST['content']['language'] ?? '');
+
+        if (!empty($id) && !empty($lang)) {
+
+            if ($this->model->insert()) {
+                $this->pageTitle = TFISH_SUCCESS;
+                $this->response = TFISH_OBJECT_WAS_INSERTED;
+            } else {
+                $this->pageTitle = TFISH_FAILED;
+                $this->response = TFISH_OBJECT_INSERTION_FAILED;
+            }
+        }
+
+        $this->template = 'response';
+        $this->backUrl = TFISH_ADMIN_URL;
+    }
+
+    /**
+     * Call edit but set language to '' and disable any existing translation options.
+     *
+     * @return void
+     */
+    public function displayTranslate()
+    {
+        $id = (int) ($_GET['id'] ?? 0);
+        $lang = $this->trimString($_GET['lang'] ?? '');
+
+        $this->pageTitle = TFISH_EDIT;
+        $content = new \Tfish\Content\Entity\Content();
+
+        if (!\array_key_exists($lang, $this->preference->listLanguages())) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        }
+
+        if ($data = $this->model->edit($id, $lang)) {
+            $this->translationOptions = $this->listTranslations($id);
+            $this->sourceLang = $lang;
+            $data['language'] = '';
+            $content->load($data, false);
+            $this->setContent($content);
+            $this->action = 'saveTranslation';
+            $this->parentOptions = [];
+            $this->template = 'contentTranslate';
+        } else {
+            $this->pageTitle = TFISH_FAILED;
+            $this->response = TFISH_ERROR_NO_SUCH_OBJECT;
+            $this->backUrl = TFISH_ADMIN_URL;
+            $this->template = 'response';
+        }
     }
 
     /** Utilities */
@@ -190,6 +253,17 @@ class ContentEdit implements \Tfish\Interface\Viewable
     {
         return [0 => TFISH_ZERO_OPTION]
         + $this->model->onlineTagSelectOptions($this->preference->defaultLanguage());
+    }
+
+    /**
+     * Returns a list of translations of this content.
+     *
+     * @param integer $id ID
+     * @return array Existing translations as an array of 2-letter ISO 639-1 language codes.
+     */
+    public function listTranslations(int $id): array
+    {
+        return $this->model->translations($id);
     }
 
     /**
@@ -272,6 +346,16 @@ class ContentEdit implements \Tfish\Interface\Viewable
     }
 
     /**
+     * Return source language as ISO 639-1 code.
+     *
+     * @return string
+     */
+    public function sourceLang(): string
+    {
+        return $this->sourceLang;
+    }
+
+    /**
      * Return the response message (success or failure) for an action.
      *
      * @return  string
@@ -279,5 +363,15 @@ class ContentEdit implements \Tfish\Interface\Viewable
     public function response(): string
     {
         return $this->response;
+    }
+
+    /**
+     * Return list of translations for this content.
+     *
+     * @return array
+     */
+    public function translationOptions(): array
+    {
+        return $this->translationOptions;
     }
 }

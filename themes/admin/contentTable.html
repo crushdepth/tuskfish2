@@ -96,7 +96,7 @@
         <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_EXPIRES; ?></th>
         <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_COUNTER; ?></th>
         <th class="text-center"><?php echo TFISH_ONLINE; ?></th>
-        <th colspan="2" class="text-center"><?php echo TFISH_ACTION; ?></th>
+        <th colspan="3" class="text-center"><?php echo TFISH_ACTION; ?></th>
       </tr>
       </thead>
     <tbody>
@@ -130,6 +130,7 @@
         </td>
         <?php endif; ?>
         <td class="text-center"><a href="<?php echo TFISH_ADMIN_URL . 'content/'; ?>?action=edit&amp;id=<?php echo xss($row['id']); ?>&amp;lang=<?php echo xss($row['language']); ?>"><i class="fas fa-edit"></i></a></td>
+        <td class="text-center"><a href="<?php echo TFISH_ADMIN_URL . 'content/'; ?>?action=translate&amp;id=<?php echo xss($row['id']); ?>&amp;lang=<?php echo xss($row['language']); ?>"><i class="fas fa-language"></i></a></td>
         <td class="text-center"><a href="<?php echo TFISH_ADMIN_URL; ?>?action=confirmDelete&amp;id=<?php echo xss($row['id']); ?>&amp;lang=<?php echo xss($row['language']); ?>"><i class="fas fa-trash-alt"></i></a></td>
         <?php unset($row); ?>
       </tr>

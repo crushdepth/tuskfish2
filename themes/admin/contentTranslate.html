@@ -1,0 +1,377 @@
+<?php declare(strict_types=1); ?>
+
+<?php
+  $content = $viewModel->content();
+
+  function doubleEscape(string $value): string
+  {
+    $value = (string) $value;
+    return \htmlspecialchars($value, ENT_NOQUOTES, 'UTF-8', true);
+  }
+?>
+
+<!-- Container -->
+<div class="container">
+
+<div class="row">
+  <div class="col">
+    <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+  </div>
+</div>
+
+<!-- Custom form manager script to show or hide fields used by specific content subclasses and manage media file uploads -->
+<script type="text/javascript" src="<?php echo TFISH_VENDOR_URL . 'tuskfish/contentForm.js'; ?>"></script>
+
+<div class="row">
+  <div class="col">
+
+  <form class="form-horizontal" action="<?php echo TFISH_ADMIN_URL . 'content/'; ?>" method="post" enctype="multipart/form-data" role="form" accept-charset="UTF-8">
+    <div class="row">
+
+      <!-- ID -->
+      <input type="hidden" name="content[id]" value="<?php echo xss($content->id()); ?>">
+
+      <!-- Media file type compatibility alert -->
+      <div class="col-12">
+        <div class="mb-3 alert alert-danger alert-dismissible fade d-none" role="alert">
+          <?php echo '<i class="fas fa-exclamation-triangle"></i> ' . TFISH_MEDIA_NOT_COMPATIBLE; ?>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Type -->
+      <div class="col-md-6 col-lg-3 mb-3 text-left" id="typeContainer">
+        <label for="type"><strong><?php echo TFISH_TYPE; ?></strong></label>
+        <select class="form-control custom-select" name="content[type]" id="type" required>
+          <?php
+            foreach ($content->listTypes() as $key => $type) {
+              if ($content->type() === $key) {
+                  echo '<option value="' . xss($key) . '" selected>' . xss($type) . '</option>';
+              } else {
+                  echo '<option value="' . xss($key) . '">' . xss($type) . '</option>';
+              }
+            }
+          ?>
+        </select>
+      </div>
+
+      <!-- Template -->
+      <div class="col-md-6 col-lg-3 mb-3 text-left" id="templateContainer">
+        <input type="hidden" id="selectedTemplate" value="<?php echo xss($content->template()); ?>">
+        <label for="template"><strong><?php echo TFISH_TEMPLATE; ?></strong></label>
+          <select class="form-control custom-select" name="content[template]" id="template" required>
+          </select>
+      </div>
+
+      <!-- Date (bootstrap-datepicker) -->
+      <div class="col-md-6 col-lg-2 mb-3 text-left" id="dateContainer">
+        <label for="date"><strong><?php echo TFISH_DATE; ?></strong></label>
+        <input type="text" class="form-control" name="content[date]" id="date" <?php if (!empty($content->date())) { echo 'value="' . xss($content->date()->format($viewModel->dateFormat())) . '"'; } ?>>
+      </div>
+      <script>
+      $(document).ready(function() {
+        $('#date').datepicker({
+          format: 'yyyy-mm-dd',
+          todayHighlight: 'true',
+          todayBtn: 'linked',
+          startView: 'years'
+        });
+        $('#date').datepicker('setDate', new Date('<?php echo xss($content->date()->format($viewModel->dateFormat())); ?>'));
+        $('#date').datepicker('update');
+      });
+      </script>
+
+      <!-- expiresOn (bootstrap-datepicker) -->
+      <div class="col-md-6 col-lg-2 mb-3 text-left" id="expiresOnContainer">
+        <label for="expiresOn"><strong><?php echo TFISH_EXPIRES_ON; ?></strong></label>
+        <input type="text" class="form-control" name="content[expiresOn]" id="expiresOn"
+        <?php if (!empty($content->expiresOn())) { echo 'value="' . xss($content->expiresOn()->format($viewModel->dateFormat())) . '"'; } ?>>
+      </div>
+      <script>
+      $(document).ready(function() {
+        $('#expiresOn').datepicker({
+          format: 'yyyy-mm-dd',
+          todayHighlight: 'true',
+          todayBtn: 'linked',
+          startView: 'years'
+        });
+        <?php if (!empty($content->expiresOn())): ?>
+            $('#expiresOn').datepicker('setDate',
+              new Date('<?php echo xss($content->expiresOn()->format($viewModel->dateFormat())); ?>'));
+            $('#expiresOn').datepicker('update');
+        <?php else: ?>
+            $('#expiresOn').datepicker('setDate', '');
+            $('#expiresOn').datepicker('update');
+        <?php endif; ?>
+      });
+      </script>
+
+      <!-- Tags -->
+      <div class="col-md-6 col-lg-2 mb-3 text-left" id="tagsContainer" name="tagsContainer">
+        <label for="tags"><strong><?php echo TFISH_TAGS; ?></strong></label>
+        <select multiple class="form-control custom-select" size="5" name="tags[]" id="tags">
+          <?php
+            foreach ($viewModel->listTags() as $tagId => $tagTitle) {
+              if (!empty($content->tags()) && \in_array($tagId, $content->tags(), true)) {
+                echo '<option value="' . xss($tagId) . '" selected>' . xss($tagTitle) . '</option>';
+              } else {
+                echo '<option value="' . xss($tagId) . '">' . xss($tagTitle) . '</option>';
+              }
+            }
+          ?>
+        </select>
+      </div>
+
+      <!-- Title -->
+      <div class="col-12 mb-3 text-left" id="titleContainer">
+        <label for="title"><strong><?php echo TFISH_TITLE; ?></strong></label>
+        <input type="text" class="form-control" name="content[title]" id="title" <?php if (!empty($content->title())) echo 'value="' . xss($content->title()) . '"'; ?>>
+      </div>
+
+      <!-- Teaser -->
+      <div class="col-12 mb-3 text-left" id="teaserContainer">
+        <label for="teaser"><strong><?php echo TFISH_TEASER; ?></strong></label>
+        <textarea id="teaser" name="content[teaser]" class="form-control text-left"><?php if (!empty($content->teaser())) { echo doubleEscape($content->teaser()); } ?></textarea>
+      </div>
+
+      <!-- Description -->
+      <div class="col-12 mb-3 text-left" id="descriptionContainer">
+        <label for="description"><strong><?php echo TFISH_DESCRIPTION; ?></strong></label>
+        <textarea id="description" name="content[description]" class="form-control text-left"><?php if (!empty($content->description())) { echo doubleEscape($content->description()); } ?></textarea>
+      </div>
+
+      <!-- Creator (author) -->
+      <div class="col-md-6 mb-3 text-left" id="creatorContainer">
+        <label for="creator"><strong><?php echo TFISH_CREATOR; ?></strong></label>
+        <input type="text" class="form-control" name="content[creator]" id="creator" <?php if (!empty($content->creator())) echo 'value="' . xss($content->creator()) . '"'; ?>>
+      </div>
+
+      <!-- Publisher -->
+      <div class="col-md-6 mb-3 text-left" id="publisherContainer">
+        <label for="publisher"><strong><?php echo TFISH_PUBLISHER; ?></strong></label>
+        <input type="text" class="form-control" name="content[publisher]" id="publisher" <?php if (!empty($content->publisher())) echo 'value="' . xss($content->publisher()) . '"'; ?>>
+      </div>
+
+      <!-- Parent -->
+      <div class="col-12 mb-3 text-left" id="parentContainer">
+        <label for="parent"><strong><?php echo TFISH_PARENT; ?></strong></label>
+        <select class="form-control custom-select" name="content[parent]" id="parent">
+        <?php foreach ($viewModel->parentOptions() as $key => $option): ?>
+          <?php if ($key === $content->id()): ?>
+            <option value="<?php echo xss($key); ?>" disabled><?php echo xss($option); ?></option>
+          <?php elseif ($key === $content->parent()): ?>
+            <option value="<?php echo xss($key); ?>" selected><?php echo xss($option); ?></option>
+          <?php else: ?>
+            <option value="<?php echo xss($key); ?>"><?php echo xss($option); ?></option>
+          <?php endif; ?>
+        <?php endforeach; ?>
+        </select>
+      </div>
+
+      <!-- Image -->
+      <?php if (!empty($content->image())): ?>
+      <div class="col-md-6 mb-4 text-left" id="imageContainer">
+        <label for="image"><strong><?php echo TFISH_IMAGE; ?></strong></label>
+        <input id="image" name="content[image]" type="file" data-preview-file-type="image" value="<?php echo xss($content->image()); ?>">
+      </div>
+      <?php else: ?>
+        <div class="col-md-6 mb-3 text-left" id="imageContainer">
+          <label for="image"><strong><?php echo TFISH_IMAGE; ?></strong></label>
+          <input id="image" name="content[image]" type="file" data-preview-file-type="image">
+        </div>
+      <?php endif; ?>
+      <script>
+      $(document).ready(function() {
+        $("#image").fileinput({
+        'showUpload': false,
+        'allowedFileExtensions': ["gif", "jpg", "png"],
+        'previewFileType': ["image"],
+        'initialPreview': '<?php if ($content->image()) echo TFISH_IMAGE_URL . xss($content->image()); ?>',
+        'initialPreviewAsData': true,
+        'initialPreviewShowDelete': false,
+        'initialPreviewDownloadUrl': '<?php if ($content->image()) echo TFISH_IMAGE_URL . xss($content->image()); ?>',
+        'initialCaption': '<?php if (!empty($content->image())) echo xss($content->image()); ?>',
+        'fileActionSettings': {
+            'showDrag': false,
+            'showRemove': false},
+        'theme': "fa"});
+
+        $('#image').on('fileclear', function(tf_deleteImage) {
+            document.getElementById("deleteImage").value = "1";
+        });
+      });
+      </script>
+
+      <!-- Delete image -->
+      <input type="hidden" name="deleteImage" id="deleteImage" value="0">
+
+      <!-- Media -->
+      <?php if (!empty($content->media())): ?>
+      <div class="col-md-6 mb-4 text-left" id="mediaContainer">
+        <label for="media"><strong><span class="alert2 text-danger d-none hide"><i class="fas fa-exclamation-triangle" title="<?php echo TFISH_MEDIA_NOT_COMPATIBLE; ?>"></i> </span><?php echo TFISH_MEDIA; ?></strong></label>
+        <input id="media" name="content[media]" type="file" data-preview-file-type="text" value="<?php echo xss($content->media()); ?>">
+      </div>
+      <?php else: ?>
+        <div class="col-md-6 mb-4 text-left" id="mediaContainer">
+          <label for="media"><span class="alert2 text-danger d-none  hide"><i class="fas fa-exclamation-triangle" title="<?php echo TFISH_MEDIA_NOT_COMPATIBLE; ?>"></i> </span><strong><?php echo TFISH_MEDIA; ?></strong></label>
+          <input id="media" name="content[media]" type="file" data-preview-file-type="text">
+        </div>
+      <?php endif; ?>
+      <script>
+      $(document).ready(function() {
+        var mimetype = $("#format").val();
+
+        $("#media").fileinput({
+          'showUpload': false,
+          'initialPreview': '<?php if ($content->media()) echo TFISH_MEDIA_URL . xss($content->media()); ?>',
+          'initialPreviewAsData': true,
+          'initialPreviewConfig': [{type: setPreviewType(mimetype)}],
+          'initialPreviewShowDelete': false,
+          'initialPreviewDownloadUrl': '<?php if ($content->media()) echo TFISH_MEDIA_URL . xss($content->media()); ?>',
+          'initialCaption': '<?php echo xss($content->media()); ?>',
+          'allowedFileExtensions': ["doc","docx","gif","gz","jpg","kml", "kmz", "mp3","mp4","odt",
+              "ods", "odp", "oga","ogg","ogv","pdf","png","ppt", "pptx", "tar","wav","webm","xls",
+              "xlsx", "zip"],
+          'fileActionSettings': {
+              'showDrag': false,
+              'showRemove': false},
+          'theme': "fa"});
+
+        $('#media').on('fileclear', function(tf_deleteMedia) {
+            document.getElementById("deleteMedia").value = "1";
+        });
+
+      });
+      </script>
+
+      <!-- Delete media -->
+      <input type="hidden" name="deleteMedia" id="deleteMedia" value="0">
+
+      <!-- External media -->
+      <div class="col-md-12 mb-3 text-left" id="externalMediaContainer">
+        <label for="externalMedia"><strong><?php echo TFISH_EXTERNAL_MEDIA; ?></strong></label>
+        <input type="text" class="form-control" name="content[externalMedia]" id="externalMedia" <?php if (!empty($content->externalMedia())) echo 'value="' . xss($content->externalMedia()) . '"'; ?>>
+      </div>
+
+      <!-- Caption -->
+      <div class="col-md-6 mb-3 text-left" id="captionContainer">
+        <label for="caption"><strong><?php echo TFISH_CAPTION; ?></strong></label>
+        <input type="text" class="form-control" name="content[caption]" id="caption" <?php if (!empty($content->caption())) echo 'value="' . xss($content->caption()) . '"'; ?>>
+      </div>
+
+      <!-- Rights -->
+      <div class="col-md-6 mb-3 text-left" id="rightsContainer">
+        <label for="rights"><strong><?php echo TFISH_RIGHTS; ?></strong></label>
+        <select class="form-control custom-select" name="content[rights]" id="rights" required>
+            <?php
+                foreach ($content->listRights() as $key => $right) {
+                    if ($content->rights() === $key) {
+                        echo '<option value="' . xss($key) . '" selected>' . xss($right) . '</option>';
+                    } else {
+                        echo '<option value="' . xss($key) . '">' . xss($right) . '</option>';
+                    }
+                }
+            ?>
+        </select>
+      </div>
+
+      <!-- Language -->
+      <div class="col-md-6 mb-3 text-left" id="languageContainer">
+        <label for="language"><strong><?php echo TFISH_LANGUAGE; ?></strong></label>
+        <select class="form-control custom-select" name="content[language]" id="language" required>
+          <option value="" disabled selected><?php echo TFISH_TRANSLATE_TO; ?></option>
+          <?php
+            $translationOptions = $viewModel->translationOptions();
+            foreach($content->listLanguages() as $key => $value) {
+              if(\in_array($key, $translationOptions)) {
+                echo '<option value="' . xss($key) . '" disabled>' . xss($value) . '</option>';
+              } else {
+                echo '<option value="' . xss($key) . '">' . xss($value) . '</option>';
+              }
+            }
+          ?>
+        </select>
+      </div>
+
+      <!-- Online status -->
+      <div class="col-md-6 mb-3 text-left" id="onlineContainer">
+        <p><strong><?php echo TFISH_ONLINE_STATUS; ?></strong></p>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" id="online" name="content[onlineStatus]" value="1" <?php if ($content->onlineStatus()) { echo 'checked="checked"'; } ?> checked>
+            <label class="form-check-label" for="online"><?php echo TFISH_ONLINE; ?></label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" id="offline" name="content[onlineStatus]" value="0" <?php if (!$content->onlineStatus()) { echo 'checked="checked"'; } ?> required>
+            <label class="form-check-label" for="offline"><?php echo TFISH_OFFLINE; ?></label>
+          </div>
+      </div>
+
+      <!-- Counter -->
+      <?php if ($content->counter()): ?>
+      <input type="hidden" id="counter" name="content[counter]" value="<?php echo xss($content->counter()); ?>" />
+      <?php endif; ?>
+
+      <!-- Format -->
+      <?php if ($content->format()): ?>
+      <input type="hidden" id="format" name="content[format]" value="<?php echo xss($content->format()); ?>" />
+      <?php else: ?>
+      <input type="hidden" id="format" name="content[format]" value="" />
+      <?php endif; ?>
+
+      <!-- File size -->
+      <?php if ($content->fileSize()): ?>
+      <input type="hidden" id="fileSize" name="content[fileSize]" value="<?php echo xss($content->fileSize()); ?>" />
+      <?php endif; ?>
+
+      <div class="col-md-12" id="metaHeader">
+        <h2><?php echo TFISH_META_TAGS; ?></h2>
+        <hr>
+      </div>
+
+      <!-- Meta title -->
+      <div class="col-md-6 mb-3 text-left" id="metaTitleContainer">
+        <label for="metaTitle"><strong><?php echo TFISH_META_TITLE; ?></strong></label>
+        <input type="text" class="form-control" name="content[metaTitle]" id="metaTitle" <?php if (!empty($content->metaTitle())) { echo 'value="' . xss($content->metaTitle()) . '"'; } ?>>
+      </div>
+
+      <!-- SEO -->
+      <div class="col-md-6 mb-3 text-left" id="seoContainer">
+        <label for="seo"><strong><?php echo TFISH_SEO; ?></strong></label>
+        <input type="text" class="form-control" name="content[metaSeo]" id="seo" <?php if (!empty($content->metaSeo())) { echo 'value="' . xss($content->metaSeo()) . '"'; } ?>>
+      </div>
+
+      <!-- Meta description -->
+      <div class="col-12 mb-3 text-left" id="metaDescriptionContainer">
+        <label for="metaDescription"><strong><?php echo TFISH_META_DESCRIPTION; ?></strong></label>
+        <input type="text" class="form-control" name="content[metaDescription]" id="metaDescription" <?php if (!empty($content->metaDescription())) { echo 'value="' . xss($content->metaDescription()) . '"'; } ?>>
+      </div>
+
+      <!-- Meta description counter -->
+      <div class="col-12 mb-3 text-left" id="metaCounter"></div>
+
+    </div><!-- /row -->
+
+    <!-- Action buttons -->
+    <div class="float-left clearfix">
+      <button class="btn btn-primary" onclick="this.form.elements.action.value = 'saveTranslation';
+          submit()"><?php echo TFISH_SUBMIT;?></button>
+      <button class="btn btn-primary" onclick="this.form.elements.action.value = 'cancel';
+          submit()" formnovalidate><?php echo TFISH_CANCEL; ?></button>
+    </div>
+    <input type="hidden" name="content[uid]" id="uid" value="<?php echo xss($content->uid()); ?>" />
+    <input type="hidden" name="lang" id="lang" value="<?php echo xss($content->language()); ?>" />
+    <input type="hidden" name="sourceLang" id="sourceLang" value="<?php echo xss($viewModel->sourceLang()); ?>" />
+    <input type="hidden" name="content[submissionTime]" id="submissionTime" value="<?php echo xss($content->submissionTime()); ?>" />
+    <input type="hidden" name="action" id="action" value="saveTranslation" />
+
+    <!-- CSRF validation token -->
+    <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
+
+    </form>
+
+  </div>
+</div>
+
+</div>

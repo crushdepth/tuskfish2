@@ -136,7 +136,7 @@ class Content
         $this->setCounter((int) ($row['counter'] ?? 0));
         $this->setOnlineStatus((int) ($row['onlineStatus'] ?? 1));
         $this->setParent((int) ($row['parent'] ?? 0));
-        $this->setLanguage((string) ($row['language'] ?? 'en'));
+        $this->setLanguage((string) ($row['language'] ?? ''));
         $this->setRights((int) ($row['rights'] ?? 1));
         $this->setPublisher((string) ($row['publisher'] ?? ''));
         $this->setTags($row['tags'] ?? []);
@@ -856,13 +856,15 @@ class Content
     /**
      * Set language.
      *
+     * Empty languge '' should only be used in creation of translations.
+     *
      * @param   string $language Two-letter ISO language code.
      */
     public function setLanguage(string $language)
     {
         $language = $this->trimString($language);
 
-        if (\array_key_exists($language, $this->listLanguages())) {
+        if (\array_key_exists($language, $this->listLanguages()) || $language === '') {
             $this->language = $language;
         }
     }

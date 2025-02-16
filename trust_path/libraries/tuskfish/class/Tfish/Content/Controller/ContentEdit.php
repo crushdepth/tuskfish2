@@ -94,4 +94,28 @@ class ContentEdit
 
         return [];
     }
+
+    /**
+     * Save the translation of a content object.
+     *
+     * @return  array Empty array (the output of this action is not cached).
+     */
+    public function saveTranslation(): array
+    {
+        $this->viewModel->displaySaveTranslation();
+
+        return [];
+    }
+
+    /**
+     * Translate an existing article to another language.
+     *
+     * @return  array Empty array (the output of this action is not cached).
+     */
+    public function translate(): array
+    {
+        $this->viewModel->displayTranslate();
+
+        return [];
+    }
 }
