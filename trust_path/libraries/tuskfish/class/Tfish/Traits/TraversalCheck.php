@@ -73,7 +73,7 @@ trait TraversalCheck
 
         // Search the path for traversals.
         foreach ($traversals as $traverse) {
-            if (\mb_strripos($path, $traverse, 0, "UTF-8")) {
+            if (\mb_strripos($path, $traverse, 0, 'UTF-8') !== false) {
                 return true;
             }
         }

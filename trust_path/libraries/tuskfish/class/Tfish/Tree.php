@@ -64,7 +64,7 @@ namespace Tfish;
  * @var array $_objects Array of objects to be assembled into a category tree.
  * @var string $_myId Name of the ID field used to identify objects in the tree.
  * @var string $_parentId Name of ID field used to identify an object's parent in the tree.
- * @var int $_rootId  Name of root object ID field. This is the object that will be used as
+ * @var string|null $_rootId  Name of root object ID field. This is the object that will be used as
  * the base node for building a tree (or subtree) from the broader tree structure.
  * @var object $_tree Associative array that comprises the category tree.
  *
@@ -73,10 +73,10 @@ namespace Tfish;
 class Tree
 {
     private $_objects;
-    private $_myId;
-    private $_parentId;
-    private $_rootId = null;
-    private $_tree = [];
+    private string $_myId;
+    private string $_parentId;
+    private ?string $_rootId = null;
+    private array $_tree = [];
 
     /**
      * Constructor.
@@ -84,7 +84,7 @@ class Tree
      * @param array $objectArr Array of collection objects that the tree will be built from.
      * @param string $myId Name of the ID field used to identify objects in the tree.
      * @param string $parentId Name of ID field used to identify an object's parent in the tree.
-     * @param string $rootId Name of root object ID field. This is the object that will be used as
+     * @param string|null $rootId Name of root object ID field. This is the object that will be used as
      * the base node for building a tree (or subtree) from the $objectArr.
      * */
     function __construct(array &$objectArr, string $myId, string $parentId, string $rootId = null)

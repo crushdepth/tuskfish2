@@ -43,7 +43,7 @@ namespace Tfish\Content\ViewModel;
  * @var         string $response Message to display to the user after processing action (success/failure).
  */
 
-class Admin implements \Tfish\ViewModel\Listable
+class Admin implements \Tfish\Interface\Listable
 {
     use \Tfish\Content\Traits\ContentTypes;
     use \Tfish\Traits\Listable;

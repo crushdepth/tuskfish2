@@ -30,8 +30,11 @@ namespace Tfish;
  * @package     core
  * @uses        trait \Tfish\Traits\TraversalCheck
  * @uses        trait \Tfish\Traits\ValidateString
+ * @var         \Tfish\Session $session Instance of the Tuskfish session class.
  * @var         object $view
  * @var         object $controller
+ * @var         \Tfish\CriteriaFactory $criteriaFactory
+ * @var         \Tfish\Database $database Instance of the Tuskfish database class.
  */
 
 class FrontController
@@ -42,6 +45,8 @@ class FrontController
     private $session;
     private $view;
     private $controller;
+    private $criteriaFactory;
+    private $database;
 
     /**
      * Constructor
@@ -67,7 +72,10 @@ class FrontController
         Route $route,
         string $path)
     {
+        $this->database = $database;
+        $this->criteriaFactory = $criteriaFactory;
         $this->session = $session;
+
         $session->start();
         $this->checkSiteClosed($preference, $path);
         $this->checkAccessRights($route);
@@ -92,10 +100,9 @@ class FrontController
         $cacheParams = $this->controller->{$action}();
         $cache->check($path, $cacheParams);
 
-        $this->renderLayout($metadata, $viewModel);
+        $this->renderLayout($metadata, $viewModel, $path);
         $cache->save($cacheParams, \ob_get_contents());
         $database->close();
-
         return \ob_end_flush();
     }
 
@@ -136,11 +143,14 @@ class FrontController
      * Renders the layout (main template) of a theme.
      *
      * @param \Tfish\Entity\Metadata $metadata Instance of the Tuskfish metadata class.
-     * @param string $viewModel Instance of a viewModel class.
+     * @param mixed $viewModel Instance of a viewModel class.
+     * @param string $path URL path (route) associated with this request.
      */
-    private function renderLayout(Entity\Metadata $metadata, $viewModel)
+    private function renderLayout(Entity\Metadata $metadata, $viewModel, string $path)
     {
         $page = $this->view->render();
+        $blocks = $this->renderBlocks($path);
+
         $metadata->update($viewModel->metadata());
         $session = $this->session;
 
@@ -153,5 +163,69 @@ class FrontController
         }
 
         include_once TFISH_THEMES_PATH . $theme . "/" . $layout . ".html";
+    }
+
+    /**
+     * Renders the blocks for insertion into the layout (main template) of a theme.
+     *
+     * Blocks are loaded based on the URL path (route) associated with this request.
+     * Blocks are sorted by ID. Display in layout.html via echo, eg: <?php echo $block[42]; ?>
+     * Blocks are also available by position, sorted by weight. A position may be accessed using
+     * its name as key, eg. $blocks['position']['top-left'] is an array containing the blocks for
+     * that position.
+     *
+     * @param string $path URL path.
+     * @return array Blocked indexed by ID.
+     */
+    private function renderBlocks(string $path): array
+    {
+        $blocks = [];
+
+        $sql = "SELECT `block`.`id`, `type`, `position`, `title`, `html`, `config`, `weight`, "
+            . "`template`, `onlineStatus` FROM `block` "
+            . "INNER JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId` "
+            . "WHERE `blockRoute`.`route` = :path "
+            . "AND `onlineStatus` = '1'";
+
+        $statement = $this->database->preparedStatement($sql);
+        $statement->bindValue(':path', $path, \PDO::PARAM_STR);
+        $statement->setFetchMode(\PDO::FETCH_UNIQUE); // Index by ID.
+        $statement->execute();
+        $rows = $statement->fetchAll();
+
+        if (empty($rows)) {
+            return $blocks;
+        }
+
+        foreach ($rows as $key => $row) {
+            $className = $row['type'];
+            if (\class_exists($className)) {
+                $blocks[$row['id']] = new $className($row, $this->database, $this->criteriaFactory);
+            }
+        }
+
+        // Add block positions.
+        $blocks['position'] = [];
+
+        foreach ($blocks as $id => &$block) {
+            if (\is_numeric($id)) {
+                $position = $block->position();
+
+                if (!isset($blocks['position'][$position])) {
+                    $blocks['position'][$position] = [];
+                }
+
+                $blocks['position'][$position][] = &$block; // Reference (not copy) existing rows.
+            }
+        }
+
+        // Sort each position by weight, ascending.
+        foreach ($blocks['position'] as $position => &$rows) {
+            \usort($rows, function ($a, $b) {
+                return $a->weight() <=> $b->weight();
+            });
+        }
+
+        return $blocks;
     }
 }

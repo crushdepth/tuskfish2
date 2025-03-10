@@ -38,7 +38,7 @@ class Single
      *
      * @param   object $viewModel Instance of the viewModel required by this route.
      */
-    public function __construct(\Tfish\ViewModel\Viewable $viewModel)
+    public function __construct(\Tfish\Interface\Viewable $viewModel)
     {
         $this->viewModel = $viewModel;
     }

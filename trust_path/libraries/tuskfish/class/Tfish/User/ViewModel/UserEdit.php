@@ -26,7 +26,7 @@ namespace Tfish\User\ViewModel;
  * @package     user
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
- * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\View\Viewable interface.
+ * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\Interface\Viewable interface.
  * @var         object $model Classname of the model used to display this page.
  * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  * @var         int $id ID of a single user object to be displayed.
@@ -35,7 +35,7 @@ namespace Tfish\User\ViewModel;
  * @var         string $response Message to display to the user after processing action (success/failure).
  * @var         string $backUrl $backUrl URL to return to if the user cancels the action.
  */
-class UserEdit implements \Tfish\ViewModel\Viewable
+class UserEdit implements \Tfish\Interface\Viewable
 {
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
@@ -223,4 +223,7 @@ class UserEdit implements \Tfish\ViewModel\Viewable
     {
         return $this->response;
     }
+
+    /** Unused but required for compliance with interface. */
+    public function fetchBlocks(string $path): array { return []; }
 }

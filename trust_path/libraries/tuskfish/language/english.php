@@ -42,6 +42,7 @@ namespace Tfish;
 \define("TFISH_META_TITLE", "Title");
 \define("TFISH_META_DESCRIPTION", "Description");
 \define("TFISH_SEO", "SEO");
+\define("TFISH_HTML", "HTML");
 
 // Login.
 \define("TFISH_LOGIN", "Login");
@@ -59,6 +60,7 @@ namespace Tfish;
 \define("TFISH_SELECT_STATUS", "- Select status -");
 \define("TFISH_SELECT_TAGS", "- Select tag -");
 \define("TFISH_SELECT_TYPE", "- Select type -");
+\define("TFISH_SELECT_TEMPLATE", "- Select template -");
 \define("TFISH_SELECT_PARENT", "- Select parent -");
 \define("TFISH_SELECT_BOX_ZERO_OPTION", "---");
 \define("TFISH_META_TAGS", "Meta tags");
@@ -141,6 +143,38 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_PAGINATION_FIRST", "First");
 \define("TFISH_PAGINATION_LAST", "Last");
 
+// Blocks
+\define("TFISH_ADMIN_BLOCKS", "Blocks");
+\define("TFISH_EDIT_BLOCK", "Edit block");
+\define("TFISH_ROUTE", "Route");
+\define("TFISH_ROUTES", "Visible on:");
+\define("TFISH_POSITION", "Position");
+\define("TFISH_BLOCK_TYPE", "Type");
+\define("TFISH_WEIGHT", "Weight");
+\define("TFISH_BLOCK_CONFIG", "Block configuration");
+\define("TFISH_SELECT_ROUTE", "- Select routes -");
+\define("TFISH_SELECT_POSITION", "- Select position -");
+\define("TFISH_BLOCK_BANNER", "Banner");
+\define("TFISH_BLOCK_TOP_LEFT", "Top left");
+\define("TFISH_BLOCK_TOP_RIGHT", "Top right");
+\define("TFISH_BLOCK_TOP_CENTRE", "Top centre");
+\define("TFISH_BLOCK_LEFT", "Left");
+\define("TFISH_BLOCK_RIGHT", "Right");
+\define("TFISH_BLOCK_BOTTOM_LEFT", "Bottom left");
+\define("TFISH_BLOCK_BOTTOM_RIGHT", "Bottom right");
+\define("TFISH_BLOCK_BOTTOM_CENTRE", "Bottom centre");
+\define("TFISH_BLOCK_FOOTER", "Footer");
+\define("TFISH_BLOCK_ADD", "Add block");
+\define("TFISH_WEIGHTS_WERE_UPDATED", "Block weights updated");
+\define("TFISH_WEIGHTS_UPDATE_FAILED", "Failed to update block weights");
+
+// Content blocks and templates.
+\define("TFISH_BLOCK_RECENT_CONTENT", "Recent content");
+\define("TFISH_BLOCK_RECENT_CONTENT_COMPACT", "Recent content (compact)");
+\define("TFISH_BLOCK_SPOTLIGHT", "Spotlight");
+\define("TFISH_BLOCK_SPOTLIGHT_COMPACT", "Spotlight (compact)");
+\define("TFISH_BLOCK_HTML", "HTML (static)");
+
 // Utilities
 \define("TFISH_STATE", "State");
 
@@ -196,6 +230,8 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_ERROR_NOT_CRITERIA_ITEM_OBJECT", "Not a CriteriaItem object.");
 \define("TFISH_ERROR_ILLEGAL_TYPE", "Illegal data type (not whitelisted).");
 \define("TFISH_ERROR_ILLEGAL_TEMPLATE", "Illegal template (not whitelisted).");
+\define("TFISH_ERROR_INVALID_JSON", "JSON serialisation failed, data is invalid.");
+\define("TFISH_ERROR_TEMPLATE_NOT_FOUND", "Template not found.");
 \define("TFISH_ERROR_ILLEGAL_VALUE", "Illegal value (not whitelisted).");
 \define("TFISH_ERROR_NOT_INT", "Not an integer, or integer range violation.");
 \define("TFISH_ERROR_NOT_EMAIL", "Not a valid email.");
@@ -217,6 +253,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
         . "value).");
 \define("TFISH_ERROR_BAD_ACTION", "Bad action submitted to front controller, high probability attempted abuse.");
 \define("TFISH_ERROR_UNSPECIFIED", "Unspecified error.");
+\define("TFISH_BLOCK_ROUTE_UPDATE_FAILED", "Block route update failed.");
 
 // Token errors.
 \define("TFISH_INVALID_TOKEN", "Invalid token error");
@@ -243,7 +280,6 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 // Supported content types
 \define("TFISH_TYPE_ARTICLE", "Article");
 \define("TFISH_TYPE_AUDIO", "Audio");
-\define("TFISH_TYPE_BLOCK", "Block (static)");
 \define("TFISH_TYPE_BLOG", "Blog post");
 \define("TFISH_TYPE_COLLECTION", "Collection");
 \define("TFISH_TYPE_DOWNLOAD", "Download");

@@ -19,15 +19,15 @@ declare(strict_types=1);
 // Include installation language files
 include_once "./english.php";
 
-// Check PHP version 7.2+
-if (PHP_VERSION_ID < 70200) {
+// Check PHP version 8.3+
+if (PHP_VERSION_ID < 80300) {
     echo TFISH_PHP_VERSION_TOO_LOW;
     exit;
 }
 
 // Check path to mainfile.
 if (\is_readable("../mainfile.php")) {
-    require_once "../mainfile.php";
+    require_once '../mainfile.php';
 } else {
     echo TFISH_PATH_TO_MAINFILE_INVALID;
     exit;
@@ -207,10 +207,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $sql = "CREATE TABLE IF NOT EXISTS `taglink` (
             `id` INTEGER PRIMARY KEY,
-            `tagId` INTEGER  NOT NULL,
-            `contentType` TEXT  NOT NULL,
-            `contentId` INTEGER  NOT NULL,
-            `module` TEXT  NOT NULL
+            `tagId` INTEGER NOT NULL,
+            `contentType` TEXT NOT NULL,
+            `contentId` INTEGER NOT NULL,
+            `module` TEXT NOT NULL
         );";
         $statement = $database->preparedStatement($sql);
         $statement->execute();
@@ -320,6 +320,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "metaDescription" => "General information.",
             "metaSeo" => "general"];
         $query = $database->insert('content', $contentData);
+
+        // Create an experts table - not required in public release.
+        $expertColumns = [
+            "id" => "INTEGER",
+            "type" => "TEXT",
+            "salutation" => "INTEGER",
+            "firstName" => "TEXT",
+            "midName" => "TEXT",
+            "lastName" => "TEXT",
+            "gender" => "INTEGER",
+            "job" => "TEXT",
+            "experience" => "TEXT",
+            "projects" => "TEXT",
+            "publications" => "TEXT",
+            "businessUnit" => "TEXT",
+            "organisation" => "TEXT",
+            "address" => "TEXT",
+            "country" => "INTEGER",
+            "email" => "TEXT",
+            "mobile" => "TEXT",
+            "fax" => "TEXT",
+            "profileLink" => "TEXT",
+            "image" => "TEXT",
+            "submissionTime" => "INTEGER",
+            "lastUpdated" => "INTEGER",
+            "expiresOn" => "INTEGER",
+            "counter" => "INTEGER",
+            "onlineStatus" => "INTEGER",
+            "metaTitle" => "TEXT",
+            "metaDescription" => "TEXT", NOT NULL
+            "metaSeo" => "TEXT"
+        ];
+        $database->createTable('expert', $expertColumns, 'id');
+
+        // Create a blocks table - future public release.
+        $sql = "CREATE TABLE IF NOT EXISTS `block` (
+            `id` INTEGER PRIMARY KEY,
+            `type` TEXT NOT NULL,
+            `position` TEXT NOT NULL,
+            `title` TEXT NOT NULL,
+            `html` TEXT NOT NULL,
+            `config` TEXT NOT NULL,
+            `weight` INTEGER NOT NULL,
+            `template` TEXT NOT NULL,
+            `onlineStatus` INTEGER NOT NULL
+        );";
+        $statement = $database->preparedStatement($sql);
+        $statement->execute();
+
+        // Create a blockRoute table - future public release.
+        $sql = "CREATE TABLE IF NOT EXISTS `blockRoute` (
+            `id` INTEGER PRIMARY KEY,
+            `blockId` INTEGER NOT NULL,
+            `route` TEXT NOT NULL
+        );";
+
+        $statement = $database->preparedStatement($sql);
+        $statement->execute();
 
         // Close the database connection.
         $database->close();

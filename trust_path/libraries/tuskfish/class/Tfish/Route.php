@@ -36,11 +36,11 @@ class Route
 {
     use Traits\ValidateString;
 
-    private $model;
-    private $viewModel;
-    private $view;
-    private $controller;
-    private $login;
+    private string $model;
+    private string $viewModel;
+    private string $view;
+    private string $controller;
+    private int $login;
 
     /**
      * Constructor

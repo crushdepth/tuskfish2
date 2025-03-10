@@ -31,12 +31,21 @@ declare(strict_types=1);
 \mb_http_output('UTF-8');
 
 // Set error reporting levels and custom error handler.
-\ini_set('display_errors', '0'); // Needs to be set to 0 for production.
+\ini_set('display_errors', '1'); // Needs to be set to 0 for production.
 \ini_set('log_errors', '1');
 \error_reporting(E_ALL);
 
 // Make core language files available.
 include TFISH_DEFAULT_LANGUAGE;
+
+// Content module block constants.
+\define("TFISH_CONTENT_BLOCK_PATH", TFISH_PATH . 'class/Tfish/Content/Block/');
+\define("\Tfish\Content\Block\RecentContent", TFISH_BLOCK_RECENT_CONTENT);
+\define("\Tfish\Content\Block\Spotlight", TFISH_BLOCK_SPOTLIGHT);
+\define("\Tfish\Content\Block\Html", TFISH_BLOCK_HTML);
+
+// Block constants - move to config.php
+\define("TFISH_ADMIN_BLOCK_URL", TFISH_URL . 'admin/blocks/');
 
 // Initialise dependencies via DICE dependency injection container.
 $dice = new \Dice\Dice;

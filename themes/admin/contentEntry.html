@@ -202,7 +202,7 @@
             <select class="form-control custom-select" name="content[language]" id="language" required>
               <?php
                   foreach ($content->listLanguages() as $key => $value) {
-                    if ($key === $viewModel->defaultLanguage()) {
+                    if (!empty($content->language()) && $content->language() === $key) {
                       echo '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>';
                     } else {}
                       echo '<option value="' . xss($key) . '">' . xss($value) . '</option>';

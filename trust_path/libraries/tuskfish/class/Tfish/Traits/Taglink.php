@@ -76,7 +76,7 @@ trait TagLink
         $columns = ['tagId'];
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('contentId', $id));
-        $criteria->add($this->criteriaFactory->item('module', 'content'));
+        $criteria->add($this->criteriaFactory->item('module', $module));
 
         return $this->database->select('taglink', $criteria, $columns)
             ->fetchAll(\PDO::FETCH_COLUMN);

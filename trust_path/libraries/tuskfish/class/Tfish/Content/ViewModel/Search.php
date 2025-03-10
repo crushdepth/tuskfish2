@@ -40,7 +40,7 @@ namespace Tfish\Content\ViewModel;
  * @var         int $onlineStatus Display online content only (1).
  */
 
-class Search implements \Tfish\ViewModel\Listable
+class Search implements \Tfish\Interface\Listable
 {
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\ValidateString;

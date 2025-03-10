@@ -37,9 +37,9 @@ class Template
     use \Tfish\Traits\TraversalCheck;
     use \Tfish\Traits\ValidateString;
 
-    private $template;
-    private $theme;
-    public $variables = [];
+    private string $template = '';
+    private string $theme = '';
+    public array $variables = [];
 
     /**
      * Constructor

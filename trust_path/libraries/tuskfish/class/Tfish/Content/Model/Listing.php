@@ -70,9 +70,9 @@ class Listing
      * Get a single content object.
      *
      * @param   int $id ID of the content object to retrieve.
-     * @return  Mixed \Tfish\Content\Entity\Content on success, false on failure.
+     * @return  \Tfish\Content\Entity\Content|bool
      */
-    public function getObject(int $id)
+    public function getObject(int $id): \Tfish\Content\Entity\Content|bool
     {
         $params = [];
 
@@ -95,7 +95,7 @@ class Listing
         $statement->closeCursor();
 
         if ($content && $content->type() !== 'TfDownload') {
-            $this->updateCounter($id);
+            $this->updateCounter($cleanParams['id']);
         }
 
         // Pass in the minimum views preference value.
@@ -191,15 +191,14 @@ class Listing
         if (!empty($cleanParams['parent']))
             $criteria->add($this->criteriaFactory->item('parent', $cleanParams['parent']));
 
-        // Unless a specific type is requested, default behaviour is to exclude tags and blocks from the stream.
-        // If you are organising your tags into collections, you may wish to re-enable tags in the stream
+        // Unless a specific type is requested, default behaviour is to exclude tags. If you are
+        // organising your tags into collections, you may wish to re-enable tags in the stream
         // to facilitate their discovery.
         if (!empty($cleanParams['type'])) {
             $criteria->add($this->criteriaFactory->item('type', $cleanParams['type']));
         } else {
             $criteria->add($this->criteriaFactory->item('type', 'TfStatic', '!='));
             $criteria->add($this->criteriaFactory->item('type', 'TfTag', '!='));
-            $criteria->add($this->criteriaFactory->item('type', 'TfBlock', '!='));
         }
 
         if (!empty($cleanParams['tag']))

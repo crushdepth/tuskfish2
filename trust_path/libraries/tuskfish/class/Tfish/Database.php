@@ -172,10 +172,10 @@ class Database
      *
      * @param string $table Table name (alphanumeric characters only).
      * @param array $columns Array of column names (keys) and types (values).
-     * @param string $primaryKey Name of field to be used as primary key.
+     * @param string|null $primaryKey Name of field to be used as primary key.
      * @return bool True on success, false on failure.
      */
-    public function createTable(string $table, array $columns, string $primaryKey = null)
+    public function createTable(string $table, array $columns, string|null $primaryKey = null)
     {
         // Initialise
         $cleanPrimaryKey = null;
@@ -231,7 +231,7 @@ class Database
     }
 
     /** @internal */
-    private function _createTable(string $table_name, array $columns, string $primaryKey = null)
+    private function _createTable(string $table_name, array $columns, string|null $primaryKey = null)
     {
         if (\mb_strlen($table_name, 'UTF-8') > 0 && \is_array($columns)) {
             $sql = "CREATE TABLE IF NOT EXISTS `" . $table_name . "` (";
@@ -403,6 +403,21 @@ class Database
         }
 
         return true;
+    }
+
+    public function beginTransaction()
+    {
+        $this->database->beginTransaction();
+    }
+
+    public function commit()
+    {
+        $this->database->commit();
+    }
+
+    public function rollback()
+    {
+        $this->database->rollback();
     }
 
     /**
@@ -738,21 +753,21 @@ class Database
      * Returns a \PDO statement object, from which results can be extracted with standard \PDO calls.
      *
      * @param string $table Name of table.
-     * @param \Tfish\Criteria $criteria Query composer object used to build conditional database query.
-     * @param array $columns Names of database columns to be selected.
+     * @param \Tfish\Criteria|null $criteria Query composer object used to build conditional database query.
+     * @param array|null $columns Names of database columns to be selected.
      * @return \PDOStatement \PDOStatement object on success \PDOException on failure.
      */
-    public function select(string $table, Criteria $criteria = null, array $columns = null)
+    public function select(string $table, Criteria|null $criteria = null, array|null $columns = null)
     {
         $cleanTable = $this->validateTableName($table);
         $cleanCriteria = isset($criteria) ? $this->validateCriteriaObject($criteria) : null;
         $cleanColumns = isset($columns) ? $this->validateColumns($columns) : [];
 
-        return $this->_select($cleanTable, $cleanCriteria, $cleanColumns);
+        return $this->_select($cleanTable, $cleanColumns, $cleanCriteria);
     }
 
     /** @internal */
-    private function _select(string $table, Criteria $criteria = null, array $columns)
+    private function _select(string $table, array $columns, Criteria|null $criteria = null)
     {
         // Specify operation.
         $sql = "SELECT ";
@@ -834,11 +849,11 @@ class Database
      * Count the number of rows matching a set of conditions.
      *
      * @param string $table Name of table.
-     * @param \Tfish\Criteria $criteria Query composer object used to build conditional database query.
+     * @param \Tfish\Criteria|null $criteria Query composer object used to build conditional database query.
      * @param string $column Name of column.
      * @return int|object Row count on success, \PDOException object on failure.
      */
-    public function selectCount(string $table, Criteria $criteria = null, string $column = '')
+    public function selectCount(string $table, Criteria|null $criteria = null, string $column = '')
     {
         $cleanTable = $this->validateTableName($table);
         $cleanCriteria = isset($criteria) ? $this->validateCriteriaObject($criteria) : null;
@@ -928,22 +943,22 @@ class Database
      * Use the $columns array to specify which fields you want to filter the results by.
      *
      * @param string $table Name of table.
-     * @param \Tfish\Criteria $criteria Query composer object used to build conditional database query.
      * @param array $columns Name of columns to filter results by.
+     * @param \Tfish\Criteria|null $criteria Query composer object used to build conditional database query.
      * @return \PDOStatement \PDOStatement on success, \PDOException on failure.
      */
-    public function selectDistinct(string $table, Criteria $criteria = null, array $columns)
+    public function selectDistinct(string $table, array $columns, Criteria|null $criteria = null)
     {
         // Validate the tablename (alphanumeric characters only).
         $cleanTable = $this->validateTableName($table);
         $cleanCriteria = isset($criteria) ? $this->validateCriteriaObject($criteria) : null;
         $cleanColumns = !empty($columns) ? $this->validateColumns($columns) : [];
 
-        return $this->_selectDistinct($cleanTable, $cleanCriteria, $cleanColumns);
+        return $this->_selectDistinct($cleanTable, $cleanColumns, $cleanCriteria);
     }
 
     /** @internal */
-    private function _selectDistinct(string $table, Criteria $criteria, array $columns)
+    private function _selectDistinct(string $table, array $columns, Criteria $criteria)
     {
         // Specify operation
         $sql = "SELECT DISTINCT ";
@@ -1144,9 +1159,9 @@ class Database
      *
      * @param string $table Name of table.
      * @param array $keyValues Array of column names and values to update.
-     * @param \Tfish\Criteria $criteria Query composer object used to build conditional database query.
+     * @param \Tfish\Criteria|null $criteria Query composer object used to build conditional database query.
      */
-    public function updateAll(string $table, array $keyValues, Criteria $criteria = null)
+    public function updateAll(string $table, array $keyValues, Criteria|null $criteria = null)
     {
         $cleanTable = $this->validateTableName($table);
         $cleanKeys = $this->validateKeys($keyValues);
@@ -1208,39 +1223,23 @@ class Database
     /**
      * Helper method to set appropriate \PDO predefined constants in bindValue() and bindParam().
      *
-     * Do not use this method for arrays, objects or resources. Note that if you pass in an
-     * unexpected data type (ie. one that clashes with a column type definition) \PDO will throw
-     * an error.
+     * This method does not support arrays, objects, or resources. If an unsupported data type
+     * is passed, PHP will throw a TypeError or the method will trigger an error for unexpected types.
+     * Note that if you pass in an unexpected data type (i.e., one that clashes with a column type
+     * definition), \PDO will throw an error.
      *
-     * @param mixed $data Input data to be type set.
+     * @param string|int|float|bool|null $data Input data to be type set.
      * @return int \PDO data type constant.
      */
-    public function setType($data)
+    public function setType(string|int|float|bool|null $data): int
     {
-        $type = gettype($data);
-
-        switch ($type) {
-            case "boolean":
-                return \PDO::PARAM_BOOL;
-                break;
-
-            case "integer":
-                return \PDO::PARAM_INT;
-                break;
-
-            case "NULL":
-                return \PDO::PARAM_NULL;
-                break;
-
-            case "string":
-            case "double":
-                return \PDO::PARAM_STR;
-                break;
-
-            default: // array, object, resource, "unknown type"
-                \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
-                exit;
-        }
+        return match (true) {
+            \is_int($data) => \PDO::PARAM_INT,
+            \is_string($data), \is_float($data) => \PDO::PARAM_STR,
+            \is_bool($data) => \PDO::PARAM_BOOL,
+            \is_null($data) => \PDO::PARAM_NULL,
+            default => \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR),
+        };
     }
 
     /**

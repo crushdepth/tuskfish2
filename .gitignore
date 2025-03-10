@@ -4,7 +4,6 @@ trust_path/cache/*
 trust_path/configuration/*
 !trust_path/database/index.html
 trust_path/database/*
-!trust_path/database/index.html
 trust_path/log/*
 !trust_path/log/index.html
 uploads/image/*
@@ -12,4 +11,3 @@ uploads/image/*
 uploads/media/*
 !uploads/media/index.html
 mainfile.php
-vendor/.DS_Store

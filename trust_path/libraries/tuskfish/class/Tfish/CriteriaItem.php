@@ -38,9 +38,9 @@ class CriteriaItem
     use Traits\IntegerCheck;
     use Traits\ValidateString;
 
-    public $column = '';
+    public string $column = '';
     public $value = '';
-    public $operator = "="; // Default value.
+    public string $operator = "="; // Default value.
 
     /**
      * Constructor.
@@ -50,7 +50,7 @@ class CriteriaItem
      * @param mixed $value Value of the column.
      * @param string $operator See listPermittedOperators() for a list of acceptable operators.
      */
-    function __construct(string $column, $value, string $operator = '=')
+    function __construct(string $column, mixed $value, string $operator = '=')
     {
         $this->setColumn($column);
         $this->setValue($value);
@@ -113,33 +113,15 @@ class CriteriaItem
     /**
      * Sets the value of a column to use in a query clause.
      *
-     * @param mixed $value Value of column.
+     * @param string|array|bool|int|float $value Value of column.
      */
-    public function setValue($value)
+    public function setValue(string|array|bool|int|float $value): void
     {
-        $type = gettype($value);
-
-        switch ($type) {
-            case "string":
-                $cleanValue = $this->trimString($value);
-                break;
-
-            // Types that can't be validated further in the current context.
-            case "array":
-            case "boolean":
-            case "integer":
-            case "double":
-                $cleanValue = $value;
-                break;
-
-            // Illegal types.
-            case "object":
-            case "resource":
-            case "NULL":
-            case "unknown type":
-                \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
-                break;
-        }
+        $cleanValue = match (true) {
+            \is_string($value) => $this->trimString($value),
+            \is_int($value), \is_float($value), \is_array($value), is_bool($value)  => $value,
+            default => \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR),
+        };
 
         $this->value = $cleanValue;
     }

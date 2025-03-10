@@ -53,7 +53,7 @@ trait TagRead
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('module', $module));
 
-        $taglinks = $this->database->selectDistinct('taglink', $criteria, ['tagId'])
+        $taglinks = $this->database->selectDistinct('taglink', ['tagId'], $criteria)
             ->fetchAll(\PDO::FETCH_COLUMN);
 
         if (empty($taglinks)) {

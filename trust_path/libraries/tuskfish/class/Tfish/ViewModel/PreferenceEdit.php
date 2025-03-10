@@ -28,7 +28,7 @@ namespace Tfish\ViewModel;
  * @uses        trait \Tfish\Traits\Timezones	Provides an array of time zones.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
- * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\View\Viewable interface.
+ * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\Interface\Viewable interface.
  * @var         object $model Classname of the model used to display this page.
  * @var         string $theme Name of the theme used to display this page.
  * @var         string $template Name of the HTML template used to display this page (without the file extension).
@@ -39,7 +39,7 @@ namespace Tfish\ViewModel;
  * @var         array $metadata Overrides of site metadata properties, to customise it for this page.
  */
 
-class PreferenceEdit implements Viewable
+class PreferenceEdit implements \Tfish\Interface\Viewable
 {
     Use \Tfish\Traits\Language;
     Use \Tfish\Traits\Timezones;

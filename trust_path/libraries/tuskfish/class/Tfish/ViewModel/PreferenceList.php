@@ -27,7 +27,7 @@ namespace Tfish\ViewModel;
  * @uses        trait \Tfish\Traits\Language	Returns a list of languages in use by the system.
  * @uses        trait \Tfish\Traits\Timezones	Provides an array of time zones.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
- * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\View\Viewable interface.
+ * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\Interface\Viewable interface.
  * @var         object $model Classname of the model used to display this page.
  * @var         string $theme Name of the theme used to display this page.
  * @var         string $pageTitle Title of this page.
@@ -35,7 +35,7 @@ namespace Tfish\ViewModel;
  * @var         array $metadata Overrides of site metadata properties, to customise it for this page.
  */
 
-class PreferenceList implements Viewable
+class PreferenceList implements \Tfish\Interface\Viewable
 {
     Use \Tfish\Traits\Language;
     Use \Tfish\Traits\Timezones;

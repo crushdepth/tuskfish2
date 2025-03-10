@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Tfish\ViewModel;
+namespace Tfish\Interface;
 
 /**
- * \Tfish\ViewModelModel\Listable class file.
+ * \Tfish\Interface\Listable class file.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -91,7 +91,7 @@ interface Listable
     public function tag(): int;
 
     /**
-     * Returns extra parameters used to filter queries.
+     * Returns extra parameters used to filter queries.listTy
      *
      * Also used to build pagination controls.
      */
