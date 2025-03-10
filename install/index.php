@@ -229,31 +229,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $query = $database->insert('user', $userData);
 
         // Insert default preferences to database.
-        $preferenceData = array(
-            array('title' => 'siteName', 'value' => 'Tuskfish CMS'),
-            array('title' => 'siteDescription', 'value' => 'A cutting edge micro CMS'),
-            array('title' => 'siteAuthor', 'value' => 'Tuskfish'),
-            array('title' => 'siteEmail', 'value' => $adminEmail),
-            array('title' => 'siteCopyright', 'value' => 'Copyright all rights reserved'),
-            array('title' => 'closeSite', 'value' => '0'),
-            array('title' => 'serverTimezone', 'value' => '0'),
-            array('title' => 'siteTimezone', 'value' => '0'),
-            array('title' => 'minSearchLength', 'value' => '3'),
-            array('title' => 'searchPagination', 'value' => '20'),
-            array('title' => 'userPagination', 'value' => '10'),
-            array('title' => 'adminPagination', 'value' => '20'),
-            array('title' => 'galleryPagination', 'value' => '20'),
-            array('title' => 'paginationElements', 'value' => '5'),
-            array('title' => 'minimumViews', 'value' => '0'),
-            array('title' => 'rssPosts', 'value' => '10'),
-            array('title' => 'sessionName', 'value' => 'tfish'),
-            array('title' => 'sessionLife', 'value' => '20'),
-            array('title' => 'defaultLanguage', 'value' => 'en'),
-            array('title' => 'dateFormat', 'value' => 'j F Y'),
-            array('title' => 'enableCache', 'value' => '0'),
-            array('title' => 'cacheLife', 'value' => '86400'),
-            array('title' => 'mapsApiKey', 'value' => '')
-        );
+        $preferenceData = [
+            ['title' => 'siteName', 'value' => 'Tuskfish CMS'],
+            ['title' => 'siteDescription', 'value' => 'A cutting edge micro CMS'],
+            ['title' => 'siteAuthor', 'value' => 'Tuskfish'],
+            ['title' => 'siteEmail', 'value' => $adminEmail),
+            ['title' => 'siteCopyright', 'value' => 'Copyright all rights reserved'],
+            ['title' => 'closeSite', 'value' => '0'],
+            ['title' => 'serverTimezone', 'value' => '0'],
+            ['title' => 'siteTimezone', 'value' => '0'],
+            ['title' => 'minSearchLength', 'value' => '3'],
+            ['title' => 'searchPagination', 'value' => '20'],
+            ['title' => 'userPagination', 'value' => '10'],
+            ['title' => 'adminPagination', 'value' => '20'],
+            ['title' => 'galleryPagination', 'value' => '20'],
+            ['title' => 'paginationElements', 'value' => '5'],
+            ['title' => 'minimumViews', 'value' => '0'],
+            ['title' => 'rssPosts', 'value' => '10'],
+            ['title' => 'sessionName', 'value' => 'tfish'],
+            ['title' => 'sessionLife', 'value' => '20'],
+            ['title' => 'defaultLanguage', 'value' => 'en'],
+            ['title' => 'dateFormat', 'value' => 'j F Y'],
+            ['title' => 'enableCache', 'value' => '0'],
+            ['title' => 'cacheLife', 'value' => '86400'],
+            ['title' => 'mapsApiKey', 'value' => '']
+        ];
 
         foreach ($preferenceData as $preference) {
             $database->insert('preference', $preference, 'id');
