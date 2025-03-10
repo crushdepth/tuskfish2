@@ -233,7 +233,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ['title' => 'siteName', 'value' => 'Tuskfish CMS'],
             ['title' => 'siteDescription', 'value' => 'A cutting edge micro CMS'],
             ['title' => 'siteAuthor', 'value' => 'Tuskfish'],
-            ['title' => 'siteEmail', 'value' => $adminEmail),
+            ['title' => 'siteEmail', 'value' => $adminEmail],
             ['title' => 'siteCopyright', 'value' => 'Copyright all rights reserved'],
             ['title' => 'closeSite', 'value' => '0'],
             ['title' => 'serverTimezone', 'value' => '0'],
