@@ -216,7 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->execute();
 
         // Insert admin user's details to database.
-        $userData = array(
+        $userData = [
             'adminEmail' => $adminEmail,
             'passwordHash' => $passwordHash,
             'userGroup' => 1,
@@ -225,7 +225,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'yubikeyId3' => '',
             'loginErrors' => 0,
             'onlineStatus' => 1
-            );
+        ];
         $query = $database->insert('user', $userData);
 
         // Insert default preferences to database.
