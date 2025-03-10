@@ -75,7 +75,7 @@ function getUrl() {
 \ob_start();
 
 // Initialise default content variable.
-$content = array('output' => '');
+$content = ['output' => ''];
 $template['output'] = '';
 
 // Test and save database credentials.
