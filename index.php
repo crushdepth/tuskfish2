@@ -25,8 +25,10 @@ require_once 'mainfile.php';
 // Routing table for front end controller is declared here for convenient editing.
 $routingTable = require_once TFISH_PATH . 'routingTable.php';
 
-// Module headers provide additional path, language constants, blocks, and routing table info.
+// Header for core and content module.
 require_once TFISH_PATH . 'header.php';
+
+// Module headers provide additional path, language constants, blocks, and routing table info.
 require_once TFISH_CLASS_PATH . 'Tfish/User/header.php';
 require_once TFISH_CLASS_PATH . 'Tfish/Expert/header.php';
 
