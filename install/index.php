@@ -51,7 +51,7 @@ $template['metadata'] = $metadata;
 \ini_set('display_errors', '1');
 \ini_set('log_errors', '1');
 \error_reporting(E_ALL & ~E_NOTICE);
-\set_error_handler(array($logger, "logError"));
+\set_error_handler([$logger, "logError"]);
 
 $template = [];
 $page = '';
