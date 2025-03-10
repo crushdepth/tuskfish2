@@ -260,7 +260,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Insert a "General" tag content object.
-        $contentData = array(
+        $contentData = [
             "type" => "TfTag",
             "template" => 'tag',
             "title" => "General",
@@ -285,7 +285,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "counter" => "0",
             "metaTitle" => "General",
             "metaDescription" => "General information.",
-            "metaSeo" => "general");
+            "metaSeo" => "general"];
         $query = $database->insert('content', $contentData);
 
         // Create an experts table - not required in public release.
@@ -373,7 +373,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
      */
     $template['output'] .= '<div class="row"><div class="col-xs-6 offset-xs-3 col-lg-4 offset-md-4 text-left">';
 
-    $requiredExtentions = array('sqlite3', 'PDO', 'pdo_sqlite', 'gd');
+    $requiredExtentions = ['sqlite3', 'PDO', 'pdo_sqlite', 'gd'];
     $loadedExtensions = \get_loaded_extensions();
     $presentList = '';
     $missingList = '';
@@ -454,7 +454,7 @@ include TFISH_THEMES_PATH . "default/layout.html";
  */
 function checkPasswordStrength(string $password): array
 {
-    $evaluation = array('strong' => true);
+    $evaluation = ['strong' => true];
 
     // Length must be > 15 characters to prevent brute force search of the keyspace.
     if (\mb_strlen($password, 'UTF-8') < 15) {
@@ -477,7 +477,7 @@ function checkPasswordStrength(string $password): array
  */
 function hashPassword(string $password): string
 {
-    $options = array('cost' => 11);
+    $options = ['cost' => 11];
     $password = \password_hash($password, PASSWORD_DEFAULT, $options);
 
     return $password;
