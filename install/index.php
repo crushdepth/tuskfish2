@@ -316,7 +316,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "counter" => "INTEGER",
             "onlineStatus" => "INTEGER",
             "metaTitle" => "TEXT",
-            "metaDescription" => "TEXT", NOT NULL
+            "metaDescription" => "TEXT",
             "metaSeo" => "TEXT"
         ];
         $database->createTable('expert', $expertColumns, 'id');*/
