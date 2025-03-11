@@ -36,7 +36,7 @@ namespace Tfish\Expert\ViewModel;
  * @var         string $response Message to display to the user after processing action (success/failure).
  * @var         string $backUrl $backUrl URL to return to if the user cancels the action.
  */
-class ExpertEdit implements \Tfish\ViewModel\Viewable
+class ExpertEdit implements \Tfish\Interface\Viewable
 {
     use \Tfish\Expert\Traits\Options;
     use \Tfish\Traits\ValidateString;
@@ -46,6 +46,7 @@ class ExpertEdit implements \Tfish\ViewModel\Viewable
     private $model;
     private $id = 0;
     private $content = '';
+    private $parentOptions = [];
     private $action = '';
     private $response = '';
     private $backUrl = '';
@@ -77,7 +78,6 @@ class ExpertEdit implements \Tfish\ViewModel\Viewable
 
         $this->pageTitle = TFISH_ADD;
         $this->content = new \Tfish\Expert\Entity\Expert();
-        $this->parentOptions = [];
         $this->template = 'expertEntry';
     }
 

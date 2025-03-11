@@ -42,7 +42,7 @@ namespace Tfish\Expert\ViewModel;
  * @var         int $country Country ID
  */
 
-class Search implements \Tfish\ViewModel\Listable
+class Search implements \Tfish\Interface\Listable
 {
     use \Tfish\Expert\Traits\Options;
     use \Tfish\Traits\Listable;

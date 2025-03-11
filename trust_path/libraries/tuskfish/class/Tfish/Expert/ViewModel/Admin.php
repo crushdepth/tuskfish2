@@ -42,7 +42,7 @@ namespace Tfish\Expert\ViewModel;
  * @var         string $response Message to display to the user after processing action (success/failure).
  */
 
-class Admin implements \Tfish\ViewModel\Listable
+class Admin implements \Tfish\Interface\Listable
 {
     use \Tfish\Expert\Traits\Options;
     use \Tfish\Traits\Listable;
