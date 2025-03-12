@@ -11,3 +11,6 @@ uploads/image/*
 uploads/media/*
 !uploads/media/index.html
 mainfile.php
+themes/marketing/
+themes/marketing/*
+.DS_Store
