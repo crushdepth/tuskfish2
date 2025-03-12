@@ -13,4 +13,6 @@ uploads/media/*
 mainfile.php
 themes/marketing/
 themes/marketing/*
+trust_path/libraries/tuskfish/routingTable.php
+trust_path/libraries/tuskfish/class/Tfish/Content/Controller/Newsletter.php
 .DS_Store
