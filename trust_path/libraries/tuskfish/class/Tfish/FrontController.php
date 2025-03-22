@@ -154,7 +154,6 @@ class FrontController
      * @param   string $lang Language preference as ISO 639-1 code.
      */
     private function setLanguage(string $lang) {
-        echo 'Lang overide ' . $lang . '<br>';
         if (!empty($lang) && \array_key_exists($lang, $this->preference->listLanguages())) {
             $_SESSION['displayLang'] = $this->trimString($lang);
         }
@@ -165,8 +164,6 @@ class FrontController
             $_SESSION['displayLang'] = $this->preference->defaultLanguage();
             include TFISH_LANGUAGE_PATH . $this->preference->defaultLanguage() . ".php";
         }
-
-        echo 'session lang: ' . $_SESSION['displayLang'];
     }
 
     /**
