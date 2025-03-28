@@ -95,7 +95,7 @@ class Listing
         $statement->closeCursor();
 
         if ($content && $content->type() !== 'TfDownload') {
-            $this->updateCounter($id);
+            $this->updateCounter($cleanParams['id']);
         }
 
         // Pass in the minimum views preference value.

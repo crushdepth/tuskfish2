@@ -230,7 +230,7 @@ class Listing implements \Tfish\Interface\Listable
      *
      * @param   int $id ID of content object.
      */
-    public function getObject(int $id)
+    private function getObject(int $id)
     {
         return $this->model->getObject($id);
     }
