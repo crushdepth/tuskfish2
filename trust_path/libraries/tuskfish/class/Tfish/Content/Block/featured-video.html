@@ -8,7 +8,7 @@
 <?php if ($content->externalMedia()): ?>
 <div class="ratio ratio-16x9 video-player text-left">
   <iframe
-    src="<?php echo $content->externalMedia(); ?>"
+    src="<?php echo xss($content->externalMedia()); ?>"
     title="YouTube video player"
     frameborder="0"
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
