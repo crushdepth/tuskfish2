@@ -82,6 +82,8 @@ class Preference
     private int $enableCache = 0; // global
     private int $cacheLife = 0; // global
     private string $mapsApiKey = ''; // global
+    private string $adminTheme = 'admin'; // global
+    private string $defaultTheme = 'default'; // global
 
     /**
      * Constructor.
@@ -147,6 +149,8 @@ class Preference
         $this->setEnableCache((int) ($input['enableCache'] ?? 0));
         $this->setCacheLife((int) ($input['cacheLife'] ?? 86400));
         $this->setMapsApiKey((string) $input['mapsApiKey'] ?? '');
+        $this->setAdminTheme((string) $input['adminTheme'] ?? 'admin');
+        $this->setDefaultTheme((string) $input['defaultTheme'] ?? 'default');
     }
 
     /**
@@ -181,6 +185,27 @@ class Preference
         if ($value < 1) \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
 
         $this->adminPagination = $value;
+    }
+
+    /**
+     * Returns selected admin theme.
+     *
+     * @return string
+     */
+    public function adminTheme(): string
+    {
+        return $this->adminTheme;
+    }
+
+    /**
+     * Set admin theme.
+     *
+     * @param string $value Name of admin theme directory.
+     * @return void
+     */
+    public function setAdminTheme(string $value)
+    {
+        $this->adminTheme = $this->trimString($value);
     }
 
     /**
@@ -304,6 +329,27 @@ class Preference
         }
 
         $this->defaultLanguage = $value;
+    }
+
+    /**
+     * Returns current default theme.
+     *
+     * @return string
+     */
+    public function defaultTheme(): string
+    {
+        return $this->defaultTheme;
+    }
+
+    /**
+     * Set default theme.
+     *
+     * @param string $value Name of theme directory.
+     * @return void
+     */
+    public function setDefaultTheme(string $value)
+    {
+        $this->defaultTheme = $this->trimString($value);
     }
 
     /**
@@ -568,7 +614,7 @@ class Preference
     /**
      * Set the server timezone.
      *
-     * @param string $value Timezone.
+     * @param int $value Timezone.
      */
     public function setServerTimezone(int $value)
     {

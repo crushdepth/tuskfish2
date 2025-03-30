@@ -141,4 +141,14 @@ class PreferenceEdit implements \Tfish\Interface\Viewable
     {
         return $this->response;
     }
+
+    /**
+     * Return a list of themes installed on the system (admin not included).
+     *
+     * @return array
+     */
+    public function listThemes(): array
+    {
+        return $this->model->themes();
+    }
 }

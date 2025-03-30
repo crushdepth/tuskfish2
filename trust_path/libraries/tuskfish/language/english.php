@@ -124,6 +124,8 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_PREFERENCE_CACHE_LIFE", "Cache life (seconds)");
 \define("TFISH_PREFERENCE_SESSION_LIFE", "Session life (minutes)");
 \define("TFISH_PREFERENCE_MAPS_API_KEY", "Google Maps API key");
+\define("TFISH_PREFERENCE_ADMIN_THEME", "Admin theme");
+\define("TFISH_PREFERENCE_DEFAULT_THEME", "Default theme");
 
 // Search.
 \define("TFISH_SEARCH", "Search");

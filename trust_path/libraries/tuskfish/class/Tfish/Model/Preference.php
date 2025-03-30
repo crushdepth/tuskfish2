@@ -99,4 +99,32 @@ class Preference
 
         return true;
     }
+
+    /**
+     * Returns a list of themes installed on the system (admin not included).
+     */
+    public function themes(): array
+    {
+
+        if (!\is_dir(TFISH_THEMES_PATH)) {
+            return [];
+        }
+
+        $entries = scandir(TFISH_THEMES_PATH);
+        $dirs = [];
+        $excluded = ['.', '..', 'admin', 'rss', 'signin'];
+
+        foreach ($entries as $entry) {
+            if (\in_array($entry, $excluded)) {
+                continue;
+            }
+
+            $fullPath = TFISH_THEMES_PATH . $entry;
+            if (\is_dir($fullPath)) {
+                $dirs[] = $entry;
+            }
+        }
+
+        return $dirs;
+    }
 }

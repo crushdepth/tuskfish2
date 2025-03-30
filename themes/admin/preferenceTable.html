@@ -112,6 +112,14 @@
         <td><?php echo TFISH_PREFERENCE_MAPS_API_KEY; ?></td>
         <td><?php echo xss($preference->mapsApiKey()); ?></td>
       </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_ADMIN_THEME; ?></td>
+        <td><?php echo xss($preference->adminTheme()); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_DEFAULT_THEME; ?></td>
+        <td><?php echo xss($preference->defaultTheme()); ?></td>
+      </tr>
     </tbody>
   </table>
 </div>

@@ -252,7 +252,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ['title' => 'dateFormat', 'value' => 'j F Y'],
             ['title' => 'enableCache', 'value' => '0'],
             ['title' => 'cacheLife', 'value' => '86400'],
-            ['title' => 'mapsApiKey', 'value' => '']
+            ['title' => 'mapsApiKey', 'value' => ''],
+            ['title' => 'adminTheme', 'value' => 'admin'],
+            ['title' => 'defaultTheme', 'value' => 'default']
         ];
 
         foreach ($preferenceData as $preference) {
