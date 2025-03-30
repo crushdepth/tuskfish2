@@ -81,7 +81,7 @@ class Listing implements \Tfish\Interface\Listable
     {
         $this->model = $model;
         $this->preference = $preference;
-        $this->theme = 'default';
+        $this->theme = $preference->defaultTheme();
         $this->pageTitle = TFISH_LATEST_POSTS;
     }
 

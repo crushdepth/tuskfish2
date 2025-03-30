@@ -82,8 +82,8 @@ class Preference
     private int $enableCache = 0; // global
     private int $cacheLife = 0; // global
     private string $mapsApiKey = ''; // global
-    private string $adminTheme = 'admin'; // global
-    private string $defaultTheme = 'default'; // global
+    private string $adminTheme = ''; // global
+    private string $defaultTheme = ''; // global
 
     /**
      * Constructor.

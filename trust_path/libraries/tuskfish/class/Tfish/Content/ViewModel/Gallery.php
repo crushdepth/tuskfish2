@@ -66,7 +66,7 @@ class Gallery implements \Tfish\Interface\Listable
         $this->model = $model;
         $this->preference = $preference;
         $this->template = 'gallery';
-        $this->theme = 'default';
+        $this->theme = $preference->defaultTheme();
         $this->setMetadata(['canonicalUrl' => $this->canonicalUrl()]);
     }
 

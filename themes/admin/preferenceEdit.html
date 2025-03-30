@@ -201,7 +201,7 @@
 
       <!-- Admin theme -->
       <div class="col-md-6 col-lg-4 mb-3 text-left">
-        <label for="serverTimezone"><strong><?php echo TFISH_PREFERENCE_ADMIN_THEME; ?></strong></label>
+        <label for="adminTheme"><strong><?php echo TFISH_PREFERENCE_ADMIN_THEME; ?></strong></label>
         <select class="form-control custom-select" name="preference[adminTheme]" id="adminTheme" required>
         <?php
           echo '<option value="admin" selected>admin</option>';
@@ -211,16 +211,16 @@
 
       <!-- Default theme -->
       <div class="col-md-6 col-lg-4 mb-3 text-left">
-        <label for="serverTimezone"><strong><?php echo TFISH_PREFERENCE_DEFAULT_THEME; ?></strong></label>
+        <label for="defaultTheme"><strong><?php echo TFISH_PREFERENCE_DEFAULT_THEME; ?></strong></label>
         <select class="form-control custom-select" name="preference[defaultTheme]" id="defaultTheme" required>
         <?php
-          foreach ($viewModel->listThemes() as $key => $value) {
-            if ((string) $preference->defaultTheme() === (string) $key) {
+          foreach ($viewModel->listThemes() as $value) {
+            if ((string) $preference->defaultTheme() === (string) $value) {
               echo '<option value="' . xss($value) . '" selected>' . xss($value) . '</option>';
             } else {
               echo '<option value="' . xss($value) . '">' . xss($value) . '</option>';
             }
-            unset ($key, $value);
+            unset ($value);
           }
         ?>
         </select>

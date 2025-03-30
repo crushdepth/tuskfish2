@@ -39,12 +39,13 @@ class Error implements \Tfish\Interface\Viewable
      * Constructor
      *
      * @param   object $model Instance of a model class.
+     * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
-    public function __construct($model)
+    public function __construct($model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
         $this->pageTitle = TFISH_ERROR;
-        $this->theme = 'default';
+        $this->theme = $preference->defaultTheme();
         $this->template = 'error';
         $this->setMetadata(['robots' => 'index,follow']);
     }
