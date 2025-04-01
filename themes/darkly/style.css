@@ -7,21 +7,12 @@ body {}
 }
 
 /** Bootstrap overrides **/
-.navbar-brand {
-    font-weight: 400;
-}
+.navbar-brand {}
 
-.nav-link {
-    font-weight:500;
-}
+.nav-link {}
 
 .dropdown-item {
     font-weight:500;
-}
-
-.bg-light::placeholder {
-    color: #495057 !important;  /* Bootstrap's $gray-700 */
-    opacity: 1 !important;
 }
 
 /** Control styles */
