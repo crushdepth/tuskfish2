@@ -31,7 +31,7 @@
     <script src="<?php echo TFISH_VENDOR_URL . 'jquery/jquery.min.js'; ?>"></script>
 
     <!-- Bootstrap -->
-    <link href="<?php echo TFISH_VENDOR_URL . 'bootstrap/css/bootstrap.min.css'; ?>" rel="stylesheet">
+    <link href="<?php echo TFISH_THEMES_URL . 'admin/bootstrap.css'; ?>" rel="stylesheet">
     <script src="<?php echo TFISH_VENDOR_URL . 'bootstrap/js/bootstrap.bundle.min.js'; ?>"></script>
 
     <!-- htmx -->
@@ -76,7 +76,7 @@
   <body>
 
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <nav class="navbar navbar-expand-md bg-primary" data-bs-theme="dark">
         <div class="container-fluid">
           <a class="navbar-brand" href="<?php echo TFISH_URL; ?>"><?php echo xss($metadata->siteName); ?></a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -123,7 +123,7 @@
               <input class="form-control me-2" name="searchTerms" type="search" placeholder="<?php echo TFISH_KEYWORDS; ?>" aria-label="<?php echo TFISH_KEYWORDS; ?>">
               <input type="hidden" name="action" value="search" />
               <input type="hidden" name="searchType" value="AND" />
-              <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><?php echo TFISH_SEARCH; ?></button>
+              <button class="btn btn-secondary my-2 my-sm-0" type="submit"><?php echo TFISH_SEARCH; ?></button>
             </form>
           </div>
         </div>
@@ -131,7 +131,7 @@
 
     <main role="main">
 
-      <div class="starter-template">
+      <div class="page">
 
         <!-- Main page -->
         <?php if ($page ?? null): ?>

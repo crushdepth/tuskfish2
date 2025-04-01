@@ -1,11 +1,27 @@
 /** Template layout styles */
 
-body {
-  padding-top: 5rem;
+body {}
+
+.page {
+    padding: 3rem 1.5rem;
 }
 
-.starter-template {
-    padding: 3rem 1.5rem;
+/** Bootstrap overrides **/
+.navbar-brand {
+    font-weight: 400;
+}
+
+.nav-link {
+    font-weight:500;
+}
+
+.dropdown-item {
+    font-weight:500;
+}
+
+.bg-light::placeholder {
+    color: #495057 !important;  /* Bootstrap's $gray-700 */
+    opacity: 1 !important;
 }
 
 /** Control styles */
@@ -43,19 +59,18 @@ body {
 }
 
 .stream-item {
+    margin-bottom: 1rem;
 }
 
 video {
     max-width: 100%;
     height: auto;
-    border: solid;
-    border-width: 1px;
 }
 
 .video-player {
     display: flex;
     justify-content: center;
-    margin: 2rem;
+    margin: 2rem 0;
 }
 
 /** Content styles */
@@ -130,4 +145,18 @@ figcaption {
 
 .figure-right {
     margin: 0 0 1rem 1rem;
+}
+
+/* Google maps */
+#map {
+    height: 600px;
+    width: 1062px;
+}
+
+.map-responsive{
+    overflow:hidden;
+    padding-bottom:56.25%;
+    position:relative;
+    height:0;
+    margin-bottom: 1em;
 }
