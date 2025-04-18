@@ -1,0 +1,18 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Title and meta information -->
+<div>
+  <h2 class="title"><?php echo xss($content->title()); ?></h2>
+</div>
+
+<?php if ($content->externalMedia()): ?>
+<div class="ratio ratio-16x9 video-player text-left">
+  <iframe
+    src="<?php echo xss($content->externalMedia()); ?>"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen>
+  </iframe>
+</div>
+<?php endif; ?>

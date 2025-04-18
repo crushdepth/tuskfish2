@@ -13,7 +13,7 @@
 
 <div>
   <table class="table table-bordered table-striped text-left">
-    <thead class="table-success">
+    <thead class="table-primary">
       <tr>
         <th><?php echo TFISH_PREFERENCE; ?></th>
         <th><?php echo TFISH_PREFERENCE_VALUE; ?></th>
@@ -111,6 +111,14 @@
       <tr>
         <td><?php echo TFISH_PREFERENCE_MAPS_API_KEY; ?></td>
         <td><?php echo xss($preference->mapsApiKey()); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_ADMIN_THEME; ?></td>
+        <td><?php echo xss($preference->adminTheme()); ?></td>
+      </tr>
+      <tr>
+        <td><?php echo TFISH_PREFERENCE_DEFAULT_THEME; ?></td>
+        <td><?php echo xss($preference->defaultTheme()); ?></td>
       </tr>
     </tbody>
   </table>

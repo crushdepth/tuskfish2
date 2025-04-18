@@ -1,0 +1,153 @@
+/** Template layout styles */
+
+body {}
+
+.page {
+    padding: 3rem 1.5rem;
+}
+
+/** Bootstrap overrides **/
+.navbar-brand {}
+
+.nav-link {
+    font-weight:500;
+}
+
+.dropdown-item {}
+
+/** Control styles */
+.add-content {
+    margin-bottom: 2rem;
+}
+
+.audio-player {
+    margin: 2rem 0;
+}
+
+.collection-pagination-top {}
+
+.collection-pagination-bottom {}
+
+.main-content {
+    margin-bottom: 1rem;
+}
+
+.page-title {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.pagination-bottom {
+    margin-bottom: 1rem;
+}
+
+.pagination-top {
+    margin-bottom: 1rem;
+}
+
+.select-filters {
+    margin-bottom: 2rem;
+}
+
+.stream-item {
+    margin-bottom: 1rem;
+}
+
+video {
+    max-width: 100%;
+    height: auto;
+}
+
+.video-player {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+}
+
+/** Content styles */
+
+.title {}
+
+.date {}
+
+.teaser {}
+
+.description {}
+
+.author {}
+
+.publisher {}
+
+.parent {}
+
+.image {}
+
+.media {}
+
+.caption {}
+
+.rights {
+    font-style: italic;
+}
+
+.language {}
+
+.online {}
+
+.content-info {}
+
+.copyright {} /* Site footer */
+
+/* Other */
+.block-title {}
+
+.block-description {}
+
+.child-title {}
+
+.child-teaser {}
+
+.error-message {
+
+}
+
+/* Figure and figcaption styles make captions wrap to figure width */
+figure {
+    display: table;
+}
+
+figure img {
+    display: block;
+    width: 100%;
+}
+
+figcaption {
+    display: table-caption;
+    caption-side: bottom;
+}​
+
+.figure-centre {
+    margin: 1rem 0;
+}
+
+.figure-left {
+    margin: 0 1rem 1rem 0;
+}
+
+.figure-right {
+    margin: 0 0 1rem 1rem;
+}
+
+/* Google maps */
+#map {
+    height: 600px;
+    width: 1062px;
+}
+
+.map-responsive{
+    overflow:hidden;
+    padding-bottom:56.25%;
+    position:relative;
+    height:0;
+    margin-bottom: 1em;
+}

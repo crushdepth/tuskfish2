@@ -285,7 +285,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ['title' => 'dateFormat', 'value' => 'j F Y'],
             ['title' => 'enableCache', 'value' => '0'],
             ['title' => 'cacheLife', 'value' => '86400'],
-            ['title' => 'mapsApiKey', 'value' => '']
+            ['title' => 'mapsApiKey', 'value' => ''],
+            ['title' => 'adminTheme', 'value' => 'admin'],
+            ['title' => 'defaultTheme', 'value' => 'yeti']
         ];
 
         foreach ($preferenceData as $preference) {
@@ -471,7 +473,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $page = \ob_get_clean();
 }
 
-include TFISH_THEMES_PATH . "default/layout.html";
+include TFISH_THEMES_PATH . "yeti/layout.html";
 \ob_end_flush();
 
 /**
