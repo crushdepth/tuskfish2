@@ -48,7 +48,7 @@ trait ContentTypes
             'TfImage' => ['image'],
             'TfTag' => ['tag'],
             'TfTrack' => ['track'],
-            'TfStatic' => ['static'],
+            'TfStatic' => ['static', 'static-centre'],
             'TfVideo' => ['video1x1', 'video4x3', 'video16x9', 'video21x9'],
         ];
     }

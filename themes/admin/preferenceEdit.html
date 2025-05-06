@@ -199,11 +199,38 @@
       <input type="text" class="form-control" name="preference[mapsApiKey]" id="mapsApiKey" <?php if (!empty($preference->mapsApiKey())) { echo 'value="' . xss($preference->mapsApiKey()) . '"'; } ?>>
     </div>
 
+      <!-- Admin theme -->
+      <div class="col-md-6 col-lg-4 mb-3 text-left">
+        <label for="adminTheme"><strong><?php echo TFISH_PREFERENCE_ADMIN_THEME; ?></strong></label>
+        <select class="form-control custom-select" name="preference[adminTheme]" id="adminTheme" required>
+        <?php
+          echo '<option value="admin" selected>admin</option>';
+        ?>
+        </select>
+      </div>
+
+      <!-- Default theme -->
+      <div class="col-md-6 col-lg-4 mb-3 text-left">
+        <label for="defaultTheme"><strong><?php echo TFISH_PREFERENCE_DEFAULT_THEME; ?></strong></label>
+        <select class="form-control custom-select" name="preference[defaultTheme]" id="defaultTheme" required>
+        <?php
+          foreach ($viewModel->listThemes() as $value) {
+            if ((string) $preference->defaultTheme() === (string) $value) {
+              echo '<option value="' . xss($value) . '" selected>' . xss($value) . '</option>';
+            } else {
+              echo '<option value="' . xss($value) . '">' . xss($value) . '</option>';
+            }
+            unset ($value);
+          }
+        ?>
+        </select>
+      </div>
+
     <!-- Update / cancel buttons -->
     <div class="col-12 text-left clearfix">
       <input type="hidden" name="token" value="<?php echo $_SESSION['token']; ?>" />
-      <button name="action" value="update" type="submit" class="btn btn-primary"><?php echo TFISH_UPDATE; ?></button>
-      <button name="action" value="cancel" type="submit" class="btn btn-primary" formnovalidate><?php echo TFISH_CANCEL; ?></button>
+      <button name="action" value="update" type="submit" class="btn btn-warning"><?php echo TFISH_UPDATE; ?></button>
+      <button name="action" value="cancel" type="submit" class="btn btn-danger" formnovalidate><?php echo TFISH_CANCEL; ?></button>
     </div>
 
   </div>

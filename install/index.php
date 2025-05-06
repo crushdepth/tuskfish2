@@ -252,7 +252,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ['title' => 'dateFormat', 'value' => 'j F Y'],
             ['title' => 'enableCache', 'value' => '0'],
             ['title' => 'cacheLife', 'value' => '86400'],
-            ['title' => 'mapsApiKey', 'value' => '']
+            ['title' => 'mapsApiKey', 'value' => ''],
+            ['title' => 'adminTheme', 'value' => 'admin'],
+            ['title' => 'defaultTheme', 'value' => 'yeti']
         ];
 
         foreach ($preferenceData as $preference) {
@@ -379,7 +381,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $missingList = '';
 
     // Check PHP version 7.2+
-    if (PHP_VERSION_ID < 70200) {
+    if (PHP_VERSION_ID < 80300) {
         $missingList = '<li><i class="fas fa-times text-danger"></i> ' . TFISH_PHP_VERSION_TOO_LOW . '</li>';
     } else {
         $presentList = '<li><i class="fas fa-check text-success"></i> ' . TFISH_PHP_VERSION_OK . '</li>';
@@ -438,7 +440,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $page = \ob_get_clean();
 }
 
-include TFISH_THEMES_PATH . "default/layout.html";
+include TFISH_THEMES_PATH . "yeti/layout.html";
 \ob_end_flush();
 
 /**

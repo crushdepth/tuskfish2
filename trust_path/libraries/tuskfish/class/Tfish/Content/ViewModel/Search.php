@@ -71,7 +71,7 @@ class Search implements \Tfish\Interface\Listable
         $this->model = $model;
         $this->preference = $preference;
         $this->template = 'search';
-        $this->theme = 'default';
+        $this->theme = $preference->defaultTheme();
         $this->sort = 'date';
         $this->order = 'DESC';
         $this->secondarySort = 'submissionTime';

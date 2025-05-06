@@ -1,0 +1,21 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Display a single video object -->
+<?php $content = $viewModel->content(); ?>
+<?php $contentTags = $viewModel->contentTags(); ?>
+<?php $parent = $viewModel->parent(); ?>
+
+<!-- Container -->
+<div class="container">
+
+<!-- External media URL takes precedence over self-hosted content -->
+<?php
+  if (!empty($content->externalMedia())) {
+      include 'video-player16x9.html';
+  } else {
+      include 'video-self-hosted.html';
+}
+?>
+
+<!-- Container -->
+</div>
