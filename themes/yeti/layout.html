@@ -99,9 +99,9 @@
         <!-- Top centre blocks -->
         <?php if (!empty($blocks['position']['top-centre'])): ?>
         <div class="container">
-          <div class="row">
+          <div class="row mt-4">
               <?php foreach ($blocks['position']['top-centre'] ?? [] as $block): ?>
-              <div class="col-4">
+              <div class="col-6 mb-4">
                 <?= $block->html(); ?>
               </div>
               <?php endforeach; ?>
@@ -115,9 +115,9 @@
         <!-- Bottom centre blocks -->
         <?php if (!empty($blocks['position']['bottom-centre'])): ?>
         <div class="container">
-          <div class="row">
+          <div class="row mt-4">
               <?php foreach ($blocks['position']['bottom-centre'] ?? [] as $block): ?>
-              <div class="col-4">
+              <div class="col-6 mb-4">
                 <?= $block->html(); ?>
               </div>
               <?php endforeach; ?>
