@@ -76,6 +76,7 @@ class Rss
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
         $criteria->add($this->criteriaFactory->item('type', 'TfStatic', '!='));
+        $criteria->add($this->criteriaFactory->item('inFeed', 1));
         $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
         $statement = $this->database->select('content', $criteria, ['title', 'description']);
 
@@ -95,7 +96,7 @@ class Rss
         $criteria->setLimit($this->preference->rssPosts());
         $criteria->setSort('submissionTime');
         $criteria->setOrder("DESC");
-        $criteria->add($this->criteriaFactory->item('type', 'TfStatic', '!='));
+        $criteria->add($this->criteriaFactory->item('inFeed', 1));
         $criteria->add($this->criteriaFactory->item('type', 'TfTag', '!='));
         $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
 
@@ -139,7 +140,7 @@ class Rss
 
         $sql = rtrim($sql, ",");
         $sql .= ") ";
-        $sql .= "AND `onlineStatus` = '1' ";
+        $sql .= "AND `inFeed` = 1 AND `onlineStatus` = '1' ";
         $sql .= "ORDER BY `date` DESC, `submissionTime` DESC ";
 
         $sql .= "LIMIT ? OFFSET 0";

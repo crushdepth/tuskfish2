@@ -44,6 +44,7 @@ class RecentContent implements \Tfish\Interface\Block
     private int $weight = 0;
     private string $template = 'recent-content-compact';
     private string $configTemplate = 'recent-content-config';
+    private int $inFeed = 1;
     private int $onlineStatus = 0;
     private array $content = [];
 
@@ -101,7 +102,10 @@ class RecentContent implements \Tfish\Interface\Block
             $sql .= "INNER JOIN `taglink` ON `content`.`id` = `taglink`.`contentId` ";
         }
 
-        $conditions = ["`onlineStatus` = 1"];
+        $conditions = [
+            "`inFeed` = 1",
+            "`onlineStatus` = 1"
+        ];        
 
         // Filter by content types.
         if (!empty($types)) {

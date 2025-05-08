@@ -60,6 +60,7 @@ class Admin implements \Tfish\Interface\Listable
     private $start = 0;
     private $tag = 0;
     private $type = '';
+    private $inFeed = 2;
     private $onlineStatus = 2;
     private $action = '';
     private $backUrl = '';
@@ -154,6 +155,27 @@ class Admin implements \Tfish\Interface\Listable
             $this->status = 1;
             echo '<a class="text-success" hx-post="' . TFISH_ADMIN_URL . '?action=toggle"'
               . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "1"}\' '
+              . 'hx-swap="outerHTML"><i class="fas fa-check"></i></a>';
+        }
+        exit; // Prevents proceeding to full page reload.
+    }
+
+    /**
+     * Toggle a content object inFeed status using htmx.
+     */
+    public function displayInFeedToggle(): string
+    {
+        $this->model->toggleInFeedStatus($this->id);
+
+        if ($this->inFeed === 1) {
+            $this->inFeed = 0;
+            echo '<a class="text-danger" hx-post="' . TFISH_ADMIN_URL . '?action=toggleInFeed"'
+            . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "inFeed": "0"}\' '
+            . 'hx-swap="outerHTML"><i class="fas fa-times"></i></a>';
+        } else {
+            $this->inFeed = 1;
+            echo '<a class="text-success" hx-post="' . TFISH_ADMIN_URL . '?action=toggleInFeed"'
+              . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "inFeed": "1"}\' '
               . 'hx-swap="outerHTML"><i class="fas fa-check"></i></a>';
         }
         exit; // Prevents proceeding to full page reload.
@@ -390,13 +412,33 @@ class Admin implements \Tfish\Interface\Listable
     }
 
     /**
-     * Set online status.
-     *
-     * @param   int $onlineStatus Online (1) or offline (0).
+     * Set onlineStatus.
+     * 
+     * @var int $onlineStatus
      */
     public function setOnlineStatus(int $onlineStatus)
     {
         $this->onlineStatus = $onlineStatus;
+    }
+
+    /**
+     * Return inFeed status.
+     * 
+     * @return  int In feed (1) or not (0).
+     */
+    public function inFeed(): int
+    {
+        return (int) $this->inFeed;
+    }
+
+    /**
+     * Set inFeed status.
+     *
+     * @param   int $onlineStatus Online (1) or offline (0).
+     */
+    public function setInFeed(int $inFeed)
+    {
+        $this->inFeed = $inFeed;
     }
 
     /**

@@ -193,11 +193,12 @@ class Listing
 
         // Unless a specific type is requested, default behaviour is to exclude tags. If you are
         // organising your tags into collections, you may wish to re-enable tags in the stream
-        // to facilitate their discovery.
+        // to facilitate their discovery. Content not marked as 'inFeed' (0) will also be excluded from
+        // the news and RSS feeds.
         if (!empty($cleanParams['type'])) {
             $criteria->add($this->criteriaFactory->item('type', $cleanParams['type']));
         } else {
-            $criteria->add($this->criteriaFactory->item('type', 'TfStatic', '!='));
+            $criteria->add($this->criteriaFactory->item('inFeed', 1));
             $criteria->add($this->criteriaFactory->item('type', 'TfTag', '!='));
         }
 

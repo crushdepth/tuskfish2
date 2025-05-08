@@ -48,7 +48,6 @@ trait ContentTypes
             'TfImage' => ['image'],
             'TfTag' => ['tag'],
             'TfTrack' => ['track'],
-            'TfStatic' => ['static', 'static-centre'],
             'TfVideo' => ['video1x1', 'video4x3', 'video16x9', 'video21x9'],
         ];
     }
@@ -73,7 +72,6 @@ trait ContentTypes
             'TfImage' => TFISH_TYPE_IMAGE,
             'TfTag' => TFISH_TYPE_TAG,
             'TfTrack' => TFISH_TYPE_TRACK,
-            'TfStatic' => TFISH_TYPE_STATIC,
             'TfVideo' => TFISH_TYPE_VIDEO,
         );
     }

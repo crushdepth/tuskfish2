@@ -161,6 +161,24 @@ class Admin
     }
 
     /**
+     * Toggle a content object inFeed status.
+     *
+     * @param   int $id ID of content object.
+     * @return  bool True on success, false on failure.
+     */
+    public function toggleInFeedStatus(int $id): bool
+    {
+        if ($id < 1) {
+            return false;
+        }
+
+        $result = $this->database->toggleBoolean($id, 'content', 'inFeed');
+        $this->cache->flush();
+
+        return $result;
+    }
+
+    /**
      * Clear the expiry date, if set, when an offline object is toggled online.
      *
      * @param integer $id

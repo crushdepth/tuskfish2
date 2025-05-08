@@ -1,0 +1,16 @@
+Next feature: Convert static from content type to boolean property
+==================================================================
+
+Issues:
+-------
+* Remove static as whitelisted content type (content trait, form validation scripts, CRUD viewmodels/models?)
+* Add static as a boolean DB field to the installer script
+* Add static as a boolean property of content objects (default 1) + getters / setters
+* Add static to CRUD validation routines
+* Add static === 1 as a criteria item on listView VM + models
+* Add static ==== 1 as criteria item on RSS VM + models
+
+Migrating a legacy site
+-----------------------
+* Covert existing static pages to some other type.
+* Set each one to static=1.

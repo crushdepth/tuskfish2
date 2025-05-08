@@ -82,6 +82,7 @@
         <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_SUBMISSION_TIME; ?></th>
         <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_EXPIRES; ?></th>
         <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_COUNTER; ?></th>
+        <th class="text-center"><?php echo TFISH_IN_FEED_SHORT; ?></th>
         <th class="text-center"><?php echo TFISH_ONLINE; ?></th>
         <th colspan="2" class="text-center"><?php echo TFISH_ACTION; ?></th>
       </tr>
@@ -102,6 +103,23 @@
           ?>
         </td>
         <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['counter']); ?></td>
+
+
+        <?php if ($row['inFeed']): ?>
+        <td class="text-center">
+          <a class="text-success" hx-post="<?php echo TFISH_ADMIN_URL; ?>?action=toggleInFeed" target="closest td"
+            hx-vals='{"id": "<?php echo xss($row['id']); ?>", "inFeed": "1"}' hx-swap="outerHTML">
+            <i class="fas fa-check"></i></a>
+        </td>
+        <?php else: ?>
+        <td class="text-center">
+          <a class="text-danger" hx-post="<?php echo TFISH_ADMIN_URL; ?>?action=togglInFeed" target="closest td"
+            hx-vals='{"id": "<?php echo xss($row['id']); ?>", "inFeed": "0"}' hx-swap="outerHTML">
+            <i class="fas fa-times"></i></a>
+        </td>
+        <?php endif; ?>
+
+
         <?php if ($row['onlineStatus']): ?>
         <td class="text-center">
           <a class="text-success" hx-post="<?php echo TFISH_ADMIN_URL; ?>?action=toggle" target="closest td"

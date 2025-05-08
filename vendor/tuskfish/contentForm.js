@@ -157,8 +157,6 @@ function loadTemplateOptions() {
             {"tag": "Tag"},
         "TfTrack":
             {"track": "Track"},
-        "TfStatic":
-            {"static": "Right image", "static-centre": "Center image"},
         "TfVideo":
             {"video16x9": "Video 16x9", "video4x3": "Video 4x3", "video21x9": "Video 21x9", "video1x1": "Video 1x1"},
     };

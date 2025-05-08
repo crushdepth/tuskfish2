@@ -140,4 +140,20 @@ class Admin
         $this->viewModel->displayToggle();
         exit;
     }
+
+    /**
+     * Toggle individual content objects on or offline.
+     *
+     * Uses AJAX call (htmx) to avoid page reload. Implemented post v2.0.6.
+     */
+
+     public function toggleInFeed()
+     {
+         $id = (int) ($_POST['id'] ?? 0);
+         $status = (int) ($_POST['inFeed'] ?? 0); // inFeed status of individual content item.
+         $this->viewModel->setId($id);
+         $this->viewModel->setInFeed($status);
+         $this->viewModel->displayInFeedToggle();
+         exit;
+     }
 }
