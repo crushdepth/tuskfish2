@@ -105,7 +105,7 @@ class RecentContent implements \Tfish\Interface\Block
         $conditions = [
             "`inFeed` = 1",
             "`onlineStatus` = 1"
-        ];        
+        ];
 
         // Filter by content types.
         if (!empty($types)) {

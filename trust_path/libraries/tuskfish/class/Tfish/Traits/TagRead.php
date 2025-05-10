@@ -134,39 +134,23 @@ trait TagRead
             exit;
         }
 
-        // Look up related tag IDs.
-        $criteria = $this->criteriaFactory->criteria();
-        $criteria->add($this->criteriaFactory->item('contentId', $id));
-        $criteria->add($this->criteriaFactory->item('module', $module));
+        // Look up tags associated with this content object in the taglinks table.
+        $sql = "SELECT `tag`.`id`, `tag`.`title` "
+            . "FROM `taglink` "
+            . "INNER JOIN `content` AS `tag` ON `taglink`.`tagId` = `tag`.`id` "
+            . "WHERE `taglink`.`contentId` = :id "
+                . "AND `taglink`.`module` = :module "
+                . "AND `tag`.`onlineStatus` = 1";
 
-        $taglinks = [];
-
-        $taglinks = $this->database->select('taglink', $criteria, ['tagId'])
-            ->fetchAll(\PDO::FETCH_COLUMN);
-
-        if (empty($taglinks)) {
-            return [];
-        }
-
-        // Retrieve related tags.
-        $sql = "SELECT `id`, `title` FROM `content` WHERE `id` IN (";
-
-        foreach ($taglinks as $taglink) {
-            $sql .= "?,";
-        }
-
-        $sql = rtrim($sql, ",");
-        $sql .= ")";
-
+        // Bind values
         $statement = $this->database->preparedStatement($sql);
-        $result = $statement->execute($taglinks);
+        $statement->bindValue(':id', $id, \PDO::PARAM_INT);
+        $statement->bindValue(':module', $module, \PDO::PARAM_STR);
 
-        if (!$result) {
-            \trigger_error(TFISH_ERROR_NO_RESULT, E_USER_ERROR);
-            return false;
-        }
+        $statement->setFetchMode(\PDO::FETCH_KEY_PAIR);
+        $statement->execute();
 
-        return $statement->fetchAll(\PDO::FETCH_KEY_PAIR);
+        return $statement->fetchAll();
     }
 
     /**

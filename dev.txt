@@ -83,7 +83,7 @@ CHANGES
 Single view:
   - Remove offline tags (keep inFeed = 0 tags)
   - Offline tags are not available for single object view (admin excepted)
-ListView:
+ListView/RSS:
   - Mod activeTagOptions() to exclude i) offline tags and ii) inFeed=0 tags
   - Verify that tags are always excluded from stream
   - Verify that tags are always excluded from RSS feeds
