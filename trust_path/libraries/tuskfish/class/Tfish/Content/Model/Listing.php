@@ -188,6 +188,9 @@ class Listing
             return $criteria;
         }
 
+        if (isset($cleanParams['inFeed']))
+            $criteria->add($this->criteriaFactory->item('inFeed', $cleanParams['inFeed']));
+
         if (!empty($cleanParams['parent']))
             $criteria->add($this->criteriaFactory->item('parent', $cleanParams['parent']));
 
@@ -197,7 +200,6 @@ class Listing
         if (!empty($cleanParams['type'])) {
             $criteria->add($this->criteriaFactory->item('type', $cleanParams['type']));
         } else {
-            $criteria->add($this->criteriaFactory->item('type', 'TfStatic', '!='));
             $criteria->add($this->criteriaFactory->item('type', 'TfTag', '!='));
         }
 
@@ -262,6 +264,14 @@ class Listing
 
         if (isset($params['type']) && \array_key_exists($params['type'], $this->listTypes())) {
             $cleanParams['type'] = $this->trimString($params['type']);
+        }
+
+        if (isset($params['inFeed'])) {
+            $inFeed = (int) $params['inFeed'];
+
+            if ($inFeed == 0 || $inFeed == 1) {
+                $cleanParams['inFeed'] = $inFeed;
+            }
         }
 
         if (isset($params['onlineStatus'])) {

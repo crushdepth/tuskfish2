@@ -211,16 +211,29 @@
             </select>
         </div>
 
+        <!-- In feed -->
+        <div class="col-md-3 mb-3 text-left" id="inFeedContainer">
+          <p><strong><?php echo TFISH_IN_FEED; ?></strong></p>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" id="inFeed" name="content[inFeed]" value="1" checked>
+            <label class="form-check-label text-success" for="inFeed"><?php echo TFISH_YES; ?></label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" id="notInFeed" name="content[inFeed]" value="0" required>
+            <label class="form-check-label text-danger" for="notInFeed"><?php echo TFISH_NO; ?></label>
+          </div>
+        </div>
+
         <!-- Online status -->
-        <div class="col-md-6 mb-3 text-left" id="onlineContainer">
+        <div class="col-md-3 mb-3 text-left" id="onlineContainer">
           <p><strong><?php echo TFISH_ONLINE_STATUS; ?></strong></p>
           <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" id="online" name="content[onlineStatus]" value="1" checked>
-            <label class="form-check-label" for="online"><?php echo TFISH_ONLINE; ?></label>
+            <label class="form-check-label text-success" for="online"><?php echo TFISH_ONLINE; ?></label>
           </div>
           <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" id="offline" name="content[onlineStatus]" value="0" required>
-            <label class="form-check-label" for="offline"><?php echo TFISH_OFFLINE; ?></label>
+            <label class="form-check-label text-danger" for="offline"><?php echo TFISH_OFFLINE; ?></label>
           </div>
         </div>
 

@@ -288,7 +288,6 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_TYPE_COLLECTION", "Collection");
 \define("TFISH_TYPE_DOWNLOAD", "Download");
 \define("TFISH_TYPE_IMAGE", "Image");
-\define("TFISH_TYPE_STATIC", "Static");
 \define("TFISH_TYPE_TAG", "Tag");
 \define("TFISH_TYPE_TRACK", "Track (GPS)");
 \define("TFISH_TYPE_VIDEO", "Video");
@@ -303,6 +302,8 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_LANGUAGE", "Language");
 \define("TFISH_RIGHTS", "Rights");
 \define("TFISH_PUBLISHER", "Publisher");
+\define("TFISH_IN_FEED", "Include in feeds");
+\define("TFISH_IN_FEED_SHORT", "Feed");
 
 // Related and parent works.
 \define("TFISH_RELATED", "Related");

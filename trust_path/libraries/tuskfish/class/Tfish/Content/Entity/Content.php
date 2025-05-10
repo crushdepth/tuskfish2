@@ -54,6 +54,7 @@ namespace Tfish\Content\Entity;
  * @var         int $lastUpdated Timestamp representing last time this object was updated.
  * @var         string $expiresOn Date for this object expressed as a string.
  * @var         int $counter Number of times this content was viewed or downloaded.
+ * @var         int $inFeed Include in news / RSS feed (1) or not (0).
  * @var         int $onlineStatus Toggle object on or offline.
  * @var         int $parent A source work or collection of which this content is part.
  * @var         string $language Future proofing.
@@ -94,6 +95,7 @@ class Content
     private $expiresOn = '';
     private $counter = 0;
     private $minimumViews = 0;
+    private $inFeed = 1;
     private $onlineStatus = 0;
     private $parent = 0;
     private $language = '';
@@ -131,6 +133,7 @@ class Content
         $this->setLastUpdated((int) ($row['lastUpdated'] ?? 0));
         $this->setExpiresOn((string) ($row['expiresOn'] ?? ''));
         $this->setCounter((int) ($row['counter'] ?? 0));
+        $this->setInFeed((int) ($row['inFeed'] ?? 1));
         $this->setOnlineStatus((int) ($row['onlineStatus'] ?? 1));
         $this->setParent((int) ($row['parent'] ?? 0));
         $this->setLanguage((string) ($row['language'] ?? 'en'));
@@ -757,6 +760,30 @@ class Content
         }
 
         $this->minimumViews = $minimumViews;
+    }
+
+    /**
+     * Return inFeed status.
+     * 
+     * @return int 1 if included in news/RSS feed, otherwise 0.
+     */
+    public function inFeed(): int
+    {
+        return (int) $this->inFeed;
+    }
+
+    /**
+     * Set inFeed status.
+     * 
+     * @param   int $inFeed
+     */
+    public function setInFeed(int $inFeed)
+    {
+        if ($inFeed !== 0 && $inFeed !== 1) {
+            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+        }
+
+        $this->inFeed = $inFeed;
     }
 
     /**

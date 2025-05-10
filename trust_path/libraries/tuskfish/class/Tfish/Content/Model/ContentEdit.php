@@ -426,6 +426,7 @@ class ContentEdit
         $clean['lastUpdated'] = (int) ($form['lastUpdated'] ?? 0);
         $clean['expiresOn'] = !empty($form['expiresOn']) ? $this->trimString($form['expiresOn']) : '';
         $clean['counter'] = (int) ($form['counter'] ?? 0);
+        $clean['inFeed'] = (int) ($form['inFeed'] ?? 0);
         $clean['onlineStatus'] = (int) ($form['onlineStatus'] ?? 0);
         $clean['parent'] = (int) ($form['parent'] ?? 0);
         $clean['language'] = $this->trimString($form['language'] ?? '');
