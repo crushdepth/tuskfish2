@@ -49,36 +49,22 @@ trait TagRead
             exit;
         }
 
-        // Get a list of active tag IDs (those listed in the taglnks table).
-        $criteria = $this->criteriaFactory->criteria();
-        $criteria->add($this->criteriaFactory->item('module', $module));
-
-        $taglinks = $this->database->selectDistinct('taglink', ['tagId'], $criteria)
-            ->fetchAll(\PDO::FETCH_COLUMN);
-
-        if (empty($taglinks)) {
-            return [];
-        }
-
-        // Look up the actual tag IDs.
-        $sql = "SELECT `id`, `title` FROM `content` WHERE `id` IN (";
-
-        foreach ($taglinks as $taglink) {
-            $sql .= "?,";
-        }
-
-        $sql = rtrim($sql, ",");
-        $sql .= ")";
+        // Get a list of active tag IDs (those listed in the taglnks table)
+        // AND that are marked as inFeed = 1.
+        $sql = "SELECT `tag`.`id`, `tag`.`title` "
+            . "FROM `taglink` "
+            . "INNER JOIN `content` AS `tag` ON `taglink`.`tagId` = `tag`.`id` "
+            . "WHERE `tag`.`inFeed` = 1 "
+               . "AND `taglink`.`module` = :module "
+               . "AND `tag`.`onlineStatus` = 1";
 
         $statement = $this->database->preparedStatement($sql);
-        $result = $statement->execute($taglinks);
+        $statement->bindValue(':module', $module, \PDO::PARAM_STR);
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
 
-        if (!$result) {
-            \trigger_error(TFISH_ERROR_NO_RESULT, E_USER_ERROR);
-            return false;
-        }
+        return $statement->fetchAll();
 
-        return $statement->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     /**
