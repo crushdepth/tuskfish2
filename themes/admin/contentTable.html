@@ -113,7 +113,7 @@
         </td>
         <?php else: ?>
         <td class="text-center">
-          <a class="text-danger" hx-post="<?php echo TFISH_ADMIN_URL; ?>?action=togglInFeed" target="closest td"
+          <a class="text-danger" hx-post="<?php echo TFISH_ADMIN_URL; ?>?action=toggleInFeed" target="closest td"
             hx-vals='{"id": "<?php echo xss($row['id']); ?>", "inFeed": "0"}' hx-swap="outerHTML">
             <i class="fas fa-times"></i></a>
         </td>

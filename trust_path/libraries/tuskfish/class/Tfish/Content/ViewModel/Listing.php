@@ -69,6 +69,7 @@ class Listing implements \Tfish\Interface\Listable
     private $start = 0;
     private $tag = 0;
     private $type = '';
+    private $inFeed = 1;
     private $onlineStatus = 1;
 
     /**
@@ -177,6 +178,7 @@ class Listing implements \Tfish\Interface\Listable
         $params = [
             'tag' => $this->tag,
             'type' => $this->type,
+            'inFeed' => $this->inFeed,
             'onlineStatus' => $this->onlineStatus
         ];
 
@@ -283,6 +285,7 @@ class Listing implements \Tfish\Interface\Listable
                 'limit' => $this->limit(),
                 'tag' => $this->tag,
                 'type' => $this->type,
+                'inFeed' => $this->inFeed,
                 'onlineStatus' => $this->onlineStatus,
                 'sort' => $this->sort,
                 'order' => $this->order,

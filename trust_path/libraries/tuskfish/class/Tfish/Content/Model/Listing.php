@@ -188,17 +188,18 @@ class Listing
             return $criteria;
         }
 
+        if (isset($cleanParams['inFeed']))
+            $criteria->add($this->criteriaFactory->item('inFeed', $cleanParams['inFeed']));
+
         if (!empty($cleanParams['parent']))
             $criteria->add($this->criteriaFactory->item('parent', $cleanParams['parent']));
 
         // Unless a specific type is requested, default behaviour is to exclude tags. If you are
         // organising your tags into collections, you may wish to re-enable tags in the stream
-        // to facilitate their discovery. Content not marked as 'inFeed' (0) will also be excluded from
-        // the news and RSS feeds.
+        // to facilitate their discovery.
         if (!empty($cleanParams['type'])) {
             $criteria->add($this->criteriaFactory->item('type', $cleanParams['type']));
         } else {
-            $criteria->add($this->criteriaFactory->item('inFeed', 1));
             $criteria->add($this->criteriaFactory->item('type', 'TfTag', '!='));
         }
 
@@ -263,6 +264,14 @@ class Listing
 
         if (isset($params['type']) && \array_key_exists($params['type'], $this->listTypes())) {
             $cleanParams['type'] = $this->trimString($params['type']);
+        }
+
+        if (isset($params['inFeed'])) {
+            $inFeed = (int) $params['inFeed'];
+
+            if ($inFeed == 0 || $inFeed == 1) {
+                $cleanParams['inFeed'] = $inFeed;
+            }
         }
 
         if (isset($params['onlineStatus'])) {

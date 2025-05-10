@@ -75,9 +75,9 @@ class Rss
 
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
-        $criteria->add($this->criteriaFactory->item('type', 'TfStatic', '!='));
         $criteria->add($this->criteriaFactory->item('inFeed', 1));
         $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
+        $criteria->add($this->criteriaFactory->item('type', 'TfTag', '!='));
         $statement = $this->database->select('content', $criteria, ['title', 'description']);
 
         return $statement->fetch(\PDO::FETCH_ASSOC);
@@ -97,8 +97,8 @@ class Rss
         $criteria->setSort('submissionTime');
         $criteria->setOrder("DESC");
         $criteria->add($this->criteriaFactory->item('inFeed', 1));
-        $criteria->add($this->criteriaFactory->item('type', 'TfTag', '!='));
         $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
+        $criteria->add($this->criteriaFactory->item('type', 'TfTag', '!='));
 
         if ($parentId > 0) {
             $criteria->add($this->criteriaFactory->item('parent', $parentId));
@@ -113,9 +113,9 @@ class Rss
      * Return content objects for a given tag.
      *
      * @param   int $tagId ID of the tag.
-     * @return  array Array of content objects.
+     * @return  array|bool Array of content objects | false.
      */
-    public function getObjectsforTag(int $tagId): array
+    public function getObjectsforTag(int $tagId): array|bool
     {
         if ($tagId < 1) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
