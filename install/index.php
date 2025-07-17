@@ -281,7 +281,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "language" => "en",
             "rights" => 1,
             "publisher" => '',
-            "inFeed", => "1",
+            "inFeed" => "1",
             "onlineStatus" => "1",
             "submissionTime" => \time(),
             "lastUpdated" => 0,
