@@ -23,7 +23,7 @@ declare(strict_types=1);
     "font-src 'self' fonts.gstatic.com; " .
     "media-src 'self' www.youtube.com; " .
     "frame-src www.youtube.com; " .
-    "script-src 'self' maps.googleapis.com maps.gstatic.com; " .
+    "script-src 'self' 'unsafe-inline' maps.googleapis.com maps.gstatic.com; " .
     "style-src 'self' 'unsafe-inline' fonts.googleapis.com; " .
     "object-src 'none'; " .
     "frame-ancestors 'none';"
