@@ -109,6 +109,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_PREFERENCE_SEARCH_PAGINATION", "Search pagination");
 \define("TFISH_PREFERENCE_ADMIN_PAGINATION", "Admin-side pagination");
 \define("TFISH_PREFERENCE_GALLERY_PAGINATION", "Gallery pagination");
+\define("TFISH_PREFERENCE_COLLECTION_PAGINATION", "Collection pagination");
 \define("TFISH_PREFERENCE_RSS_POSTS", "RSS posts in feed");
 \define("TFISH_PREFERENCE_MINIMUM_VIEWS", "Minimum views to display counter");
 \define("TFISH_PREFERENCE_SESSION_NAME", "Session name");

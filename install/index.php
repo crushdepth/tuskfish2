@@ -244,6 +244,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ['title' => 'userPagination', 'value' => '10'],
             ['title' => 'adminPagination', 'value' => '20'],
             ['title' => 'galleryPagination', 'value' => '20'],
+            ['title' => 'collectionPagination', 'value' => '20'],
             ['title' => 'paginationElements', 'value' => '5'],
             ['title' => 'minimumViews', 'value' => '0'],
             ['title' => 'rssPosts', 'value' => '10'],

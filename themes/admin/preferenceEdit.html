@@ -110,16 +110,22 @@
       <input type="number" min="1" class="form-control" name="preference[userPagination]" id="userPagination" <?php if (!empty($preference->userPagination())) { echo 'value="' . xss($preference->userPagination()) . '"'; } ?> required>
     </div>
 
-    <!-- Admin pagination -->
+    <!-- Collection pagination -->
     <div class="col-md-6 col-lg-4 mb-3 text-left">
-      <label for="adminPagination"><strong><?php echo TFISH_PREFERENCE_ADMIN_PAGINATION; ?></strong></label>
-      <input type="number" min="1" class="form-control" name="preference[adminPagination]" id="adminPagination" <?php if (!empty($preference->adminPagination())) { echo 'value="' . xss($preference->adminPagination()) . '"'; } ?> required>
+      <label for="collectionPagination"><strong><?php echo TFISH_PREFERENCE_COLLECTION_PAGINATION; ?></strong></label>
+      <input type="number" min="1" class="form-control" name="preference[collectionPagination]" id="collectionPagination" <?php if (!empty($preference->collectionPagination())) { echo 'value="' . xss($preference->collectionPagination()) . '"'; } ?> required>
     </div>
 
     <!-- Gallery pagination -->
     <div class="col-md-6 col-lg-4 mb-3 text-left">
       <label for="galleryPagination"><strong><?php echo TFISH_PREFERENCE_GALLERY_PAGINATION; ?></strong></label>
       <input type="number" min="1" class="form-control" name="preference[galleryPagination]" id="galleryPagination" <?php if (!empty($preference->galleryPagination())) { echo 'value="' . xss($preference->galleryPagination()) . '"'; } ?> required>
+    </div>
+
+    <!-- Admin pagination -->
+    <div class="col-md-6 col-lg-4 mb-3 text-left">
+      <label for="adminPagination"><strong><?php echo TFISH_PREFERENCE_ADMIN_PAGINATION; ?></strong></label>
+      <input type="number" min="1" class="form-control" name="preference[adminPagination]" id="adminPagination" <?php if (!empty($preference->adminPagination())) { echo 'value="' . xss($preference->adminPagination()) . '"'; } ?> required>
     </div>
 
     <!-- Maximum number of elements in the pagination control -->

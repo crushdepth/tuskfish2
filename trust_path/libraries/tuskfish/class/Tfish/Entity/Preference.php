@@ -72,6 +72,7 @@ class Preference
     private int $userPagination = 0; // viewmodel
     private int $adminPagination = 0; // viewmodel
     private int $galleryPagination = 0; // viewmodel
+    private int $collectionPagination = 0; // viewmodel
     private int $rssPosts = 0; // viewmodel
     private int $paginationElements = 0; // viewmodel
     private int $minimumViews = 0;
@@ -139,6 +140,7 @@ class Preference
         $this->setUserPagination((int) ($input['userPagination'] ?? 10));
         $this->setAdminPagination((int) ($input['adminPagination'] ?? 20));
         $this->setGalleryPagination((int) ($input['galleryPagination'] ?? 20));
+        $this->setCollectionPagination((int) ($input['collectionPagination'] ?? 20));
         $this->setRssPosts((int) ($input['rssPosts'] ?? 10));
         $this->setPaginationElements((int) ($input['paginationElements'] ?? 5));
         $this->setMinimumViews((int) ($input['minimumViews'] ?? 0));
@@ -460,6 +462,30 @@ class Preference
         }
 
         $this->galleryPagination = $value;
+    }
+
+    /**
+     * Return collection pagination.
+     *
+     * @return int Number of child objects to display on a single collection view.
+     */
+    public function collectionPagination(): int
+    {
+        return $this->collectionPagination;
+    }
+
+    /**
+     * Set number of child objects to display on a collection page view.
+     *
+     * @param int $value Number of objects to display on a single page view.
+     */
+    public function setCollectionPagination(int $value)
+    {
+        if ($value < 1) {
+            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+        }
+
+        $this->collectionPagination = $value;
     }
 
     public function mapsApiKey(): string

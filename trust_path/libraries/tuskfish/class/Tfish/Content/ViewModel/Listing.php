@@ -248,6 +248,16 @@ class Listing implements \Tfish\Interface\Listable
     }
 
     /**
+     * Return child (collection or tag) pagination limit.
+     *
+     * @return  int Number of items to display on collection / tag pages.
+     */
+    public function childLimit(): int
+    {
+        return $this->preference->collectionPagination();
+    }
+
+    /**
      * Get children of a content object (collection or tag).
      *
      * @return  array Array of content objects.
@@ -256,7 +266,7 @@ class Listing implements \Tfish\Interface\Listable
     {
         $params = [
             'start' => $this->start,
-            'limit' => $this->limit(),
+            'limit' => $this->childLimit(),
             'type' => $this->type,
             'onlineStatus' => $this->onlineStatus,
             'sort' => $this->sort,
