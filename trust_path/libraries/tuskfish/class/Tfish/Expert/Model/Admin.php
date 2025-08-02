@@ -246,9 +246,9 @@ class Admin
      *
      * @param   \Tfish\Criteria $criteria Filter criteria.
      * @param   array $columns Columns to select.
-     * @return  array Associative array of experts.
+     * @return  array|null Associative array of experts.
      */
-    private function runQuery(\Tfish\Criteria $criteria, array $columns = null): array
+    private function runQuery(\Tfish\Criteria $criteria, array|null $columns = null): array
     {
         $statement = $this->database->select('expert', $criteria, $columns);
 

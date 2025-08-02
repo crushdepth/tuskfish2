@@ -86,7 +86,11 @@ class Expert
     private $businessUnit = '';
     private $organisation = '';
     private $address = '';
+    private $region = 0;
     private $country = 0;
+    private $sector = '';
+    private $business = '';
+    private $innovation = '';
     private $email = '';
     private $mobile = '';
     private $fax = '';
@@ -123,7 +127,11 @@ class Expert
         $this->setBusinessUnit((string) ($row['businessUnit'] ?? ''));
         $this->setOrganisation((string) ($row['organisation'] ?? ''));
         $this->setAddress((string) ($row['address'] ?? ''));
+        $this->setRegion((int) ($row['region'] ?? 0));
         $this->setCountry((int) ($row['country'] ?? 0));
+        $this->setSector((string) ($row['sector'] ?? ''));
+        $this->setBusiness((string) ($row['business'] ?? ''));
+        $this->setInnovation((string) ($row['innovation'] ?? ''));
         $this->setEmail((string) ($row['email'] ?? ''));
         $this->setMobile((string) ($row['mobile'] ?? ''));
         $this->setFax((string) ($row['fax'] ?? ''));
@@ -240,20 +248,7 @@ class Expert
      */
     public function nameAndJob()
     {
-        $nameAndJob = '';
-
-        $name = $this->name();
-        $job = $this->job();
-
-        $nameAndJob .= $name;
-
-        if ($name && $job) {
-            $nameAndJob .= ', ';
-        }
-
-        $nameAndJob .= $job;
-
-        return $nameAndJob;
+        return $this->name();
     }
 
     /** Utilities **/
@@ -322,11 +317,32 @@ class Expert
         $url .= '?id=' . $this->id;
 
         $url = \htmlspecialchars($url, ENT_QUOTES, "UTF-8");
-        
+
         return $url;
     }
 
     /** Getters and setters **/
+
+    /**
+     * Return business ID.
+     *
+     * @return string
+     */
+    public function business(): string
+    {
+        return $this->business;
+    }
+
+    /**
+     * Set business ID.
+     *
+     * @param string $business
+     * @return void
+     */
+    public function setBusiness(string $business)
+    {
+        $this->business = $this->trimString($business);
+    }
 
     /**
      * Return ID.
@@ -353,6 +369,27 @@ class Expert
     }
 
     /**
+     * Return innovation ID.
+     *
+     * @return string
+     */
+    public function innovation(): string
+    {
+        return $this->innovation;
+    }
+
+    /**
+     * Set innovation ID.
+     *
+     * @param string $innovation
+     * @return void
+     */
+    public function setInnovation(string $innovation)
+    {
+        $this->innovation = $this->trimString($innovation);
+    }
+
+    /**
      * Return salutation.
      *
      * @return int
@@ -374,6 +411,27 @@ class Expert
         }
 
         $this->salutation = $salutation;
+    }
+
+    /**
+     * Return sector ID.
+     *
+     * @return string
+     */
+    public function sector(): string
+    {
+        return $this->sector;
+    }
+
+    /**
+     * Set sector ID.
+     *
+     * @param string $sector
+     * @return void
+     */
+    public function setSector(string $sector)
+    {
+        $this->sector = $this->trimString($sector);
     }
 
     /**
@@ -632,6 +690,20 @@ class Expert
     public function setOrganisation(string $organisation)
     {
         $this->organisation = $this->trimString($organisation);
+    }
+
+    public function region(): int
+    {
+        return $this->region;
+    }
+
+    public function setRegion(int $region)
+    {
+        if (!\array_key_exists($region, $this->regionList())) {
+            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+        }
+
+        $this->country = $region;
     }
 
     /**

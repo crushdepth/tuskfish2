@@ -57,8 +57,13 @@ class Search
     {
         $cacheParams = [];
         $id = (int) ($_GET['id'] ?? 0);
+
         $tag = (int) ($_REQUEST['tag'] ?? 0);
+        $region = (int) ($_REQUEST['region'] ?? 0);
         $country = (int) ($_REQUEST['country'] ?? 0);
+        $sector = (int) ($_REQUEST['sector'] ?? 0);
+        $business = (int) ($_REQUEST['business'] ?? 0);
+        $innovation = (int) ($_REQUEST['innovation'] ?? 0);
         $start = (int) ($_GET['start'] ?? 0);
 
         if ($id > 0) {
@@ -69,13 +74,39 @@ class Search
             return $cacheParams;
         }
 
-        if ($tag > 0 || $country > 0) {
-            if ($start > 0) $cacheParams['start'] = $start;
-            $cacheParams['tag'] = $tag;
-            $cacheParams['country'] = $country;
-            $this->viewModel->setStart($start);
+        if ($tag > 0) {
             $this->viewModel->setTag($tag);
+            $cacheParams['tag'] = $tag;
+        }
+
+        if ($region > 0) {
+            $this->viewModel->setRegion($region);
+            $cacheParams['region'] = $region;
+        }
+
+        if ($country > 0) {
             $this->viewModel->setCountry($country);
+            $cacheParams['country'] = $country;
+        }
+
+        if ($sector > 0) {
+            $this->viewModel->setSector($sector);
+            $cacheParams['sector'] = $sector;
+        }
+
+        if ($business > 0) {
+            $this->viewModel->setBusiness($business);
+            $cacheParams['business'] = $business;
+        }
+
+        if ($innovation > 0) {
+            $this->viewModel->setInnovation($innovation);
+            $cacheParams['innovation'] = $innovation;
+        }
+
+        if (!empty($region || $country || $sector || $business || $innovation)) {
+            if ($start > 0) $cacheParams['start'] = $start;
+            $this->viewModel->setStart($start);
             $this->viewModel->displayFilter();
 
             return $cacheParams;

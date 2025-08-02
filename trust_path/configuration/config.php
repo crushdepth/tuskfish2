@@ -98,3 +98,5 @@ function tfish_autoload(string $classname) {
     //define("TFISH_YUBIKEY_SIGNATURE_KEY", "your_api_key");
 
 // Site database name are appended here.
+
+if (!\defined("TFISH_DATABASE")) define("TFISH_DATABASE", "/var/www/html/trust_path/database/807757731_test.db");

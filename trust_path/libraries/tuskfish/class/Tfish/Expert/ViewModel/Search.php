@@ -62,7 +62,11 @@ class Search implements \Tfish\Interface\Listable
     private $escapedSearchTerms = [];
     private $start = 0;
     private $tag = 0;
+    private $region = 0;
     private $country = 0;
+    private $sector = 0;
+    private $business = 0;
+    private $innovation = 0;
     private $backUrl = TFISH_URL . 'experts/';
 
     /**
@@ -83,6 +87,7 @@ class Search implements \Tfish\Interface\Listable
         $this->order = 'DESC';
         $this->secondarySort = 'submissionTime';
         $this->secondaryOrder = 'DESC';
+        $this->theme = $preference->defaultTheme();
     }
 
     /** Actions. **/
@@ -101,9 +106,13 @@ class Search implements \Tfish\Interface\Listable
      */
     public function displayFilter()
     {
-        $searchResults = $this->model->searchTagCountry([
+        $searchResults = $this->model->searchFilters([
             'tag' => $this->tag,
+            'region' => $this->region,
             'country' => $this->country,
+            'sector' => $this->sector,
+            'business' => $this->business,
+            'innovation' => $this->innovation,
             'start' => $this->start,
             'limit' => $this->limit(),
         ]);
@@ -223,7 +232,8 @@ class Search implements \Tfish\Interface\Listable
 
         $setParams = [];
 
-        foreach (['action', 'alpha', 'tag', 'country', 'start'] as $param) {
+        foreach (['action', 'alpha', 'tag', 'region', 'country', 'sector', 'business', 'innovation',
+            'start'] as $param) {
             if (!empty($this->$param)) {
                 $setParams[$param] = $param . '=' . $this->$param;
             }
@@ -256,6 +266,27 @@ class Search implements \Tfish\Interface\Listable
     public function setAlpha(string $letter)
     {
         $this->alpha = $this->trimString($letter);
+    }
+
+    /**
+     * Return business ID.
+     *
+     * @return integer
+     */
+    public function business(): int
+    {
+        return $this->business;
+    }
+
+    /**
+     * Set business ID.
+     *
+     * @param integer $business
+     * @return void
+     */
+    public function setBusiness(int $business)
+    {
+        $this->business = $business;
     }
 
     /**
@@ -321,6 +352,27 @@ class Search implements \Tfish\Interface\Listable
     }
 
     /**
+     * Return innovation ID.
+     *
+     * @return integer
+     */
+    public function innovation(): int        
+    {
+        return $this->innovation;
+    }
+
+    /**
+     * Set innovation ID.
+     *
+     * @param integer $innovation
+     * @return void
+     */
+    public function setInnovation(int $innovation)
+    {
+        $this->innovation = $innovation;
+    }
+
+    /**
      * Return limit.
      *
      * @return  int The number of  search results to retrieve.
@@ -331,6 +383,27 @@ class Search implements \Tfish\Interface\Listable
     }
 
     /**
+     * Return region ID.
+     *
+     * @return integer
+     */
+    public function region(): int
+    {
+        return $this->region;
+    }
+
+    /**
+     * Set region ID.
+     *
+     * @param integer $region
+     * @return void
+     */
+    public function setRegion(int $region)
+    {
+        $this->region = $region;
+    }
+
+    /**
      * Return search results.
      *
      * @return  array Array of expert objects.
@@ -338,6 +411,27 @@ class Search implements \Tfish\Interface\Listable
     public function searchResults(): array
     {
         return $this->searchResults;
+    }
+
+    /**
+     * Return sector ID.
+     *
+     * @return integer
+     */
+    public function sector(): int
+    {
+        return $this->sector;
+    }
+
+    /**
+     * Set sector ID.
+     *
+     * @param integer $sector
+     * @return void
+     */
+    public function setSector(int $sector)
+    {
+        $this->sector = $sector;
     }
 
     /**
@@ -463,7 +557,11 @@ class Search implements \Tfish\Interface\Listable
 
         if (!empty($this->action)) $extraParams['action'] = $this->action();
         if (!empty($this->alpha)) $extraParams['alpha'] = $this->alpha();
+        if (!empty($this->region)) $extraParams['region'] = $this->region();
         if (!empty($this->country)) $extraParams['country'] = $this->country();
+        if (!empty($this->sector)) $extraParams['sector'] = $this->sector();
+        if (!empty($this->business)) $extraParams['business'] = $this->business();
+        if (!empty($this->innovation)) $extraParams['innovation'] = $this->innovation();
         if (!empty($this->searchTerms())) $extraParams['searchTerms'] = \implode(" ", $this->searchTerms());
 
         return $extraParams;

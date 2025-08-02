@@ -17,8 +17,8 @@ namespace Tfish\Expert;
  * @package     User
  */
 
-\define("TFISH_EXPERTS", "Experts");
-\define("TFISH_EXPERTS_DESCRIPTION", "Browse our directory of aquaculture experts.");
+\define("TFISH_EXPERTS", "Global Inventory of Artemia Stakeholders");
+\define("TFISH_EXPERTS_DESCRIPTION", "Browse our directory of Artemia aquaculture stakeholders and innovators alphabetically, using filter criteria, or free text search.");
 \define("TFISH_EXPERTS_MOBILE", "Mobile");
 \define("TFISH_EXPERTS_FAX", "Fax");
 \define("TFISH_EXPERTS_EMAIL", "Email");

@@ -43,6 +43,7 @@ class Search
     private $preference;
     private $onlineStatus = 1; // Default to online content only.
     private $session;
+
     /**
      * Constructor.
      *
@@ -157,7 +158,7 @@ class Search
         }
 
         $sqlCount .= $sql;
-        $sql .= "ORDER BY `lastName` ASC, `firstName` ASC ";
+        $sql .= "ORDER BY `organisation` ASC, `businessUnit` ASC ";
 
         // Bind the search term values and execute the statement.
         $statement = $this->database->preparedStatement($sqlCount);
@@ -252,15 +253,15 @@ class Search
 
         $sqlCount = "SELECT count(*) ";
         $sqlSearch = "SELECT * ";
-        $sql = "FROM `expert` WHERE (`lastName` LIKE :lastName AND `onlineStatus` = :onlineStatus)  ";
-        $sql .= "ORDER BY `lastName` ASC, `firstName` ASC ";
+        $sql = "FROM `expert` WHERE (`organisation` LIKE :organisation AND `onlineStatus` = :onlineStatus)  ";
+        $sql .= "ORDER BY `organisation` ASC, `businessUnit` ASC ";
         $sqlCount .= $sql;
 
         // Bind the search term values and execute the statement.
         $statement = $this->database->preparedStatement($sqlCount);
 
         if ($statement) {
-            $statement->bindValue(':lastName', $params['alpha'] . "%", \PDO::PARAM_STR);
+            $statement->bindValue(':organisation', $params['alpha'] . "%", \PDO::PARAM_STR);
             $statement->bindValue(":onlineStatus", $this->onlineStatus, \PDO::PARAM_INT);
         } else {
             return false;
@@ -284,7 +285,7 @@ class Search
         $statement = $this->database->preparedStatement($sqlSearch);
 
         if ($statement) {
-            $statement->bindValue(':lastName', $params['alpha'] . "%", \PDO::PARAM_STR);
+            $statement->bindValue(':organisation', $params['alpha'] . "%", \PDO::PARAM_STR);
             $statement->bindValue(":onlineStatus", $this->onlineStatus, \PDO::PARAM_INT);
             $statement->bindValue(":limit", (int) $params['limit'], \PDO::PARAM_INT);
 
@@ -319,6 +320,105 @@ class Search
         return \array_merge([$count], $result);
     }
 
+    public function searchFilters(array $params): array
+    {
+        $cleanParams = $this->validateParams($params);
+
+        // Handle retrieve by ID separately.
+        if (!empty($cleanParams['id'])) {
+            $criteria = $this->criteriaFactory->criteria();
+            $criteria->add($this->criteriaFactory->item('id', $cleanParams['id']));
+            $statement = $this->database->select('expert', $criteria);
+            $count = $this->database->selectCount('expert', $criteria);
+            $result = $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Expert\Entity\Expert');
+            $statement->closeCursor();
+
+            return \array_merge([$count], $result);
+        }
+
+        // Handle filters, allowing for JSON data storage in sector, business, innovation.
+        $placeholders = [];
+        $sql = '';
+        $sqlSelect = "SELECT * FROM expert WHERE 1=1";
+        $sqlCount = "SELECT COUNT (*) FROM expert WHERE 1=1";
+
+        // Region
+        if (!empty($cleanParams['region'])) {
+            $sql .= " AND `region` = :region";
+            $placeholders[':region'] = $cleanParams['region'];
+        }
+
+        // Country
+        if (!empty($cleanParams['country'])) {
+            $sql .= " AND `country` = :country";
+            $placeholders[':country'] = $cleanParams['country'];
+        }
+
+        // Sector
+        if (!empty($cleanParams['sector'])) {
+            $sql .= " AND EXISTS (
+              SELECT 1 FROM json_each(`expert`.`sector`)
+              WHERE json_each.value = :sector
+            )";
+            $placeholders[':sector'] = $cleanParams['sector'];
+        }
+
+        // Business
+        if (!empty($cleanParams['business'])) {
+            $sql .= " AND EXISTS (
+              SELECT 1 FROM json_each(`expert`.`business`)
+              WHERE json_each.value = :business
+            )";
+            $placeholders[':business'] = $cleanParams['business'];
+        }
+
+        // Innovation
+        if (!empty($cleanParams['innovation'])) {
+            $sql .= " AND EXISTS (
+              SELECT 1 FROM json_each(`expert`.`innovation`)
+              WHERE json_each.value = :innovation
+            )";
+            $placeholders[':innovation'] = $cleanParams['innovation'];
+        }
+
+        // Count query does not need start, limit or sort.
+        $sqlCount .= $sql;
+
+        // Prepare and execute the COUNT query.
+        $countStatement = $this->database->preparedStatement($sqlCount);
+
+        foreach ($placeholders as $key => $value) {
+            $countStatement->bindValue($key, (int) $value, \PDO::PARAM_INT);
+        }
+
+        $countStatement->execute();
+        $count = (int) $countStatement->fetchColumn();
+
+        // Sort
+        $sql .= " ORDER BY organisation ASC, businessUnit ASC";
+
+        // Pagination
+        $sql .= " LIMIT :limit OFFSET :start";
+
+        $sqlSelect .= $sql;
+
+        // Prepare and execute the SELECT query.
+        $statement = $this->database->preparedStatement($sqlSelect);
+
+        foreach ($placeholders as $key => $value) {
+            $statement->bindValue($key, (int) $value, \PDO::PARAM_INT);
+        }
+
+        $statement->bindValue(':limit', (int) $cleanParams['limit'], \PDO::PARAM_INT);
+        $statement->bindValue(':start', (int) $cleanParams['start'] ?? 0, \PDO::PARAM_INT);
+
+        $statement->execute();
+        $result = $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Expert\Entity\Expert');
+        $statement->closeCursor();        
+
+        return \array_merge([$count], $result);
+    }
+
     /** Utilities. */
 
     /**
@@ -340,8 +440,20 @@ class Search
         if (!empty($cleanParams['tag']))
             $criteria->setTag([$cleanParams['tag']]);
 
+        if (!empty($cleanParams['region']))
+            $criteria->add($this->criteriaFactory->item('region', $cleanParams['region']));
+
         if (!empty($cleanParams['country']))
             $criteria->add($this->criteriaFactory->item('country', $cleanParams['country']));
+
+        if (!empty($cleanParams['sector']))
+            $criteria->add($this->criteriaFactory->item('sector', $cleanParams['sector']));
+
+        if (!empty($cleanParams['business']))
+            $criteria->add($this->criteriaFactory->item('business', $cleanParams['business']));
+
+        if (!empty($cleanParams['innovation']))
+            $criteria->add($this->criteriaFactory->item('innovation', $cleanParams['innovation']));
 
         if (!empty($cleanParams['start']))
             $criteria->setOffset($cleanParams['start']);
@@ -391,10 +503,34 @@ class Search
             $cleanParams['tag'] = $tag;
         }
 
+        $region = (int) ($params['region'] ?? 0);
+
+        if ($region > 0) {
+            $cleanParams['region'] = $region;
+        }
+
         $country = (int) ($params['country'] ?? 0);
 
         if ($country > 0) {
             $cleanParams['country'] = $country;
+        }
+
+        $sector = (int) ($params['sector'] ?? 0);
+
+        if ($sector > 0) {
+            $cleanParams['sector'] = $sector;
+        }
+
+        $business = (int) ($params['business'] ?? 0);
+
+        if ($business > 0) {
+            $cleanParams['business'] = $business;
+        }
+
+        $innovation = (int) ($params['innovation'] ?? 0);
+
+        if ($innovation > 0) {
+            $cleanParams['innovation'] = $innovation;
         }
 
         if (!empty($params['searchTerms']) && \is_array($params['searchTerms'])) {
