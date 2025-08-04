@@ -119,15 +119,15 @@
                 <?php if ($row['onlineStatus']): ?>
                   <a class="text-success" hx-post="<?php echo TFISH_ADMIN_URL . 'blocks/'; ?>?action=toggle" target="closest td"
                     hx-vals='{"id": "<?php echo xss($row['id']); ?>", "status": "1"}' hx-swap="outerHTML">
-                    <i class="fas fa-check"></i></a>
+                    <i class="icon-check"></i></a>
                 <?php else: ?>
                   <a class="text-danger" hx-post="<?php echo TFISH_ADMIN_URL . 'blocks/'; ?>?action=toggle" target="closest td"
                     hx-vals='{"id": "<?php echo xss($row['id']); ?>", "status": "0"}' hx-swap="outerHTML">
-                    <i class="fas fa-times"></i></a>
+                    <i class="icon-xmark"></i></a>
                 <?php endif; ?>
               </td>
-              <td class="text-center text-nowrap"><a href="<?php echo TFISH_ADMIN_URL . 'blocks/edit/'; ?>?action=edit&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-edit"></i></a></td>
-              <td class="text-center text-nowrap"><a href="<?php echo TFISH_ADMIN_URL . 'blocks/'; ?>?action=confirmDelete&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-trash-alt"></i></a></td>
+              <td class="text-center text-nowrap"><a href="<?php echo TFISH_ADMIN_URL . 'blocks/edit/'; ?>?action=edit&amp;id=<?php echo xss($row['id']); ?>"><i class="icon-pen-to-square"></i></a></td>
+              <td class="text-center text-nowrap"><a href="<?php echo TFISH_ADMIN_URL . 'blocks/'; ?>?action=confirmDelete&amp;id=<?php echo xss($row['id']); ?>"><i class="icon-trash-can"></i></a></td>
             </tr>
           <?php endforeach; ?>
         </tbody>

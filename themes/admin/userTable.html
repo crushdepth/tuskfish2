@@ -47,17 +47,17 @@
         <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['yubikeyId3']); ?></td>
         <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['loginErrors']); ?></td>
         <?php if ((int) $row['userGroup'] === 1): ?>
-        <td class="text-center"><i class="fas fa-check"></i></td>
-        <td class="text-center"><a href="<?php echo TFISH_ADMIN_USER_URL . 'edit/'; ?>?action=edit&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-edit"></i></a></td>
-        <td class="text-center"><i class="fas fa-trash-alt"></a></td>
+        <td class="text-center"><i class="icon-check"></i></td>
+        <td class="text-center"><a href="<?php echo TFISH_ADMIN_USER_URL . 'edit/'; ?>?action=edit&amp;id=<?php echo xss($row['id']); ?>"><i class="icon-pen-to-square"></i></a></td>
+        <td class="text-center"><i class="icon-trash-can"></a></td>
         <?php else: ?>
         <?php if ($row['onlineStatus']): ?>
-        <td class="text-center"><a class="text-success" href="<?php echo TFISH_ADMIN_USER_URL; ?>?action=toggle&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-check"></i></a></td>
+        <td class="text-center"><a class="text-success" href="<?php echo TFISH_ADMIN_USER_URL; ?>?action=toggle&amp;id=<?php echo xss($row['id']); ?>"><i class="icon-check"></i></a></td>
         <?php else: ?>
-        <td class="text-center"><a class="text-danger" href="<?php echo TFISH_ADMIN_USER_URL; ?>?action=toggle&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-times"></i></a></td>
+        <td class="text-center"><a class="text-danger" href="<?php echo TFISH_ADMIN_USER_URL; ?>?action=toggle&amp;id=<?php echo xss($row['id']); ?>"><i class="icon-xmark"></i></a></td>
         <?php endif; ?>
-        <td class="text-center"><a href="<?php echo TFISH_ADMIN_USER_URL . 'edit/'; ?>?action=edit&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-edit"></i></a></td>
-        <td class="text-center"><a href="<?php echo TFISH_ADMIN_USER_URL; ?>?action=confirmDelete&amp;id=<?php echo xss($row['id']); ?>"><i class="fas fa-trash-alt"></i></a></td>
+        <td class="text-center"><a href="<?php echo TFISH_ADMIN_USER_URL . 'edit/'; ?>?action=edit&amp;id=<?php echo xss($row['id']); ?>"><i class="icon-pen-to-square"></i></a></td>
+        <td class="text-center"><a href="<?php echo TFISH_ADMIN_USER_URL; ?>?action=confirmDelete&amp;id=<?php echo xss($row['id']); ?>"><i class="icon-trash-can"></i></a></td>
         <?php endif; ?>
         <?php unset($row); ?>
       </tr>

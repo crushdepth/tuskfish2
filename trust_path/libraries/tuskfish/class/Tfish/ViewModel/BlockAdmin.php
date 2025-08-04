@@ -97,29 +97,6 @@ class BlockAdmin implements \Tfish\Interface\Listable
     }
 
     /**
-     * Display edit user form.
-     */
-    public function displayEdit()
-    {
-        $id = (int) ($_GET['id'] ?? 0);
-
-        $this->pageTitle = TFISH_EDIT_USER;
-        $content = new \Tfish\User\Entity\User;
-
-        if ($data = $this->model->edit($id)) {
-            $content->load($data, false);
-            $this->setContent($content);
-            $this->action = 'update';
-            $this->template = 'userEdit';
-        } else {
-            $this->pageTitle = TFISH_FAILED;
-            $this->response = TFISH_ERROR_NO_SUCH_OBJECT;
-            $this->backUrl = TFISH_ADMIN_USER_URL;
-            $this->template = 'response';
-        }
-    }
-
-    /**
      * Save user object (new or updated).
      */
     public function displaySave()
@@ -219,12 +196,12 @@ class BlockAdmin implements \Tfish\Interface\Listable
             $this->status = 0;
             echo '<a class="text-danger" hx-post="' . TFISH_ADMIN_URL . 'blocks/?action=toggle"'
             . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "0"}\' '
-            . 'hx-swap="outerHTML"><i class="fas fa-times"></i></a>';
+            . 'hx-swap="outerHTML"><i class="icon-xmark"></i></a>';
         } else {
             $this->status = 1;
             echo '<a class="text-success" hx-post="' . TFISH_ADMIN_URL . 'blocks/?action=toggle"'
               . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "1"}\' '
-              . 'hx-swap="outerHTML"><i class="fas fa-check"></i></a>';
+              . 'hx-swap="outerHTML"><i class="icon-check"></i></a>';
         }
         exit; // Prevents proceeding to full page reload.
     }

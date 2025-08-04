@@ -64,7 +64,14 @@
 
         <?php foreach ($searchResults as $key => $content): ?>
         <div class="clearfix">
-            <h3><a href="<?php echo xss($content->url()); ?>"><?php echo xss($content->title()); ?></a></h3>
+            <h3 class="title">
+              <a href="<?php echo xss($content->url()); ?>" class="icon-link">
+                <?php echo $content->icon($content->type()); ?>
+              </a>
+              <a href="<?php echo xss($content->url()); ?>" class="title-link">
+                <?php echo xss($content->title()); ?>
+              </a>
+            </h3>
             <?php if ($content->image()): ?>
             <div class="float-start">
                 <figure class="figure-left">

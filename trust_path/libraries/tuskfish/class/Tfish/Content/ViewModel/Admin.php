@@ -150,12 +150,12 @@ class Admin implements \Tfish\Interface\Listable
             $this->status = 0;
             echo '<a class="text-danger" hx-post="' . TFISH_ADMIN_URL . '?action=toggle"'
             . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "0"}\' '
-            . 'hx-swap="outerHTML"><i class="fas fa-times"></i></a>';
+            . 'hx-swap="outerHTML"><i class="icon-xmark"></i></a>';
         } else {
             $this->status = 1;
             echo '<a class="text-success" hx-post="' . TFISH_ADMIN_URL . '?action=toggle"'
               . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "1"}\' '
-              . 'hx-swap="outerHTML"><i class="fas fa-check"></i></a>';
+              . 'hx-swap="outerHTML"><i class="icon-check"></i></a>';
         }
         exit; // Prevents proceeding to full page reload.
     }
@@ -171,12 +171,12 @@ class Admin implements \Tfish\Interface\Listable
             $this->inFeed = 0;
             echo '<a class="text-danger" hx-post="' . TFISH_ADMIN_URL . '?action=toggleInFeed"'
             . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "inFeed": "0"}\' '
-            . 'hx-swap="outerHTML"><i class="fas fa-times"></i></a>';
+            . 'hx-swap="outerHTML"><i class="icon-xmark"></i></a>';
         } else {
             $this->inFeed = 1;
             echo '<a class="text-success" hx-post="' . TFISH_ADMIN_URL . '?action=toggleInFeed"'
               . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "inFeed": "1"}\' '
-              . 'hx-swap="outerHTML"><i class="fas fa-check"></i></a>';
+              . 'hx-swap="outerHTML"><i class="icon-check"></i></a>';
         }
         exit; // Prevents proceeding to full page reload.
     }

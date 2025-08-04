@@ -1,0 +1,159 @@
+@font-face {
+  font-family: 'icomoon';
+  src: url('fonts/icomoon.woff?og04bl') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+/* Align icons with surrounding text */
+  vertical-align: baseline; /* Try 'baseline', 'middle', or 'text-bottom' depending on desired look */
+  position: relative;
+  top: 0.115em;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Remove underline only from icons inside links */
+a > [class^="icon-"],
+a > [class*=" icon-"] {
+  display: inline-block;
+  text-decoration: none;
+}
+
+.icon-link {
+  text-decoration: none; /* no underline on icon */
+  margin-right: 0.25em;  /* spacing between icon and title */
+}
+
+.title-link {
+  /* normal link styling from your theme/Bootstrap will handle underline */
+}
+
+.icon-youtube:before {
+  content: "\e900";
+  color: #ff0000;
+}
+.icon-x-twitter:before {
+  content: "\e901";
+}
+.icon-xmark:before {
+  content: "\e902";
+}
+.icon-video:before {
+  content: "\e903";
+}
+.icon-user:before {
+  content: "\e904";
+}
+.icon-up-right-from-square:before {
+  content: "\e905";
+}
+.icon-up-down-left-right:before {
+  content: "\e906";
+}
+.icon-up-down:before {
+  content: "\e907";
+}
+.icon-trash-can:before {
+  content: "\e908";
+}
+.icon-tag:before {
+  content: "\e909";
+}
+.icon-square-x-twitter:before {
+  content: "\e90a";
+}
+.icon-square-rss:before {
+  content: "\e90b";
+}
+.icon-rss:before {
+  content: "\e90c";
+}
+.icon-route:before {
+  content: "\e90d";
+}
+.icon-podcast:before {
+  content: "\e90e";
+}
+.icon-photo-film:before {
+  content: "\e90f";
+}
+.icon-person-hiking:before {
+  content: "\e910";
+}
+.icon-pen-to-square:before {
+  content: "\e911";
+}
+.icon-newspaper:before {
+  content: "\e912";
+}
+.icon-microphone:before {
+  content: "\e913";
+}
+.icon-map:before {
+  content: "\e914";
+}
+.icon-magnifying-glass-plus:before {
+  content: "\e915";
+}
+.icon-magnifying-glass:before {
+  content: "\e916";
+}
+.icon-lock:before {
+  content: "\e917";
+}
+.icon-linkedin-in:before {
+  content: "\e918";
+}
+.icon-linkedin:before {
+  content: "\e919";
+}
+.icon-key:before {
+  content: "\e91a";
+}
+.icon-image:before {
+  content: "\e91b";
+}
+.icon-headphones:before {
+  content: "\e91c";
+}
+.icon-folder:before {
+  content: "\e91d";
+}
+.icon-file-arrow-down:before {
+  content: "\e91e";
+}
+.icon-facebook-f:before {
+  content: "\e91f";
+}
+.icon-facebook:before {
+  content: "\e920";
+}
+.icon-envelope:before {
+  content: "\e921";
+}
+.icon-download:before {
+  content: "\e922";
+}
+.icon-circle-xmark:before {
+  content: "\e923";
+}
+.icon-circle-check:before {
+  content: "\e924";
+}
+.icon-check:before {
+  content: "\e925";
+}

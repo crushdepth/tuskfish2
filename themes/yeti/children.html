@@ -15,7 +15,14 @@
 <div class="mb-3">
   <?php foreach ($children as $child): ?>
   <div class="clearfix">
-    <h4 class="child-title"><a href="<?php echo xss($child->url()); ?>"><?php echo xss($child->title()); ?></a></h4>
+    <h4 class="child-title">
+    <a href="<?php echo xss($child->url()); ?>" class="icon-link">
+      <?php echo $child->icon($child->type()); ?>
+    </a>
+    <a href="<?php echo xss($child->url()); ?>" class="title-link">
+      <?php echo xss($child->title()); ?>
+    </a>
+  </h4>
     <?php if ($child->image()): ?>
       <div class="float-start">
         <figure class="figure-left">

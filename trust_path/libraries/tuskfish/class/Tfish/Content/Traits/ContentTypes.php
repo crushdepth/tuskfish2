@@ -75,4 +75,26 @@ trait ContentTypes
             'TfVideo' => TFISH_TYPE_VIDEO,
         );
     }
+
+    /**
+     * Returns an array of icons associated with different content types.
+     *
+     */
+    public function icon(string $type): string
+    {
+        $icons = [
+            'TfArticle' => '<i class="icon-newspaper"></i>',
+            'TfAudio' => '<i class="icon-podcast"></i>',
+            'TfCollection' => '<i class="icon-folder"></i>',
+            'TfDownload' => '<i class="icon-download"></i>',
+            'TfImage' => '<i class="icon-image"></i>',
+            'TfTag' => '<i class="icon-tag"></i>',
+            'TfTrack' => '<i class="icon-route"></i>',
+            'TfStatic' => '<i class="icon-newspaper"></i>',
+            'TfVideo' => '<i class="icon-youtube"></i>',
+        ];
+
+        return $icons[$type] ?? '';
+    }
+
 }
