@@ -16,7 +16,10 @@
   <ul>
   <?php foreach ($children as $child): ?>
   <li>
-    <a href="<?php echo TFISH_URL . '?id=' . $child->id(); ?>"><?php echo '<strong>' . xss($child->title()) . '</strong>'; ?></a>
+    <a href="<?php echo xss($child->url()); ?>" class="icon-link">
+      <?php echo $child->icon($child->type()); ?>
+    </a>
+    <a href="<?php echo xss($child->url()); ?>"><?php echo '<strong>' . xss($child->title()) . '</strong>'; ?></a>
     <?php if ($child->creator()) echo '<br><em>' . xss($child->creator()) . '</em>'; ?>
   </li>
   <?php endforeach; ?>
