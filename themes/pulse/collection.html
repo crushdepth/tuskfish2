@@ -11,16 +11,22 @@
 
 <!-- Title and meta information -->
 <div>
-  <?php if ($content->media()): ?>
   <h2 class="title">
-    <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>"><?php echo xss($content->title()); ?></a>
+    <?php if ($content->media()): ?>
+    <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>" class="icon-link">
+      <?php echo $content->icon($content->type()); ?>
+    </a>
+    <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>" class="title-link">
+      <?php echo xss($content->title()); ?>
+    </a>
+    <?php else: ?>
+    <?php echo '<span class="icon-link">' . $content->icon($content->type()) . '</span><span class="title-link">' . xss($content->title()) . '</span>'; ?>
+    <?php endif; ?>
   </h2>
-  <?php else: ?>
-  <h2 class="title"><?php echo xss($content->title()); ?></h2>
-  <?php endif; ?>
+
   <p class="content-info">
     <span class="small">
-      <a href="<?php echo TFISH_URL . 'rss/?id=' . $content->id(); ?>"><i class="fas fa-rss"></i></a>
+      <a href="<?php echo TFISH_URL . 'rss/?id=' . $content->id(); ?>" class="icon-link"><i class="icon-rss"></i></a>
       <?php echo xss($content->date()->format($viewModel->dateFormat())) . ' | '; ?>
       <?php echo xss($content->info()); ?>
       <?php if ($contentTags) {
@@ -58,7 +64,7 @@
 <!-- Media attachment -->
 <?php if ($content->media()): ?>
 <div>
-  <p class="media"><b><a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>"><i title="<?php echo TFISH_DOWNLOAD; ?>" class="fas fa-download"></i> <?php echo xss($content->media()); ?></a></b></p>
+  <p class="media"><b><a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>"><i title="<?php echo TFISH_DOWNLOAD; ?>" class="icon-download"></i> <?php echo xss($content->media()); ?></a></b></p>
 </div>
 <?php endif; ?>
 
