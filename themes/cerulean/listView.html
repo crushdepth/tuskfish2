@@ -1,0 +1,91 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Container -->
+<div class="container">
+
+<div class="row">
+  <div class="col">
+    <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+  </div>
+</div>
+
+<!-- Select filters -->
+<div class="row">
+  <div class="col-sm-6 col-md-4 col-lg-3 mx-auto select-filters">
+    <form class="form-horizontal" name="selectFilters" method="get">
+      <div class="row">
+
+          <select class="form-control custom-select" name="tag" id="tag" onchange="this.form.submit()">
+          <?php foreach ($viewModel->activeTagOptions() as $key => $value) {
+            echo ($key === $viewModel->tag()) ?
+              '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>' :
+              '<option value="' . xss($key) . '">' . xss($value) . '</option>';
+          } ?>
+          </select>
+
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Top pagination -->
+<?php if ($pagination ?? null): ?>
+<div class="row">
+  <div class="col d-flex justify-content-end pagination-top clearfix">
+    <?php echo $pagination; ?>
+  </div>
+</div>
+<?php endif; ?>
+
+<!-- Display a list of all content types in teaser view -->
+<div class="main-content mb-4">
+
+<?php foreach ($viewModel->contentList() as $content): ?>
+<div class="row">
+<div class="col stream-item clearfix">
+<div>
+  <h3 class="title">
+    <a href="<?php echo xss($content->url()); ?>" class="icon-link">
+      <?php echo $content->icon($content->type()); ?>
+    </a>
+    <a href="<?php echo xss($content->url()); ?>" class="title-link">
+      <?php echo xss($content->title()); ?>
+    </a>
+  </h3>
+</div>
+
+<?php if ($content->image()): ?>
+<div class="float-start">
+  <figure class="figure-left">
+    <a href="<?php echo xss($content->url()); ?>">
+    <img class="image img-fluid" src="<?php echo $content->cachedImage(200); ?>"
+    <?php if ($content->caption()): ?>
+    title="<?php echo xss($content->caption()); ?>"
+    alt="<?php echo xss($content->caption()); ?>" />
+    <?php else: ?>
+    alt="<?php echo xss($content->title()); ?>" />
+    <?php endif; ?>
+    </a>
+  </figure>
+</div>
+<?php endif; ?>
+<?php if ($content->teaser()): ?>
+<div class="teaser"><?php echo $content->teaserForDisplay(); ?></div>
+<?php endif; ?>
+</div>
+</div>
+<?php endforeach; ?>
+
+</div>
+
+<!-- Bottom pagination -->
+<?php if ($pagination ?? null): ?>
+<div class="row">
+  <div class="col d-flex justify-content-end pagination-bottom clearfix">
+    <?php echo $pagination; ?>
+  </div>
+</div>
+<?php endif; ?>
+
+<!-- /.container -->
+</div>
