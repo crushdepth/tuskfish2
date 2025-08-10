@@ -28,7 +28,7 @@
 
   <p class="content-info">
     <span class="small">
-      <a href="<?php echo TFISH_URL . 'rss/?id=' . $content->id(); ?>"><i class="fas fa-rss"></i></a>
+      <a href="<?php echo TFISH_URL . 'rss/?id=' . $content->id(); ?>" class="icon-link"><i class="icon-rss"></i></a>
       <?php echo xss($content->date()->format($viewModel->dateFormat())); ?>
       <?php echo ' | ' . xss($content->info()); ?>
       <?php if ($contentTags) {
