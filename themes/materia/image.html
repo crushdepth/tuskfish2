@@ -12,9 +12,14 @@
 <div>
   <h2 class="title">
     <?php if ($content->media()): ?>
-    <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>"><?php echo xss($content->title()); ?></a>
+    <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>" class="icon-link">
+      <?php echo $content->icon($content->type()); ?>
+    </a>
+    <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>" class="title-link">
+      <?php echo xss($content->title()); ?>
+    </a>
     <?php else: ?>
-    <?php echo xss($content->title()); ?>
+    <?php echo '<span class="icon-link">' . $content->icon($content->type()) . '</span><span class="title-link">' . xss($content->title()) . '</span>'; ?>
     <?php endif; ?>
   </h2>
 
