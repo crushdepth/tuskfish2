@@ -13,11 +13,19 @@
 <div>
   <?php if ($content->media()): ?>
   <h2 class="title">
-    <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>"><?php echo xss($content->title()); ?></a>
+    <?php if ($content->media()): ?>
+    <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>" class="icon-link">
+      <?php echo $content->icon($content->type()); ?>
+    </a>
+    <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>" class="title-link">
+      <?php echo xss($content->title()); ?>
+    </a>
+    <?php else: ?>
+    <?php echo '<span class="icon-link">' . $content->icon($content->type()) . '</span><span class="title-link">' . xss($content->title()) . '</span>'; ?>
+    <?php endif; ?>
   </h2>
-  <?php else: ?>
-  <h2 class="title"><?php echo xss($content->title()); ?></h2>
   <?php endif; ?>
+
   <p class="content-info">
     <span class="small">
       <a href="<?php echo TFISH_URL . 'rss/?id=' . $content->id(); ?>"><i class="fas fa-rss"></i></a>
