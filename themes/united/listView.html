@@ -43,7 +43,17 @@
 <?php foreach ($viewModel->contentList() as $content): ?>
 <div class="row">
 <div class="col stream-item clearfix">
-<div><h3 class="title"><a href="<?php echo xss($content->url()); ?>"><?php echo xss($content->title()); ?></a></h3></div>
+<div>
+  <h3 class="title">
+    <a href="<?php echo xss($content->url()); ?>" class="icon-link">
+      <?php echo $content->icon($content->type()); ?>
+    </a>
+    <a href="<?php echo xss($content->url()); ?>" class="title-link">
+      <?php echo xss($content->title()); ?>
+    </a>
+  </h3>
+</div>
+
 <?php if ($content->image()): ?>
 <div class="float-start">
   <figure class="figure-left">
