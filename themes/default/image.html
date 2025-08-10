@@ -12,9 +12,14 @@
 <div>
   <h2 class="title">
     <?php if ($content->media()): ?>
-    <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>"><?php echo xss($content->title()); ?></a>
+    <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>" class="icon-link">
+      <?php echo $content->icon($content->type()); ?>
+    </a>
+    <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>" class="title-link">
+      <?php echo xss($content->title()); ?>
+    </a>
     <?php else: ?>
-    <?php echo xss($content->title()); ?>
+    <?php echo '<span class="icon-link">' . $content->icon($content->type()) . '</span><span class="title-link">' . xss($content->title()) . '</span>'; ?>
     <?php endif; ?>
   </h2>
 
@@ -43,7 +48,7 @@
     <?php if ($content->media()): ?>
 
     <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>">
-      <img class="image img-fluid" src="<?php echo $content->cachedImage(1170); ?>"
+      <img class="image img-fluid" src="<?php echo $content->cachedImage(1296); ?>"
       <?php if ($content->caption()): ?>
         title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"/>
       <?php else: ?>
@@ -54,7 +59,7 @@
 
     <?php else: ?>
 
-      <img class="image img-fluid" src="<?php echo $content->cachedImage(1170); ?>"
+      <img class="image img-fluid" src="<?php echo $content->cachedImage(1296); ?>"
       <?php if ($content->caption()): ?>
         title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"/>
         <figcaption><em><?php echo xss($content->caption()); ?></em></figcaption>

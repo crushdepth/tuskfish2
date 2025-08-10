@@ -11,7 +11,7 @@
 
 <!-- Select filters -->
 <div class="row">
-  <div class="col-sm-6 col-md-6 col-lg-4 mx-auto select-filters">
+  <div class="col-sm-6 col-md-4 col-lg-3 mx-auto select-filters">
     <form class="form-horizontal" name="selectFilters" method="get">
       <div class="row">
 
@@ -43,12 +43,22 @@
 <?php foreach ($viewModel->contentList() as $content): ?>
 <div class="row">
 <div class="col stream-item clearfix">
-<div><h3 class="title"><a href="<?php echo xss($content->url()); ?>"><?php echo xss($content->title()); ?></a></h3></div>
+<div>
+  <h3 class="title">
+    <a href="<?php echo xss($content->url()); ?>" class="icon-link">
+      <?php echo $content->icon($content->type()); ?>
+    </a>
+    <a href="<?php echo xss($content->url()); ?>" class="title-link">
+      <?php echo xss($content->title()); ?>
+    </a>
+  </h3>
+</div>
+
 <?php if ($content->image()): ?>
 <div class="float-start">
   <figure class="figure-left">
     <a href="<?php echo xss($content->url()); ?>">
-    <img class="image img-fluid" src="<?php echo $content->cachedImage(150); ?>"
+    <img class="image img-fluid" src="<?php echo $content->cachedImage(200); ?>"
     <?php if ($content->caption()): ?>
     title="<?php echo xss($content->caption()); ?>"
     alt="<?php echo xss($content->caption()); ?>" />
