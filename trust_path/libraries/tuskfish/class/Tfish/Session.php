@@ -115,6 +115,22 @@ class Session
     }
 
     /**
+     * Shorthand member privileges check (admin and editors also qualify)
+     *
+     * @return boolean
+     */
+    public function isMember(): bool
+    {
+        $privileges = $this->verifyPrivileges();
+
+        if (\in_array($privileges, [1, 2, 3], true)) {
+          return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Verify that the current session is valid and user is enabled and return current user group.
      *
      * If the password has changed since the user logged in, they will be denied access. A user

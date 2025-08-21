@@ -119,8 +119,14 @@ class FrontController
             exit;
         }
 
-        // Route restricted to Editors and admin.
+        // Route restricted to editors and admin.
         if ($route->loginRequired() === 2 && !$this->session->isEditor()) {
+            \header('Location: ' . TFISH_URL . 'login/');
+            exit;
+        }
+
+        // Route restricted to members, editors and admin.
+        if ($route->loginRequired() === 3 && !$this->session->isMember()) {
             \header('Location: ' . TFISH_URL . 'login/');
             exit;
         }
