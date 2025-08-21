@@ -162,7 +162,7 @@ class User
     {
         $group = (int) $group;
 
-        if ($group < 0 || $group > 2) {
+        if ($group < 0 || $group > 3) {
             \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
         }
 

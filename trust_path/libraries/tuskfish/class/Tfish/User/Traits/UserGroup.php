@@ -41,6 +41,7 @@ trait UserGroup
         return [
             1 => TFISH_USER_SUPER_USER,
             2 => TFISH_USER_EDITOR,
+            3 => TFISH_USER_MEMBER,
         ];
     }
 }
