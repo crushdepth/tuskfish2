@@ -24,6 +24,7 @@ namespace Tfish\User\ViewModel;
  * @version     Release: 2.0
  * @since       2.0
  * @package     user
+ * @uses        trait \Tfish\Traits\Group Provides whitelist of user groups permitted on this system.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
  * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\Interface\Viewable interface.
@@ -37,6 +38,7 @@ namespace Tfish\User\ViewModel;
  */
 class UserEdit implements \Tfish\Interface\Viewable
 {
+    use \Tfish\Traits\Group;
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
     use \Tfish\Traits\Viewable;

@@ -94,8 +94,8 @@ class User
      */
     public function setId(int $id)
     {
-        if (!\array_key_exists($id, $this->userGroupList())) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+        if ($id < 1) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
         }
 
         $this->id = $id;
@@ -163,8 +163,8 @@ class User
     {
         $group = (int) $group;
 
-        if ($group < 0 || $group > 3) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        if (!\array_key_exists($group, $this->userGroupList())) {
+            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
         }
 
         $this->userGroup = $group;

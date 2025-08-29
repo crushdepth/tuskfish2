@@ -118,21 +118,15 @@ class FrontController
     {
         $routeMask = (int) $route->loginRequired();
 
-        // 1) Public route.
-        if ($routeMask === 0) {
-            return;
-        }
+        // Public routes.
+        if ($routeMask === 0) return;
 
-        // 2) Resolve user's group mask (0 for guests).
+        // Access controlled routes.
         $userMask = (int) $this->session->verifyPrivileges();
+        if (($userMask & self::G_SUPER) !== 0) return; // Super admin is always authorised.
+        if (($this->hasAnyGroup($userMask, $routeMask))) return; // Member of authorised group.
 
-        // 3) Bitwise super-admin check (authorised for all routes).
-        if (($userMask & self::G_SUPER) !== 0) return;
-
-        // 4) Bitwise check if user is member of any authorised groups.
-        if (($this->hasAnyGroup($userMask, $routeMask))) return;
-
-        // 5) Authorisation fail: Deny and redirect to login.
+        // Unauthorised: Deny and redirect to login.
         header('Location: ' . TFISH_URL . 'login/');
         exit;
     }

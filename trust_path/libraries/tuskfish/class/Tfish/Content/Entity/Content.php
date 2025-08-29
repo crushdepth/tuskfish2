@@ -67,6 +67,7 @@ namespace Tfish\Content\Entity;
 class Content
 {
     use \Tfish\Content\Traits\ContentTypes;
+    use \Tfish\Traits\Group;
     use \Tfish\Traits\Language;
     use \Tfish\Traits\Metadata;
     use \Tfish\Traits\Mimetypes;

@@ -25,6 +25,7 @@ namespace Tfish\User\Model;
  * @since       2.0
  * @package     user
  * @uses        trait \Tfish\Traits\EmailCheck Validate that email address conforms to specification.
+ * @uses        trait \Tfish\Traits\Group Whitelist of groups permitted on the system.
  * @uses        trait \Tfish\Traits\ValidateString Provides methods for validating UTF-8 character encoding and string composition.
  * @var         \Tfish\Database $database Instance of the Tuskfish database class.
  * @var         \Tfish\Session $session Instance of the Tuskfish session manager class.
@@ -34,6 +35,7 @@ namespace Tfish\User\Model;
 class UserEdit
 {
     use \Tfish\Traits\EmailCheck;
+    use \Tfish\Traits\Group;
     use \Tfish\Traits\ValidateString;
 
     private $database;
@@ -255,9 +257,21 @@ class UserEdit
 
         $clean['yubikeyId3'] = $yubikeyId3;
 
-        // userGroup, locked to Editor (2) on insert, but unset (unchanged) on update.
-        if ($passwordRequired === true) { //
-            $clean['userGroup'] = 2;
+        // User group.
+        if (empty($form['userGroup'])) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        }
+
+        $groupOptions = $this->userGroupList();
+
+        if (!\array_key_exists((int) $form['userGroup'], $groupOptions)) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            exit;
+        }
+
+        // Do not allow assignment to Admin group. Admin's user group will not be overwritten).
+        if ((int) $form['userGroup'] !== self::G_SUPER ) {
+            $clean['userGroup'] = (int) $form['userGroup'];
         }
 
         // loginErrors.

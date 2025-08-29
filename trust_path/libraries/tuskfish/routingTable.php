@@ -15,7 +15,6 @@ namespace Tfish;
  * 1 = site administrator only.
  * 2 = editors.
  * 4 = members.
- * 6 = members + editors.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2

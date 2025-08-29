@@ -29,6 +29,32 @@
         </div>
       </div>
 
+      <!-- Group -->
+      <div class="row justify-content-center">
+        <div class="col-md-6 mb-3">
+          <label for="password"><strong><?php echo TFISH_USER_GROUP; ?><span style="color:red">*</span></strong></label>
+          <div class="form-group">
+            <select class="form-control" name="content[userGroup]" id="type" required>
+              <?php
+                $options = $viewModel->userGroupList();
+                if ($content->id() === 1 && $content->userGroup() === 1) {
+                    echo '<option value="1" selected>' . xss($options[1]) . '</option>';
+                } else {
+                    unset($options[1]);
+                    foreach ($options as $key => $value) {
+                      if ($key == $content->userGroup()) {
+                        echo '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>';
+                      } else {
+                        echo '<option value="' . xss($key) . '">' . xss($value) . '</option>';
+                      }
+                    }
+                }
+              ?>
+            </select>
+          </div>
+        </div>
+      </div>
+
       <!-- Password and login errors -->
       <div class="row justify-content-center">
         <div class="col-md-6 mb-3">

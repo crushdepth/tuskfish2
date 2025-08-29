@@ -32,3 +32,4 @@ namespace Tfish\User;
 \define("TFISH_USER_PRIVILEGES", "Privileges");
 \define("TFISH_USER_ACTIVE", "Active");
 \define("TFISH_USER_SUSPENDED", "Suspended");
+\define("TFISH_SELECT_GROUP", "- Select group -");

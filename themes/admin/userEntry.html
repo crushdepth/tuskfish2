@@ -25,6 +25,25 @@
         </div>
       </div>
 
+      <!-- Group -->
+      <div class="row justify-content-center">
+        <div class="col-md-6 mb-3">
+          <label for="password"><strong><?php echo TFISH_USER_GROUP; ?><span style="color:red">*</span></strong></label>
+          <div class="form-group">
+            <select class="form-control" name="content[userGroup]" id="type" required>
+              <option value="" selected disabled hidden><?php echo TFISH_SELECT_GROUP; ?></option>
+              <?php
+                $options = $viewModel->userGroupList();
+                unset($options[1]);
+                foreach ($options as $key => $value) {
+                  echo '<option value="' . xss($key) . '">' . xss($value) . '</option>';
+                }
+              ?>
+            </select>
+          </div>
+        </div>
+      </div>
+
       <!-- Password and login errors -->
       <div class="row justify-content-center">
         <div class="col-md-6 mb-3">
