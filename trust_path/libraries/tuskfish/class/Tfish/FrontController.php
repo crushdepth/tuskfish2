@@ -108,7 +108,7 @@ class FrontController
     }
 
     /**
-     * Check if user is authorised to access this route.
+     * Check if user is authorised to access this route (bitwise tests).
      *
      * Redirect to login screen on failure. Site admin has access to all routes.
      *
@@ -127,14 +127,10 @@ class FrontController
         $userMask = (int) $this->session->verifyPrivileges();
 
         // 3) Bitwise super-admin check (authorised for all routes).
-        if (($userMask & self::G_SUPER) !== 0) {
-            return;
-        }
+        if (($userMask & self::G_SUPER) !== 0) return;
 
-        // 4) Bitwise check if user is member of any authorised routes.
-        if (($userMask & $routeMask) !== 0) {
-            return;
-        }
+        // 4) Bitwise check if user is member of any authorised groups.
+        if (($this->hasAnyGroup($userMask, $routeMask))) return;
 
         // 5) Authorisation fail: Deny and redirect to login.
         header('Location: ' . TFISH_URL . 'login/');

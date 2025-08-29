@@ -99,7 +99,7 @@ class Session
     }
 
     /**
-     * Shorthand editor privileges check (admin also qualifies)
+     * Shorthand editor privileges check (admin also qualifies).
      *
      * @return boolean
      */
@@ -109,22 +109,6 @@ class Session
 
         if ($privileges === 1 || $privileges === 2) {
             return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Shorthand member privileges check (admin and editors also qualify)
-     *
-     * @return boolean
-     */
-    public function isMember(): bool
-    {
-        $privileges = $this->verifyPrivileges();
-
-        if (\in_array($privileges, [1, 2, 3], true)) {
-          return true;
         }
 
         return false;

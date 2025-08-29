@@ -55,32 +55,16 @@ trait Group
     public const G_MEMBER = 1 << 2; // 4
 
     /**
-     * Overwrite all group privileges with the provided flags.
+     * Check if the user belongs to ANY of the specified groups.
      *
-     * @param int $flags One or more group constants combined with | (e.g. self::G_EDITOR | self::G_MEMBER).
-     * @return int New mask containing exactly the specified groups.
-     *
-     * @example $mask = self::assignGroups(self::G_EDITOR);                       // 2
-     * @example $mask = self::assignGroups(self::G_EDITOR | self::G_MEMBER);      // 6
+     * @param int $userMask The user's group bitmask (e.g. from $user->userGroup).
+     * @param int $flags One or more group constants combined with |, or a route mask from routing table.
+     * @return bool True if the user has at least one of the specified groups, false otherwise.
+     * @example $this->hasAnyGroup($user->userGroup, self::G_EDITOR | self::G_MEMBER);
+     * @example $this->hasAnyGroup($user->userGroup, 2 | 4); // equivalent of above.
      */
-    public static function assignGroups(int $flags): int
+    public function hasAnyGroup(int $userMask, int $flags): bool
     {
-        return $flags;
-    }
-
-    /**
-     * Test if ALL requested flags are set in the mask.
-     *
-     * @param int $mask Current bitmask value (e.g. from $user->userGroup).
-     * @param int $flags One or more group constants combined with |.
-     * @return bool True if all specified flags are present; false otherwise.
-     *
-     * @example self::hasGroup(6, self::G_EDITOR); // true
-     * @example self::hasGroup(6, self::G_EDITOR | self::G_MEMBER); // true
-     * @example self::hasGroup(6, self::G_EDITOR | self::G_SUPER); // false
-     */
-    public static function hasGroup(int $mask, int $flags): bool
-    {
-        return ($mask & $flags) === $flags;
+        return ($userMask & $flags) !== 0;
     }
 }
