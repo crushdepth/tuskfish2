@@ -45,12 +45,26 @@ trait Group
      *
      * @return array Array of user groups with userGroup ID as key.
      */
-    public function userGroupList(): array
+    public function listUserGroups(): array
     {
         return [
             self::G_SUPER  => TFISH_USER_SUPER_USER,
             self::G_EDITOR => TFISH_USER_EDITOR,
             self::G_MEMBER => TFISH_USER_MEMBER,
+        ];
+    }
+
+    /**
+     * Redirect targets for different groups on successful login.
+     *
+     * @return array
+     */
+    public function groupHomes(): array
+    {
+        return [
+            self::G_SUPER  => TFISH_ADMIN_URL,
+            self::G_EDITOR => TFISH_ADMIN_URL,
+            self::G_MEMBER => TFISH_URL,
         ];
     }
 

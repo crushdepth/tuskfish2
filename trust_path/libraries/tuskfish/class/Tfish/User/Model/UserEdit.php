@@ -262,7 +262,7 @@ class UserEdit
             \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
         }
 
-        $groupOptions = $this->userGroupList();
+        $groupOptions = $this->listUserGroups();
 
         if (!\array_key_exists((int) $form['userGroup'], $groupOptions)) {
             \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);

@@ -163,7 +163,7 @@ class User
     {
         $group = (int) $group;
 
-        if (!\array_key_exists($group, $this->userGroupList())) {
+        if (!\array_key_exists($group, $this->listUserGroups())) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
         }
 

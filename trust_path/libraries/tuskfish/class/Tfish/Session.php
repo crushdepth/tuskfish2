@@ -25,6 +25,7 @@ namespace Tfish;
  * @since       1.0
  * @package     security
  * @uses        trait \Tfish\Traits\EmailCheck
+ * @uses        trait \Tfish\Traits\Group
  * @uses        trait \Tfish\Traits\UrlCheck
  * @uses        trait \Tfish\Traits\ValidateString
  * @var         \Tfish\Database $db Instance of the Tuskfish database class.
@@ -34,6 +35,7 @@ namespace Tfish;
 class Session
 {
     use Traits\EmailCheck;
+    use Traits\Group;
     use Traits\UrlCheck;
     use Traits\ValidateString;
 
@@ -294,8 +296,8 @@ class Session
             // Send an admim notification email.
             $this->notifyAdminLogin($user['adminEmail']);
 
-            // Redirect to admin page.
-            \header('Location: ' . TFISH_ADMIN_URL);
+            // Redirect to appropriate page.
+            \header('Location: ' . $this->groupHomes()[$user['userGroup']]);
             exit;
         } else {
             // Increment failed login counter, destroy session and redirect to the login page.

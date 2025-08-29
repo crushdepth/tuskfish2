@@ -33,7 +33,7 @@
             <select class="form-control" name="content[userGroup]" id="type" required>
               <option value="" selected disabled hidden><?php echo TFISH_SELECT_GROUP; ?></option>
               <?php
-                $options = $viewModel->userGroupList();
+                $options = $viewModel->listUserGroups();
                 unset($options[1]);
                 foreach ($options as $key => $value) {
                   echo '<option value="' . xss($key) . '">' . xss($value) . '</option>';

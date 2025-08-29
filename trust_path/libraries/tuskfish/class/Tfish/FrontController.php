@@ -127,7 +127,7 @@ class FrontController
         if (($this->hasAnyGroup($userMask, $routeMask))) return; // Member of authorised group.
 
         // Unauthorised: Deny and redirect to login.
-        header('Location: ' . TFISH_URL . 'login/');
+        \header('Location: ' . TFISH_URL . 'login/');
         exit;
     }
 

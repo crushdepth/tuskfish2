@@ -36,7 +36,7 @@
           <div class="form-group">
             <select class="form-control" name="content[userGroup]" id="type" required>
               <?php
-                $options = $viewModel->userGroupList();
+                $options = $viewModel->listUserGroups();
                 if ($content->id() === 1 && $content->userGroup() === 1) {
                     echo '<option value="1" selected>' . xss($options[1]) . '</option>';
                 } else {
