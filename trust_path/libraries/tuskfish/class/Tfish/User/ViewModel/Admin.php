@@ -24,10 +24,10 @@ namespace Tfish\User\ViewModel;
  * @version     Release: 2.0
  * @since       2.0
  * @package     user
+ * @uses        trait \Tfish\Traits\Group Whitelist of permitted user groups on system.
  * @uses        trait \Tfish\Traits\Listable Provides a standard implementation of the \Tfish\View\Listable interface.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
- * @uses        trait \Tfish\User\Traits\UserGroup Whitelist of permitted user groups on system.
  * @var         object $model Classname of the model used to display this page.
  * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  * @var         string $userEmail The email address of this user.
@@ -40,11 +40,10 @@ namespace Tfish\User\ViewModel;
  */
 
 class Admin implements \Tfish\Interface\Listable
-{
+{   use \Tfish\Traits\Group;
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
-    use \Tfish\User\Traits\UserGroup;
 
     private $model;
     private $preference;

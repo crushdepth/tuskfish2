@@ -39,6 +39,7 @@ namespace Tfish;
 
 class FrontController
 {
+    use Traits\Group;
     use Traits\TraversalCheck;
     use Traits\ValidateString;
 
@@ -107,29 +108,37 @@ class FrontController
     }
 
     /**
-     * Check if the present route is restricted to admins.
+     * Check if user is authorised to access this route.
+     *
+     * Redirect to login screen on failure. Site admin has access to all routes.
      *
      * @param   \Tfish\Route $route
      */
-    private function checkAccessRights(Route $route)
+    private function checkAccessRights(Route $route): void
     {
-        // Route restricted to admin.
-        if ($route->loginRequired() === 1 && !$this->session->isAdmin()) {
-            \header('Location: ' . TFISH_URL . 'login/');
-            exit;
+        $routeMask = (int) $route->loginRequired();
+
+        // 1) Public route.
+        if ($routeMask === 0) {
+            return;
         }
 
-        // Route restricted to editors and admin.
-        if ($route->loginRequired() === 2 && !$this->session->isEditor()) {
-            \header('Location: ' . TFISH_URL . 'login/');
-            exit;
+        // 2) Resolve user's group mask (0 for guests).
+        $userMask = (int) $this->session->verifyPrivileges();
+
+        // 3) Bitwise super-admin check (authorised for all routes).
+        if (($userMask & self::G_SUPER) !== 0) {
+            return;
         }
 
-        // Route restricted to members, editors and admin.
-        if ($route->loginRequired() === 3 && !$this->session->isMember()) {
-            \header('Location: ' . TFISH_URL . 'login/');
-            exit;
+        // 4) Bitwise check if user is member of any authorised routes.
+        if (($userMask & $routeMask) !== 0) {
+            return;
         }
+
+        // 5) Authorisation fail: Deny and redirect to login.
+        header('Location: ' . TFISH_URL . 'login/');
+        exit;
     }
 
     /**

@@ -138,7 +138,7 @@ class Session
      *
      * @return int User group.
      */
-    private function verifyPrivileges(): int
+    public function verifyPrivileges(): int
     {
         if (empty($_SESSION['adminEmail'])) {
             return 0;

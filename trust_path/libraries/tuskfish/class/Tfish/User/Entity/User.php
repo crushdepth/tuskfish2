@@ -42,6 +42,7 @@ namespace Tfish\User\Entity;
 
 class User
 {
+    use \Tfish\Traits\Group;
     use \Tfish\Traits\ValidateString;
 
     private int $id = 0;
@@ -93,7 +94,7 @@ class User
      */
     public function setId(int $id)
     {
-        if ($id < 0) {
+        if (!\array_key_exists($id, $this->userGroupList())) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
         }
 
