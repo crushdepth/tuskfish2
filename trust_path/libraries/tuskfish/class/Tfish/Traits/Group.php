@@ -28,23 +28,7 @@ namespace Tfish\Traits;
 
 trait Group
 {
-    /**
-     * Legacy whitelist of user groups permitted on system.
-     *
-     * If you add any groups to the system you must include them here.
-     *
-     * @return array Array of user groups with userGroup ID as key.
-     */
-    public function userGroupList(): array
-    {
-        return [
-            1 => TFISH_USER_SUPER_USER,
-            2 => TFISH_USER_EDITOR,
-            3 => TFISH_USER_MEMBER,
-        ];
-    }
-
-    /**
+     /**
      * ---- New bitmask groups ----
      * One bit per group, extend as required (bits 0...63).
      * These resolve to 2^n to enable bitmask operations.
@@ -53,6 +37,22 @@ trait Group
     public const G_SUPER  = 1 << 0; // 1
     public const G_EDITOR = 1 << 1; // 2
     public const G_MEMBER = 1 << 2; // 4
+
+    /**
+     * Whitelist of user groups permitted on system.
+     *
+     * If you add any groups to the system you must also include them here.
+     *
+     * @return array Array of user groups with userGroup ID as key.
+     */
+    public function userGroupList(): array
+    {
+        return [
+            self::G_SUPER  => TFISH_USER_SUPER_USER,
+            self::G_EDITOR => TFISH_USER_EDITOR,
+            self::G_MEMBER => TFISH_USER_MEMBER,
+        ];
+    }
 
     /**
      * Check if the user belongs to ANY of the specified groups.
