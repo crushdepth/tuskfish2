@@ -55,20 +55,6 @@ trait Group
     }
 
     /**
-     * Redirect targets for different groups on successful login.
-     *
-     * @return array
-     */
-    public function groupHomes(): array
-    {
-        return [
-            self::G_SUPER  => TFISH_ADMIN_URL,
-            self::G_EDITOR => TFISH_ADMIN_URL,
-            self::G_MEMBER => TFISH_URL,
-        ];
-    }
-
-    /**
      * Check if the user belongs to ANY of the specified groups.
      *
      * @param int $userMask The user's group bitmask (e.g. from $user->userGroup).
