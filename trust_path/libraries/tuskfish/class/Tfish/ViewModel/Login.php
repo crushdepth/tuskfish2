@@ -27,8 +27,8 @@ namespace Tfish\ViewModel;
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\Interface\Viewable interface.
  * @var         object $model Classname of the model used to display this page.
+ * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  * @var         string $theme Name of the theme used to display this page.
- * @var         string $pageTitle Title of this page.
  * @var         array $metadata Overrides of site metadata properties, to customise it for this page.
  */
 
@@ -38,20 +38,21 @@ class Login implements \Tfish\Interface\Viewable
     use \Tfish\Traits\Viewable;
 
     private $model;
+    private $preference;
 
     /**
      * Constructor
      *
      * @param   object $model Instance of a model class.
-     * @param   string $pageTitle Title of this page.
+     * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      * @param   array $metadata Page-specific metadata overrides.
      */
-    public function __construct($model)
+    public function __construct($model, \Tfish\Entity\Preference $preference)
     {
         $this->pageTitle = TFISH_LOGIN;
         $this->model = $model;
         $this->template = 'login';
-        $this->theme = 'signin';
+        $this->theme = $preference->defaultTheme();
         $this->setMetadata(['robots' => 'noindex,nofollow']);
     }
 
