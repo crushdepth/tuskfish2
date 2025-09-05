@@ -67,6 +67,7 @@ class Preference
     public function update()
     {
         $this->preference->load($_POST['preference']);
+        $this->cache->flush();
 
         return $this->writePreferences();
     }
