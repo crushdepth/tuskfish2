@@ -36,7 +36,7 @@ trait Group
 
     public const G_SUPER  = 1 << 0; // 1
     public const G_EDITOR = 1 << 1; // 2
-    public const G_MEMBER = 1 << 2; // 4
+    public const G_MEMBER = 1 << 2; // 4, next groups should be 8, 16, 32 and so on.
 
     /**
      * Whitelist of user groups permitted on system.
