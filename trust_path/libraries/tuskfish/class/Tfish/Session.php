@@ -117,6 +117,24 @@ class Session
     }
 
     /**
+     * Shorthand check if the user is logged in to ANY group.
+     * 
+     * DO NO USE FOR AUTHORISATION CHECKS, use specific methods like isAdmin(), isEditor() for that.
+     * 
+     * @return boolean True if logged in to any group, otherwise false.
+     */
+    public function isLoggedIn(): bool
+    {
+        $privileges = $this->verifyPrivileges();
+
+        if ($privileges > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Verify that the current session is valid and user is enabled and return current user group.
      *
      * If the password has changed since the user logged in, they will be denied access. A user
