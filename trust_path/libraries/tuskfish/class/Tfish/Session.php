@@ -117,17 +117,15 @@ class Session
     }
 
     /**
-     * Shorthand check if the user is logged in to ANY group.
+     * Shorthand check if the user is logged in.
      * 
-     * DO NO USE FOR AUTHORISATION CHECKS, use specific methods like isAdmin(), isEditor() for that.
+     * DO NOT USE FOR AUTH CHECKS, DOES NOT PROVIDE GROUP INFORMATION.
      * 
-     * @return boolean True if logged in to any group, otherwise false.
+     * @return boolean True if logged in (ID is set), otherwise false.
      */
     public function isLoggedIn(): bool
     {
-        $privileges = $this->verifyPrivileges();
-
-        if ($privileges > 0) {
+        if (!empty($_SESSION['id'])) {
             return true;
         }
 

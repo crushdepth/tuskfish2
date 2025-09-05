@@ -56,6 +56,11 @@ class Gallery
     {
         $cacheParams = [];
 
+        // Flag to display 'logout' link instead of 'login' for members.
+        if (!empty($_SESSION['id'])) {
+            $cacheParams['loggedIn'] = '1';
+        }
+
         $id = (int) ($_GET['id'] ?? 0);
 
         $this->viewModel->setId($id);

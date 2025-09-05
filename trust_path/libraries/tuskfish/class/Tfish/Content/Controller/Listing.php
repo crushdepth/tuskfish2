@@ -59,6 +59,11 @@ class Listing
     {
         $cacheParams = ['page' => 'home'];
 
+        // Flag to display 'logout' link instead of 'login' for members.
+        if (!empty($_SESSION['id'])) {
+            $cacheParams['loggedIn'] = '1';
+        }
+
         $start = (int) ($_GET['start'] ?? 0);
 
         $this->viewModel->setStart($start);

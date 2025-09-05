@@ -65,7 +65,7 @@
               </ul>
             </li>
             <?php endif; ?>
-            <?php if (isset($session) && $session->isEditor()): ?>
+            <?php if (isset($session) && $session->isLoggedIn()): ?>
             <li class="nav-item">
               <a class="nav-link" href="<?php echo TFISH_URL . 'logout/'; ?>"><?php echo TFISH_LOGOUT; ?></a>
             </li>
