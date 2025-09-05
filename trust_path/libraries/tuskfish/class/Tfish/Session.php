@@ -76,7 +76,7 @@ class Session
      */
     public function getLoginLink(): string
     {
-        if ($this->isEditor()) {
+        if ($this->isLoggedIn()) {
             return '<a href="' . TFISH_URL . 'logout/">' . TFISH_LOGOUT . '</a>';
         } else {
             return '<a href="' . TFISH_URL . 'login/">' . TFISH_LOGIN . '</a>';
@@ -118,9 +118,9 @@ class Session
 
     /**
      * Shorthand check if the user is logged in.
-     * 
+     *
      * DO NOT USE FOR AUTH CHECKS, DOES NOT PROVIDE GROUP INFORMATION.
-     * 
+     *
      * @return boolean True if logged in (ID is set), otherwise false.
      */
     public function isLoggedIn(): bool

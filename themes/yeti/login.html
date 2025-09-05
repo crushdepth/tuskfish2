@@ -1,0 +1,47 @@
+<?php declare(strict_types=1); ?>
+
+<div class="container-fluid">
+
+  <div class="row">
+    <div class="col text-center">
+      <h1><?php echo TFISH_LOGIN; ?></h1>
+    </div>
+  </div>
+
+<!-- Display the login form -->
+
+  <div class="row justify-content-center">
+    <div class="col-md-3">
+      <form action="<?php echo TFISH_URL . 'login/'; ?>" method="post" role="form" accept-charset="UTF-8">
+
+        <!--- Email -->
+        <div class="row justify-content-center">
+          <div class="col-md-4 form-group input-group">
+            <input type="email" class="form-control" name="email" id="email" placeholder="<?php echo TFISH_EMAIL; ?>" required>
+            <span class="input-group-text"><i class="icon-envelope"></i></span>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="row justify-content-center">
+          <div class="col-md-4 form-group input-group">
+            <input type="password" class="form-control" name="password" id="password" placeholder="<?php echo TFISH_PASSWORD; ?>" required>
+            <span class="input-group-text" id="password-addon"><i class="icon-lock"></i></span>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="row">
+          <div class="col-md-4 form-group">
+            <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
+            <input type="hidden" name="action" value="login" />
+            <button type="submit" class="btn btn-primary"><?php echo TFISH_SUBMIT ?></button>
+          </div>
+        </div>
+
+      </form>
+
+    </div> <!-- /.col -->
+  </div> <!-- /.row -->
+
+</div> <!-- /.container -->
