@@ -18,13 +18,13 @@
 
 <div class="row">
   <div class="col">
-    <form class="form-horizontal" action="<?php echo TFISH_ADMIN_URL . 'content/'; ?>" method="post" enctype="multipart/form-data" role="form" accept-charset="UTF-8">
+    <form action="<?php echo TFISH_ADMIN_URL . 'content/'; ?>" method="post" enctype="multipart/form-data" accept-charset="UTF-8">
       <div class="row">
 
       <!-- Type -->
-      <div class="col-md-6 col-lg-3 mb-3 text-left" id="typeContainer">
-        <label for="type"><strong><?php echo TFISH_TYPE; ?></strong></label>
-          <select class="form-control custom-select" name="content[type]" id="type" required>
+      <div class="col-md-6 col-lg-3 mb-3 text-start" id="typeContainer">
+        <label for="type" class="form-label"><strong><?php echo TFISH_TYPE; ?></strong></label>
+          <select class="form-select" name="content[type]" id="type" required>
             <?php
               foreach ($content->listTypes() as $key => $type) {
                 echo '<option value="' . xss($key) . '">' . xss($type) . '</option>';
@@ -34,24 +34,24 @@
       </div>
 
       <!-- Template -->
-      <div class="col-md-6 col-lg-3 mb-3 text-left" id="templateContainer">
-        <label for="type"><strong><?php echo TFISH_TEMPLATE; ?></strong></label>
-          <select class="form-control custom-select" name="content[template]" id="template" required>
+      <div class="col-md-6 col-lg-3 mb-3 text-start" id="templateContainer">
+        <label for="template" class="form-label"><strong><?php echo TFISH_TEMPLATE; ?></strong></label>
+          <select class="form-select" name="content[template]" id="template" required>
           </select>
       </div>
 
       <!-- Date (bootstrap-datepicker) -->
-      <div class="col-md-6 col-lg-2 mb-3 text-left" id="dateContainer">
-        <label for="date"><strong><?php echo TFISH_DATE; ?></strong></label>
+      <div class="col-md-6 col-lg-2 mb-3 text-start" id="dateContainer">
+        <label for="date" class="form-label"><strong><?php echo TFISH_DATE; ?></strong></label>
         <input type="text" class="form-control" name="content[date]" id="date">
       </div>
       <script>
       $(document).ready(function() {
         $('#date').datepicker({
             format: 'yyyy-mm-dd',
-            todayHighlight: 'true',
+            todayHighlight: true,
             todayBtn: 'linked',
-            startView: 'years'
+            startView: 2
         });
         $('#date').datepicker('setDate', new Date());
         $('#date').datepicker('update');
@@ -59,27 +59,26 @@
       </script>
 
       <!-- expiresOn (bootstrap-datepicker) -->
-      <div class="col-md-6 col-lg-2 mb-3 text-left" id="expiresOnContainer">
-        <label for="expiresOn"><strong><?php echo TFISH_EXPIRES_ON; ?></strong></label>
+      <div class="col-md-6 col-lg-2 mb-3 text-start" id="expiresOnContainer">
+        <label for="expiresOn" class="form-label"><strong><?php echo TFISH_EXPIRES_ON; ?></strong></label>
         <input type="text" class="form-control" name="content[expiresOn]" id="expiresOn">
       </div>
       <script>
       $(document).ready(function() {
         $('#expiresOn').datepicker({
             format: 'yyyy-mm-dd',
-            todayHighlight: 'true',
+            todayHighlight: true,
             todayBtn: 'linked',
-            startView: 'years'
+            startView: 2
         });
-        $('#expiresOn').datepicker('setDate', '');
-        $('#expiresOn').datepicker('update');
+        $('#expiresOn').datepicker('clearDates');
       });
       </script>
 
       <!-- Tags -->
-      <div class="col-md-6 col-lg-2 mb-3 text-left" id="tagsContainer">
-        <label for="tags"><strong><?php echo TFISH_TAGS; ?></strong></label>
-        <select multiple class="form-control custom-select" size="5"  name="tags[]" id="tags">
+      <div class="col-md-6 col-lg-2 mb-3 text-start" id="tagsContainer">
+        <label for="tags" class="form-label"><strong><?php echo TFISH_TAGS; ?></strong></label>
+        <select multiple class="form-select" size="5"  name="tags[]" id="tags">
             <?php
                 foreach ($viewModel->listTags() as $tagId => $tagTitle) {
                     echo '<option value="' . xss($tagId) . '">' . xss($tagTitle) . '</option>';
@@ -89,39 +88,39 @@
       </div>
 
         <!-- Title -->
-        <div class="col-12 mb-3 text-left" id="titleContainer">
-          <label for="title"><strong><?php echo TFISH_TITLE; ?></strong></label>
+        <div class="col-12 mb-3 text-start" id="titleContainer">
+          <label for="title" class="form-label"><strong><?php echo TFISH_TITLE; ?></strong></label>
           <input type="text" class="form-control" name="content[title]" id="title">
         </div>
 
         <!-- Teaser -->
-        <div class="col-12 mb-3 text-left" id="teaserContainer">
-          <label for="teaser"><strong><?php echo TFISH_TEASER; ?></strong></label>
-          <textarea id="teaser" name="content[teaser]" class="form-control text-left"></textarea>
+        <div class="col-12 mb-3 text-start" id="teaserContainer">
+          <label for="teaser" class="form-label"><strong><?php echo TFISH_TEASER; ?></strong></label>
+          <textarea id="teaser" name="content[teaser]" class="form-control text-start"></textarea>
         </div>
 
         <!-- Description -->
-        <div class="col-12 mb-3 text-left" id="descriptionContainer">
-          <label for="description"><strong><?php echo TFISH_DESCRIPTION; ?></strong></label>
-          <textarea id="description" name="content[description]" class="form-control text-left"></textarea>
+        <div class="col-12 mb-3 text-start" id="descriptionContainer">
+          <label for="description" class="form-label"><strong><?php echo TFISH_DESCRIPTION; ?></strong></label>
+          <textarea id="description" name="content[description]" class="form-control text-start"></textarea>
         </div>
 
         <!-- Creator (author) -->
-        <div class="col-md-6 mb-3 text-left" id="creatorContainer">
-          <label for="creator"><strong><?php echo TFISH_CREATOR; ?></strong></label>
+        <div class="col-md-6 mb-3 text-start" id="creatorContainer">
+          <label for="creator" class="form-label"><strong><?php echo TFISH_CREATOR; ?></strong></label>
           <input type="text" class="form-control" name="content[creator]" id="creator">
         </div>
 
         <!-- Publisher -->
-        <div class="col-md-6 mb-3 text-left" id="publisherContainer">
-          <label for="publisher"><strong><?php echo TFISH_PUBLISHER; ?></strong></label>
+        <div class="col-md-6 mb-3 text-start" id="publisherContainer">
+          <label for="publisher" class="form-label"><strong><?php echo TFISH_PUBLISHER; ?></strong></label>
           <input type="text" class="form-control" name="content[publisher]" id="publisher" value="<?php echo xss($viewModel->siteAuthor()); ?>">
         </div>
 
         <!-- Parent -->
-        <div class="col-12 mb-3 text-left" id="parentContainer">
-          <label for="publisher"><strong><?php echo TFISH_PARENT; ?></strong></label>
-          <select class="form-control custom-select" name="content[parent]" id="parent">
+        <div class="col-12 mb-3 text-start" id="parentContainer">
+          <label for="parent" class="form-label"><strong><?php echo TFISH_PARENT; ?></strong></label>
+          <select class="form-select" name="content[parent]" id="parent">
           <?php foreach ($viewModel->parentOptions() as $key => $option): ?>
               <option value="<?php echo xss($key); ?>"><?php echo xss($option); ?></option>
           <?php endforeach; ?>
@@ -129,8 +128,8 @@
         </div>
 
         <!-- Image -->
-        <div class="col-md-6 mb-3 text-left" id="imageContainer">
-          <label for="image"><strong><?php echo TFISH_IMAGE; ?></strong></label>
+        <div class="col-md-6 mb-3 text-start" id="imageContainer">
+          <label for="image" class="form-label"><strong><?php echo TFISH_IMAGE; ?></strong></label>
           <input id="image" name="content[image]" type="file" data-preview-file-type="text">
         </div>
         <script>
@@ -147,8 +146,8 @@
         </script>
 
         <!-- Media -->
-        <div class="col-md-6 mb-3 text-left" id="mediaContainer">
-          <label for="media"><span class="alert2 text-danger d-none  hide"><i class="fas fa-exclamation-triangle" title="<?php echo TFISH_MEDIA_NOT_COMPATIBLE; ?>"></i> </span><strong><?php echo TFISH_MEDIA; ?></strong></label>
+        <div class="col-md-6 mb-3 text-start" id="mediaContainer">
+          <label for="media" class="form-label"><span class="alert2 text-danger d-none"><i class="fas fa-exclamation-triangle" title="<?php echo TFISH_MEDIA_NOT_COMPATIBLE; ?>"></i> </span><strong><?php echo TFISH_MEDIA; ?></strong></label>
           <input id="media" name="content[media]" type="file" data-preview-file-type="text" >
         </div>
         <script>
@@ -167,42 +166,40 @@
         </script>
 
         <!-- External media -->
-        <div class="col-12 mb-3 text-left" id="externalMediaContainer">
-          <label for="externalMediaContainer"><strong><?php echo TFISH_EXTERNAL_MEDIA; ?></strong></label>
+        <div class="col-12 mb-3 text-start" id="externalMediaContainer">
+          <label for="externalMedia" class="form-label"><strong><?php echo TFISH_EXTERNAL_MEDIA; ?></strong></label>
           <input type="text" class="form-control" name="content[externalMedia]" id="externalMedia">
         </div>
 
         <!-- Caption -->
-        <div class="col-md-6 mb-3 text-left" id="captionContainer">
-          <label for="caption"><strong><?php echo TFISH_CAPTION; ?></strong></label>
+        <div class="col-md-6 mb-3 text-start" id="captionContainer">
+          <label for="caption" class="form-label"><strong><?php echo TFISH_CAPTION; ?></strong></label>
           <input type="text" class="form-control" name="content[caption]" id="caption">
         </div>
 
         <!-- Rights -->
-        <div class="col-md-6 mb-3 text-left" id="rightsContainer">
-          <label for="rights"><strong><?php echo TFISH_RIGHTS; ?></strong></label>
-          <select class="form-control custom-select" name="content[rights]" id="rights" required>
+        <div class="col-md-6 mb-3 text-start" id="rightsContainer">
+          <label for="rights" class="form-label"><strong><?php echo TFISH_RIGHTS; ?></strong></label>
+          <select class="form-select" name="content[rights]" id="rights" required>
             <?php foreach ($content->listRights() as $key => $right) { echo '<option value="' . xss($key) . '">' . xss($right) . '</option>';} ?>
           </select>
         </div>
 
         <!-- Language -->
-        <div class="col-md-6 mb-3 text-left" id="languageContainer">
-          <label for="language"><strong><?php echo TFISH_LANGUAGE; ?></strong></label>
-            <select class="form-control custom-select" name="content[language]" id="language" required>
-              <?php
-                  foreach ($content->listLanguages() as $key => $value) {
-                    if (!empty($content->language()) && $content->language() === $key) {
-                      echo '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>';
-                    } else {}
-                      echo '<option value="' . xss($key) . '">' . xss($value) . '</option>';
-                  }
-              ?>
+        <div class="col-md-6 mb-3 text-start" id="languageContainer">
+          <label for="language" class="form-label"><strong><?php echo TFISH_LANGUAGE; ?></strong></label>
+            <select class="form-select" name="content[language]" id="language" required>
+              <?php foreach ($content->listLanguages() as $key => $value): ?>
+                <option value="<?php echo xss($key); ?>" <?php echo (!empty($content->language()) && $content->language() === $key) ? 'selected' : ''; ?>>
+                  <?php echo xss($value); ?>
+                </option>
+              <?php endforeach; ?>
+
             </select>
         </div>
 
         <!-- In feed -->
-        <div class="col-md-3 mb-3 text-left" id="inFeedContainer">
+        <div class="col-md-3 mb-3 text-start" id="inFeedContainer">
           <p><strong><?php echo TFISH_IN_FEED; ?></strong></p>
           <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" id="inFeed" name="content[inFeed]" value="1" checked>
@@ -215,7 +212,7 @@
         </div>
 
         <!-- Online status -->
-        <div class="col-md-3 mb-3 text-left" id="onlineContainer">
+        <div class="col-md-3 mb-3 text-start" id="onlineContainer">
           <p><strong><?php echo TFISH_ONLINE_STATUS; ?></strong></p>
           <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" id="online" name="content[onlineStatus]" value="1" checked>
@@ -236,25 +233,25 @@
         </div>
 
         <!-- Meta title -->
-        <div class="col-md-6 mb-3 text-left" id="metaTitleContainer">
-          <label for="metaTitle"><strong><?php echo TFISH_META_TITLE; ?></strong></label>
+        <div class="col-md-6 mb-3 text-start" id="metaTitleContainer">
+          <label for="metaTitle" class="form-label"><strong><?php echo TFISH_META_TITLE; ?></strong></label>
           <input type="text" class="form-control" name="content[metaTitle]" id="metaTitle">
         </div>
 
         <!-- SEO -->
-        <div class="col-md-6 mb-3 text-left" id="seoContainer">
-          <label for="metaSeo"><strong><?php echo TFISH_SEO; ?></strong></label>
+        <div class="col-md-6 mb-3 text-start" id="seoContainer">
+          <label for="metaSeo" class="form-label"><strong><?php echo TFISH_SEO; ?></strong></label>
           <input type="text" class="form-control" name="content[metaSeo]" id="metaSeo">
         </div>
 
         <!-- Meta description -->
-        <div class="col-12 mb-3 text-left" id="metaDescriptionContainer">
-          <label for="metaDescription"><strong><?php echo TFISH_META_DESCRIPTION; ?></strong></label>
+        <div class="col-12 mb-3 text-start" id="metaDescriptionContainer">
+          <label for="metaDescription" class="form-label"><strong><?php echo TFISH_META_DESCRIPTION; ?></strong></label>
           <input type="text" class="form-control" name="content[metaDescription]" id="metaDescription">
         </div>
 
         <!-- Meta description counter -->
-        <div class="col-12 mb-3 text-left" id="metaCounter"></div>
+        <div class="col-12 mb-3 text-start" id="metaCounter"></div>
 
       </div> <!-- /row -->
 
