@@ -11,57 +11,57 @@
   </div>
 </div>
 
-<form class="form-horizontal" action="<?php echo TFISH_PREFERENCE_EDIT_URL; ?>" method="post" enctype="multipart/form-data" role="form" accept-charset="UTF-8">
+<form action="<?php echo TFISH_PREFERENCE_EDIT_URL; ?>" method="post" accept-charset="UTF-8">
 
   <div class="row">
 
     <!-- Site name -->
-    <div class="col-12 mb-3 text-left">
-      <label for="siteName"><strong><?php echo TFISH_PREFERENCE_SITE_NAME; ?></strong></label>
-      <input type="text" class="form-control" name="preference[siteName]" id="firstName" <?php if (!empty($preference->siteName())) { echo 'value="' . xss($preference->siteName()) . '"'; } ?> required>
+    <div class="col-12 mb-3 text-start">
+      <label for="siteName" class="form-label"><strong><?php echo TFISH_PREFERENCE_SITE_NAME; ?></strong></label>
+      <input type="text" class="form-control" name="preference[siteName]" id="siteName" <?php if (!empty($preference->siteName())) { echo 'value="' . xss($preference->siteName()) . '"'; } ?> required>
     </div>
 
     <!-- Site description -->
-    <div class="col-12 mb-3 text-left">
-      <label for="siteDescription"><strong><?php echo TFISH_PREFERENCE_SITE_DESCRIPTION; ?></strong></label>
+    <div class="col-12 mb-3 text-start">
+      <label for="siteDescription" class="form-label"><strong><?php echo TFISH_PREFERENCE_SITE_DESCRIPTION; ?></strong></label>
       <input type="text" class="form-control" name="preference[siteDescription]" id="siteDescription" <?php if (!empty($preference->siteDescription())) { echo 'value="' . xss($preference->siteDescription()) . '"'; } ?> required>
     </div>
 
     <!-- Site author -->
-    <div class="col-md-6 mb-3 text-left">
-      <label for="siteAuthor"><strong><?php echo TFISH_PREFERENCE_SITE_AUTHOR; ?></strong></label>
+    <div class="col-md-6 mb-3 text-start">
+      <label for="siteAuthor" class="form-label"><strong><?php echo TFISH_PREFERENCE_SITE_AUTHOR; ?></strong></label>
       <input type="text" class="form-control" name="preference[siteAuthor]" id="siteAuthor" <?php if (!empty($preference->siteAuthor())) { echo 'value="' . xss($preference->siteAuthor()) . '"'; } ?> required>
     </div>
 
     <!-- Site email -->
-    <div class="col-md-6 mb-3 text-left">
-      <label for="siteEmail"><strong><?php echo TFISH_PREFERENCE_SITE_EMAIL; ?></strong></label>
-      <input type="text" class="form-control" name="preference[siteEmail]" id="siteEmail" <?php if (!empty($preference->siteEmail())) { echo 'value="' . xss($preference->siteEmail()) . '"'; } ?> required>
+    <div class="col-md-6 mb-3 text-start">
+      <label for="siteEmail" class="form-label"><strong><?php echo TFISH_PREFERENCE_SITE_EMAIL; ?></strong></label>
+      <input type="email" class="form-control" name="preference[siteEmail]" id="siteEmail" <?php if (!empty($preference->siteEmail())) { echo 'value="' . xss($preference->siteEmail()) . '"'; } ?> required>
     </div>
 
     <!-- Site copyright -->
-    <div class="col-sm-12 col-md-8 mb-3 text-left">
-      <label for="siteCopyright"><strong><?php echo TFISH_PREFERENCE_SITE_COPYRIGHT; ?></strong></label>
+    <div class="col-sm-12 col-md-8 mb-3 text-start">
+      <label for="siteCopyright" class="form-label"><strong><?php echo TFISH_PREFERENCE_SITE_COPYRIGHT; ?></strong></label>
       <input type="text" class="form-control" name="preference[siteCopyright]" id="siteCopyright" <?php if (!empty($preference->siteCopyright())) { echo 'value="' . xss($preference->siteCopyright()) . '"'; } ?> required>
     </div>
 
     <!-- Close site -->
-    <div class="col-sm-12 col-md-4 mb-3 text-left">
+    <div class="col-sm-12 col-md-4 mb-3 text-start">
       <p><strong><?php echo TFISH_PREFERENCE_CLOSE_SITE; ?></strong></p>
       <div class="form-check form-check-inline">
         <input type="radio" class="form-check-input" id="closed" name="preference[closeSite]" value="1" <?php if ($preference->closeSite()) { echo 'checked'; } ?> required>
         <label class="form-check-label" for="closed"><?php echo TFISH_YES; ?></label>
       </div>
       <div class="form-check form-check-inline">
-        <input type="radio" class="form-check-input" id="open" name="preference[closeSite]" value="0" <?php if (!$preference->closeSite()) { echo 'checked'; } ?> required>
+        <input type="radio" class="form-check-input" id="open" name="preference[closeSite]" value="0" <?php if (!$preference->closeSite()) { echo 'checked'; } ?>>
         <label class="form-check-label" for="open"><?php echo TFISH_NO; ?></label>
       </div>
     </div>
 
     <!-- Server timezone -->
-    <div class="col-md-6 col-lg-4 mb-3 text-left">
-      <label for="serverTimezone"><strong><?php echo TFISH_PREFERENCE_SERVER_TIMEZONE; ?></strong></label>
-      <select class="form-control custom-select" name="preference[serverTimezone]" id="serverTimezone" required>
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <label for="serverTimezone" class="form-label"><strong><?php echo TFISH_PREFERENCE_SERVER_TIMEZONE; ?></strong></label>
+      <select class="form-select" name="preference[serverTimezone]" id="serverTimezone" required>
       <?php
         foreach ($preference->listTimezones() as $key => $value) {
           if ((string) $preference->serverTimezone() === (string) $key) {
@@ -76,9 +76,9 @@
     </div>
 
     <!-- Site timezone -->
-    <div class="col-md-6 col-lg-4 mb-3 text-left">
-      <label for="siteTimezone"><strong><?php echo TFISH_PREFERENCE_SITE_TIMEZONE; ?></strong></label>
-      <select class="form-control custom-select" name="preference[siteTimezone]" id="siteTimezone" required>
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <label for="siteTimezone" class="form-label"><strong><?php echo TFISH_PREFERENCE_SITE_TIMEZONE; ?></strong></label>
+      <select class="form-select" name="preference[siteTimezone]" id="siteTimezone" required>
         <?php
           foreach ($preference->listTimezones() as $key => $value) {
             if ((string) $preference->siteTimezone() === (string) $key) {
@@ -93,75 +93,75 @@
     </div>
 
     <!-- Minimum search length -->
-    <div class="col-md-6 col-lg-4 mb-3 text-left">
-      <label for="minSearchLength"><strong><?php echo TFISH_PREFERENCE_MIN_SEARCH_LENGTH; ?></strong></label>
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <label for="minSearchLength" class="form-label"><strong><?php echo TFISH_PREFERENCE_MIN_SEARCH_LENGTH; ?></strong></label>
       <input type="number" min="3" class="form-control" name="preference[minSearchLength]" id="minSearchLength" <?php if (!empty($preference->minSearchLength())) { echo 'value="' . xss($preference->minSearchLength()) . '"'; } ?> required>
     </div>
 
     <!-- Search pagination -->
-    <div class="col-md-6 col-lg-4 mb-3 text-left">
-      <label for="searchPagination"><strong><?php echo TFISH_PREFERENCE_SEARCH_PAGINATION; ?></strong></label>
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <label for="searchPagination" class="form-label"><strong><?php echo TFISH_PREFERENCE_SEARCH_PAGINATION; ?></strong></label>
       <input type="number" min="1" class="form-control" name="preference[searchPagination]" id="searchPagination" <?php if (!empty($preference->searchPagination())) { echo 'value="' . xss($preference->searchPagination()) . '"'; } ?> required>
     </div>
 
     <!-- User pagination -->
-    <div class="col-md-6 col-lg-4 mb-3 text-left">
-      <label for="userPagination"><strong><?php echo TFISH_PREFERENCE_USER_PAGINATION; ?></strong></label>
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <label for="userPagination" class="form-label"><strong><?php echo TFISH_PREFERENCE_USER_PAGINATION; ?></strong></label>
       <input type="number" min="1" class="form-control" name="preference[userPagination]" id="userPagination" <?php if (!empty($preference->userPagination())) { echo 'value="' . xss($preference->userPagination()) . '"'; } ?> required>
     </div>
 
     <!-- Collection pagination -->
-    <div class="col-md-6 col-lg-4 mb-3 text-left">
-      <label for="collectionPagination"><strong><?php echo TFISH_PREFERENCE_COLLECTION_PAGINATION; ?></strong></label>
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <label for="collectionPagination" class="form-label"><strong><?php echo TFISH_PREFERENCE_COLLECTION_PAGINATION; ?></strong></label>
       <input type="number" min="1" class="form-control" name="preference[collectionPagination]" id="collectionPagination" <?php if (!empty($preference->collectionPagination())) { echo 'value="' . xss($preference->collectionPagination()) . '"'; } ?> required>
     </div>
 
     <!-- Gallery pagination -->
-    <div class="col-md-6 col-lg-4 mb-3 text-left">
-      <label for="galleryPagination"><strong><?php echo TFISH_PREFERENCE_GALLERY_PAGINATION; ?></strong></label>
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <label for="galleryPagination" class="form-label"><strong><?php echo TFISH_PREFERENCE_GALLERY_PAGINATION; ?></strong></label>
       <input type="number" min="1" class="form-control" name="preference[galleryPagination]" id="galleryPagination" <?php if (!empty($preference->galleryPagination())) { echo 'value="' . xss($preference->galleryPagination()) . '"'; } ?> required>
     </div>
 
     <!-- Admin pagination -->
-    <div class="col-md-6 col-lg-4 mb-3 text-left">
-      <label for="adminPagination"><strong><?php echo TFISH_PREFERENCE_ADMIN_PAGINATION; ?></strong></label>
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <label for="adminPagination" class="form-label"><strong><?php echo TFISH_PREFERENCE_ADMIN_PAGINATION; ?></strong></label>
       <input type="number" min="1" class="form-control" name="preference[adminPagination]" id="adminPagination" <?php if (!empty($preference->adminPagination())) { echo 'value="' . xss($preference->adminPagination()) . '"'; } ?> required>
     </div>
 
     <!-- Maximum number of elements in the pagination control -->
-    <div class="col-md-6 col-lg-4 mb-3 text-left">
-      <label for="paginationElements"><strong><?php echo TFISH_PREFERENCE_PAGINATION_ELEMENTS; ?></strong></label>
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <label for="paginationElements" class="form-label"><strong><?php echo TFISH_PREFERENCE_PAGINATION_ELEMENTS; ?></strong></label>
       <input type="number" min="3" class="form-control" name="preference[paginationElements]" id="paginationElements" <?php if (!empty($preference->paginationElements())) { echo 'value="' . xss($preference->paginationElements()) . '"'; } ?> required>
     </div>
 
     <!-- Threshold views before displaying the views counter -->
-    <div class="col-md-6 col-lg-4 mb-3 text-left">
-      <label for="minimumViews"><strong><?php echo TFISH_PREFERENCE_MINIMUM_VIEWS; ?></strong></label>
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <label for="minimumViews" class="form-label"><strong><?php echo TFISH_PREFERENCE_MINIMUM_VIEWS; ?></strong></label>
       <input type="number" min="0" class="form-control" name="preference[minimumViews]" id="minimumViews" <?php if (null !== ($preference->minimumViews())) { echo 'value="' . xss($preference->minimumViews()) . '"'; } ?> required>
     </div>
 
     <!-- Number of posts to be included in RSS feeds -->
-    <div class="col-md-6 col-lg-4 mb-3 text-left">
-      <label for="rssPosts"><strong><?php echo TFISH_PREFERENCE_RSS_POSTS; ?></strong></label>
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <label for="rssPosts" class="form-label"><strong><?php echo TFISH_PREFERENCE_RSS_POSTS; ?></strong></label>
       <input type="number" min="3" class="form-control" name="preference[rssPosts]" id="rssPosts" <?php if (!empty($preference->rssPosts())) { echo 'value="' . xss($preference->rssPosts()) . '"'; } ?> required>
     </div>
 
     <!-- Session name -->
-    <div class="col-md-6 col-lg-4 mb-3 text-left">
-      <label for="sessionName"><strong><?php echo TFISH_PREFERENCE_SESSION_NAME; ?></strong></label>
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <label for="sessionName" class="form-label"><strong><?php echo TFISH_PREFERENCE_SESSION_NAME; ?></strong></label>
       <input type="text" class="form-control" name="preference[sessionName]" id="sessionName" <?php if (!empty($preference->sessionName())) { echo 'value="' . xss($preference->sessionName()) . '"'; } ?> required>
     </div>
 
     <!-- Session life -->
-    <div class="col-md-6 col-lg-4 mb-3 text-left">
-      <label for="sessionLife"><strong><?php echo TFISH_PREFERENCE_SESSION_LIFE; ?></strong></label>
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <label for="sessionLife" class="form-label"><strong><?php echo TFISH_PREFERENCE_SESSION_LIFE; ?></strong></label>
       <input type="number" min="0" class="form-control" name="preference[sessionLife]" id="sessionLife" <?php if (!empty($preference->sessionLife())) { echo 'value="' . xss($preference->sessionLife()) . '"'; } ?> required>
     </div>
 
     <!-- Default language -->
-    <div class="col-md-6 col-lg-4 mb-3 text-left">
-      <label for="defaultLanguage"><strong><?php echo TFISH_PREFERENCE_DEFAULT_LANGUAGE; ?></strong></label>
-      <select class="form-control custom-select" name="preference[defaultLanguage]" id="defaultLanguage" required>
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <label for="defaultLanguage" class="form-label"><strong><?php echo TFISH_PREFERENCE_DEFAULT_LANGUAGE; ?></strong></label>
+      <select class="form-select" name="preference[defaultLanguage]" id="defaultLanguage" required>
         <?php
           foreach ($preference->listLanguages() as $key => $value) {
             if (!empty($preference->defaultLanguage()) && $preference->defaultLanguage() === $key) {
@@ -175,40 +175,40 @@
     </div>
 
     <!-- Date format (template) -->
-    <div class="col-md-12 col-lg-4 mb-3 text-left">
-      <label for="siteName"><strong><?php echo TFISH_PREFERENCE_DATE_FORMAT; ?></strong></label>
+    <div class="col-md-12 col-lg-4 mb-3 text-start">
+      <label for="dateFormat" class="form-label"><strong><?php echo TFISH_PREFERENCE_DATE_FORMAT; ?></strong></label>
       <input type="text" class="form-control" name="preference[dateFormat]" id="dateFormat" <?php if (!empty($preference->dateFormat())) { echo 'value="' . xss($preference->dateFormat()) . '"'; } ?> required>
     </div>
 
     <!-- Enable cache -->
-    <div class="col-md-6 col-lg-4 mb-3 text-left">
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
       <p><strong><?php echo TFISH_PREFERENCE_ENABLE_CACHE; ?></strong></p>
       <div class="form-check form-check-inline">
           <input type="radio" class="form-check-input" id="enabled" name="preference[enableCache]" value="1" <?php if ($preference->enableCache()) { echo 'checked'; } ?> required>
         <label class="form-check-label" for="enabled"><?php echo TFISH_YES; ?></label>
       </div>
       <div class="form-check form-check-inline">
-          <input type="radio" class="form-check-input" id="disabled" name="preference[enableCache]" value="0" <?php if (!$preference->enableCache()) { echo 'checked'; } ?> required>
+          <input type="radio" class="form-check-input" id="disabled" name="preference[enableCache]" value="0" <?php if (!$preference->enableCache()) { echo 'checked'; } ?>>
         <label class="form-check-label" for="disabled"><?php echo TFISH_NO; ?></label>
       </div>
     </div>
 
     <!-- Cache life -->
-    <div class="col-md-6 col-lg-4 mb-3 text-left">
-      <label for="cacheLife"><strong><?php echo TFISH_PREFERENCE_CACHE_LIFE; ?></strong></label>
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <label for="cacheLife" class="form-label"><strong><?php echo TFISH_PREFERENCE_CACHE_LIFE; ?></strong></label>
       <input type="number" min="1" class="form-control" name="preference[cacheLife]" id="cacheLife" <?php if (!empty($preference->cacheLife())) { echo 'value="' . xss($preference->cacheLife()) . '"'; } ?> required>
     </div>
 
     <!-- Google Maps API key -->
-    <div class="col-md-6 col-lg-4 mb-3 text-left">
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
       <label for="mapsApiKey"><strong><?php echo TFISH_PREFERENCE_MAPS_API_KEY; ?></strong></label>
       <input type="text" class="form-control" name="preference[mapsApiKey]" id="mapsApiKey" <?php if (!empty($preference->mapsApiKey())) { echo 'value="' . xss($preference->mapsApiKey()) . '"'; } ?>>
     </div>
 
       <!-- Admin theme -->
-      <div class="col-md-6 col-lg-4 mb-3 text-left">
-        <label for="adminTheme"><strong><?php echo TFISH_PREFERENCE_ADMIN_THEME; ?></strong></label>
-        <select class="form-control custom-select" name="preference[adminTheme]" id="adminTheme" required>
+      <div class="col-md-6 col-lg-4 mb-3 text-start">
+        <label for="adminTheme" class="form-label"><strong><?php echo TFISH_PREFERENCE_ADMIN_THEME; ?></strong></label>
+        <select class="form-select" name="preference[adminTheme]" id="adminTheme" required>
         <?php
           echo '<option value="admin" selected>admin</option>';
         ?>
@@ -216,9 +216,9 @@
       </div>
 
       <!-- Default theme -->
-      <div class="col-md-6 col-lg-4 mb-3 text-left">
-        <label for="defaultTheme"><strong><?php echo TFISH_PREFERENCE_DEFAULT_THEME; ?></strong></label>
-        <select class="form-control custom-select" name="preference[defaultTheme]" id="defaultTheme" required>
+      <div class="col-md-6 col-lg-4 mb-3 text-start">
+        <label for="defaultTheme" class="form-label"><strong><?php echo TFISH_PREFERENCE_DEFAULT_THEME; ?></strong></label>
+        <select class="form-select" name="preference[defaultTheme]" id="defaultTheme" required>
         <?php
           foreach ($viewModel->listThemes() as $value) {
             if ((string) $preference->defaultTheme() === (string) $value) {
@@ -233,8 +233,8 @@
       </div>
 
     <!-- Update / cancel buttons -->
-    <div class="col-12 text-left clearfix">
-      <input type="hidden" name="token" value="<?php echo $_SESSION['token']; ?>" />
+    <div class="col-12 text-start">
+      <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
       <button name="action" value="update" type="submit" class="btn btn-warning"><?php echo TFISH_UPDATE; ?></button>
       <button name="action" value="cancel" type="submit" class="btn btn-danger" formnovalidate><?php echo TFISH_CANCEL; ?></button>
     </div>

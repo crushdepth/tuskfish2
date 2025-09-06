@@ -12,11 +12,11 @@
 </div>
 
 <div>
-  <table class="table table-bordered table-striped text-left">
+  <table class="table table-bordered table-striped text-start">
     <thead class="table-primary">
       <tr>
-        <th><?php echo TFISH_PREFERENCE; ?></th>
-        <th><?php echo TFISH_PREFERENCE_VALUE; ?></th>
+        <th scope="col"><?php echo TFISH_PREFERENCE; ?></th>
+        <th scope="col"><?php echo TFISH_PREFERENCE_VALUE; ?></th>
       </tr>
     </thead>
     <tbody>
@@ -129,10 +129,13 @@
 </div>
 
 <div class="form-buttons clearfix">
-  <form class="form-horizontal" action="<?php echo TFISH_PREFERENCE_EDIT_URL; ?>" method="post" enctype="multipart/form-data" role="form">
+  <form action="<?php echo TFISH_PREFERENCE_EDIT_URL; ?>" method="post">
     <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
-    <button name="action" value="display" type="submit" class="btn btn-primary float-start">
-    <?php echo TFISH_PREFERENCE_EDIT_PREFERENCES; ?></button>
+    <div class="d-flex justify-content-start">
+      <button name="action" value="display" type="submit" class="btn btn-primary">
+        <?php echo TFISH_PREFERENCE_EDIT_PREFERENCES; ?>
+      </button>
+    </div>
   </form>
 </div>
 
