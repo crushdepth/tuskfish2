@@ -12,10 +12,10 @@
 <!-- Advanced search form -->
 <div class="row justify-content-center">
   <div class="col-md-4">
-    <form class="form-horizontal" action="" method="get" role="form" accept-charset="UTF-8">
+    <form action="" method="get" accept-charset="UTF-8">
 
       <!-- Search terms -->
-      <div class="form-group input-group">
+      <div>
         <input type="text" class="form-control" name="searchTerms" id="searchTerms"
           <?php if ($searchTerms = $viewModel->searchTermsForForm()): ?>
             value="<?php echo htmlspecialchars($searchTerms, ENT_QUOTES, "UTF-8", false); ?>"
@@ -26,18 +26,18 @@
       </div>
 
       <!-- Search type -->
-      <div class="form-group input-group">
-        <select class="form-control custom-select" name="searchType" id="searchType">
-          <option <?php if (isset($type) && $type === "AND") echo "selected"; ?> value="AND"><?php echo TFISH_SEARCH_ALL; ?></option>
-          <option <?php if (isset($type) && $type === "OR") echo "selected"; ?> value="OR"><?php echo TFISH_SEARCH_ANY; ?></option>
-          <option <?php if (isset($type) && $type === "exact") echo "selected"; ?> value="exact"><?php echo TFISH_SEARCH_EXACT; ?></option>
-          </select>
+      <div>
+        <select class="form-select" name="searchType" id="searchType">
+        <option <?php if ($viewModel->searchType() === "AND") echo "selected"; ?> value="AND"><?php echo TFISH_SEARCH_ALL; ?></option>
+        <option <?php if ($viewModel->searchType() === "OR") echo "selected"; ?> value="OR"><?php echo TFISH_SEARCH_ANY; ?></option>
+        <option <?php if ($viewModel->searchType() === "exact") echo "selected"; ?> value="exact"><?php echo TFISH_SEARCH_EXACT; ?></option>
+      </select>
       </div>
 
       <!-- Submit -->
-      <div class="form-group mt-3 clearfix">
-          <input type="hidden" name="action" value="search" />
-          <button type="submit" class="btn btn-primary float-start"><?php echo TFISH_SEARCH ?></button>
+      <div class="mt-3 clearfix">
+        <input type="hidden" name="action" value="search" />
+        <button type="submit" class="btn btn-primary float-start"><?php echo TFISH_SEARCH ?></button>
       </div>
 
     </form>
@@ -49,7 +49,7 @@
 <div class="row">
   <div class="col">
     <hr>
-    <div class="text-left">
+    <div class="text-start">
         <?php if ($searchResults = $viewModel->searchResults()): ?>
         <h2><?php echo xss($viewModel->contentCount()) . ' ' . TFISH_SEARCH_RESULTS . ':'; ?></h2><hr>
         <?php else: ?>
@@ -63,35 +63,35 @@
 
 <?php if ($pagination ?? null): ?>
 <div class="row">
-  <div class="col d-flex justify-content-end pagination-top clearfix">
+  <div class="col d-flex justify-content-end pagination-top">
     <?php echo $pagination; ?>
   </div>
 </div>
 <?php endif; ?>
 
 <div class="row">
-  <div class="col main-content clearfix">
-  <table class="table table-bordered table-striped table-hover text-left">
+  <div class="col main-content">
+  <table class="table table-bordered table-striped table-hover text-start">
     <thead class="table-primary">
       <tr>
-        <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_ID; ?></th>
-        <th><?php echo TFISH_TYPE; ?></th>
-        <th><?php echo TFISH_TITLE; ?></th>
-        <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_SUBMISSION_TIME; ?></th>
-        <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_EXPIRES; ?></th>
-        <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_COUNTER; ?></th>
-        <th class="text-center"><?php echo TFISH_ONLINE; ?></th>
-        <th colspan="2" class="text-center"><?php echo TFISH_ACTION; ?></th>
+        <th scope="col" class="d-none d-md-table-cell"><?php echo TFISH_ID; ?></th>
+        <th scope="col"><?php echo TFISH_TYPE; ?></th>
+        <th scope="col"><?php echo TFISH_TITLE; ?></th>
+        <th scope="col" class="d-none d-md-table-cell"><?php echo TFISH_SUBMISSION_TIME; ?></th>
+        <th scope="col" class="d-none d-md-table-cell"><?php echo TFISH_EXPIRES; ?></th>
+        <th scope="col" class="d-none d-md-table-cell"><?php echo TFISH_COUNTER; ?></th>
+        <th scope="col" class="text-center"><?php echo TFISH_ONLINE; ?></th>
+        <th scope="col" colspan="2" class="text-center"><?php echo TFISH_ACTION; ?></th>
       </tr>
       </thead>
     <tbody>
-    <?php foreach($viewModel->searchResults() as &$content): ?>
+    <?php foreach($searchResults as &$content): ?>
       <tr>
-        <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($content->id()); ?></td>
+        <td class="d-none d-md-table-cell"><?php echo xss($content->id()); ?></td>
         <td><?php echo xss($viewModel->listTypes()[$content->type()]); ?></td>
         <td><a href="<?php echo TFISH_URL . '?id=' . xss($content->id()); ?>"><?php echo xss($content->title()); ?></a></td>
-        <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss(\date($viewModel->dateFormat(), (int) $content->submissionTime())); ?></td>
-        <td class="d-none d-md-table-cell d-lg-table-call d=xl-table-cell">
+        <td class="d-none d-md-table-cell"><?php echo xss(\date($viewModel->dateFormat(), (int) $content->submissionTime())); ?></td>
+        <td class="d-none d-md-table-cell">
             <?php if (!empty($content->expiresOn())):
                 echo xss($content->expiresOn()->format('j M Y'));
               else:
@@ -99,7 +99,7 @@
               endif;
             ?>
         </td>
-        <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($content->counter()); ?></td>
+        <td class="d-none d-md-table-cell"><?php echo xss($content->counter()); ?></td>
         <?php if ($content->onlineStatus()): ?>
         <td class="text-center">
           <a class="text-success" hx-post="<?php echo TFISH_ADMIN_URL; ?>?action=toggle" target="closest td"
@@ -115,9 +115,8 @@
         <?php endif; ?>
         <td class="text-center"><a href="<?php echo TFISH_ADMIN_URL . 'content/'; ?>?action=edit&amp;id=<?php echo xss($content->id()); ?>"><i class="fas fa-edit"></i></a></td>
         <td class="text-center"><a href="<?php echo TFISH_ADMIN_URL; ?>?action=confirmDelete&amp;id=<?php echo xss($content->id()); ?>"><i class="fas fa-trash-alt"></i></a></td>
-        <?php unset($content); ?>
       </tr>
-    <?php endforeach; ?>
+    <?php endforeach; unset($content); ?>
     </tbody>
   </table>
   </div>
@@ -125,7 +124,7 @@
 
 <?php if ($pagination ?? null): ?>
 <div class="row">
-  <div class="col d-flex justify-content-end pagination-bottom clearfix">
+  <div class="col d-flex justify-content-end pagination-bottom">
     <?php echo $pagination; ?>
   </div>
 </div>
