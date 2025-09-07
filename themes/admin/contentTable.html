@@ -11,12 +11,12 @@
 
 <!-- Select filters -->
 <div class="row">
-  <div class="col col-md-12 col-lg-8 mx-auto select-filters">
-    <form class="form-horizontal" name="selectFilters" method="post">
+  <div class="col col-lg-8 mx-auto select-filters">
+    <form name="selectFilters" method="post">
       <div class="row">
 
         <div class="col-md-4">
-          <select class="form-control custom-select" name="tag" id="tag" onchange="this.form.submit()">
+          <select class="form-select" name="tag" id="tag" onchange="this.form.submit()">
           <?php foreach ($viewModel->tagOptions() as $key => $value) {
             echo ($key === $viewModel->tag()) ?
               '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>' :
@@ -26,7 +26,7 @@
         </div>
 
         <div class="col-md-4">
-          <select class="form-control custom-select" name="type" id="type" onchange="this.form.submit()">
+          <select class="form-select" name="type" id="type" onchange="this.form.submit()">
           <?php
             foreach ($viewModel->typeOptions() as $key => $value) {
               echo ($key === $viewModel->type()) ?
@@ -38,7 +38,7 @@
         </div>
 
         <div class="col-md-4">
-          <select class="form-control custom-select" name="onlineStatus" id="onlineStatus" onchange="this.form.submit()">
+          <select class="form-select" name="onlineStatus" id="onlineStatus" onchange="this.form.submit()">
           <?php
             foreach ($viewModel->statusOptions() as $key => $value) {
               echo ($key === $viewModel->onlineStatus()) ?
@@ -56,7 +56,7 @@
 
 <?php if ($pagination ?? null): ?>
 <div class="row">
-  <div class="col d-flex justify-content-end pagination-top clearfix">
+  <div class="col d-flex justify-content-end pagination-top">
     <?php echo $pagination; ?>
   </div>
 </div>
@@ -72,19 +72,19 @@
 </div>
 
 <div class="row">
-  <div class="col main-content clearfix">
-  <table class="table table-bordered table-striped table-hover text-left">
+  <div class="col main-content">
+  <table class="table table-bordered table-striped table-hover text-start">
     <thead class="table-primary">
       <tr>
-        <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_ID; ?></th>
-        <th><?php echo TFISH_TYPE; ?></th>
-        <th><?php echo TFISH_TITLE; ?></th>
-        <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_SUBMISSION_TIME; ?></th>
-        <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_EXPIRES; ?></th>
-        <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_COUNTER; ?></th>
-        <th class="text-center"><?php echo TFISH_IN_FEED_SHORT; ?></th>
-        <th class="text-center"><?php echo TFISH_ONLINE; ?></th>
-        <th colspan="2" class="text-center"><?php echo TFISH_ACTION; ?></th>
+        <th scope="col" class="d-none d-md-table-cell"><?php echo TFISH_ID; ?></th>
+        <th scope="col"><?php echo TFISH_TYPE; ?></th>
+        <th scope="col"><?php echo TFISH_TITLE; ?></th>
+        <th scope="col" class="d-none d-md-table-cell"><?php echo TFISH_SUBMISSION_TIME; ?></th>
+        <th scope="col"  class="d-none d-md-table-cell"><?php echo TFISH_EXPIRES; ?></th>
+        <th scope="col"  class="d-none d-md-table-cell"><?php echo TFISH_COUNTER; ?></th>
+        <th scope="col"  class="text-center"><?php echo TFISH_IN_FEED_SHORT; ?></th>
+        <th scope="col"  class="text-center"><?php echo TFISH_ONLINE; ?></th>
+        <th scope="col"  colspan="2" class="text-center"><?php echo TFISH_ACTION; ?></th>
       </tr>
       </thead>
     <tbody>
@@ -94,7 +94,7 @@
         <td><?php echo xss($viewModel->listTypes()[$row['type']]); ?></td>
         <td><a href="<?php echo TFISH_URL . '?id=' . xss($row['id']); ?>"><?php echo xss($row['title']); ?></a></td>
         <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss(\date('j M Y', (int) $row['submissionTime'])); ?></td>
-        <td class="d-none d-md-table-cell d-lg-table-call d=xl-table-cell">
+        <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell">
           <?php if (!empty($row['expiresOn'])):
               echo xss(\date('j M Y', \strtotime($row['expiresOn'])));
             else:
@@ -144,7 +144,7 @@
 
 <?php if ($pagination ?? null): ?>
 <div class="row">
-  <div class="col d-flex justify-content-end pagination-bottom clearfix">
+  <div class="col d-flex justify-content-end pagination-bottom">
     <?php echo $pagination; ?>
   </div>
 </div>
