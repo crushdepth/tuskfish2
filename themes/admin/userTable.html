@@ -59,9 +59,8 @@
         <td class="text-center"><a href="<?php echo TFISH_ADMIN_USER_URL . 'edit/'; ?>?action=edit&amp;id=<?php echo xss($row['id']); ?>"><i class="icon-pen-to-square"></i></a></td>
         <td class="text-center"><a href="<?php echo TFISH_ADMIN_USER_URL; ?>?action=confirmDelete&amp;id=<?php echo xss($row['id']); ?>"><i class="icon-trash-can"></i></a></td>
         <?php endif; ?>
-        <?php unset($row); ?>
       </tr>
-    <?php endforeach; ?>
+    <?php endforeach; unset($row); ?>
     </tbody>
   </table>
   </div>
