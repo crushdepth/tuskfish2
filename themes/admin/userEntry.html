@@ -11,16 +11,15 @@
   </div>
 </div>
 
-    <form class="form-horizontal" action="<?php echo TFISH_ADMIN_USER_URL . 'edit/'; ?>" method="post"
-      enctype="multipart/form-data" role="form" accept-charset="UTF-8">
+    <form action="<?php echo TFISH_ADMIN_USER_URL . 'edit/'; ?>" method="post" accept-charset="UTF-8">
 
       <!-- Email -->
       <div class="row justify-content-center">
         <div class="col-md-6 mb-3">
           <label for="adminEmail"><strong><?php echo TFISH_EMAIL; ?><span style="color:red">*</span></strong></label>
-          <div class="form-group input-group">
+          <div class="input-group">
             <input type="email" class="form-control" name="content[adminEmail]" id="adminEmail" required>
-            <span class="input-group-text"><i class="fas fa-at"></i></span>
+            <span class="input-group-text"><i class="icon-envelope"></i></span>
           </div>
         </div>
       </div>
@@ -28,9 +27,9 @@
       <!-- Group -->
       <div class="row justify-content-center">
         <div class="col-md-6 mb-3">
-          <label for="password"><strong><?php echo TFISH_USER_GROUP; ?><span style="color:red">*</span></strong></label>
-          <div class="form-group">
-            <select class="form-control" name="content[userGroup]" id="type" required>
+          <label for="group"><strong><?php echo TFISH_USER_GROUP; ?><span style="color:red">*</span></strong></label>
+          <div>
+            <select class="form-select" name="content[userGroup]" id="group" required>
               <option value="" selected disabled hidden><?php echo TFISH_SELECT_GROUP; ?></option>
               <?php
                 $options = $viewModel->listUserGroups();
@@ -44,15 +43,15 @@
         </div>
       </div>
 
-      <!-- Password and login errors -->
+      <!-- Password -->
       <div class="row justify-content-center">
         <div class="col-md-6 mb-3">
           <label for="password"><strong><?php echo TFISH_PASSWORD; ?><span style="color:red">*</span></strong></label>
-            <div class="form-group input-group">
+            <div class="input-group">
             <input type="password" class="form-control" name="content[password]" id="password" minlength="15"
               placeholder="<?php echo TFISH_MINIMUM_CHARACTERS; ?>" required>
-            <input type="hidden" name="loginErrors" value="0">
-            <span class="input-group-text" id="password-addon"><i class="fas fa-lock"></i></span>
+            <input type="hidden" name="content[loginErrors]" value="0">
+            <span class="input-group-text" id="password-addon"><i class="icon-lock"></i></span>
           </div>
         </div>
       </div>
@@ -61,11 +60,11 @@
       <div class="row justify-content-center">
           <div class="col-md-6 mb-3">
             <label for="yubikeyId"><strong><?php echo TFISH_USER_YUBIKEY_ID; ?></strong></label>
-            <div class="form-group input-group">
+            <div class="input-group">
               <input type="text" class="form-control" name="content[yubikeyId]" id="yubikeyId"
-                pattern="[a-z]{12,12}" minlength="12" maxlength="12"
+                pattern="[cbdefghijklnrtuv]{12}" minlength="12" maxlength="12"
                 placeholder="<?php echo TFISH_YUBIKEY_FIRST_12_CHARACTERS; ?>">
-              <span class="input-group-text" id="password-addon"><i class="fas fa-key"></i></span>
+              <span class="input-group-text" id="password-addon1"><i class="icon-key"></i></span>
             </div>
           </div>
       </div>
@@ -74,11 +73,11 @@
       <div class="row justify-content-center">
         <div class="col-md-6 mb-3">
           <label for="yubikeyId2"><strong><?php echo TFISH_USER_YUBIKEY_ID . '2'; ?></strong></label>
-          <div class="form-group input-group">
+          <div class="input-group">
             <input type="text" class="form-control" name="content[yubikeyId2]" id="yubikeyId2"
-              pattern="[a-z]{12,12}" minlength="12" maxlength="12"
+              pattern="[cbdefghijklnrtuv]{12}" minlength="12" maxlength="12"
               placeholder="<?php echo TFISH_YUBIKEY_FIRST_12_CHARACTERS; ?>">
-            <span class="input-group-text" id="password-addon"><i class="fas fa-key"></i></span>
+            <span class="input-group-text" id="password-addon2"><i class="icon-key"></i></span>
           </div>
         </div>
       </div>
@@ -87,11 +86,11 @@
       <div class="row justify-content-center">
         <div class="col-md-6 mb-3">
           <label for="yubikeyId3"><strong><?php echo TFISH_USER_YUBIKEY_ID . '3'; ?></strong></label>
-          <div class="form-group input-group">
+          <div class="input-group">
             <input type="text" class="form-control" name="content[yubikeyId3]" id="yubikeyId3"
-              pattern="[a-z]{12,12}" minlength="12" maxlength="12"
+              pattern="[cbdefghijklnrtuv]{12}" minlength="12" maxlength="12"
               placeholder="<?php echo TFISH_YUBIKEY_FIRST_12_CHARACTERS; ?>">
-            <span class="input-group-text" id="password-addon"><i class="fas fa-key"></i></span>
+            <span class="input-group-text" id="password-addon3"><i class="icon-key"></i></span>
           </div>
         </div>
       </div>
@@ -99,8 +98,8 @@
       <!-- Online status -->
       <div class="row justify-content-center">
         <div class="col-md-6 mb-3" id="onlineStatusContainer">
-          <label for="onlineStatusContainer"><strong><?php echo TFISH_USER_PRIVILEGES; ?></strong></label>
-          <div class="form-group input-group">
+          <label for="online"><strong><?php echo TFISH_USER_PRIVILEGES; ?></strong></label>
+          <div class="input-group">
             <div class="form-check form-check-inline">
               <input class="form-check-input" type="radio" id="online" name="content[onlineStatus]" value="1">
               <label class="form-check-label" for="online"><?php echo TFISH_USER_ACTIVE; ?></label>
@@ -115,7 +114,7 @@
 
       <!-- Action buttons -->
       <div class="row justify-content-center">
-        <div class="col-md-6 text-left">
+        <div class="col-md-6 text-start">
             <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
             <button name="action" value="save" type="submit" class="btn btn-primary"><?php echo TFISH_SUBMIT; ?></button>
             <button name="action" value="cancel" type="submit" class="btn btn-danger" formnovalidate><?php echo TFISH_CANCEL; ?></button>

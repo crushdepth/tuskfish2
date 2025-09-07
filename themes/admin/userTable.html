@@ -12,7 +12,7 @@
 </div>
 
 <div class="row">
-  <div class="col form-buttons clearfix">
+  <div class="col form-buttons">
     <form method="post">
       <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
       <button class="btn btn-primary float-start add-content" type="submit" formaction="<?php echo TFISH_ADMIN_USER_URL . 'edit/'; ?>"><?php echo TFISH_ADD; ?></button>
@@ -21,35 +21,35 @@
 </div>
 
 <div class="row">
-  <div class="col main-content clearfix">
-  <table class="table table-bordered table-striped table-hover text-left">
+  <div class="col main-content">
+  <table class="table table-bordered table-striped table-hover text-start">
     <thead class="table-primary">
       <tr>
-        <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_ID; ?></th>
-        <th><?php echo TFISH_EMAIL; ?></th>
-        <th><?php echo TFISH_USER_GROUP; ?></th>
-        <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_USER_YUBIKEY_ID; ?></th>
-        <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_USER_YUBIKEY_ID . '2'; ?></th>
-        <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_USER_YUBIKEY_ID . '3'; ?></th>
-        <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_USER_LOGIN_ERRORS; ?></th>
-        <th class="text-center"><?php echo TFISH_ONLINE; ?></th>
-        <th colspan="2" class="text-center"><?php echo TFISH_ACTION; ?></th>
+        <th scope="col" class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo TFISH_ID; ?></th>
+        <th scope="col"><?php echo TFISH_EMAIL; ?></th>
+        <th scope="col"><?php echo TFISH_USER_GROUP; ?></th>
+        <th scope="col" class="d-none d-md-table-cell"><?php echo TFISH_USER_YUBIKEY_ID; ?></th>
+        <th scope="col" class="d-none d-md-table-cell"><?php echo TFISH_USER_YUBIKEY_ID . '2'; ?></th>
+        <th scope="col" class="d-none d-md-table-cell"><?php echo TFISH_USER_YUBIKEY_ID . '3'; ?></th>
+        <th scope="col" class="d-none d-md-table-cell"><?php echo TFISH_USER_LOGIN_ERRORS; ?></th>
+        <th scope="col" class="text-center"><?php echo TFISH_ONLINE; ?></th>
+        <th scope="col" colspan="2" class="text-center"><?php echo TFISH_ACTION; ?></th>
       </tr>
       </thead>
     <tbody>
     <?php foreach($viewModel->contentList() as &$row): ?>
       <tr>
-        <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['id']); ?></td>
+        <td class="d-none d-md-table-cell"><?php echo xss($row['id']); ?></td>
         <td><?php echo xss($row['adminEmail']); ?></td>
         <td><?php echo xss($groups[$row['userGroup']]); ?></td>
-        <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['yubikeyId']); ?></td>
-        <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['yubikeyId2']); ?></td>
-        <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['yubikeyId3']); ?></td>
-        <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell"><?php echo xss($row['loginErrors']); ?></td>
+        <td class="d-none d-md-table-cell"><?php echo xss($row['yubikeyId']); ?></td>
+        <td class="d-none d-md-table-cell"><?php echo xss($row['yubikeyId2']); ?></td>
+        <td class="d-none d-md-table-cell"><?php echo xss($row['yubikeyId3']); ?></td>
+        <td class="d-none d-md-table-cell"><?php echo xss($row['loginErrors']); ?></td>
         <?php if ((int) $row['userGroup'] === 1): ?>
         <td class="text-center"><i class="icon-check"></i></td>
         <td class="text-center"><a href="<?php echo TFISH_ADMIN_USER_URL . 'edit/'; ?>?action=edit&amp;id=<?php echo xss($row['id']); ?>"><i class="icon-pen-to-square"></i></a></td>
-        <td class="text-center"><i class="icon-trash-can"></a></td>
+        <td class="text-center"><i class="icon-trash-can"></td>
         <?php else: ?>
         <?php if ($row['onlineStatus']): ?>
         <td class="text-center"><a class="text-success" href="<?php echo TFISH_ADMIN_USER_URL; ?>?action=toggle&amp;id=<?php echo xss($row['id']); ?>"><i class="icon-check"></i></a></td>
