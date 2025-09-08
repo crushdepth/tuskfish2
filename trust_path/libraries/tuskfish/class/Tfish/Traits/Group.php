@@ -30,8 +30,8 @@ trait Group
 {
      /**
      * ---- New bitmask groups ----
+     * Keys are bit flags (powers of two).
      * One bit per group, extend as required (bits 0...63).
-     * These resolve to 2^n to enable bitmask operations.
      */
 
     public const G_SUPER  = 1 << 0; // 1
@@ -43,7 +43,7 @@ trait Group
      *
      * If you add any groups to the system you must also include them here.
      *
-     * @return array Array of user groups with userGroup ID as key.
+     * @return array<int,string> Array of user groups with userGroup ID as key.
      */
     public function listUserGroups(): array
     {
@@ -69,16 +69,41 @@ trait Group
     }
 
     /**
-     * Check if the user belongs to ANY of the specified groups.
-     *
-     * @param int $userMask The user's group bitmask (e.g. from $user->userGroup).
-     * @param int $flags One or more group constants combined with |, or a route mask from routing table.
-     * @return bool True if the user has at least one of the specified groups, false otherwise.
-     * @example $this->hasAnyGroup($user->userGroup, self::G_EDITOR | self::G_MEMBER);
-     * @example $this->hasAnyGroup($user->userGroup, 2 | 4); // equivalent of above.
+     * Compute OR of all valid group bits.
      */
-    public function hasAnyGroup(int $userMask, int $flags): bool
+    public function groupsMask(): int
     {
-        return ($userMask & $flags) !== 0;
+        static $mask = null;
+
+        if ($mask === null) {
+            $mask = 0;
+
+            foreach (\array_keys($this->listUserGroups()) as $bit) {
+                $mask |= (int) $bit;
+            }
+        }
+
+        return $mask;
+    }
+
+    /**
+     * Check if user is a member of any authorised group.
+     * 
+     * Return true if any bit overlaps between user and allowed flags.
+     * Normalises inputs to the whitelist for safety.
+     */
+    public function hasAnyGroup(int $userMask, int $allowedMask): bool
+    {
+        $whitelist = $this->groupsMask();
+
+        // Guard: allowedMask must only use whitelisted bits.
+        if (($allowedMask & ~$whitelist) !== 0) {
+            \trigger_error(TFISH_ERROR_INVALID_GROUP_MASK, E_USER_ERROR);
+        }
+
+        // Normalise the user-provided mask to known bits.
+        $userMask &= $whitelist;
+
+        return ($userMask & $allowedMask) !== 0;
     }
 }

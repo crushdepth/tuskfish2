@@ -54,6 +54,7 @@ namespace Tfish\Content\Entity;
  * @var         int $lastUpdated Timestamp representing last time this object was updated.
  * @var         string $expiresOn Date for this object expressed as a string.
  * @var         int $counter Number of times this content was viewed or downloaded.
+ * @var         int $groups Bitmask of user group IDs permitted to access this content.
  * @var         int $inFeed Include in news / RSS feed (1) or not (0).
  * @var         int $onlineStatus Toggle object on or offline.
  * @var         int $parent A source work or collection of which this content is part.
@@ -96,6 +97,7 @@ class Content
     private $expiresOn = '';
     private $counter = 0;
     private $minimumViews = 0;
+    private $groups = 0;
     private $inFeed = 1;
     private $onlineStatus = 0;
     private $parent = 0;
@@ -134,6 +136,7 @@ class Content
         $this->setLastUpdated((int) ($row['lastUpdated'] ?? 0));
         $this->setExpiresOn((string) ($row['expiresOn'] ?? ''));
         $this->setCounter((int) ($row['counter'] ?? 0));
+        $this->setGroups((int) ($row['groups'] ?? 0));
         $this->setInFeed((int) ($row['inFeed'] ?? 1));
         $this->setOnlineStatus((int) ($row['onlineStatus'] ?? 1));
         $this->setParent((int) ($row['parent'] ?? 0));
@@ -754,6 +757,9 @@ class Content
         $this->counter = $counter;
     }
 
+    /**
+     * Set minimum views to display view counter.
+     */
     public function setMinimumViews(int $minimumViews)
     {
         if ($minimumViews < 0) {
@@ -762,6 +768,43 @@ class Content
 
         $this->minimumViews = $minimumViews;
     }
+
+    /**
+     * Return groups permitted to access this content.
+     * 
+     * @return int Bitmask of user groups.
+     */
+    public function groups(): int
+    {
+        return (int) $this->groups;
+    }
+
+    /**
+     * Set groups permitted to access this content.
+     * 
+     * Use 0 to indicate public content (no restriction).
+     *
+     * @param int $groups Bitmask of allowed groups.
+     */
+    public function setGroups(int $groups): void
+    {
+        // Public content is explicitly allowed.
+        if ($groups === 0) {
+            $this->groups = 0;
+            return;
+        }
+
+        // Build a combined mask of all valid groups.
+        $whitelistMask = array_sum(array_keys($this->listUserGroups()));
+
+        // Check: $groups must only contain bits from the whitelist.
+        if (($groups & ~$whitelistMask) !== 0) {
+            \trigger_error(TFISH_ERROR_INVALID_GROUP, E_USER_ERROR);
+        }
+
+        $this->groups = $groups;
+    }
+
 
     /**
      * Return inFeed status.

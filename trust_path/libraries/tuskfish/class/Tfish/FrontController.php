@@ -117,17 +117,23 @@ class FrontController
     private function checkAccessRights(Route $route): void
     {
         $routeMask = (int) $route->loginRequired();
+        if ($routeMask === 0) return; // Public
 
-        // Public routes.
-        if ($routeMask === 0) return;
+        // Hard-stop if route mask contains invalid bits.
+        if (($routeMask & ~$this->groupsMask()) !== 0) {
+            \trigger_error(TFISH_ERROR_INVALID_GROUP_MASK, E_USER_ERROR);
+        }
 
-        // Access controlled routes.
         $userMask = (int) $this->session->verifyPrivileges();
-        if (($userMask & self::G_SUPER) !== 0) return; // Super admin is always authorised.
-        if (($this->hasAnyGroup($userMask, $routeMask))) return; // Member of authorised group.
 
-        // Unauthorised: Deny and redirect to login.
-        \header('Location: ' . TFISH_URL . 'login/');
+        // SUPER always has access, else any overlap with allowed route groups.
+        if ( ($userMask & self::G_SUPER) !== 0 || $this->hasAnyGroup($userMask, $routeMask) ) {
+            return;
+        }
+
+        $next = \rawurlencode($_SERVER['REQUEST_URI'] ?? '/');
+        \header('Location: ' . TFISH_URL . 'login/?next=' . $next, true, 
+            (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') ? 302 : 303);
         exit;
     }
 

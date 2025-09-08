@@ -32,7 +32,7 @@ namespace Tfish\User\Entity;
  * @var         int $id Auto-increment, set by database.
  * @var         string $adminEmail Email address of this user.
  * @var         string $passwordHash Password hash for this user.
- * @var         string $userGroup User group to which this user belongs.
+ * @var         string $userGroup User group(s) to which this user belongs.
  * @var         string $yubikeyId Public ID of primary yubikey for two factor authentication.
  * @var         string $yubikeyId2 Public ID of secondary yubikey for two factor authentication.
  * @var         string $yubikeyId3 Public ID of tertiary yubikey for two factor authentication.

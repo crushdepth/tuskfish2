@@ -260,6 +260,9 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_ERROR_UNSPECIFIED", "Unspecified error.");
 \define("TFISH_BLOCK_ROUTE_UPDATE_FAILED", "Block route update failed.");
 
+// User group / permission errors.
+\define("TFISH_ERROR_INVALID_GROUP", "Invalid group.");
+
 // Token errors.
 \define("TFISH_INVALID_TOKEN", "Invalid token error");
 \define("TFISH_SORRY_INVALID_TOKEN", "Sorry, the token accompanying your request was invalid. This
@@ -320,3 +323,4 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
         . "content type. Inline media players will not display.");
 \define("TFISH_ERROR_PARENT_UPDATE_FAILED", "Attempt to update references to a non-extant collection"
         . " failed.");
+        
