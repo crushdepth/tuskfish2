@@ -154,20 +154,22 @@ class User
     }
 
     /**
-     * Set user group.
+     * Set user groups.
+     * 
+     * Must only contain bits from the whitelist.
      *
-     * @param integer $group
+     * @param integer $groups
      * @return void
      */
-    public function setUserGroup(int $group)
+    public function setUserGroup(int $groups)
     {
-        $group = (int) $group;
+        $whitelistMask = \array_sum(\array_keys($this->listUserGroups()));
 
-        if (!\array_key_exists($group, $this->listUserGroups())) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+        if (($groups & ~$whitelistMask) !== 0) {
+            \trigger_error(TFISH_ERROR_INVALID_GROUP, E_USER_ERROR);
         }
 
-        $this->userGroup = $group;
+        $this->userGroup = $groups;
     }
 
     /**

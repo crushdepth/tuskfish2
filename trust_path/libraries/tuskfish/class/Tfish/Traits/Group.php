@@ -98,7 +98,7 @@ trait Group
 
         // Guard: allowedMask must only use whitelisted bits.
         if (($allowedMask & ~$whitelist) !== 0) {
-            \trigger_error(TFISH_ERROR_INVALID_GROUP_MASK, E_USER_ERROR);
+            \trigger_error(TFISH_ERROR_INVALID_GROUP, E_USER_ERROR);
         }
 
         // Normalise the user-provided mask to known bits.

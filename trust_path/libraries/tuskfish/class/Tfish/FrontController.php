@@ -121,7 +121,7 @@ class FrontController
 
         // Hard-stop if route mask contains invalid bits.
         if (($routeMask & ~$this->groupsMask()) !== 0) {
-            \trigger_error(TFISH_ERROR_INVALID_GROUP_MASK, E_USER_ERROR);
+            \trigger_error(TFISH_ERROR_INVALID_GROUP, E_USER_ERROR);
         }
 
         $userMask = (int) $this->session->verifyPrivileges();
