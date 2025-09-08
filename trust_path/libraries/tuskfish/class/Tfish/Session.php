@@ -132,6 +132,32 @@ class Session
         return false;
     }
 
+
+    /**
+     * Return the target URL for redirection AFTER a successful authentication (user group) challenge.
+     * 
+     * Allows a user to be redirected onwards to their destination after passing an authentication challenge.
+     * Note that the user must be a member of a group authorised to access the protected content.
+     */
+    public function nextUrl(): ?string
+    {
+        $next = $_SESSION['nextUrl'] ?? null;
+        unset($_SESSION['nextUrl']);
+
+        return $next;
+    }
+
+    /**
+     * Set the target URL for redirection pending a successful authentication (user group) challenge.
+     * 
+     * Allows the intended destination to be stored for redirection when a user is subjected to
+     * an authorisation check, for example to access member-ony content.
+     */
+    public function setNextUrl(string $url = '')
+    {
+        $_SESSION['nextUrl'] = $url;
+    }
+
     /**
      * Verify that the current session is valid and user is enabled and return current user group.
      *
