@@ -8,7 +8,7 @@
     <meta name="author" content="<?php echo xss($metadata->author); ?>">
     <meta name="dcterms.rights" content="<?php echo xss($metadata->copyright); ?>">
     <meta name="robots" content="<?php echo xss($metadata->robots); ?>">
-    <link rel="alternate" type="application/rss+xml" title="RSS" href="<?php echo TFISH_URL . 'rss.php'; ?>" />
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="<?php echo TFISH_URL . 'rss/'; ?>" />
     <link rel="schema.dcterms" href="http://purl.org/dc/terms/">
 
     <?php if (!empty($metadata->canonicalUrl)): ?>
@@ -115,7 +115,7 @@
                 <a class="nav-link" href="<?php echo TFISH_URL . 'gallery/'; ?>"><?php echo TFISH_IMAGE_GALLERY; ?></a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="<?php echo TFISH_RSS_URL; ?>"><i class="fas fa-rss"></i></a>
+                <a class="nav-link" href="<?php echo TFISH_RSS_URL; ?>"><i class="icon-rss"></i></a>
               </li>
             </ul>
             <form class="d-flex" method="get" accept-charset="UTF-8" action="<?php echo TFISH_URL . 'admin/search/'; ?>">
