@@ -13,7 +13,7 @@
 
     <?php if (!empty($metadata->canonicalUrl)): ?>
     <!-- Canonical URL -->
-    <link rel="canonical" href="<?php echo $metadata->canonicalUrl; ?>">
+    <link rel="canonical" href="<?php echo xss($metadata->canonicalUrl); ?>">
     <?php endif; ?>
 
     <!-- Favicons -->
