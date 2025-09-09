@@ -56,14 +56,6 @@
             <li class="nav-item">
               <a class="nav-link"  href="<?php echo TFISH_ADMIN_URL; ?>"><?php echo TFISH_ADMIN; ?></a>
             </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" id="settings" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo TFISH_SETTINGS; ?></a>
-              <ul class="dropdown-menu" aria-labelledby="settings">
-                <li><a class="dropdown-item" href="<?php echo TFISH_PREFERENCE_URL; ?>"><?php echo TFISH_PREFERENCES; ?></a></li>
-                <li><a class="dropdown-item" href="<?php echo TFISH_PASSWORD_URL; ?>"><?php echo TFISH_PASSWORD; ?></a></li>
-                <li><a class="dropdown-item" href="<?php echo TFISH_URL . 'flush/'; ?>"><?php echo TFISH_FLUSH_CACHE; ?></a></li>
-              </ul>
-            </li>
             <?php endif; ?>
             <?php if (isset($session) && $session->isLoggedIn()): ?>
             <li class="nav-item">
