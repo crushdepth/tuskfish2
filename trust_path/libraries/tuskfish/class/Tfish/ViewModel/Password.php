@@ -40,13 +40,14 @@ class Password implements \Tfish\Interface\Viewable
     use \Tfish\Traits\Viewable;
 
     private $model;
+    private $preference;
     private $password = '';
     private $confirm = '';
     private $backUrl = '';
     private $response = '';
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param   object $model Instance of a model class.
      */
@@ -55,6 +56,7 @@ class Password implements \Tfish\Interface\Viewable
         $this->pageTitle = TFISH_CHANGE_PASSWORD;
         $this->model = $model;
         $this->theme = 'admin';
+
         $this->setMetadata([
             'description' => TFISH_CHANGE_PASSWORD_EXPLANATION,
             'robots' => 'noindex,nofollow'

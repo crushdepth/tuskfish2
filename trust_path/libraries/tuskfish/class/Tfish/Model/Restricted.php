@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\Model;
 
 /**
- * \Tfish\Model\Login class file.
+ * \Tfish\Model\Restsricted class file.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -16,7 +16,7 @@ namespace Tfish\Model;
  */
 
 /**
- * Model for logging in.
+ * Model for displaying restricted access notice.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -28,7 +28,7 @@ namespace Tfish\Model;
  * @var         \Tfish\Session $session Instance of the session management class.
  */
 
-class Login
+class Restricted
 {
     use \Tfish\Traits\ValidateString;
 
@@ -53,7 +53,7 @@ class Login
      */
     public function logout()
     {
-        $this->session->logout(TFISH_URL);
+        $this->session->logout(TFISH_URL . 'login/');
     }
 
     /**

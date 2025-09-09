@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\ViewModel;
 
 /**
- * \Tfish\ViewModel\Login class file.
+ * \Tfish\ViewModel\Restricted class file.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -16,7 +16,7 @@ namespace Tfish\ViewModel;
  */
 
 /**
- * ViewModel for logging in.
+ * ViewModel for displaying restricted page notice.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -32,7 +32,7 @@ namespace Tfish\ViewModel;
  * @var         array $metadata Overrides of site metadata properties, to customise it for this page.
  */
 
-class Login implements \Tfish\Interface\Viewable
+class Restricted implements \Tfish\Interface\Viewable
 {
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;
@@ -51,7 +51,7 @@ class Login implements \Tfish\Interface\Viewable
     {
         $this->pageTitle = TFISH_LOGIN;
         $this->model = $model;
-        $this->template = 'login';
+        $this->template = 'restricted';
         $this->theme = $preference->defaultTheme();
         $this->setMetadata(['robots' => 'noindex,nofollow']);
     }

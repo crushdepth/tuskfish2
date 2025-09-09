@@ -78,7 +78,7 @@ return [
         '\\Tfish\\ViewModel\\Password',
         '\\Tfish\\View\\Single',
         '\\Tfish\\Controller\\Password',
-        2),
+        7),
     '/flush/' => new Route(
         '\\Tfish\\Model\\Cache',
         '\\Tfish\\ViewModel\\Cache',
@@ -114,7 +114,7 @@ return [
         '\\Tfish\\View\\Single',
         '\\Tfish\\Controller\\Logout',
         0),
-    '/restricted' => new Route(
+    '/restricted/' => new Route(
         '\\Tfish\\Model\\Restricted',
         '\\Tfish\\ViewModel\\Restricted',
         '\\Tfish\\View\\Single',

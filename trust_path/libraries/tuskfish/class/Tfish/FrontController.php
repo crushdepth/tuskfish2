@@ -122,6 +122,7 @@ class FrontController
         // Hard-stop if route mask contains invalid bits.
         if (($routeMask & ~$this->groupsMask()) !== 0) {
             \trigger_error(TFISH_ERROR_INVALID_GROUP, E_USER_ERROR);
+            exit;
         }
 
         $userMask = (int) $this->session->verifyPrivileges();
@@ -131,15 +132,15 @@ class FrontController
             return;
         }
 
-        // Restricted route, unauthenticated users must log in.
+        // Restricted route, unauthenticated users must log in, renders 303.
         if ($userMask === 0) {
             $this->session->setNextUrl($_SERVER['REQUEST_URI'] ?? '/');
             \header('Location: ' . TFISH_URL . 'login/', true, 303);
             exit;
         }
 
-        // Restricted route, authenticated user but unauthorised for this route.
-        \header('Location: ' . TFISH_URL . 'forbidden/', true, 303);
+        // Restricted route, authenticated user but unauthorised for this route, renders 403.
+        \header('Location: ' . TFISH_URL . 'restricted/', true, 303);
         exit;
     }
 

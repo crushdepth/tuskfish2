@@ -81,15 +81,18 @@ class Password
 
     /**
      * Update password in database.
+     * 
+     * Must be logged in, member of at least one group, and account enabled to access.
      *
      * @param   string $password
      * @return  bool True on success, false on failure.
      */
     private function updatePassword(string $password): bool
     {
-        $userId = (int) $_SESSION['id'];
-
-        if (empty($userId) || !$this->session->isEditor()) {
+        $userId   = (int) ($_SESSION['id'] ?? 0);
+        $userMask = (int) $this->session->verifyPrivileges();
+        
+        if ($userId <= 0 || $userMask <= 0) {
             return false;
         }
 

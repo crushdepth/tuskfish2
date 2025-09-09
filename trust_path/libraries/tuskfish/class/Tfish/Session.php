@@ -350,7 +350,7 @@ class Session
             $next = $this->nextUrl();
 
             if (!empty($next)) {
-                \header('Location: ' . TFISH_URL . \ltrim($next, '/'), true, 303);
+                \header('Location: ' . TFISH_LINK . $next, true, 303);
             } else {
                 \header('Location: ' . $this->groupHomes()[$user['userGroup']], true, 303);
             }
