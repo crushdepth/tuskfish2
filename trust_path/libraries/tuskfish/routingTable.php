@@ -114,6 +114,12 @@ return [
         '\\Tfish\\View\\Single',
         '\\Tfish\\Controller\\Logout',
         0),
+    '/restricted' => new Route(
+        '\\Tfish\\Model\\Restricted',
+        '\\Tfish\\ViewModel\\Restricted',
+        '\\Tfish\\View\\Single',
+        '\\Tfish\\Controller\\Restricted',
+        0),
     '/preference/' => new Route(
         '\\Tfish\\Model\\Preference',
         '\\Tfish\\ViewModel\\PreferenceList',

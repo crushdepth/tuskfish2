@@ -127,13 +127,19 @@ class FrontController
         $userMask = (int) $this->session->verifyPrivileges();
 
         // SUPER always has access, else any overlap with allowed route groups.
-        if ( ($userMask & self::G_SUPER) !== 0 || $this->hasAnyGroup($userMask, $routeMask) ) {
+        if (($userMask & self::G_SUPER) !== 0 || $this->hasAnyGroup($userMask, $routeMask)) {
             return;
         }
 
-        $next = \rawurlencode($_SERVER['REQUEST_URI'] ?? '/');
-        \header('Location: ' . TFISH_URL . 'login/?next=' . $next, true, 
-            (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') ? 302 : 303);
+        // Restricted route, unauthenticated users must log in.
+        if ($userMask === 0) {
+            $this->session->setNextUrl($_SERVER['REQUEST_URI'] ?? '/');
+            \header('Location: ' . TFISH_URL . 'login/', true, 303);
+            exit;
+        }
+
+        // Restricted route, authenticated user but unauthorised for this route.
+        \header('Location: ' . TFISH_URL . 'forbidden/', true, 303);
         exit;
     }
 

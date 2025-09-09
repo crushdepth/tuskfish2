@@ -134,10 +134,15 @@ class Session
 
 
     /**
-     * Return the target URL for redirection AFTER a successful authentication (user group) challenge.
-     * 
+     * Return the target URL path for redirection AFTER a successful authentication (user group) challenge.
+     *
      * Allows a user to be redirected onwards to their destination after passing an authentication challenge.
      * Note that the user must be a member of a group authorised to access the protected content.
+     *
+     * Convention: Use a relative URL (path and query string), not an absolute URL for portability.
+     * The TFISH_URL constant should be used on the receiving side to construct the full URL.
+     *
+     * @return string $next URL path.
      */
     public function nextUrl(): ?string
     {
@@ -149,13 +154,15 @@ class Session
 
     /**
      * Set the target URL for redirection pending a successful authentication (user group) challenge.
-     * 
+     *
      * Allows the intended destination to be stored for redirection when a user is subjected to
      * an authorisation check, for example to access member-ony content.
+     *
+     * @param string $path URL path.
      */
-    public function setNextUrl(string $url = '')
+    public function setNextUrl(string $path = '')
     {
-        $_SESSION['nextUrl'] = $url;
+        $_SESSION['nextUrl'] = $path;
     }
 
     /**
@@ -338,8 +345,15 @@ class Session
             // Send an admim notification email.
             $this->notifyAdminLogin($user['adminEmail']);
 
-            // Redirect to appropriate page.
-            \header('Location: ' . $this->groupHomes()[$user['userGroup']]);
+            // Redirect onwards (if nextUrl() is set), or to group home page if not. Note that the
+            // redirect will still return a login page if privileges are not sufficient to access.
+            $next = $this->nextUrl();
+
+            if (!empty($next)) {
+                \header('Location: ' . TFISH_URL . \ltrim($next, '/'), true, 303);
+            } else {
+                \header('Location: ' . $this->groupHomes()[$user['userGroup']], true, 303);
+            }
             exit;
         } else {
             // Increment failed login counter, destroy session and redirect to the login page.
