@@ -262,6 +262,8 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 
 // User group / permission errors.
 \define("TFISH_ERROR_INVALID_GROUP", "Invalid group.");
+\define("TFISH_RESTRICTED_ACCESS", "Restricted access");
+\define("TFISH_RESTRICTED_ACCESS_MESSAGE", "Sorry, you are not authorised to view this page.");
 
 // Token errors.
 \define("TFISH_INVALID_TOKEN", "Invalid token error");
