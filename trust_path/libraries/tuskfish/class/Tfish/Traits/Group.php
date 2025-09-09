@@ -88,11 +88,11 @@ trait Group
 
     /**
      * Check if a user may access a resource via group bitmask comparison.
-     * 
+     *
      * Public resources ($requiredMask = 0) is always accessible.
      * Super admin bypasses checks (access all resources, always).
      * Any overlap between a user's groups and authorised groups permits access to resource.
-     * 
+     *
      * @param int $userMask
      * @param int $requiredMask
      * @return bool true if allowed, false if denied.
@@ -106,7 +106,7 @@ trait Group
 
     /**
      * Check if user is a member of any authorised group.
-     * 
+     *
      * Return true if any bit overlaps between user and allowed flags.
      * Normalises inputs to the whitelist for safety.
      */
