@@ -25,6 +25,7 @@ namespace Tfish\Content\ViewModel;
  * @since       2.0
  * @package     content
  * @uses        trait \Tfish\Traits\Content\ContentTypes Provides definition of permitted content object types.
+ * @uses        trait \Tfish\Traits\Group Whitelist of user groups on system and bitmask authorisation tests.
  * @uses        trait \Tfish\Traits\TagRead Retrieve tag information for display.
  * @uses        trait \Tfish\Traits\Listable Provides a standard implementation of the \Tfish\View\Listable interface.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
@@ -49,6 +50,7 @@ namespace Tfish\Content\ViewModel;
 class Listing implements \Tfish\Interface\Listable
 {
     use \Tfish\Content\Traits\ContentTypes;
+    use \Tfish\Traits\Group;
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
@@ -107,6 +109,22 @@ class Listing implements \Tfish\Interface\Listable
         $this->content = $this->getObject($this->id);
 
         if ($this->content) {
+
+            // Authorisation check.
+            $contentMask = (int) $this->content->accessGroups();
+            $userMask = (int) $this->model->currentUserMask();
+
+            if (!$this->canAccess($userMask, $contentMask)) {
+                if ($userMask === 0) {
+                    $this->model->setNextUrl($_SERVER['REQUEST_URI'] ?? '/');
+                    \header('Location: ' . TFISH_URL . 'login/', true, 303);
+                    exit;
+                }
+
+                \header('Location: ' . TFISH_URL . 'restricted/', true, 303);
+                exit;
+            }
+
             $this->pageTitle = $this->content->metaTitle();
             $this->description = $this->content->metaDescription();
             $this->author = $this->content->creator();
@@ -119,6 +137,10 @@ class Listing implements \Tfish\Interface\Listable
 
             $this->template = !empty($this->template) ? $this->template : $this->content->template();
             $this->setMetadata();
+
+            if ($this->content->accessGroups() !== 0) {
+                $this->doNotCache = true;
+            }
         } else {
             $this->pageTitle = TFISH_ERROR;
             $this->response = TFISH_ERROR_NO_SUCH_CONTENT;

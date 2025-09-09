@@ -82,7 +82,7 @@ class Listing
 
         $params['id'] = $id;
 
-        if (!$this->session->isAdmin()) { // NOT admin.
+        if (!$this->session->isAdmin()) { // Restrict to online content if NOT admin.
             $params['onlineStatus'] = 1;
         }
 
@@ -309,5 +309,28 @@ class Listing
         }
 
         return $cleanParams;
+    }
+
+    /**
+     * Return the current userMask via the session.
+     *
+     * Used by the viewModel to conduct group authorisation checks.
+     *
+     * @return integer
+     */
+    public function currentUserMask(): int
+    {
+        return (int) $this->session->verifyPrivileges();
+    }
+
+    /**
+     * Set onwards redirection path after successful authentication.
+     *
+     * @param string $path
+     * @return void
+     */
+    public function setNextUrl(string $path): void
+    {
+        $this->session->setNextUrl($path);
     }
 }

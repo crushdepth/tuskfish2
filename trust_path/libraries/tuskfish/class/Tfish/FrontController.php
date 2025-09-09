@@ -100,9 +100,13 @@ class FrontController
 
         $cacheParams = $this->controller->{$action}();
         $cache->check($path, $cacheParams);
-
         $this->renderLayout($metadata, $viewModel, $path);
-        $cache->save($cacheParams, \ob_get_contents());
+
+        // Do not cache restricted content.
+        if ($viewModel->doNotCache() === false) {
+            $cache->save($cacheParams, \ob_get_contents());
+        }
+
         $database->close();
         return \ob_end_flush();
     }

@@ -32,6 +32,7 @@ namespace Tfish\Traits;
  * @var         string $order Primary sorting order (ASC or DESC).
  * @var         string $secondarySort Secondary column to sort results by.
  * @var         string $secondaryOrder Secondary sorting order (ASC or DESC).
+ * @var         bool $doNotCache Flag to disable caching of restricted access content.
  */
 trait Listable
 {
@@ -44,6 +45,7 @@ trait Listable
     private string $order = '';
     private string $secondarySort = '';
     private string $secondaryOrder = '';
+    private bool $doNotCache = false;
 
     /** Utilities. */
 
@@ -124,7 +126,7 @@ trait Listable
 
     /**
      * Set the title of this page.
-     *
+     *private bool $doNotCache = false;
      * @param   string $pageTitle Title of this page.
      */
     public function setPageTitle(string $pageTitle)
@@ -233,5 +235,31 @@ trait Listable
     public function setMetadata(array $metadata)
     {
         $this->metadata = $metadata;
+    }
+
+    /** Utilities */
+
+    /**
+     * Return doNotCache flag.
+     *
+     * Bypass caching for content with restricted access (ie. that is not public).
+     *
+     * @return boolean
+     */
+    public function doNotCache(): bool
+    {
+        return $this->doNotCache;
+    }
+
+    /**
+     * Set doNotCache flag.
+     *
+     * Used to disable caching of content with restricted access (ie. that is not public).
+     *
+     * @param boolean $flag
+     * @return void
+     */
+    public function setDoNotCache(bool $flag) {
+        $this->doNotCache = $flag;
     }
 }

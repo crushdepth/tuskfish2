@@ -97,7 +97,7 @@ class Content
     private $expiresOn = '';
     private $counter = 0;
     private $minimumViews = 0;
-    private $groups = 0;
+    private $accessGroups = 0; // public access
     private $inFeed = 1;
     private $onlineStatus = 0;
     private $parent = 0;
@@ -136,7 +136,7 @@ class Content
         $this->setLastUpdated((int) ($row['lastUpdated'] ?? 0));
         $this->setExpiresOn((string) ($row['expiresOn'] ?? ''));
         $this->setCounter((int) ($row['counter'] ?? 0));
-        $this->setGroups((int) ($row['groups'] ?? 0));
+        $this->setAccessGroups((int) ($row['accessGroups'] ?? 0));
         $this->setInFeed((int) ($row['inFeed'] ?? 1));
         $this->setOnlineStatus((int) ($row['onlineStatus'] ?? 1));
         $this->setParent((int) ($row['parent'] ?? 0));
@@ -771,44 +771,44 @@ class Content
 
     /**
      * Return groups permitted to access this content.
-     * 
+     *
      * @return int Bitmask of user groups.
      */
-    public function groups(): int
+    public function accessGroups(): int
     {
-        return (int) $this->groups;
+        return (int) $this->accessGroups;
     }
 
     /**
      * Set groups permitted to access this content.
-     * 
+     *
      * Use 0 to indicate public content (no restriction).
      *
      * @param int $groups Bitmask of allowed groups.
      */
-    public function setGroups(int $groups): void
+    public function setAccessGroups(int $groups): void
     {
         // Public content is explicitly allowed.
         if ($groups === 0) {
-            $this->groups = 0;
+            $this->accessGroups = 0;
             return;
         }
 
         // Build a combined mask of all valid groups.
-        $whitelistMask = array_sum(array_keys($this->listUserGroups()));
+        $whitelistMask = \array_sum(array_keys($this->listUserGroups()));
 
         // Check: $groups must only contain bits from the whitelist.
         if (($groups & ~$whitelistMask) !== 0) {
             \trigger_error(TFISH_ERROR_INVALID_GROUP, E_USER_ERROR);
         }
 
-        $this->groups = $groups;
+        $this->accessGroups = $groups;
     }
 
 
     /**
      * Return inFeed status.
-     * 
+     *
      * @return int 1 if included in news/RSS feed, otherwise 0.
      */
     public function inFeed(): int
@@ -818,7 +818,7 @@ class Content
 
     /**
      * Set inFeed status.
-     * 
+     *
      * @param   int $inFeed
      */
     public function setInFeed(int $inFeed)
