@@ -794,17 +794,14 @@ class Content
             return;
         }
 
-        // Build a combined mask of all valid groups.
-        $whitelistMask = \array_sum(\array_keys($this->listUserGroups()));
+        $whitelistMask = $this->groupsMask();
 
-        // Check: $groups must only contain bits from the whitelist.
         if (($groups & ~$whitelistMask) !== 0) {
             \trigger_error(TFISH_ERROR_INVALID_GROUP, E_USER_ERROR);
         }
 
         $this->accessGroups = $groups;
     }
-
 
     /**
      * Return inFeed status.

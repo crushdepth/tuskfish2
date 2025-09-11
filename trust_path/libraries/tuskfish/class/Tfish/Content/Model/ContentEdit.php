@@ -24,7 +24,8 @@ namespace Tfish\Content\Model;
  * @version     Release: 2.0
  * @since       1.1
  * @package     content
- * @uses        trait \Tfish\Traits\Content\ContentTypes Provides definition of permitted content object types.
+ * @uses        trait \Tfish\Content\Traits\ContentTypes Provides definition of permitted content object types.
+ * @uses        trait \Tfish\Traits\Group Whitelist of user groups on the system.
  * @uses        trait \Tfish\Traits\HtmlPurifier Includes HTMLPurifier library.
  * @uses        trait \Tfish\Traits\Mimetypes Provides a list of common (permitted) mimetypes for file uploads.
  * @uses        trait \Tfish\Traits\Taglink Manage object-tag associations via taglinks.
@@ -42,6 +43,7 @@ namespace Tfish\Content\Model;
 class ContentEdit
 {
     use \Tfish\Content\Traits\ContentTypes;
+    use \Tfish\Traits\Group;
     use \Tfish\Traits\HtmlPurifier;
     use \Tfish\Traits\Mimetypes;
     use \Tfish\Traits\Taglink;
@@ -275,7 +277,7 @@ class ContentEdit
         $criteria->setSort('title');
         $criteria->setOrder('ASC');
         $criteria->setSecondarySort('submissionTime');
-        $criteria->setSecondaryOrder('DESC');
+        $criteria->setSecondaryOrder('\ConteDESC');
 
         $statement = $this->database->select('content', $criteria);
 
@@ -371,6 +373,21 @@ class ContentEdit
         if ($id > 0) $clean['id'] = $id;
 
         $clean['title'] = $this->trimString($form['title'] ?? '');
+
+        /**
+         * accessGroups is a bitmask. Presently the form allows assignment of one group, but the
+         * bitmask can actually handle multiple groups *if* the select box is made a multi.
+         * This would require a change in validation below to handle an array instead of int.
+         */
+        $accessGroups = ((int) ($form['accessGroups'] ?? 0));
+        $whitelist = $this->groupsMask();
+
+        // accessGroups must only contain bits from the whitelist.
+        if (($accessGroups & ~$whitelist) !== 0) {
+            \trigger_error(TFISH_ERROR_INVALID_GROUP, E_USER_ERROR);
+        }
+
+        $clean['accessGroups'] = $accessGroups;
 
         // Validate HTML fields.
         $teaser = $this->trimString($form['teaser'] ?? '');
