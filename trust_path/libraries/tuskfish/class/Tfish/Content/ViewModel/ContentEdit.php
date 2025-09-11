@@ -24,6 +24,7 @@ namespace Tfish\Content\ViewModel;
  * @version     Release: 2.0
  * @since       2.0
  * @package     content
+ * @uses        trait \Tfish\Traits\Group Whitelist of user groups on system and bitmask authorisation tests.
  * @uses        trait \Tfish\Traits\Timezones	Provides an array of time zones.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
@@ -39,6 +40,7 @@ namespace Tfish\Content\ViewModel;
  */
 class ContentEdit implements \Tfish\Interface\Viewable
 {
+    use \Tfish\Traits\Group;
     use \Tfish\Traits\Timezones;
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
@@ -206,6 +208,17 @@ class ContentEdit implements \Tfish\Interface\Viewable
     {
         return $this->preference->siteAuthor();
     }
+
+    /**
+     * Return select box options for group access control
+     * 
+     * @return array Array of access group select box options.
+     */
+    public function visibilityOptions(): array
+    {
+        return [0 => TFISH_PUBLIC] + $this->listUserGroups();
+    }
+
 
     /** Getters and setters */
 

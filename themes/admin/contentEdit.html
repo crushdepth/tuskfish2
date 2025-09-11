@@ -40,7 +40,7 @@
       </div>
 
       <!-- Type -->
-      <div class="col-md-6 col-lg-3 mb-3 text-start" id="typeContainer">
+      <div class="col-md-6 col-lg-2 mb-3 text-start" id="typeContainer">
         <label for="type" class="form-label"><strong><?php echo TFISH_TYPE; ?></strong></label>
         <select class="form-select" name="content[type]" id="type" required>
           <?php
@@ -56,7 +56,7 @@
       </div>
 
       <!-- Template -->
-      <div class="col-md-6 col-lg-3 mb-3 text-start" id="templateContainer">
+      <div class="col-md-6 col-lg-2 mb-3 text-start" id="templateContainer">
         <input type="hidden" id="selectedTemplate" value="<?php echo xss($content->template()); ?>">
         <label for="template" class="form-label"><strong><?php echo TFISH_TEMPLATE; ?></strong></label>
           <select class="form-select" name="content[template]" id="template" required>
@@ -104,6 +104,24 @@
         <?php endif; ?>
       });
       </script>
+
+      <!-- Group -->
+      <div class="col-md-6 col-lg-2 mb-3">
+        <label for="group" class="form-label"><strong><?php echo TFISH_CONTENT_ACCESS; ?><span style="color:red">*</span></strong></label>
+        <div>
+          <select class="form-select" name="content[accessGroups]" id="accessGroups" required>
+            <?php
+            $options = $viewModel->visibilityOptions();
+            unset($options[1]);
+            $currentMask = (int) $content->accessGroups();
+            foreach ($options as $key => $label) {
+                $selected = ($currentMask & (int)$key) !== 0 ? ' selected' : '';
+                echo '<option value="' . xss($key) . '"' . $selected . '>' . xss($label) . '</option>';
+            }
+            ?>
+          </select>
+        </div>
+      </div>
 
       <!-- Tags -->
       <div class="col-md-6 col-lg-2 mb-3 text-start" id="tagsContainer">

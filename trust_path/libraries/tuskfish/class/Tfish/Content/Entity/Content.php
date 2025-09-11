@@ -795,7 +795,7 @@ class Content
         }
 
         // Build a combined mask of all valid groups.
-        $whitelistMask = \array_sum(array_keys($this->listUserGroups()));
+        $whitelistMask = \array_sum(\array_keys($this->listUserGroups()));
 
         // Check: $groups must only contain bits from the whitelist.
         if (($groups & ~$whitelistMask) !== 0) {

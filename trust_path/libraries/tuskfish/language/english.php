@@ -182,6 +182,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 
 // Utilities
 \define("TFISH_STATE", "State");
+\define("TFISH_PUBLIC", "Public");
 
 // Base intellectual property licenses.
 \define("TFISH_RIGHTS_COPYRIGHT", "Copyright, all rights reserved.");
@@ -316,6 +317,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_IN_THIS_COLLECTION", "In this collection");
 
 // Miscellaneous.
+\define("TFISH_CONTENT_ACCESS", "Access");
 \define("TFISH_DOWNLOAD", "Download");
 \define("TFISH_DOWNLOADS", "Downloads");
 \define("TFISH_ZERO_OPTION", "---");

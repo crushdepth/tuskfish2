@@ -46,12 +46,13 @@ class Token implements \Tfish\Interface\Viewable
      *
      * @param   object $model Instance of a model class.
      * @param   string $theme Name of the theme to use on this page.
+     * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
-    public function __construct($model)
+    public function __construct($model, \Tfish\Entity\Preference $preference)
     {
         $this->pageTitle = TFISH_INVALID_TOKEN;
         $this->model = $model;
-        $this->theme = 'default';
+        $this->theme = $preference->defaultTheme();
         $this->template = 'error';
         $this->setMetadata(['robots' => 'noindex,nofollow']);
     }
