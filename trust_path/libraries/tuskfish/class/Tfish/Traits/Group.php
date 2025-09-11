@@ -87,11 +87,13 @@ trait Group
     }
 
     /**
-     * Check if a user may access a resource via group bitmask comparison.
+     * Check if a user may access a CONTENT resource via group bitmask comparison.
      *
      * Public resources ($requiredMask = 0) is always accessible.
-     * Super admin bypasses checks (access all resources, always).
+     * Super admin and editors bypass checks (access all content, always).
      * Any overlap between a user's groups and authorised groups permits access to resource.
+     *
+     * Note that editors do NOT have access to all ROUTES, which are handled separately.
      *
      * @param int $userMask
      * @param int $requiredMask
@@ -99,9 +101,9 @@ trait Group
      */
     public function canAccess(int $userMask, int $requiredMask): bool
     {
-        if ($requiredMask === 0) return true;                 // public content/route
-        if (($userMask & self::G_SUPER) !== 0) return true;   // superuser
-        return $this->hasAnyGroup($userMask, $requiredMask);  // existing logic (validates mask)
+        if ($requiredMask === 0) return true; // public content/route
+        if (($userMask & (self::G_SUPER | self::G_EDITOR)) !== 0) return true; // superuser / editor
+        return $this->hasAnyGroup($userMask, $requiredMask); // Validate all others.
     }
 
     /**
