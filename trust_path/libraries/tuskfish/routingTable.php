@@ -115,7 +115,7 @@ return [
         '\\Tfish\\Controller\\Logout',
         0),
     '/restricted/' => new Route(
-        '\\Tfish\\Model\\Restricted',
+        '\\Tfish\\Model\\Login',
         '\\Tfish\\ViewModel\\Restricted',
         '\\Tfish\\View\\Single',
         '\\Tfish\\Controller\\Restricted',

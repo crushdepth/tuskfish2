@@ -321,6 +321,8 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_DOWNLOAD", "Download");
 \define("TFISH_DOWNLOADS", "Downloads");
 \define("TFISH_ZERO_OPTION", "---");
+\define("TFISH_MEMBER_CONTENT", "Member content");
+\define("TFISH_PLEASE_LOGIN", "Please login to view this content.");
 
 // Errors.
 \define("TFISH_MEDIA_NOT_COMPATIBLE", "The selected media file is not compatible with the current "

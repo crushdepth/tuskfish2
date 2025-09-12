@@ -62,4 +62,26 @@ class Login implements \Tfish\Interface\Viewable
      * Display the login form.
      */
     public function displayForm() {}
+
+    /** Utilities */
+
+    /**
+     * Return title for redirect page.
+     * 
+     * @return string|null Title of page.
+     */
+    public function redirectTitle(): ?string
+    {
+        return $this->model->redirectTitle();
+    }
+
+    /**
+     * Set context message for redirect page.
+     * 
+     * @return string|null Context message.
+     */
+    public function redirectMessage(): ?string
+    {
+        return $this->model->redirectMessage();
+    }
 }

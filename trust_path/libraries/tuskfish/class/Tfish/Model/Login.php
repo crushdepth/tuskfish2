@@ -35,6 +35,16 @@ class Login
     private $session;
 
     /**
+     * Constructor.
+     *
+     * @param   \Tfish\Session $session Instance of the Tuskfish session manager class.
+     */
+    public function __construct(\Tfish\Session $session)
+    {
+        $this->session = $session;
+    }
+
+    /**
      * Process admin login.
      *
      * Note that email validation is handled by the Session class.
@@ -66,5 +76,27 @@ class Login
     public function setSession(\Tfish\Session $session)
     {
         $this->session = $session;
+    }
+
+    /** Utilities */
+
+    /**
+     * Set title for redirect page.
+     * 
+     * @return string|null Title of page.
+     */
+    public function redirectTitle(): ?string
+    {
+        return $this->session->redirectTitle();
+    }
+
+    /**
+     * Set context message for redirect page.
+     * 
+     * @return string|null Context message.
+     */
+    public function redirectMessage(): ?string
+    {
+        return $this->session->redirectMessage();
     }
 }

@@ -333,4 +333,14 @@ class Listing
     {
         $this->session->setNextUrl($path);
     }
+
+    public function setRedirectTitle(string $title): void
+    {
+        $this->session->setRedirectTitle($title);
+    }
+
+    public function setRedirectMessage(string $message): void
+    {
+        $this->session->setRedirectMessage($message);
+    }
 }

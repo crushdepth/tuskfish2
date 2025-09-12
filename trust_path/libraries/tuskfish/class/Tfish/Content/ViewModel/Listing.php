@@ -117,10 +117,14 @@ class Listing implements \Tfish\Interface\Listable
             if (!$this->canAccess($userMask, $contentMask)) {
                 if ($userMask === 0) {
                     $this->model->setNextUrl($_SERVER['REQUEST_URI'] ?? '/');
+                    $this->model->setRedirectTitle(TFISH_MEMBER_CONTENT);
+                    $this->model->setRedirectMessage(TFISH_PLEASE_LOGIN);
                     \header('Location: ' . TFISH_URL . 'login/', true, 303);
                     exit;
                 }
 
+                $this->model->setRedirectTitle(TFISH_RESTRICTED_ACCESS);
+                $this->model->setRedirectMessage(TFISH_RESTRICTED_ACCESS_MESSAGE);
                 \header('Location: ' . TFISH_URL . 'restricted/', true, 303);
                 exit;
             }

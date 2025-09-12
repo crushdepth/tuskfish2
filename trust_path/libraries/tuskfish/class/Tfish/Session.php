@@ -166,6 +166,50 @@ class Session
     }
 
     /**
+     * Set title of a redirect screen.
+     * 
+     * Single use only.
+     */
+    public function redirectTitle(): ?string
+    {
+        $title = $_SESSION['redirectTitle'] ?? null;
+        unset($_SESSION['redirectTitle']);
+
+        return $title;
+    }
+
+    /**
+     * Set a custom title for a redirection page.
+     * 
+     * Use to provide context for login challenges, error messages, and confirmation screens.
+     */
+    public function setRedirectTitle(string $title = ''): void
+    {
+        $_SESSION['redirectTitle'] = $this->trimString($title);
+    }
+
+    /**
+     * Set a context message for a redirect screen.
+     */
+    public function redirectMessage(): ?string
+    {
+        $message = $_SESSION['redirectMessage'] ?? null;
+        unset($_SESSION['redirectMessage']);
+
+        return $message;
+    }
+
+    /**
+     * set a custom message for a redirection page.
+     * 
+     * Use to provide context for login challenges, error messages, and confirmation screens.
+     */
+    public function setRedirectMessage(string $message = ''): void
+    {
+        $_SESSION['redirectMessage'] = $this->trimString($message);
+    }
+
+    /**
      * Verify that the current session is valid and user is enabled and return current user group.
      *
      * If the password has changed since the user logged in, they will be denied access. A user

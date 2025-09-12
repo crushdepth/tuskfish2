@@ -49,7 +49,7 @@ class Restricted implements \Tfish\Interface\Viewable
      */
     public function __construct($model, \Tfish\Entity\Preference $preference)
     {
-        $this->pageTitle = TFISH_LOGIN;
+        $this->pageTitle = FISH_RESTRICTED_ACCESS;
         $this->model = $model;
         $this->template = 'restricted';
         $this->theme = $preference->defaultTheme();
@@ -62,4 +62,26 @@ class Restricted implements \Tfish\Interface\Viewable
      * Display the login form.
      */
     public function displayForm() {}
+
+    /** Utilities */
+
+    /**
+     * Set title for redirect page.
+     * 
+     * @return string|null Title of page.
+     */
+    public function redirectTitle(): ?string
+    {
+        return $this->model->redirectTitle();
+    }
+
+    /**
+     * Set context message for redirect page.
+     * 
+     * @return string|null Context message.
+     */
+    public function redirectMessage(): ?string
+    {
+        return $this->model->redirectMessage();
+    }
 }
