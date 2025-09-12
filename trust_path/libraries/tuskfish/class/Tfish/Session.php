@@ -494,13 +494,11 @@ class Session
         // Destroy the session and redirect
         \session_destroy();
 
-        if ($cleanUrl) {
-            \header('Location: ' . $cleanUrl);
-            exit;
-        } else {
-            \header('Location: ' . TFISH_URL);
-            exit;
-        }
+        // No-store: avoid caching any personalized logout response
+        \header('Cache-Control: no-store', true);
+        $target = $cleanUrl ?: TFISH_URL;
+        \header('Location: ' . $target, true, 303);
+        exit;        
     }
 
     /**

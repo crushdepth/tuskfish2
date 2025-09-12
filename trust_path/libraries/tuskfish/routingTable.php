@@ -118,7 +118,7 @@ return [
         '\\Tfish\\Model\\Login',
         '\\Tfish\\ViewModel\\Restricted',
         '\\Tfish\\View\\Single',
-        '\\Tfish\\Controller\\Restricted',
+        '\\Tfish\\Controller\\Login',
         0),
     '/preference/' => new Route(
         '\\Tfish\\Model\\Preference',
