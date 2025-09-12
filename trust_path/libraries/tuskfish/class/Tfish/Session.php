@@ -654,7 +654,7 @@ class Session
      *
      * A random token is generated and stored in the current session (if not already set). The value
      * of this token is included as a hidden field in forms when they are loaded by the user. This
-     * allows forms to be validated via validateFormToken().
+     * allows forms to be validated via validateToken().
      */
     public function setToken()
     {
