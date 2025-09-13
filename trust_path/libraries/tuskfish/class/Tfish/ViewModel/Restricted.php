@@ -49,7 +49,7 @@ class Restricted implements \Tfish\Interface\Viewable
      */
     public function __construct($model, \Tfish\Entity\Preference $preference)
     {
-        $this->pageTitle = FISH_RESTRICTED_ACCESS;
+        $this->pageTitle = TFISH_RESTRICTED_ACCESS;
         $this->model = $model;
         $this->template = 'restricted';
         $this->theme = $preference->defaultTheme();

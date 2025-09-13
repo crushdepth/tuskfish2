@@ -156,7 +156,7 @@ class FrontController
     private function checkSiteClosed(Entity\Preference $preference, string $path)
     {
         if ($preference->closeSite() && !$this->session->isAdmin() && $path !== '/login/') {
-            \header('Location: ' . TFISH_URL . 'login/');
+            \header('Location: ' . TFISH_URL . 'login/', true, 303);
             exit;
         }
     }
