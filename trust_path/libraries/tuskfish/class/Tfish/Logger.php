@@ -62,6 +62,11 @@ class Logger
         $file = !empty($file) ? $this->trimString($file) : TFISH_ERROR_UNSPECIFIED;
         $line = isset($line) ? $this->trimString($line) : TFISH_ERROR_UNSPECIFIED;
 
+        $errno = $errno ?? TFISH_ERROR_UNSPECIFIED;
+        $line  = $line ?? TFISH_ERROR_UNSPECIFIED;
+        $error = $error !== '' ? $this->trimString($error) : TFISH_ERROR_UNSPECIFIED;
+        $file  = $file !== '' ? $this->trimString($file) : TFISH_ERROR_UNSPECIFIED;
+
         $message = \date("Y-m-d, H:i:s", \time()) . ": [ERROR][$errno][$error]";
         $message .= "[$file:$line]\n";
         \error_log($message, 3, TFISH_ERROR_LOG_PATH);
