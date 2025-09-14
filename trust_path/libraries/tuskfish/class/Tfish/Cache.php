@@ -65,13 +65,13 @@ class Cache
      *
      * @param string $path Path segment of requested URL, eg. parse_url($url, PHP_URL_PATH).
      * @param array $params URL Query string parameters for this page as $key => $value pairs.
-     * @return string|bool Return cached page if exists, otherwise false.
+     * @return bool Return cached page if exists, otherwise false.
      */
-    public function check(string $path, array $params)
+    public function check(string $path, array $params): bool
     {
         // Abort if cache is disabled or params are empty.
         if (!$this->preference->enableCache() || empty($params)) {
-            return;
+            return false;
         }
 
         $this->setPath($path);
@@ -80,21 +80,22 @@ class Cache
         $fileName = $this->_getCachedFileName($params);
 
         // Verify that the constructed path matches the canonical path. Exit cache if path is bad.
-        $resolvedPath = \realpath(TFISH_PRIVATE_CACHE_PATH) . '/' . $fileName;
-        $resolvedPath = $this->standardise($resolvedPath);
+        $resolvedPath = $this->standardise(\realpath(TFISH_PRIVATE_CACHE_PATH) . '/' . $fileName);
+        $canonical = $this->standardise(TFISH_PRIVATE_CACHE_PATH . $fileName);
 
-        if ($resolvedPath != TFISH_PRIVATE_CACHE_PATH . $fileName) {
+        if ($resolvedPath !== $canonical) {
             return false;
         }
 
-        // Path is good, so check if the file actually exist and has not expired. If so, flush
-        // the output buffer to screen.
-        if (\file_exists($resolvedPath) && (\filemtime($resolvedPath) >
+        // Check if the file actually exist and has not expired, flush output buffer to screen.
+        if (\file_exists($canonical) && (\filemtime($canonical) >
                 (\time() - $this->preference->cacheLife()))) {
-            echo \file_get_contents($resolvedPath);
+            echo \file_get_contents($canonical);
             \ob_end_flush();
             exit;
         }
+
+        return false;
     }
 
     /**
@@ -143,27 +144,33 @@ class Cache
      *
      * @param array $params URL Query string parameters for this page as $key => $value pairs.
      * @param string $buffer HTML page output from ob_get_contents().
+     * @return void
      */
-    public function save(array $params, string $buffer)
+    public function save(array $params, string $buffer): void
     {
         // Abort if cache is disabled or $params is empty (= do not cache signal).
         if (!$this->preference->enableCache() || empty($params)) {
             return;
         }
 
-        // Resolve the file name and verify that the constructed path matches the canonical path.
+        // Resolve the file name.
         $fileName = $this->_getCachedFileName($params);
-        $filePath = \realpath(TFISH_PRIVATE_CACHE_PATH) . '/' . $fileName;
-        $filePath = $this->standardise($filePath);
 
-        if ($filePath != TFISH_PRIVATE_CACHE_PATH . $fileName) {
+        // Verify that the constructed path matches the canonical path. Exit cache if path is bad.
+        $resolvedPath = $this->standardise(\realpath(TFISH_PRIVATE_CACHE_PATH) . '/' . $fileName);
+        $canonical = $this->standardise(TFISH_PRIVATE_CACHE_PATH . $fileName);
+
+        if ($resolvedPath !== $canonical) {
             return;
         }
 
-        // Write the page to the cache.
-        if (false !== ($f = @\fopen($filePath, 'w'))) {
-            \fwrite($f, $buffer);
-            \fclose($f);
+        // Atomic write to prevent torn cache files.
+        $tmp = $canonical . '.tmp';
+
+        if (@\file_put_contents($tmp, $buffer, LOCK_EX) !== false) {
+            @\rename($tmp, $canonical);
+        } else {
+            @\unlink($tmp);
         }
     }
 
@@ -204,13 +211,9 @@ class Cache
         $path = $this->trimString($path);
 
         // Remove any file extension.
-        $path = $this->trimString($path);
         if (\str_ends_with($path, '.php') || \str_ends_with($path, '.PHP')) {
             $path = \substr($path, 0, -4);
         }
-
-
-
 
         // Check for directory traversals and null byte injection.
         if ($this->hasTraversalorNullByte($path)) {
