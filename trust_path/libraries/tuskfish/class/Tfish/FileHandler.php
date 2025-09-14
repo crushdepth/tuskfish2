@@ -155,9 +155,14 @@ class FileHandler
             $filepath = TFISH_UPLOADS_PATH . $filepath;
             $resolvedPath = \realpath($filepath);
 
+            if ($resolvedPath === false) {
+                \trigger_error(TFISH_ERROR_BAD_PATH, E_USER_NOTICE);
+                return false;
+            }
+
             // To avoid clashes with Windows director separator:
             $testPath = \mb_strtolower($filepath, "UTF-8");
-            $resolvedPath = mb_strtolower(\str_replace("\\", "/", $resolvedPath), "UTF-8");
+            $resolvedPath = \mb_strtolower(\str_replace("\\", "/", $resolvedPath), "UTF-8");
 
             if ($testPath === $resolvedPath) {
                 return $filepath; // Path is good.
@@ -284,6 +289,7 @@ class FileHandler
                 \unlink($filepath);
             } catch (\Exception $e) {
                 \trigger_error(TFISH_ERROR_FAILED_TO_DELETE_FILE, E_USER_NOTICE);
+                return false;
             }
         } else {
             \trigger_error(TFISH_ERROR_BAD_PATH, E_USER_NOTICE);
@@ -309,7 +315,7 @@ class FileHandler
         }
 
         $filename = $this->trimString($filename);
-        $cleanFilename = \mb_strtolower(pathinfo($filename, PATHINFO_FILENAME), 'UTF-8');
+        $cleanFilename = \mb_strtolower(\pathinfo($filename, PATHINFO_FILENAME), 'UTF-8');
 
         // Check that target directory is whitelisted (locked to uploads/image or uploads/media).
         if ($fieldname === 'image' || $fieldname === 'media') {
@@ -320,7 +326,7 @@ class FileHandler
         }
 
         $mimetypeList = $this->listMimetypes(); // extension => mimetype
-        $extension = \mb_strtolower(pathinfo($filename, PATHINFO_EXTENSION), 'UTF-8');
+        $extension = \mb_strtolower(\pathinfo($filename, PATHINFO_EXTENSION), 'UTF-8');
         $clean_extension = \array_key_exists($extension, $mimetypeList)
                 ? $this->trimString($extension) : false;
 
