@@ -204,7 +204,13 @@ class Cache
         $path = $this->trimString($path);
 
         // Remove any file extension.
-        $path = \rtrim($path, '.php');
+        $path = $this->trimString($path);
+        if (\str_ends_with($path, '.php') || \str_ends_with($path, '.PHP')) {
+            $path = \substr($path, 0, -4);
+        }
+
+
+
 
         // Check for directory traversals and null byte injection.
         if ($this->hasTraversalorNullByte($path)) {
