@@ -743,7 +743,7 @@ class Database
     {
         foreach ($tagPlaceholders as $tag_placeholder => $value) {
             $statement->bindValue($tag_placeholder, $value, \PDO::PARAM_INT);
-            unset($placeholder);
+            unset($tag_placeholder);
         }
     }
 
@@ -875,11 +875,11 @@ class Database
     }
 
     /** @internal */
-    private function _selectCount(string $table, Criteria $criteria, string $column)
+    private function _selectCount(string $table, ?Criteria $criteria, string $column)
     {
         // Specify operation and column
         $sql = "SELECT COUNT(";
-        $sql .= $column = "*" ? $column : $this->addBackticks($column);
+        $sql .= ($column === "*") ? $column : $this->addBackticks($column);
         $sql .= ") ";
 
         // Set table.
@@ -958,7 +958,7 @@ class Database
     }
 
     /** @internal */
-    private function _selectDistinct(string $table, array $columns, Criteria $criteria)
+    private function _selectDistinct(string $table, array $columns, ?Criteria $criteria = null)
     {
         // Specify operation
         $sql = "SELECT DISTINCT ";
@@ -1138,9 +1138,8 @@ class Database
             $statement->bindValue(":id", $id, \PDO::PARAM_INT);
 
             foreach ($keyValues as $key => $value) {
-                $type = \gettype($value);
-                $statement->bindValue(":" . $key, $value, $this->setType($type));
-                unset($type);
+                $statement->bindValue(":" . $key, $value, $this->setType($value));
+                unset($key, $value);
             }
         } else {
             return false;
@@ -1176,7 +1175,7 @@ class Database
     }
 
     /** @internal */
-    private function _updateAll(string $table, array $keyValues, Criteria $criteria)
+    private function _updateAll(string $table, array $keyValues, ?Criteria $criteria = null)
     {
         // Set table.
         $sql = "UPDATE " . $this->addBackticks($table) . " SET ";
