@@ -228,7 +228,6 @@ class Criteria
                 } else {
                     \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
                 }
-                unset($tag);
             }
 
             $this->tag = $cleanTags;
