@@ -167,29 +167,22 @@ class Content
      *
      * @return string Bytes expressed as convenient human readable units.
      */
-    public function bytesToHumanReadable()
+    public function bytesToHumanReadable(): string
     {
-        $bytes = $this->fileSize;
-        $unit = $val = '';
+        $bytes = (int) $this->fileSize;
 
-        if ($bytes >= 0 && $bytes < ONE_KILOBYTE) {
-            $unit = ' bytes';
-            $val = $bytes;
-        } elseif ($bytes >= ONE_KILOBYTE && $bytes < ONE_MEGABYTE) {
-            $unit = ' KB';
-            $val = ($bytes / ONE_KILOBYTE);
-        } elseif ($bytes >= ONE_MEGABYTE && $bytes < ONE_GIGABYTE) {
-            $unit = ' MB';
-            $val = ($bytes / ONE_MEGABYTE);
-        } else {
-            $unit = ' GB';
-            $val = ($bytes / ONE_GIGABYTE);
+        if ($bytes < ONE_KILOBYTE) {
+            return $bytes . ' bytes';
         }
-
-        $val = round($val, 2);
-
-        return $val . ' ' . $unit;
+        if ($bytes < ONE_MEGABYTE) {
+            return \round($bytes / ONE_KILOBYTE, 2) . ' KB';
+        }
+        if ($bytes < ONE_GIGABYTE) {
+            return \round($bytes / ONE_MEGABYTE, 2) . ' MB';
+        }
+        return \round($bytes / ONE_GIGABYTE, 2) . ' GB';
     }
+
 
     /**
      * Convert the site base URL to the TFISH_LINK constant and vice versa.
@@ -458,7 +451,7 @@ class Content
         if (empty($extension) || (!empty($extension) && !\array_key_exists($extension, $whitelist))) {
             $this->media = '';
             $this->format = '';
-            $this->fileSize = '';
+            $this->fileSize = 0;
         } else {
             $this->media = $filename;
         }
@@ -624,13 +617,13 @@ class Content
      *
      * @param   string $date
      */
-    public function setDate(string $date)
+    public function setDate(string $date): void
     {
         $date = $this->trimString($date);
-        $checkDate = \date_parse_from_format('Y-m-d', $date);
+        $check = \date_parse_from_format('Y-m-d', $date);
 
-        if (!$checkDate || $checkDate['warning_count'] > 0 || $checkDate['error_count'] > 0) {
-            $date = \date(DATE_RSS, \time());
+        if (!$check || $check['warning_count'] > 0 || $check['error_count'] > 0) {
+            $date = \date('Y-m-d');
             \trigger_error(TFISH_ERROR_BAD_DATE_DEFAULTING_TO_TODAY, E_USER_WARNING);
         }
 
@@ -873,7 +866,7 @@ class Content
         }
 
         if ($parent === $this->id && $parent > 0) {
-            \trigger_error(TFISH_ERROR_CIRCULAR_PARENT_REFERENCE);
+            \trigger_error(TFISH_ERROR_CIRCULAR_PARENT_REFERENCE, E_USER_ERROR);
         }
 
         $this->parent = $parent;
