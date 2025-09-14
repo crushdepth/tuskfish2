@@ -167,7 +167,7 @@ class Session
 
     /**
      * Set title of a redirect screen.
-     * 
+     *
      * Single use only.
      */
     public function redirectTitle(): ?string
@@ -180,7 +180,7 @@ class Session
 
     /**
      * Set a custom title for a redirection page.
-     * 
+     *
      * Use to provide context for login challenges, error messages, and confirmation screens.
      */
     public function setRedirectTitle(string $title = ''): void
@@ -201,7 +201,7 @@ class Session
 
     /**
      * set a custom message for a redirection page.
-     * 
+     *
      * Use to provide context for login challenges, error messages, and confirmation screens.
      */
     public function setRedirectMessage(string $message = ''): void
@@ -386,7 +386,7 @@ class Session
             // Reset failed login counter to zero.
             $this->db->update('user', (int) $user['id'], ['loginErrors' => 0]);
 
-            // Send an admim notification email.
+            // Send an admin notification email.
             $this->notifyAdminLogin($user['adminEmail']);
 
             // Redirect onwards (if nextUrl() is set), or to group home page if not. Note that the
@@ -498,7 +498,7 @@ class Session
         \header('Cache-Control: no-store', true);
         $target = $cleanUrl ?: TFISH_URL;
         \header('Location: ' . $target, true, 303);
-        exit;        
+        exit;
     }
 
     /**
@@ -605,7 +605,8 @@ class Session
 
         // Cookie domain, for example www.php.net. To make cookies visible on all subdomains
         // (default) prefix with dot eg. '.php.net'
-        $domain = ltrim($_SERVER['SERVER_NAME'], 'www');
+        $host   = $_SERVER['SERVER_NAME'] ?? '';
+        $domain = \strncasecmp($host, 'www.', 4) === 0 ? \substr($host, 4) : $host;
 
         // If true the cookie will only be sent over secure connections.
         // Note: If using NGINX as reverse proxy and to terminate SSL, you should lock this to
