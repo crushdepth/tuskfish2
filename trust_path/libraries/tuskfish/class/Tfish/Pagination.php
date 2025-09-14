@@ -71,6 +71,7 @@ class Pagination
         $this->start = 0;
         $this->tag = 0;
         $this->extraParams = [];
+        $this->extraParamsString = '';
     }
 
     /**
@@ -89,7 +90,7 @@ class Pagination
     public function renderPaginationControl()
     {
         // If the count is zero there is no need for a pagination control.
-        if ($this->count === 0) {
+        if ($this->count === 0 || $this->limit <= 0) {
             return false;
         }
 
@@ -240,7 +241,7 @@ class Pagination
         if (empty($clean_extraParams)) {
             $this->extraParamsString = '';
         } else {
-            $this->extraParamsString = \implode("&", $clean_extraParams);
+            $this->extraParamsString = \implode("&amp;", $clean_extraParams);
         }
     }
 
