@@ -38,7 +38,7 @@ trait EmailCheck
      */
     public function isEmail(string $email): bool
     {
-        $email = str_replace(["\r","\n"], '', trim($email));
-        return $email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+        $email = \str_replace(["\r","\n"], '', \trim($email));
+        return $email !== '' && \filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 }
