@@ -58,8 +58,6 @@ trait Tag
             } else {
                \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
             }
-
-            unset($cleanTag);
         }
 
         $this->tags = $cleanTags;
