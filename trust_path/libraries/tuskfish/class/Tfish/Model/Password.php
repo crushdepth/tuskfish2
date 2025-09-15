@@ -81,7 +81,7 @@ class Password
 
     /**
      * Update password in database.
-     * 
+     *
      * Must be logged in, member of at least one group, and account enabled to access.
      *
      * @param   string $password
@@ -91,7 +91,7 @@ class Password
     {
         $userId   = (int) ($_SESSION['id'] ?? 0);
         $userMask = (int) $this->session->verifyPrivileges();
-        
+
         if ($userId <= 0 || $userMask <= 0) {
             return false;
         }

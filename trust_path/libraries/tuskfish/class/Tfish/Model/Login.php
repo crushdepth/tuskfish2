@@ -82,7 +82,7 @@ class Login
 
     /**
      * Set title for redirect page.
-     * 
+     *
      * @return string|null Title of page.
      */
     public function redirectTitle(): ?string
@@ -92,7 +92,7 @@ class Login
 
     /**
      * Set context message for redirect page.
-     * 
+     *
      * @return string|null Context message.
      */
     public function redirectMessage(): ?string
