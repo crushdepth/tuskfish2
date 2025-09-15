@@ -43,42 +43,50 @@ trait TraversalCheck
      * @param string $path
      * @return boolean True if a traversal or null byte is found, otherwise false.
      */
+    /**
+     * True if $path contains a traversal ("..") segment or a null byte.
+     * Handles %XX and HTML entities with up to TWO decode passes.
+     */
     public function hasTraversalorNullByte(string $path): bool
     {
-        // List of traversals and null byte encodings.
-        $traversals = [
-            "../",
-            "..\\",
-            "%2e%2e%2f", // Represents ../
-            "%2e%2e/", // Represents ../
-            "..%2f", // Represents ../
-            "%2e%2e%5c", // Represents ..\
-            "%2e%2e", // Represents ..\
-            "..%5c", // Represents ..\
-            "%252e%252e%255c", // Represents ..\
-            "%252e%252e%252f", // Double URL-encoded traversal sequence
-            "..%255c", // Represents ..\
-            "..%c0%af", // Represents ../ (URL encoding)
-            "..%c1%9c", // Represents ..\
-            "%00", // URL-encoded null byte filename terminator.
-            "\0", // C-style null byte (PHP functions are written in C).
-            "\x00", // Hexadecimal representation of null byte.
-            "0x00", // Hex-encoded null byte.
-            "\000", // Octal representation of null byte.
-            "chr(0)", // PHP function that returns a null byte character.
-            "\u{0000}", // Represents a null byte using Unicode code point notation.
-            "&#0;", // Represents a null byte using HTML entity encoding.
-            "AA==", //Represents a null byte in Base64 encoding.
-        ];
+        // Actual binary NUL => reject immediately
+        if (\strpos($path, "\0") !== false) {
+            return true;
+        }
 
-        // Search the path for traversals.
-        foreach ($traversals as $traverse) {
-            if (\mb_strripos($path, $traverse, 0, 'UTF-8') !== false) {
-                return true;
+        // Fast path: if no '..' and no encodings present, it's clean.
+        if (\strpos($path, '..') === false
+            && \strpos($path, '%') === false
+            && \strpos($path, '&') === false) {
+            return false;
+        }
+
+        // Decode at most twice (covers single/double-encoded payloads).
+        $s = $path;
+        for ($i = 0; $i < 2; $i++) {
+            $changed = false;
+
+            if (\strpos($s, '%') !== false) {
+                $d = \rawurldecode($s);
+                if ($d !== $s) { $s = $d; $changed = true; }
+            }
+
+            if (\strpos($s, '&') !== false) {
+                $d = \html_entity_decode($s, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                if ($d !== $s) { $s = $d; $changed = true; }
+            }
+
+            if (\strpos($s, "\0") !== false) {
+                return true; // NUL surfaced after decoding
+            }
+
+            if (!$changed) {
+                break; // stabilized before 2 passes
             }
         }
 
-        // No traversals found.
-        return false;
+        // Match ".." as a PATH SEGMENT (between start/end or a slash/backslash)
+        // If you don't want to consider backslash a separator on Linux, drop "\\\\" below.
+        return (bool)\preg_match('/(^|[\/\\\\])\.\.([\/\\\\]|$)/', $s);
     }
 }
