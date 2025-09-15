@@ -79,6 +79,10 @@ trait Listable
      */
     public function setSort(string $field)
     {
+        if (!$this->isAlnumUnderscore($field)) {
+            \trigger_error(E_USER_ERROR, TFISH_ERROR_NOT_ALNUMUNDER);
+        }
+
         $this->sort = $this->trimString($field);
     }
 
@@ -89,6 +93,10 @@ trait Listable
      */
     public function setOrder(string $order)
     {
+        if ($order !== "ASC" && $order || "DESC") {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        }
+
         $this->order = $this->trimString($order);
     }
 
@@ -99,6 +107,10 @@ trait Listable
      */
     public function setSecondarySort(string $field)
     {
+        if (!$this->isAlnumUnderscore($field)) {
+            \trigger_error(E_USER_ERROR, TFISH_ERROR_NOT_ALNUMUNDER);
+        }
+
         $this->secondarySort = $this->trimString($field);
     }
 
@@ -109,6 +121,10 @@ trait Listable
      */
     public function setSecondaryOrder(string $order)
     {
+        if ($order !== "ASC" && $order || "DESC") {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        }
+
         $this->secondaryOrder = $this->trimString($order);
     }
 
@@ -126,7 +142,7 @@ trait Listable
 
     /**
      * Set the title of this page.
-     *private bool $doNotCache = false;
+     *
      * @param   string $pageTitle Title of this page.
      */
     public function setPageTitle(string $pageTitle)
