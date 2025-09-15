@@ -93,7 +93,7 @@ trait Listable
      */
     public function setOrder(string $order)
     {
-        if ($order !== "ASC" && $order || "DESC") {
+        if (!empty($order) && ($order !== "ASC" && $order !== "DESC")) {
             \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
         }
 
@@ -121,7 +121,7 @@ trait Listable
      */
     public function setSecondaryOrder(string $order)
     {
-        if ($order !== "ASC" && $order || "DESC") {
+        if (!empty($order) && ($order !== "ASC" && $order !== "DESC")) {
             \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
         }
 
