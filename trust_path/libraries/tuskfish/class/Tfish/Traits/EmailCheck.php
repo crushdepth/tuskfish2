@@ -38,22 +38,7 @@ trait EmailCheck
      */
     public function isEmail(string $email): bool
     {
-        // Trim whitespace from the email address.
-        $email = trim($email);
-
-        // Check if the email address meets minimum length requirements.
-        if (strlen($email) < 3) {
-            return false;
-        }
-
-        // FILTER_VALIDATE_EMAIL has some really stupid behaviour:
-        // If the email is valid, it returns the email as a string (not 'true').
-        // If the email is an invalid string, or does not contain '@', it returns null (not 'false')
-        if (filter_var($email, FILTER_VALIDATE_EMAIL) !== false &&
-                filter_var($email, FILTER_VALIDATE_EMAIL) !== null) {
-            return true;
-        }
-
-        return false;
+        $email = str_replace(["\r","\n"], '', trim($email));
+        return $email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 }
