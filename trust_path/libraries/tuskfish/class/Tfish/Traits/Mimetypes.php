@@ -97,6 +97,7 @@ trait Mimetypes
             "xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             "gif" => "image/gif", // Images.
             "jpg" => "image/jpeg",
+            "jpeg" => "image/jpeg",
             "png" => "image/png",
             "mp3" => "audio/mpeg", // Audio.
             "oga" => "audio/ogg",
