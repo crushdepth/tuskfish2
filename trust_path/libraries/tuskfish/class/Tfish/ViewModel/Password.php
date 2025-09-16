@@ -39,19 +39,18 @@ class Password implements \Tfish\Interface\Viewable
     use \Tfish\Traits\ValidateToken;
     use \Tfish\Traits\Viewable;
 
-    private $model;
-    private $preference;
-    private $password = '';
-    private $confirm = '';
-    private $backUrl = '';
-    private $response = '';
+    private object $model;
+    private string $password = '';
+    private string $confirm = '';
+    private string $backUrl = '';
+    private string $response = '';
 
     /**
      * Constructor.
      *
      * @param   object $model Instance of a model class.
      */
-    public function __construct($model)
+    public function __construct(object $model)
     {
         $this->pageTitle = TFISH_CHANGE_PASSWORD;
         $this->model = $model;
@@ -68,7 +67,7 @@ class Password implements \Tfish\Interface\Viewable
     /**
      * Display the change password form.
      */
-    public function displayForm()
+    public function displayForm(): void
     {
         $this->template = 'changePassword';
     }
@@ -76,7 +75,7 @@ class Password implements \Tfish\Interface\Viewable
     /**
      * Display change password confirmation message (success or failure).
      */
-    public function displaySetPassword()
+    public function displaySetPassword(): void
     {
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
@@ -110,7 +109,7 @@ class Password implements \Tfish\Interface\Viewable
      *
      * @param   string $confirm Second entry of the new password to validate first was correct.
      */
-    public function setConfirm(string $confirm)
+    public function setConfirm(string $confirm): void
     {
         $this->confirm = $confirm;
     }
@@ -120,7 +119,7 @@ class Password implements \Tfish\Interface\Viewable
      *
      * @param   string $password The new password.
      */
-    public function setPassword(string $password)
+    public function setPassword(string $password): void
     {
         $this->password = $password;
     }
