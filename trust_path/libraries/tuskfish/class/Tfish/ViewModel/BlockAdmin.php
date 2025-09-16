@@ -168,7 +168,7 @@ class BlockAdmin implements \Tfish\Interface\Listable
             $this->response = TFISH_OBJECT_DELETION_FAILED;
         }
 
-        $this->template ='response';
+        $this->template = 'response';
         $this->backUrl = TFISH_ADMIN_URL . 'blocks/';
     }
 
@@ -214,7 +214,7 @@ class BlockAdmin implements \Tfish\Interface\Listable
     public function displayWeights()
     {
         $weights = $_POST['weights'] ?? [];
-        $this->template ='response';
+        $this->template = 'response';
         $this->backUrl = TFISH_ADMIN_URL . 'blocks/';
 
         if (empty($weights)) {

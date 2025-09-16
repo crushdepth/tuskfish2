@@ -122,7 +122,7 @@ class Admin implements \Tfish\Interface\Listable
             $this->response = TFISH_OBJECT_DELETION_FAILED;
         }
 
-        $this->template ='response';
+        $this->template = 'response';
         $this->backUrl = TFISH_ADMIN_URL;
     }
 

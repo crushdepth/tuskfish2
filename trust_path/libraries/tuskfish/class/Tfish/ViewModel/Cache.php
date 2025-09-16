@@ -39,17 +39,17 @@ class Cache implements \Tfish\Interface\Viewable
     use \Tfish\Traits\ValidateToken;
     use \Tfish\Traits\Viewable;
 
-    private $model;
-    private $action = '';
-    private $backUrl = '';
-    private $response = '';
+    private object $model;
+    private string $action = '';
+    private string $backUrl = '';
+    private string $response = '';
 
     /**
      * Constructor
      *
      * @param   object $model Instance of a model class.
      */
-    public function __construct($model)
+    public function __construct(object $model)
     {
         $this->model = $model;
         $this->theme = 'admin';
@@ -61,7 +61,7 @@ class Cache implements \Tfish\Interface\Viewable
     /**
      * Display flush cache confirmation page.
      */
-    public function displayConfirm()
+    public function displayConfirm(): void
     {
         $this->pageTitle = TFISH_CONFIRM;
         $this->template = 'confirmFlush';
@@ -72,7 +72,7 @@ class Cache implements \Tfish\Interface\Viewable
     /**
      * Display flush cache result page (success or failure).
      */
-    public function displayFlush()
+    public function displayFlush(): void
     {
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
@@ -85,7 +85,7 @@ class Cache implements \Tfish\Interface\Viewable
             $this->response = TFISH_CACHE_FLUSH_FAILED;
         }
 
-        $this->template ='response';
+        $this->template = 'response';
         $this->action = 'flush';
         $this->backUrl = TFISH_ADMIN_URL;
     }
@@ -93,7 +93,7 @@ class Cache implements \Tfish\Interface\Viewable
     /**
      * Display cancel page for flush cache operation.
      */
-    public function displayCancel()
+    public function displayCancel(): void
     {
         \header('Location: ' . TFISH_ADMIN_URL);
         exit;
