@@ -31,10 +31,10 @@ namespace Tfish\Model;
 
 class Preference
 {
-    private $database;
-    private $criteriaFactory;
-    private $preference;
-    private $cache;
+    private \Tfish\Database $database;
+    private \Tfish\CriteriaFactory $criteriaFactory;
+    private \Tfish\Entity\Preference $preference;
+    private \Tfish\Cache $cache; 
 
     /**
      * Constructor.
@@ -64,12 +64,18 @@ class Preference
      *
      * @return  bool True on success, false on failure.
      */
-    public function update()
+    public function update(): bool
     {
-        $this->preference->load($_POST['preference']);
-        $this->cache->flush();
+        if (!isset($_POST['preference']) || !\is_array($_POST['preference'])) {
+            return false;
+        }
 
-        return $this->writePreferences();
+        $result = $this->writePreferences();
+
+        if ($result) {
+            $this->cache->flush();
+        }
+        return $result;
     }
 
     /**
@@ -111,12 +117,12 @@ class Preference
             return [];
         }
 
-        $entries = scandir(TFISH_THEMES_PATH);
+        $entries = \scandir(TFISH_THEMES_PATH);
         $dirs = [];
         $excluded = ['.', '..', 'admin', 'rss', 'signin'];
 
         foreach ($entries as $entry) {
-            if (\in_array($entry, $excluded)) {
+            if (\in_array($entry, $excluded, true)) {
                 continue;
             }
 
