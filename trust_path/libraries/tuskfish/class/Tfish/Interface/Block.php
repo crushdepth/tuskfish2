@@ -98,7 +98,7 @@ interface Block
      *
      * @return array
      */
-    public function config();
+    public function config(): array;
 
     /**
      * Set and validate config data from JSON.
@@ -106,7 +106,7 @@ interface Block
      * @param string $json
      * @return void
      */
-    public function setConfig(string $json);
+    public function setConfig(string $json): void;
 
     /**
      * Retrieve dynamically generated block content.

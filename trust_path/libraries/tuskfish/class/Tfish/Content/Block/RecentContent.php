@@ -303,7 +303,7 @@ class RecentContent implements \Tfish\Interface\Block
      * @param string $json
      * @return void
      */
-    public function setConfig(string $json)
+    public function setConfig(string $json): void
     {
         $config = !empty($json) ? \json_decode($json, true) : [];
         $this->config = $this->validateConfig($config);

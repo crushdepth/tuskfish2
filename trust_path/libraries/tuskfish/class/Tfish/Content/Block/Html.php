@@ -249,7 +249,7 @@ class Html implements \Tfish\Interface\Block
      * @param array $json
      * @return void
      */
-    public function setConfig(string $json)
+    public function setConfig(string $json): void
     {
         $this->config = [];
     }

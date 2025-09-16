@@ -255,7 +255,7 @@ class FeaturedVideo implements \Tfish\Interface\Block
      * @param string $json
      * @return void
      */
-    public function setConfig(string $json)
+    public function setConfig(string $json): void
     {
         $config = \json_decode($json, true);
         $this->config = $this->validateConfig($config);
