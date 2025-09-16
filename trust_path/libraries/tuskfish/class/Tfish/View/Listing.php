@@ -33,7 +33,7 @@ class Listing
 {
     private \Tfish\Interface\Listable $viewModel;
     private \Tfish\Pagination $pagination;
-    private $template;
+    private \Tfish\Entity\Template $template;
 
     /**
      * Constructor
@@ -50,9 +50,9 @@ class Listing
     /**
      * Render the pagination control.
      *
-     * @return string Pagination control output as HTML.
+     * @return string|bool Pagination control output as HTML or false if not required.
      */
-    public function pagination(): string
+    public function pagination(): string|bool
     {
         $this->pagination->setCount($this->viewModel->contentCount());
         $this->pagination->setLimit($this->viewModel->limit());

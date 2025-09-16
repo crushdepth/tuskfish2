@@ -85,9 +85,9 @@ class Pagination
      * If you want to create pagination controls for other presentation-side libraries add
      * additional methods to this class.
      *
-     * @return string HTML pagination control.
+     * @return string|bool HTML pagination control or false if not required.
      */
-    public function renderPaginationControl()
+    public function renderPaginationControl(): string|bool
     {
         // If the count is zero there is no need for a pagination control.
         if ($this->count === 0 || $this->limit <= 0) {
