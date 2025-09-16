@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\Content\ViewModel;
 
 /**
- * \Tfish\Content\ViewModelModel\Search class file.
+ * \Tfish\Content\ViewModel\Search class file.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
