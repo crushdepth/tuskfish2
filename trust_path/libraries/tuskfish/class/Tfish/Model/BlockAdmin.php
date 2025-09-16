@@ -36,10 +36,10 @@ class BlockAdmin
     use \Tfish\Traits\BlockOption;
     use \Tfish\Traits\ValidateString;
 
-    private $database;
-    private $criteriaFactory;
-    private $preference;
-    private $cache;
+    private \Tfish\Database $database;
+    private \Tfish\CriteriaFactory $criteriaFactory;
+    private \Tfish\Entity\Preference $preference;
+    private \Tfish\Cache $cache;
 
     /**
      * Constructor.
@@ -84,13 +84,14 @@ class BlockAdmin
             return false;
         }
 
-        // Flush cache.
-        if (!$this->cache->flush()) {
-            return false;
+        // Delete the object and flush cache.
+        $result = $this->database->delete('block', $id);
+
+        if ($result) {
+            $this->cache->flush();
         }
 
-        // Finally, delete the object.
-        return $this->database->delete('block', $id);
+        return $result; 
     }
 
     /**
@@ -119,11 +120,13 @@ class BlockAdmin
         }
 
         $result = $this->database->toggleBoolean($id, 'block', 'onlineStatus');
-        $this->cache->flush();
+
+        if ($result) { 
+            $this->cache->flush();
+        }    
 
         return $result;
     }
-
 
     /**
      * Update block weights from the admin page.
@@ -233,22 +236,23 @@ class BlockAdmin
      * Return the title of a given content object.
      *
      * @param   int $id ID of content object.
-     * @return  string Title of content object.
+     * @return  string|null Title of content object.
      */
-    public function getTitle(int $id)
+    public function getTitle(int $id): ?string
     {
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
 
         $statement = $this->database->select('block', $criteria, ['title']);
+        $val = $statement->fetch(\PDO::FETCH_COLUMN);
 
-        return $statement->fetch(\PDO::FETCH_COLUMN);
+        return ($val !== false) ? (string)$val : null;
     }
 
     /**
      * Run the count query.
      *
-     * @param   \Tfish\Criteria $criteria Filter criteria.
+     * @param   array $criteria Filter criteria.
      * @return  int Count.
      */
     private function runCount(array $criteria): int
@@ -345,12 +349,12 @@ class BlockAdmin
 
         if (!empty($criteria['id'])) {
             $whereClauses[] = "`block`.`id` = :id";
-            $bindings[':id'] = $criteria['id'];
+            $bindings[':id'] = (int)$criteria['id'];
         }
 
         $routeWhitelist = $this->blockRoutes();
 
-        if (!empty($criteria['route']) && \in_array($criteria['route'], $routeWhitelist)) {
+        if (!empty($criteria['route']) && \in_array($criteria['route'], $routeWhitelist, true)) {
             $whereClauses[] = "`blockRoute`.`route` = :route";
             $bindings[':route'] = $criteria['route'];
         }
@@ -364,7 +368,7 @@ class BlockAdmin
 
         if (isset($criteria['onlineStatus'])) {
             $whereClauses[] = "`block`.`onlineStatus` = :onlineStatus";
-            $bindings[':onlineStatus'] = $criteria['onlineStatus'];
+            $bindings[':onlineStatus'] = (int)$criteria['onlineStatus'];
         }
 
         $whereClause = !empty($whereClauses) ? "WHERE " . implode(" AND ", $whereClauses) . " " : "";
