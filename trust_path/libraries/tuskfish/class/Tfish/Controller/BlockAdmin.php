@@ -113,6 +113,10 @@ class BlockAdmin
         $this->viewModel->setPosition($position);
 
         $onlineStatus = (int) ($_REQUEST['onlineStatus'] ?? 2);
+        if ($onlineStatus !== 0 && $onlineStatus !== 1 && $onlineStatus !== 2) {
+            $onlineStatus = 2;
+        }
+
         $this->viewModel->setOnlineStatus($onlineStatus);
 
         $this->viewModel->setSort('position');
