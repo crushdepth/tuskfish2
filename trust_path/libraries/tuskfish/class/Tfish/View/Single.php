@@ -30,7 +30,7 @@ namespace Tfish\View;
 
 class Single
 {
-    private $viewModel;
+    private \Tfish\Interface\Viewable $viewModel;
     private $template;
 
     /**
