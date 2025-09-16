@@ -35,9 +35,9 @@ namespace Tfish\Controller;
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
 
-    private $model;
-    private $viewModel;
-    private $session;
+    private object $model;
+    private object $viewModel;
+    private \Tfish\Session $session;
 
     /**
      * Constructor
@@ -46,7 +46,7 @@ namespace Tfish\Controller;
      * @param   object $viewModel Instance of a viewModel class.
      * @param   \Tfish\Session Instance of the session management class.
      */
-    public function __construct($model, $viewModel, \Tfish\Session $session)
+    public function __construct(object $model, object $viewModel, \Tfish\Session $session)
     {
         $this->model = $model;
         $this->viewModel = $viewModel;
