@@ -260,6 +260,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_ERROR_BAD_ACTION", "Bad action submitted to front controller, high probability attempted abuse.");
 \define("TFISH_ERROR_UNSPECIFIED", "Unspecified error.");
 \define("TFISH_BLOCK_ROUTE_UPDATE_FAILED", "Block route update failed.");
+\define("TFISH_ERROR_YUBIKEY_ID_UNDEFINED", "Yubikey ID undefined.");
 
 // User group / permission errors.
 \define("TFISH_ERROR_INVALID_GROUP", "Invalid group.");
