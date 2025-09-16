@@ -31,8 +31,8 @@ namespace Tfish\View;
 
 class Listing
 {
-    private $viewModel;
-    private $pagination;
+    private \Tfish\Interface\Listable $viewModel;
+    private \Tfish\Pagination $pagination;
     private $template;
 
     /**
@@ -52,7 +52,7 @@ class Listing
      *
      * @return string Pagination control output as HTML.
      */
-    public function pagination()
+    public function pagination(): string
     {
         $this->pagination->setCount($this->viewModel->contentCount());
         $this->pagination->setLimit($this->viewModel->limit());
