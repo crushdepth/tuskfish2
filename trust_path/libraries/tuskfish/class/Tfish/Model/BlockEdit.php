@@ -44,11 +44,11 @@ class BlockEdit
     use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
 
-    private $database;
-    private $session;
-    private $criteriaFactory;
-    private $preference;
-    private $cache;
+    private \Tfish\Database $database;
+    private \Tfish\Session $session;
+    private \Tfish\CriteriaFactory $criteriaFactory;
+    private \Tfish\Entity\Preference $preference;
+    private \Tfish\Cache $cache;
 
     /**
      * Constructor.
@@ -80,7 +80,7 @@ class BlockEdit
      * Edit block object.
      *
      * @param   int $id ID of block.
-     * @return  object Block data as array.
+     * @return  array Block data.
      */
     public function edit(int $id): array
     {
@@ -102,6 +102,10 @@ class BlockEdit
      */
     public function insert(): bool
     {
+        if (!isset($_POST['content']) || !\is_array($_POST['content'])) {
+            return false;
+        }
+
         // Validate form.
         $content = $this->validateForm($_POST['content']);
 
@@ -113,10 +117,16 @@ class BlockEdit
         // Insert associated blockRoutes.
         $blockId = $this->database->lastInsertId();
 
-        if (!empty($_POST['route'])) {
-            $routes = $this->validateRoutes($_POST['route']) ?? [];
+        $routesInput = $_POST['route'] ?? [];
 
-            if (!$this->saveblockRoutes($blockId, $routes)) {
+        if (!\is_array($routesInput)) {
+            $routesInput = [];
+        }
+
+        if (!empty($routesInput)) {
+            $routes = $this->validateRoutes($routesInput);
+
+            if (!$this->saveBlockRoutes($blockId, $routes)) {
                 return false;
             }
         }
