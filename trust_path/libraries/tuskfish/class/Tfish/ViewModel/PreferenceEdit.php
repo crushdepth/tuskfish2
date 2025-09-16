@@ -47,10 +47,10 @@ class PreferenceEdit implements \Tfish\Interface\Viewable
     use \Tfish\Traits\ValidateToken;
     use \Tfish\Traits\Viewable;
 
-    private $model;
-    private $preference;
-    private $response = '';
-    private $backUrl = '';
+    private object $model;
+    private \Tfish\Entity\Preference $preference;
+    private string $response = '';
+    private string $backUrl = '';
 
     /**
      * Constructor
@@ -58,7 +58,7 @@ class PreferenceEdit implements \Tfish\Interface\Viewable
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tfish site preference class.
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference)
+    public function __construct(object $model, \Tfish\Entity\Preference $preference)
     {
         $this->pageTitle = TFISH_PREFERENCE_EDIT_PREFERENCES;
         $this->model = $model;
@@ -71,8 +71,10 @@ class PreferenceEdit implements \Tfish\Interface\Viewable
 
     /**
      * Cancel editing of preferences and redirect the user.
+     *
+     * @return void
      */
-    public function displayCancel()
+    public function displayCancel(): void
     {
         \header('Location: ' . TFISH_PREFERENCE_URL);
         exit;
@@ -80,19 +82,20 @@ class PreferenceEdit implements \Tfish\Interface\Viewable
 
     /**
      * Display the edit preferences form.
+     *
+     * @return void
      */
-    public function displayEdit()
+    public function displayEdit(): void
     {
-        $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
-        $this->validateToken($token);
-
         $this->template = 'preferenceEdit';
     }
 
     /**
      * Update preferences and display confirmation message (success or failure).
+     *
+     * @return void
      */
-    public function displayUpdate()
+    public function displayUpdate(): void
     {
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);

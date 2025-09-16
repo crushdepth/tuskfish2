@@ -37,8 +37,7 @@ class Restricted implements \Tfish\Interface\Viewable
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;
 
-    private $model;
-    private $preference;
+    private object $model;
 
     /**
      * Constructor
@@ -47,7 +46,7 @@ class Restricted implements \Tfish\Interface\Viewable
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      * @param   array $metadata Page-specific metadata overrides.
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference)
+    public function __construct(object $model, \Tfish\Entity\Preference $preference)
     {
         $this->pageTitle = TFISH_RESTRICTED_ACCESS;
         $this->model = $model;
@@ -61,13 +60,13 @@ class Restricted implements \Tfish\Interface\Viewable
     /**
      * Display the login form.
      */
-    public function displayForm() {}
+    public function displayForm(): void {}
 
     /** Utilities */
 
     /**
      * Set title for redirect page.
-     * 
+     *
      * @return string|null Title of page.
      */
     public function redirectTitle(): ?string
@@ -77,7 +76,7 @@ class Restricted implements \Tfish\Interface\Viewable
 
     /**
      * Set context message for redirect page.
-     * 
+     *
      * @return string|null Context message.
      */
     public function redirectMessage(): ?string
