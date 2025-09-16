@@ -30,8 +30,8 @@ namespace Tfish\Model;
 
 class Password
 {
-    private $database;
-    private $session;
+    private \Tfish\Database $database;
+    private \Tfish\Session $session;
 
     /**
      * Constructor.
@@ -62,20 +62,21 @@ class Password
     }
 
     /**
-     * Validate that password meets minimum length and UTF-8 coding requirements.
-     * Minimum length is hardcoded at 15 characters. Any less and it doesn't matter
-     * what your password is, the entire keyspace can be searched.
+     * Check if password is invalid (does not meet minimum length and UTF-8 coding requirements).
+     * Minimum length is hardcoded at 15 characters. Any less and it doesn't matter what your
+     * password is, the entire keyspace can be searched.
      *
      * @param   string $password
      * @param   string $confirm Confirmation password.
-     * @return  bool True if valid, false if invalid.
+     * @return  bool True if INVALID, false if VALID.
      */
     private function passwordIsNotValid(string $password, string $confirm): bool
     {
-        if (($password !== $confirm) || (\mb_strlen($password, 'UTF-8') < 15)) {
+        $len = \mb_strlen($password, 'UTF-8');
+
+        if ($password !== $confirm || $len < 15 || $len === false) {
             return true;
         }
-
         return false;
     }
 
@@ -89,7 +90,7 @@ class Password
      */
     private function updatePassword(string $password): bool
     {
-        $userId   = (int) ($_SESSION['id'] ?? 0);
+        $userId = (int) ($_SESSION['id'] ?? 0);
         $userMask = (int) $this->session->verifyPrivileges();
 
         if ($userId <= 0 || $userMask <= 0) {
