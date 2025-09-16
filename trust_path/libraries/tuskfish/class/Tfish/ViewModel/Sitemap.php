@@ -35,18 +35,17 @@ class Sitemap implements \Tfish\Interface\Viewable
     use \Tfish\Traits\ValidateToken;
     use \Tfish\Traits\Viewable;
 
-    private $model;
-    private $backurl = '';
-    private $response = '';
-    private $action = '';
-    private $backUrl = '';
+    private object $model;
+    private string $response = '';
+    private string $action = '';
+    private string $backUrl = '';
 
     /**
      * Constructor
      *
      * @param   object $model Instance of a model class.
      */
-    public function __construct($model)
+    public function __construct(object $model)
     {
         $this->model = $model;
         $this->pageTitle = TFISH_UPDATE_SITEMAP;
@@ -60,7 +59,7 @@ class Sitemap implements \Tfish\Interface\Viewable
     /**
      * Display sitemap update confirmation page.
      */
-    public function displayConfirm()
+    public function displayConfirm(): void
     {
         $this->pageTitle = TFISH_CONFIRM;
         $this->template = 'confirmSitemap';
@@ -71,7 +70,7 @@ class Sitemap implements \Tfish\Interface\Viewable
     /**
      * Display sitemap update result page (success or failure).
      */
-    public function displayGenerate()
+    public function displayGenerate(): void
     {
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
@@ -84,7 +83,7 @@ class Sitemap implements \Tfish\Interface\Viewable
             $this->response = TFISH_SITEMAP_UPDATE_FAILED;
         }
 
-        $this->template ='response';
+        $this->template = 'response';
         $this->action = 'generate';
         $this->backUrl = TFISH_ADMIN_URL;
     }
@@ -92,7 +91,7 @@ class Sitemap implements \Tfish\Interface\Viewable
     /**
      * Display cancel page for sitemap update operation.
      */
-    public function displayCancel()
+    public function displayCancel(): void
     {
         \header('Location: ' . TFISH_ADMIN_URL);
         exit;
