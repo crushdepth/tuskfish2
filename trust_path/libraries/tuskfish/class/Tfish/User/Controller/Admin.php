@@ -92,7 +92,9 @@ class Admin
             return [];
         }
 
-        $this->validateToken($_SESSION['token']);
+        $token = isset($_POST['token']) ? (string) $_POST['token'] : '';
+        $this->validateToken($token);
+
         $id = (int) ($_POST['id'] ?? 0);
         $this->viewModel->setId($id);
         $this->viewModel->displayDelete();

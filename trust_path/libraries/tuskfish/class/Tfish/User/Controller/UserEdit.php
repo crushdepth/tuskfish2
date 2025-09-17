@@ -96,7 +96,8 @@ class UserEdit
             return [];
         }
 
-        $this->validateToken($_SESSION['token']);
+        $token = isset($_POST['token']) ? (string) $_POST['token'] : '';
+        $this->validateToken($token);
         $this->viewModel->displaySave();
 
         return [];
