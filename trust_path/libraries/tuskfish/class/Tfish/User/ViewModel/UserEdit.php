@@ -43,13 +43,13 @@ class UserEdit implements \Tfish\Interface\Viewable
     use \Tfish\Traits\ValidateToken;
     use \Tfish\Traits\Viewable;
 
-    private $model;
-    private $id = 0;
-    private $content = '';
-    private $action = '';
-    private $response = '';
-    private $backUrl = '';
-    private $preference;
+    private object $model;
+    private int $id = 0;
+    private \Tfish\User\Entity\User $content;
+    private string $action = '';
+    private string $response = '';
+    private string $backUrl = '';
+    private \Tfish\Entity\Preference $preference;
 
     /**
      * Constructor.
@@ -57,7 +57,7 @@ class UserEdit implements \Tfish\Interface\Viewable
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference)
+    public function __construct(object $model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
         $this->preference = $preference;
@@ -69,8 +69,10 @@ class UserEdit implements \Tfish\Interface\Viewable
 
     /**
      * Display Add user form.
+     *
+     * @return void
      */
-    public function displayAdd()
+    public function displayAdd(): void
     {
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
@@ -82,8 +84,10 @@ class UserEdit implements \Tfish\Interface\Viewable
 
     /**
      * Cancel action and redirect to admin page.
+     *
+     * @return void
      */
-    public function displayCancel()
+    public function displayCancel(): void
     {
         \header('Location: ' . TFISH_ADMIN_USER_URL);
         exit;
@@ -91,8 +95,10 @@ class UserEdit implements \Tfish\Interface\Viewable
 
     /**
      * Display edit user form.
+     *
+     * @return void
      */
-    public function displayEdit()
+    public function displayEdit(): void
     {
         $id = (int) ($_GET['id'] ?? 0);
 
@@ -114,8 +120,10 @@ class UserEdit implements \Tfish\Interface\Viewable
 
     /**
      * Save user object (new or updated).
+     *
+     * @return void
      */
-    public function displaySave()
+    public function displaySave(): void
     {
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);

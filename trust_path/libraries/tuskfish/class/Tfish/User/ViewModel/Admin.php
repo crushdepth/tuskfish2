@@ -45,15 +45,15 @@ class Admin implements \Tfish\Interface\Listable
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
 
-    private $model;
-    private $preference;
-    private $userEmail = '';
-    private $contentList = [];
-    private $id = 0;
-    private $onlineStatus = 0;
-    private $action = '';
-    private $backUrl = '';
-    private $response = '';
+    private object $model;
+    private \Tfish\Entity\Preference $preference;
+    private string $userEmail = '';
+    private array $contentList = [];
+    private int $id = 0;
+    private int $onlineStatus = 0;
+    private string $action = '';
+    private string $backUrl = '';
+    private string $response = '';
 
     /**
      * Constructor.
@@ -61,7 +61,7 @@ class Admin implements \Tfish\Interface\Listable
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference)
+    public function __construct(object $model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
         $this->preference = $preference;
@@ -75,8 +75,10 @@ class Admin implements \Tfish\Interface\Listable
 
     /**
      * Cancel action and redirect to admin page.
+     *
+     * @return void
      */
-    public function displayCancel()
+    public function displayCancel(): void
     {
         \header('Location: ' . TFISH_ADMIN_USER_URL);
         exit;
@@ -84,8 +86,10 @@ class Admin implements \Tfish\Interface\Listable
 
     /**
      * Display delete confirmation form.
+     *
+     * @return void
      */
-    public function displayConfirmDelete()
+    public function displayConfirmDelete(): void
     {
         $this->pageTitle = TFISH_CONFIRM;
         $this->template = 'confirmDeleteUser';
@@ -95,9 +99,16 @@ class Admin implements \Tfish\Interface\Listable
 
     /**
      * Delete user object and display result.
+     *
+     * @return void
      */
-    public function displayDelete()
+    public function displayDelete(): void
     {
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            \header('Location: ' . TFISH_ADMIN_USER_URL, true, 303);
+            exit;
+        }
+
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
 
@@ -117,8 +128,10 @@ class Admin implements \Tfish\Interface\Listable
      * Display the admin summary table.
      *
      * Table a list of users and links to view, edit and delete items.
+     *
+     * @return void
      */
-    public function displayTable()
+    public function displayTable(): void
     {
         $this->pageTitle = TFISH_USERS;
         $this->listContent();
@@ -127,12 +140,15 @@ class Admin implements \Tfish\Interface\Listable
 
     /**
      * Toggle a user object online or offline.
+     *
+     * @return void
      */
-    public function displayToggle()
+    public function displayToggle(): void
     {
         $this->model->toggleOnlineStatus($this->id);
         $this->template = 'userTable';
-        header('Location: ' . TFISH_ADMIN_USER_URL);
+        header('Location: ' . TFISH_ADMIN_USER_URL, true, 303);
+        exit;
     }
 
     /** output */
@@ -141,8 +157,10 @@ class Admin implements \Tfish\Interface\Listable
      * Get user objects matching cached filter criteria.
      *
      * Result is cached as $contentList property.
+     *
+     * @return void
      */
-    public function listContent()
+    public function listContent(): void
     {
         $this->contentList = $this->model->getObjects(
             [
@@ -203,14 +221,16 @@ class Admin implements \Tfish\Interface\Listable
      * Set ID.
      *
      * @param   int $id ID of user object.
+     * @return void
      */
-    public function setId(int $id)
+    public function setId(int $id): void
     {
         $this->id = $id;
     }
 
     /**
      * Return user email.
+     * @return string
      */
     public function userEmail(): string
     {
@@ -219,8 +239,9 @@ class Admin implements \Tfish\Interface\Listable
 
     /**
      * Set email of user object.
+     * @return void
      */
-    public function setUserEmail()
+    public function setUserEmail(): void
     {
         $this->userEmail = $this->model->getEmail($this->id);
     }
