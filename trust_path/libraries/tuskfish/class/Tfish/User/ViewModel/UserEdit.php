@@ -74,9 +74,6 @@ class UserEdit implements \Tfish\Interface\Viewable
      */
     public function displayAdd(): void
     {
-        $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
-        $this->validateToken($token);
-
         $this->pageTitle = TFISH_USER_ADD;
         $this->content = new \Tfish\User\Entity\User;
         $this->template = 'userEntry';
@@ -106,7 +103,7 @@ class UserEdit implements \Tfish\Interface\Viewable
         $content = new \Tfish\User\Entity\User;
 
         if ($data = $this->model->edit($id)) {
-            $content->load($data, false);
+            $content->load($data);
             $this->setContent($content);
             $this->action = 'update';
             $this->template = 'userEdit';
@@ -125,7 +122,12 @@ class UserEdit implements \Tfish\Interface\Viewable
      */
     public function displaySave(): void
     {
-        $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            \header('Location: ' . TFISH_ADMIN_USER_URL, true, 303);
+            exit;
+        }
+
+        $token = isset($_POST['token']) ? $this->trimString((string) $_POST['token']) : '';
         $this->validateToken($token);
 
         $id = (int) ($_POST['content']['id'] ?? 0);
