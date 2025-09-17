@@ -24,14 +24,16 @@ namespace Tfish\User\Controller;
  * @version     Release: 2.0
  * @since       2.0
  * @package     user
- * @var         object $model Classname of the model used to display this page.
+ * @uses        trait \Tfish\Trait\ValidateToken Methods for CSRF protection.
+ * @var         object $model Classname of the model used to display this page (unused).
  * @var         object $viewModel Classname of the viewModel used to display this page.
  */
 
 class UserEdit
 {
-    private $model;
-    private $viewModel;
+    use \Tfish\Traits\ValidateToken;
+
+    private object $viewModel;
 
     /**
      * Constructor.
@@ -39,9 +41,8 @@ class UserEdit
      * @param   object $model Instance of a model class.
      * @param   object $viewModel Instance of a viewModel class.
      */
-    public function __construct($model, $viewModel)
+    public function __construct(object $model, object $viewModel)
     {
-        $this->model = $model;
         $this->viewModel = $viewModel;
     }
 
@@ -90,6 +91,12 @@ class UserEdit
      */
     public function save(): array
     {
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            $this->viewModel->displayCancel();
+            return [];
+        }
+
+        $this->validateToken($_SESSION['token']);
         $this->viewModel->displaySave();
 
         return [];

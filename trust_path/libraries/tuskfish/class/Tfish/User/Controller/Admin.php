@@ -33,7 +33,7 @@ namespace Tfish\User\Controller;
 class Admin
 {
     use \Tfish\Traits\ValidateString;
-     use \Tfish\Traits\ValidateToken;
+    use \Tfish\Traits\ValidateToken;
 
     private object $model;
     private object $viewModel;
