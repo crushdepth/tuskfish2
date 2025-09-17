@@ -80,8 +80,9 @@ class PreferenceEdit
     {
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             $this->viewModel->displayEdit();
+
             return [];
-        }  
+        }
 
         $this->viewModel->displayUpdate();
 

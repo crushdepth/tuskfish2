@@ -70,11 +70,14 @@ class Preference
             return false;
         }
 
+        $this->preference->load($_POST['preference']);
+
         $result = $this->writePreferences();
 
         if ($result) {
             $this->cache->flush();
         }
+
         return $result;
     }
 
