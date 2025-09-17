@@ -34,9 +34,9 @@ class Admin
 {
     use \Tfish\Traits\ValidateString;
 
-    private $database;
-    private $criteriaFactory;
-    private $preference;
+    private \Tfish\Database $database;
+    private \Tfish\CriteriaFactory $criteriaFactory;
+    private \Tfish\Entity\Preference $preference;
 
     /**
      * Constructor.
@@ -110,6 +110,10 @@ class Admin
 
         $user = $this->getRow($id);
 
+        if (empty($user)) {
+            return false;
+        }
+
         if ((int) $user['userGroup'] === 1) return true;
 
         return $this->database->toggleBoolean($id, 'user', 'onlineStatus');
@@ -131,7 +135,7 @@ class Admin
      * @param   int $id ID of content object.
      * @return  array Associative array containing type, id, image and media values.
      */
-    private function getRow(int $id)
+    private function getRow(int $id): array
     {
         if ($id < 1) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_NOTICE);
@@ -140,8 +144,9 @@ class Admin
 
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
+        $result = $this->database->select('user', $criteria)->fetch(\PDO::FETCH_ASSOC);
 
-        return $this->database->select('user', $criteria)->fetch(\PDO::FETCH_ASSOC);
+        return \is_array($result) ? $result : [];
     }
 
     /**
@@ -150,7 +155,7 @@ class Admin
      * @param   int $id ID of user.
      * @return  string Title of user.
      */
-    public function getEmail(int $id)
+    public function getEmail(int $id): string
     {
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
