@@ -31,6 +31,7 @@ namespace Tfish\User\Controller;
 
 class UserEdit
 {
+    use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
 
     private object $viewModel;
