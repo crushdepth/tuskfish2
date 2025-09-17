@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Tfish;
 
+// Script runs via CLI only.
+if (\PHP_SAPI !== 'cli') {
+    exit(0);
+}
+
 /**
  * Tuskfish script to check for expired content and mark it as offline. Run via cron job at midnight.
  *
@@ -57,25 +62,23 @@ $cache = $dice->create('\\Tfish\\Cache');
 // For this to work the date format must match that used in the database: Y-m-d (output as yyyy-mm-dd)
 $date = \date('Y-m-d', \time());
 
-// Count to determine if any rows are due for expiry.
-$sql = "SELECT COUNT(*) FROM `content` WHERE `expiresOn` != '' AND `expiresOn` < :date AND `onlineStatus` = '1';";
+$sql = "UPDATE `content`
+        SET `onlineStatus` = '0'
+        WHERE `expiresOn` != ''
+          AND `expiresOn` < :date
+          AND `onlineStatus` = '1'";
+
 $statement = $database->preparedStatement($sql);
 $statement->bindValue(':date', $date, \PDO::PARAM_STR);
-$statement->execute();
-$count = $statement->fetch(\PDO::FETCH_NUM);
-$count = (int) reset($count);
+$database->executeTransaction($statement);
+$affected = $statement->rowCount();
 
-// If any candidate rows were found, expire them and flush the cache.
-if ($count > 0) {
-    $sql = "UPDATE `content` SET `onlineStatus` = '0' WHERE `expiresOn` != '' AND `expiresOn` < :date AND `onlineStatus` = '1';";
-    $statement = $database->preparedStatement($sql);
-    $statement->bindValue(':date', $date, \PDO::PARAM_STR);
-    $database->executeTransaction($statement);
+// If anything changed, flush the cache and regenerate sitemap.
+if ($affected > 0) {
     $cache->flush();
-}
 
-// Update the sitemap.
-$sitemap = $dice->create('\\Tfish\\Model\\Sitemap');
-$sitemap->generate();
+    $sitemap = $dice->create('\\Tfish\\Model\\Sitemap');
+    $sitemap->generate();
+}
 
 exit;
