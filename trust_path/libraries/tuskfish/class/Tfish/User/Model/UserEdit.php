@@ -38,10 +38,10 @@ class UserEdit
     use \Tfish\Traits\Group;
     use \Tfish\Traits\ValidateString;
 
-    private $database;
-    private $session;
-    private $criteriaFactory;
-    private $preference;
+    private \Tfish\Database $database;
+    private \Tfish\Session $session;
+    private \Tfish\CriteriaFactory $criteriaFactory;
+    private \Tfish\Entity\Preference $preference;
 
     /**
      * Constructor.
@@ -90,6 +90,11 @@ class UserEdit
      */
     public function insert(): bool
     {
+        if (!isset($_POST['content']) || !\is_array($_POST['content'])) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_NOTICE);
+            return false;
+        }
+
         if ($this->duplicateYubikeysSubmitted()) {
             \trigger_error(TFISH_ERROR_YUBIKEY_NOT_UNIQUE, E_USER_NOTICE);
             return false;
@@ -117,6 +122,11 @@ class UserEdit
      */
     public function update(): bool
     {
+        if (!isset($_POST['content']) || !\is_array($_POST['content'])) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_NOTICE);
+            return false;
+        }
+
         if ($this->duplicateYubikeysSubmitted()) {
             \trigger_error(TFISH_ERROR_YUBIKEY_NOT_UNIQUE, E_USER_NOTICE);
             return false;
@@ -317,15 +327,19 @@ class UserEdit
      */
     private function duplicateYubikeysSubmitted(): bool
     {
-        if (!empty($_POST['content']['yubikeyId']) && !empty($_POST['content']['yubikeyId'])) {
-            $yubikeyId = $this->trimString($_POST['content']['yubikeyId']);
-            $yubikeyId2 = $this->trimString($_POST['content']['yubikeyId2']);
-            $yubikeyId3 = $this->trimString($_POST['content']['yubikeyId3']);
-
-            if ($yubikeyId === $yubikeyId2 || $yubikeyId === $yubikeyId3 || $yubikeyId2 === $yubikeyId3) return true;
+        if (!isset($_POST['content']) || !\is_array($_POST['content'])) {
+            return false;
         }
 
-        return false;
+        $y1 = isset($_POST['content']['yubikeyId'])  ? $this->trimString((string)$_POST['content']['yubikeyId'])  : '';
+        $y2 = isset($_POST['content']['yubikeyId2']) ? $this->trimString((string)$_POST['content']['yubikeyId2']) : '';
+        $y3 = isset($_POST['content']['yubikeyId3']) ? $this->trimString((string)$_POST['content']['yubikeyId3']) : '';
+
+        // Collect non-empty values
+        $ids = \array_filter([$y1, $y2, $y3], fn($v) => $v !== '');
+
+        // If any duplicates exist, the count shrinks when using array_unique
+        return count($ids) !== \count(\array_unique($ids));
     }
 
     /**
