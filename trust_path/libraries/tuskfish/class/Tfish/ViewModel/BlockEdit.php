@@ -30,7 +30,7 @@ namespace Tfish\ViewModel;
  * @var         object $model Classname of the model used to display this page.
  * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  * @var         int $id ID of a single block object to be displayed.
- * @var         mixed $content Block object to be edited.
+ * @var         array $content Block object to be edited.
  * @var         string $action Action to be embedded in the form and executed after next submission.
  * @var         string $response Message to display to the user after processing action (success/failure).
  * @var         string $backUrl $backUrl URL to return to if the user cancels the action.
@@ -44,7 +44,7 @@ class BlockEdit implements \Tfish\Interface\Viewable
 
     private object $model;
     private int $id = 0;
-    private object $content;
+    private array $content = [];
     private array $route = [];
     private string $action = '';
     private string $response = '';
@@ -189,9 +189,9 @@ class BlockEdit implements \Tfish\Interface\Viewable
     /**
      * Return a block object.
      *
-     * @return mixed
+     * @return array
      */
-    public function content(): mixed
+    public function content(): array
     {
         return $this->content;
     }
@@ -199,9 +199,9 @@ class BlockEdit implements \Tfish\Interface\Viewable
     /**
      * Set block object.
      *
-     * @param   mixed $content block object to be edited.
+     * @param   array $content block object to be edited.
      */
-    public function setContent(mixed $content): void
+    public function setContent(array $content): void
     {
         $this->content = $content;
     }
