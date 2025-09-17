@@ -49,7 +49,7 @@ class RecentContent implements \Tfish\Interface\Block
     private array $content = [];
 
     /** Constructor. */
-    public function __construct(array $row, \Tfish\Database $database, \Tfish\criteriaFactory $criteriaFactory)
+    public function __construct(array $row, \Tfish\Database $database, \Tfish\CriteriaFactory $criteriaFactory)
     {
         if (empty($row['id'])) return;
 

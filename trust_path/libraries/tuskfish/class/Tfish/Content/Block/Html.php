@@ -47,7 +47,7 @@ class Html implements \Tfish\Interface\Block
     private mixed $content = false;
 
     /** Constructor. */
-    public function __construct(array $row, \Tfish\Database $database, \Tfish\criteriaFactory $criteriaFactory)
+    public function __construct(array $row, \Tfish\Database $database, \Tfish\CriteriaFactory $criteriaFactory)
     {
         $this->load($row);
         $this->render();
@@ -63,15 +63,17 @@ class Html implements \Tfish\Interface\Block
     {
         if (empty($row['id'])) return;
 
-        $this->id = (int)$row['id'];
-        $this->position = $this->trimString($row['position']);
-        $this->title = $this->trimString($row['title']);
-        $this->html = $this->trimString($row['html']);
-        $this->setConfig($row['config'] ?? '');
-        $this->weight = (int)$row['weight'];
-        $this->template = \in_array($row['template'], $this->listTemplates(), true)
-            ? $row['template'] : 'html';
-        $this->onlineStatus = ($row['onlineStatus'] == 1) ? 1 : 0;
+        $this->id = (int)($row['id'] ?? 0);
+        $this->position = $this->trimString((string)($row['position'] ?? ''));
+        $this->title = $this->trimString((string)($row['title'] ?? ''));
+        $this->html = $this->trimString((string)($row['html'] ?? ''));
+        $this->setConfig((string)($row['config'] ?? ''));
+        $this->weight = (int)($row['weight'] ?? 0);
+
+        $tpl = (string)($row['template'] ?? '');
+        $this->template = \in_array($tpl, $this->listTemplates(), true) ? $tpl : 'html';
+
+        $this->onlineStatus = ((int)($row['onlineStatus'] ?? 0) === 1) ? 1 : 0;
     }
 
     /**
@@ -102,7 +104,7 @@ class Html implements \Tfish\Interface\Block
         }
 
         \ob_start();
-        include TFISH_CONTENT_BLOCK_PATH . $this->template . '.html';
+        $filepath;
         $this->html = \ob_get_clean();
     }
 
@@ -117,7 +119,9 @@ class Html implements \Tfish\Interface\Block
     {
         $json = \json_encode($this->config);
 
-        if ($json == false || !\json_validate($json, 3)) {
+        // json_validate() (PHP 8.3+) has signature json_validate(string $json): bool
+        // Validation is constrained to 3 levels of nesting as a SANITY CHECK.
+        if ($json === false || (\function_exists('json_validate') && !\json_validate($json, 3))) {
             \trigger_error(TFISH_ERROR_INVALID_JSON, E_USER_ERROR);
             exit;
         }

@@ -47,7 +47,7 @@ class FeaturedVideo implements \Tfish\Interface\Block
     private mixed $content = false;
 
     /** Constructor. */
-    public function __construct(array $row, \Tfish\Database $database, \Tfish\criteriaFactory $criteriaFactory)
+    public function __construct(array $row, \Tfish\Database $database, \Tfish\CriteriaFactory $criteriaFactory)
     {
         if (empty($row['id'])) return;
 
