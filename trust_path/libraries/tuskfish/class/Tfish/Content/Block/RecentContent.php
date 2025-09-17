@@ -159,7 +159,7 @@ class RecentContent implements \Tfish\Interface\Block
         }
 
         \ob_start();
-        include TFISH_CONTENT_BLOCK_PATH . $this->template . '.html';
+        include $filepath;
         $this->html = \ob_get_clean();
     }
 
@@ -174,7 +174,7 @@ class RecentContent implements \Tfish\Interface\Block
     {
         $json = \json_encode($this->config);
 
-        if ($json == false || !\json_validate($json, 3)) {
+        if ($json === false || (\function_exists('json_validate') && !\json_validate($json, 3))) {
             \trigger_error(TFISH_ERROR_INVALID_JSON, E_USER_ERROR);
             exit;
         }
@@ -305,7 +305,8 @@ class RecentContent implements \Tfish\Interface\Block
      */
     public function setConfig(string $json): void
     {
-        $config = !empty($json) ? \json_decode($json, true) : [];
+        $decoded = !empty($json) ? \json_decode($json, true) : [];
+        $config = \is_array($decoded) ? $decoded : [];
         $this->config = $this->validateConfig($config);
     }
 
@@ -322,7 +323,7 @@ class RecentContent implements \Tfish\Interface\Block
         $validConfig = [];
 
         // Number of content items.
-        $numItems = (int) $config['items'] ?? 0;
+        $numItems = isset($config['items']) ? (int)$config['items'] : 0;
         $validConfig['items'] = $this->isInt($numItems, 0, 20) ? $numItems : 0;
 
         // Tag filters.
@@ -340,7 +341,9 @@ class RecentContent implements \Tfish\Interface\Block
         if (!empty($config['type'])) {
             $types = $this->listTypes();
             foreach ($config['type'] as $type) {
-                $validConfig['type'][] = \array_key_exists($type, $types) ? $type : '';
+                if (\array_key_exists($type, $types)) {
+                    $validConfig['type'][] = $type;
+                }
             }
         }
 
