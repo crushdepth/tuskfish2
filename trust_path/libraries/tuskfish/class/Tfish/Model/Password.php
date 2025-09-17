@@ -98,7 +98,14 @@ class Password
         }
 
         $hash = $this->session->hashPassword($password);
+        $result = $this->database->update('user', $userId, ['passwordHash' => $hash]);
 
-        return $this->database->update('user', $userId, ['passwordHash' => $hash]);
+        if ($result) {
+            $this->session->regenerate();
+            $_SESSION['authHash'] = \hash('sha256', $hash);
+            return true;
+        }
+
+        return false;
     }
 }

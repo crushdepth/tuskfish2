@@ -55,6 +55,7 @@
       </div>
 
       <!-- Password and login errors -->
+      <?php if ((int) $content->userGroup() !== 1): ?>
       <div class="row justify-content-center">
         <div class="col-md-6 mb-3">
           <label for="password" class="form-label"><strong><?php echo TFISH_USER_RESET_PASSWORD; ?></strong></label>
@@ -66,6 +67,7 @@
           </div>
         </div>
       </div>
+      <?php endif; ?>
 
       <!-- Yubikey ID -->
       <div class="row justify-content-center">
