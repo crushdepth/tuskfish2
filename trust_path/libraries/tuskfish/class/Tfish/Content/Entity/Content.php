@@ -79,33 +79,33 @@ class Content
     use \Tfish\Traits\UrlCheck;
     use \Tfish\Traits\ValidateString;
 
-    private $id = 0;
-    private $type = '';
-    private $title = '';
-    private $teaser = '';
-    private $description = '';
-    private $creator = '';
-    private $media = '';
-    private $externalMedia = '';
-    private $format = '';
-    private $fileSize = 0;
-    private $image = '';
-    private $caption = '';
-    private $date = '';
-    private $submissionTime = 0;
-    private $lastUpdated = 0;
-    private $expiresOn = '';
-    private $counter = 0;
-    private $minimumViews = 0;
-    private $accessGroups = 0; // public access
-    private $inFeed = 1;
-    private $onlineStatus = 0;
-    private $parent = 0;
-    private $language = '';
-    private $rights = 1;
-    private $publisher = '';
-    private $template = '';
-    private $module = 'content';
+    private int $id = 0;
+    private string $type = '';
+    private string $title = '';
+    private string $teaser = '';
+    private string $description = '';
+    private string $creator = '';
+    private string $media = '';
+    private string $externalMedia = '';
+    private string $format = '';
+    private int $fileSize = 0;
+    private string $image = '';
+    private string $caption = '';
+    private string $date = '';
+    private int $submissionTime = 0;
+    private int $lastUpdated = 0;
+    private string $expiresOn = '';
+    private int $counter = 0;
+    private int $minimumViews = 0;
+    private int $accessGroups = 0; // public access
+    private int $inFeed = 1;
+    private int $onlineStatus = 0;
+    private int $parent = 0;
+    private string $language = '';
+    private int $rights = 1;
+    private string $publisher = '';
+    private string $template = '';
+    private string $module = 'content';
 
     /**
      * Load properties.
@@ -721,7 +721,21 @@ class Content
      */
     public function setExpiresOn(string $date)
     {
-        $this->expiresOn = $this->trimString($date);
+        $date = $this->trimString($date);
+
+        if ($date === '') {
+            $this->expiresOn = '';
+            return;
+        }
+
+        $check = \date_parse_from_format('Y-m-d', $date);
+        if (!$check || $check['warning_count'] > 0 || $check['error_count'] > 0) {
+            \trigger_error(TFISH_ERROR_BAD_DATE_DEFAULTING_TO_TODAY, E_USER_WARNING);
+            $this->expiresOn = '';
+            return;
+        }
+
+        $this->expiresOn = $date;
     }
 
     /**
@@ -966,6 +980,15 @@ class Content
 
         if ($this->hasTraversalorNullByte($template)) {
             \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
+        }
+
+        $type = $this->type;
+
+        if ($type !== '' && isset($this->listTemplates()[$type])) {
+            $allowed = $this->listTemplates()[$type];
+            if ($template !== '' && !\in_array($template, $allowed, true)) {
+                \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            }
         }
 
         $this->template = $template;
