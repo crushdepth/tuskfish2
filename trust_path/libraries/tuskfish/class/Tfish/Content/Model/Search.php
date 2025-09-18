@@ -35,10 +35,10 @@ class Search
 {
     use \Tfish\Traits\ValidateString;
 
-    private $database;
-    private $criteriaFactory;
-    private $preference;
-    private $onlineStatus;
+    private \Tfish\Database $database;
+    private \Tfish\CriteriaFactory $criteriaFactory;
+    private \Tfish\Entity\Preference $preference;
+    private int $onlineStatus;
 
     /**
      * Constructor.
@@ -89,8 +89,9 @@ class Search
      * Set onlineStatus.
      *
      * @param   int $onlineStatus Retrieve all content (0) or only online content (1).
+     * @return void
      */
-    public function setOnlineStatus(int $onlineStatus)
+    public function setOnlineStatus(int $onlineStatus): void
     {
         if ($onlineStatus == 0 || $onlineStatus == 1) {
             $this->onlineStatus = $onlineStatus;
