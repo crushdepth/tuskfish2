@@ -16,23 +16,43 @@
 
   <div class="row justify-content-center my-4">
     <div class="col-md-3">
-      <form action="<?php echo TFISH_URL . 'login/'; ?>" method="post" role="form" accept-charset="UTF-8">
+      <form action="<?php echo TFISH_URL . 'login/'; ?>" method="post" accept-charset="UTF-8">
 
         <!--- Email -->
         <div class="row justify-content-center">
-          <div class="col-md-4 form-group input-group">
-            <input type="email" class="form-control" name="email" id="email" placeholder="<?php echo TFISH_EMAIL; ?>" required>
-            <span class="input-group-text"><i class="icon-envelope"></i></span>
+          <div class="col-12">
+            <div class="input-group mb-3">
+              <input type="email"
+                     class="form-control"
+                     name="email"
+                     id="email"
+                     placeholder="<?php echo TFISH_EMAIL; ?>"
+                     required>
+              <span class="input-group-text">
+                <i class="icon-envelope"></i>
+              </span>
+            </div>
           </div>
         </div>
 
+
         <!-- Password -->
         <div class="row justify-content-center">
-          <div class="col-md-4 form-group input-group">
-            <input type="password" class="form-control" name="password" id="password" placeholder="<?php echo TFISH_PASSWORD; ?>" required>
-            <span class="input-group-text" id="password-addon"><i class="icon-lock"></i></span>
+          <div class="col-12">
+            <div class="input-group mb-3">
+              <input type="password"
+                     class="form-control"
+                     name="password"
+                     id="password"
+                     placeholder="<?php echo TFISH_PASSWORD; ?>"
+                     required>
+              <span class="input-group-text" id="password-addon">
+                <i class="icon-lock"></i>
+              </span>
+            </div>
           </div>
         </div>
+
 
         <!-- Submit -->
         <div class="row">
