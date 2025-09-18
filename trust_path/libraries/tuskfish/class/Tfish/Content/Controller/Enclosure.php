@@ -24,24 +24,22 @@ namespace Tfish\Content\Controller;
  * @version     Release: 2.0
  * @since       2.0
  * @package     content
- * @var         object $model Classname of the model used to display this page.
+ * @var         object $model Classname of the model used to display this page (unused).
  * @var         object $viewModel Classname of the viewModel used to display this page.
  */
 
 class Enclosure
 {
-    private $model;
-    private $viewModel;
+    private object $viewModel;
 
     /**
      * Constructor.
      *
-     * @param   object $model Instance of a model class.
+     * @param   object $model Instance of a model class (unused).
      * @param   object $viewModel Instance of a viewModel class.
      */
     public function __construct($model, $viewModel)
     {
-        $this->model = $model;
         $this->viewModel = $viewModel;
     }
 
