@@ -25,7 +25,7 @@ namespace Tfish\Content\Controller;
  * @since       2.0
  * @package     content
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
- * @var         object $model Classname of the model used to display this page.
+ * @var         object $model Classname of the model used to display this page (unused).
  * @var         object $viewModel Classname of the viewModel used to display this page.
  */
 
@@ -39,12 +39,11 @@ class Listing
     /**
      * Constructor.
      *
-     * @param   object $model Instance of a model class.
+     * @param   object $model Instance of a model class (unused).
      * @param   object $viewModel Instance of a viewModel class.
      */
-    public function __construct($model, $viewModel)
+    public function __construct(object $model, object $viewModel)
     {
-        $this->model = $model;
         $this->viewModel = $viewModel;
     }
 
@@ -77,7 +76,7 @@ class Listing
         $type = $this->trimString($_GET['type'] ?? '');
 
         $this->viewModel->setType($type);
-        if (!empty($type)) $cacheParams['type'] = $viewModel->type();
+        if (!empty($type)) $cacheParams['type'] = $this->viewModel->type();
 
         $this->viewModel->setSort('date');
         $this->viewModel->setOrder('DESC');
