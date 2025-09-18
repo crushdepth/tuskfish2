@@ -349,7 +349,7 @@ class FileHandler
         $filename = \time() . '_' . $filename;
         $upload_path = TFISH_UPLOADS_PATH . $fieldname . '/' . $filename . '.' . $extension;
 
-        if ($_FILES['content']["error"][$fieldname]) {
+        if (($_FILES['content']['error'][$fieldname] ?? 0) !== 0) {
             switch ($_FILES['content']["error"][$fieldname]) {
                 case 1: // UPLOAD_ERR_INI_SIZE
                     \trigger_error(TFISH_ERROR_UPLOAD_ERR_INI_SIZE, E_USER_NOTICE);
@@ -381,6 +381,23 @@ class FileHandler
                     return false;
                     break;
             }
+        }
+
+        // Verify mimetype by file content before moving.
+        $tmp = $_FILES['content']['tmp_name'][$fieldname] ?? '';
+
+        if ($tmp === '' || !\is_uploaded_file($tmp)) {
+            \trigger_error(TFISH_ERROR_FILE_UPLOAD_FAILED, E_USER_ERROR);
+            return false;
+        }
+
+        $finfo = new \finfo(\FILEINFO_MIME_TYPE);
+        $detected = $finfo->file($tmp) ?: '';
+        $allowed = $this->listMimetypes()[$extension] ?? '';
+
+        if ($detected !== $allowed) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_MIMETYPE, E_USER_NOTICE);
+            return false;
         }
 
         if (!\move_uploaded_file($_FILES['content']["tmp_name"][$fieldname], $upload_path)) {
