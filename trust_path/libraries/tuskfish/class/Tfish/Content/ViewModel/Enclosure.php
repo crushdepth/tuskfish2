@@ -36,9 +36,9 @@ class Enclosure implements \Tfish\Interface\Viewable
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;
 
-    private $model;
-    private $id = 0;
-    private $backUrl = '';
+    private object $model;
+    private int $id = 0;
+    private string $backUrl = '';
 
     /**
      * Constructor.
@@ -46,7 +46,7 @@ class Enclosure implements \Tfish\Interface\Viewable
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference)
+    public function __construct(object $model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
         $this->theme = $preference->defaultTheme();

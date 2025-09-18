@@ -132,23 +132,13 @@ trait TagLink
      */
     private function updateTaglinks(int $contentId, string $contentType, string $module, array $tags): bool
     {
-        $this->database->beginTransaction();
-
-        // Delete existing taglinks for this content.
+        // Delete existing taglinks
         if (!$this->deleteTaglinks($contentId, $module)) {
-            $this->database->rollBack();
             return false;
         }
 
         // Save the updated taglinks for this content.
         if (!$this->saveTaglinks($contentId, $contentType, $module, $tags)) {
-            $this->database->rollBack();
-            return false;
-        }
-
-        // Finalize transaction.
-        if (!$this->database->commit()) {
-            $this->database->rollBack();
             return false;
         }
 
