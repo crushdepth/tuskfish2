@@ -36,7 +36,6 @@ namespace Tfish\Content\ViewModel;
  * @var         array $escapedSearchTerms Search terms entered by user XSS-escaped for display.
  * @var         string $searchType Type of search (AND, OR, exact).
  * @var         int $start Position in result set to retrieve objects from.
- * @var         int $limit Number of search results to actually retrieve for display on this page view.
  * @var         int $tag Tag ID (not in use).
  * @var         int $onlineStatus Filter content by online or offline status.
  */
@@ -58,7 +57,6 @@ class AdminSearch implements \Tfish\Interface\Listable
     private array $escapedSearchTerms = [];
     private string $searchType = '';
     private int $start = 0;
-    private int $limit = 0;
     private int $tag = 0;
     private int $onlineStatus = 0;
 
@@ -307,11 +305,13 @@ class AdminSearch implements \Tfish\Interface\Listable
      */
     public function setSearchType(string $searchType): void
     {
+        $searchType = $this->trimString($searchType);
+
         if (!\in_array($searchType, ['AND', 'OR', 'exact'], true)) {
             \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
         }
 
-        $this->searchType = $this->trimString($searchType);
+        $this->searchType = $searchType;
     }
 
     /**
