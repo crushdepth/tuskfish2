@@ -30,7 +30,7 @@ namespace Tfish\Content\Controller;
 
 class Gallery
 {
-    private $viewModel;
+    private object $viewModel;
 
     /**
      * Constructor.
