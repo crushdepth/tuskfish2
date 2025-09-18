@@ -38,7 +38,7 @@ class Gallery
      * @param   object $model Instance of a model class (unused).
      * @param   object $viewModel Instance of a viewModel class.
      */
-    public function __construct($model, $viewModel)
+    public function __construct(object $model, object $viewModel)
     {
         $this->viewModel = $viewModel;
     }
