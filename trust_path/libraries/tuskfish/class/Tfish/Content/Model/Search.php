@@ -188,7 +188,7 @@ class Search
             }
 
         } else {
-            return false;
+            return [];
         }
 
         // Execute the statement.
@@ -213,11 +213,12 @@ class Search
             for ($i = 0; $i < $count; $i++) {
                 $statement->bindValue($searchTermPlaceholders[$i], "%" . $params['searchTerms'][$i] . "%", \PDO::PARAM_STR);
                 $statement->bindValue($escapedTermPlaceholders[$i], "%" . $params['escapedSearchTerms'][$i] . "%", \PDO::PARAM_STR);
-                $statement->bindValue(":limit", (int) $params['limit'], \PDO::PARAM_INT);
+            }
 
-                if (isset($params['start'])) {
-                    $statement->bindValue(":offset", (int) $params['start'], \PDO::PARAM_INT);
-                }
+            $statement->bindValue(":limit", (int) $params['limit'], \PDO::PARAM_INT);
+
+            if (isset($params['start'])) {
+                $statement->bindValue(":offset", (int) $params['start'], \PDO::PARAM_INT);
             }
 
             if ($params['onlineStatus'] !== 0) {
@@ -225,7 +226,7 @@ class Search
             }
 
         } else {
-            return false;
+            return [];
         }
 
         $statement->execute();
@@ -247,7 +248,7 @@ class Search
     {
         $cleanParams = [];
 
-        if (\is_array($params['searchTerms'])) {
+        if (\is_array($params['escapedSearchTerms'] ?? null)) {
 
             $cleanParams['searchTerms'] = [];
 
@@ -256,7 +257,7 @@ class Search
             }
         }
 
-        if (\is_array($params['escapedSearchTerms'])) {
+        if (\is_array($params['escapedSearchTerms'] ?? null)) {
 
             $cleanParams['escapedSearchTerms'] = [];
 
