@@ -57,10 +57,10 @@ class Listing implements \Tfish\Interface\Listable
 
     private object $model;
     private \Tfish\Entity\Preference $preference;
-    private ?\Tfish\Content\Entity\Content $content = null;
+    private mixed $content = '';
     private array $contentList = [];
     private int $contentCount = 0;
-    private ?\Tfish\Content\Entity\Content $parent = null;
+    private mixed $parent = '';
     private array $children = [];
     private string $description = '';
     private string $author = '';
@@ -264,7 +264,7 @@ class Listing implements \Tfish\Interface\Listable
      * @param   int $id ID of content object.
      * @return \Tfish\Content\Entity\Content $content
      */
-    private function getObject(int $id): \Tfish\Content\Entity\Content
+    private function getObject(int $id): mixed
     {
         return $this->model->getObject($id);
     }
@@ -437,7 +437,7 @@ class Listing implements \Tfish\Interface\Listable
      *
      * @return  \Tfish\Content\Entity\Content Parent content object.
      */
-    public function parent(): ?\Tfish\Content\Entity\Content
+    public function parent(): mixed
     {
         return $this->parent;
     }
