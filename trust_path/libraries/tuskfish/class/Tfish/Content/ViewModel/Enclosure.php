@@ -24,7 +24,6 @@ namespace Tfish\Content\ViewModel;
  * @version     Release: 2.0
  * @since       2.0
  * @package     content
- * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\Interface\Viewable interface.
  * @var         object $model Classname of the model used to display this page.
  * @var         int $id ID of the content object whose media attachment will be streamed.
@@ -33,7 +32,6 @@ namespace Tfish\Content\ViewModel;
 
 class Enclosure implements \Tfish\Interface\Viewable
 {
-    use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;
 
     private object $model;
@@ -89,8 +87,10 @@ class Enclosure implements \Tfish\Interface\Viewable
      * Set ID.
      *
      * @param   int $id ID of content object.
+     *
+     * @return void
      */
-    public function setId(int $id)
+    public function setId(int $id): void
     {
         $this->id = $id;
     }
