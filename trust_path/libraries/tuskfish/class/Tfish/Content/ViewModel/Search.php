@@ -45,19 +45,19 @@ class Search implements \Tfish\Interface\Listable
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\ValidateString;
 
-    private $model;
-    private $preference;
-    private $searchResults = [];
-    private $contentCount = 0;
+    private object $model;
+    private \Tfish\Entity\Preference $preference;
+    private array $searchResults = [];
+    private int $contentCount = 0;
 
-    private $action = '';
-    private $searchTerms = [];
-    private $escapedSearchTerms = [];
-    private $searchType = '';
-    private $start = 0;
-    private $limit = 0;
-    private $tag = 0;
-    private $onlineStatus = 1;
+    private string $action = '';
+    private array $searchTerms = [];
+    private array $escapedSearchTerms = [];
+    private string $searchType = '';
+    private int $start = 0;
+    private int $limit = 0;
+    private int $tag = 0;
+    private int $onlineStatus = 1;
 
     /**
      * Constructor.
@@ -65,7 +65,7 @@ class Search implements \Tfish\Interface\Listable
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference)
+    public function __construct(object $model, \Tfish\Entity\Preference $preference)
     {
         $this->pageTitle = TFISH_SEARCH;
         $this->model = $model;
