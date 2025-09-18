@@ -47,20 +47,20 @@ class AdminSearch implements \Tfish\Interface\Listable
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\ValidateString;
 
-    private $model;
-    private $preference;
+    private object $model;
+    private \Tfish\Entity\Preference $preference;
 
-    private $searchResults = [];
-    private $contentCount = 0;
+    private array $searchResults = [];
+    private int $contentCount = 0;
 
-    private $action = '';
-    private $searchTerms = [];
-    private $escapedSearchTerms = [];
-    private $searchType = '';
-    private $start = 0;
-    private $limit = 0;
-    private $tag = 0;
-    private $onlineStatus = 0;
+    private string $action = '';
+    private array $searchTerms = [];
+    private array $escapedSearchTerms = [];
+    private string $searchType = '';
+    private int $start = 0;
+    private int $limit = 0;
+    private int $tag = 0;
+    private int $onlineStatus = 0;
 
     /**
      * Constructor.
@@ -68,7 +68,7 @@ class AdminSearch implements \Tfish\Interface\Listable
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference)
+    public function __construct(object $model, \Tfish\Entity\Preference $preference)
     {
         $this->pageTitle = TFISH_ADMIN_SEARCH;
         $this->model = $model;
@@ -87,15 +87,19 @@ class AdminSearch implements \Tfish\Interface\Listable
 
     /**
      * Display the search form.
+     *
+     * @return void
      */
-    public function displayForm() {}
+    public function displayForm(): void {}
 
     /**
      * Search.
      *
      * Search results are cached in the property $searchResults.
+     *
+     * @return void
      */
-    public function search()
+    public function search(): void
     {
         $searchResults = $this->model->search([
             'searchTerms' => $this->searchTerms,
@@ -114,6 +118,8 @@ class AdminSearch implements \Tfish\Interface\Listable
 
     /**
      * Returns the template for formatting the date from preferences.
+     *
+     * @return string
      */
     public function dateFormat(): string
     {
@@ -177,8 +183,9 @@ class AdminSearch implements \Tfish\Interface\Listable
      * Set the starting position in the set of available object.
      *
      * @param int $start ID of first object to view in the set of available records.
+     * @return void
      */
-    public function setStart(int $start)
+    public function setStart(int $start): void
     {
         $this->start = $start;
     }
@@ -199,8 +206,9 @@ class AdminSearch implements \Tfish\Interface\Listable
      * Set action.
      *
      * @param   string $action Action is embedded in the form, to control handling on submission (next page load)
+     * @return void
      */
-    public function setAction(string $action)
+    public function setAction(string $action): void
     {
         $this->action = $this->trimString($action);
     }
@@ -229,8 +237,9 @@ class AdminSearch implements \Tfish\Interface\Listable
      * Set search terms.
      *
      * @param   string $searchTerms Search terms (keywords).
+     * @param void
      */
-    public function setSearchTerms(string $searchTerms)
+    public function setSearchTerms(string $searchTerms): void
     {
         $searchTerms = $this->trimString($searchTerms);
 
@@ -294,8 +303,9 @@ class AdminSearch implements \Tfish\Interface\Listable
      * Set search type.
      *
      * @param   string $searchType Options are: "AND", "OR", "exact".
+     * @return void
      */
-    public function setSearchType(string $searchType)
+    public function setSearchType(string $searchType): void
     {
         if (!\in_array($searchType, ['AND', 'OR', 'exact'], true)) {
             \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
@@ -356,8 +366,9 @@ class AdminSearch implements \Tfish\Interface\Listable
      * Not in use.
      *
      * @param   int $tag ID of tag.
+     * @return void
      */
-    public function setTag(int $tag)
+    public function setTag(int $tag): void
     {
         $this->tag = $tag;
     }
