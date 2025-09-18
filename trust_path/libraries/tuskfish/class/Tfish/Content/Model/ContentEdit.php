@@ -52,12 +52,12 @@ class ContentEdit
     use \Tfish\Traits\UrlCheck;
     use \Tfish\Traits\ValidateString;
 
-    private $database;
-    private $criteriaFactory;
-    private $preference;
-    private $cache;
-    private $htmlPurifier;
-    private $fileHandler;
+    private \Tfish\Database $database;
+    private \Tfish\CriteriaFactory $criteriaFactory;
+    private \Tfish\Entity\Preference $preference;
+    private \Tfish\Cache $cache;
+    private \HTMLPurifier $htmlPurifier;
+    private \Tfish\FileHandler $fileHandler;
 
     /**
      * Constructor.
@@ -169,7 +169,7 @@ class ContentEdit
         }
 
         // Check if delete flag was set.
-        if ($_POST['deleteImage'] === '1' && !empty($savedContent['image'])) {
+        if (($_POST['deleteImage'] ?? '0') === '1' && !empty($savedContent['image'])) {
             $content['image'] = '';
             $this->fileHandler->deleteFile('image/' . $savedContent['image']);
         }
@@ -180,7 +180,7 @@ class ContentEdit
                 $this->fileHandler->deleteFile('media/' . $savedContent['media']);
             }
 
-            if ($_POST['deleteMedia'] === '1' && !empty($savedContent['media'])) {
+            if (($_POST['deleteMedia'] ?? '0') === '1' && !empty($savedContent['media'])) {
                 $content['media'] = '';
                 $content['format'] = '';
                 $content['fileSize'] = 0;
@@ -249,8 +249,9 @@ class ContentEdit
      *
      * @param   array $content An array of the updated content object data as key value pairs.
      * @param   array $savedContent The old content object data as currently stored in database.
+     * @return void
      */
-    private function checkExCollection(array $content, array $savedContent)
+    private function checkExCollection(array $content, array $savedContent): void
     {
         if ($savedContent['type'] === 'TfCollection' && $content['type'] !== 'TfCollection') {
 
@@ -268,7 +269,7 @@ class ContentEdit
      *
      * @return  array Array of collections.
      */
-    public function collections()
+    public function collections(): array
     {
         $criteria = $this->criteriaFactory->criteria();
 
@@ -277,7 +278,7 @@ class ContentEdit
         $criteria->setSort('title');
         $criteria->setOrder('ASC');
         $criteria->setSecondarySort('submissionTime');
-        $criteria->setSecondaryOrder('\ConteDESC');
+        $criteria->setSecondaryOrder('DESC');
 
         $statement = $this->database->select('content', $criteria);
 
@@ -309,8 +310,9 @@ class ContentEdit
      * Move an uploaded image from temporary to permanent storage location.
      *
      * @param   array $content Content object as associative array.
+     * @return void
      */
-    private function uploadImage(array & $content)
+    private function uploadImage(array & $content): void
     {
         if (!empty($_FILES['content']['name']['image'])) {
             $filename = $this->trimString($_FILES['content']['name']['image']);
@@ -326,8 +328,9 @@ class ContentEdit
      * Move an uploaded media file from temporary to permanent storage location.
      *
      * @param   array $content Content object as associative array.
+     * @return void
      */
-    private function uploadMedia(array & $content)
+    private function uploadMedia(array & $content): void
     {
         if (!empty($_FILES['content']['name']['media'])) {
             $filename = $this->trimString($_FILES['content']['name']['media']);
@@ -431,8 +434,14 @@ class ContentEdit
             \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
         }
 
-        if (!empty($image) && !\in_array($image, $this->listImageMimetypes())) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_MIMETYPE, E_USER_ERROR);
+        if (!empty($image)) {
+            $extension = \strtolower(\pathinfo($image, PATHINFO_EXTENSION));
+            if ($ext !== '') {
+                $mtype = $this->listMimetypes();
+                if (!isset($mtype[$extension]) || !\str_starts_with($mtype[$extension], 'image/')) {
+                    \trigger_error(TFISH_ERROR_ILLEGAL_MIMETYPE, E_USER_ERROR);
+                }
+            }
         }
 
         $clean['image'] = $image;
