@@ -59,6 +59,11 @@ class Error implements \Tfish\Interface\Viewable
      */
     public function displayError(): string
     {
+        if (!\headers_sent()) {
+            \http_response_code(404);
+            \header('X-Robots-Tag: noindex, nofollow');
+        }
+
         return TFISH_ERROR_SORRY_PAGE_DOES_NOT_EXIST;
     }
 }
