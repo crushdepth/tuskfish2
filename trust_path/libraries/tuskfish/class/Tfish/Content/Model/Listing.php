@@ -166,7 +166,7 @@ class Listing
         $statement = $this->database->select('content', $criteria);
 
         if (!$statement) {
-            \trigger_error(TFISH_ERROR_NO_STATEMENT, E_USER_NOTICE);
+            \trigger_error(TFISH_ERROR_NO_STATEMENT, E_USER_WARNING);
             return [];
         }
 
@@ -178,7 +178,7 @@ class Listing
         $statement = $this->database->select('content', $criteria);
 
         if (!$statement) {
-            \trigger_error(TFISH_ERROR_NO_STATEMENT, E_USER_NOTICE);
+            \trigger_error(TFISH_ERROR_NO_STATEMENT, E_USER_WARNING);
             return [];
         }
 
