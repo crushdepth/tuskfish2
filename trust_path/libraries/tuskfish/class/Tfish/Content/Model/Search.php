@@ -122,8 +122,11 @@ class Search
      */
     private function searchContent(array $params): array
     {
-        $sql = $count = $contentCount = '';
-        $searchTermPlaceholders = $escapedTermPlaceholders = [];
+        $sql = '';
+        $count = 0;
+        $contentCount = 0;
+        $searchTermPlaceholders = [];
+        $escapedTermPlaceholders = [];
         $result = [];
 
         $searchType = $this->trimString(($params['searchType'] ?? ''));
@@ -246,11 +249,11 @@ class Search
      */
     private function validateParams(array $params): array
     {
-        $cleanParams = [];
+        $cleanParams = [
+            'searchTerms' => [], 'escapedSearchTerms' => []
+        ];
 
         if (\is_array($params['escapedSearchTerms'] ?? null)) {
-
-            $cleanParams['searchTerms'] = [];
 
             foreach($params['searchTerms'] as $value) {
                 $cleanParams['searchTerms'][] = $this->trimString($value);
@@ -258,8 +261,6 @@ class Search
         }
 
         if (\is_array($params['escapedSearchTerms'] ?? null)) {
-
-            $cleanParams['escapedSearchTerms'] = [];
 
             foreach($params['escapedSearchTerms'] as $value) {
                 $cleanParams['escapedSearchTerms'][] = $this->trimString($value);
