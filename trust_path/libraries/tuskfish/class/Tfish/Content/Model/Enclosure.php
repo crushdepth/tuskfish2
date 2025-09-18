@@ -123,7 +123,7 @@ class Enclosure
             }
         } else {
             $this->database->close();
-            \header("HTTP/1.0 404 Not Found");
+            \header('Location: ' . TFISH_URL . 'error/', true, 303);
             exit;
         }
     }
