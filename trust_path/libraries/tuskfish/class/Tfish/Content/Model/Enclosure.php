@@ -67,9 +67,9 @@ class Enclosure
      * @param int $id ID of the associated content object.
      * @param string $filename An alternative name (rename) for the file you wish to transfer,
      * excluding extension.
-     * @return bool True on success, false on failure.
+     * @return void
      */
-    public function streamFileToBrowser(int $id, string $filename = '')
+    public function streamFileToBrowser(int $id, string $filename = ''): void
     {
         if ($id < 1) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
@@ -77,7 +77,7 @@ class Enclosure
         }
 
         $filename = !empty($filename) ? $this->trimString($filename) : '';
-        $result = $this->_streamFileToBrowser($id, $filename);
+        $this->_streamFileToBrowser($id, $filename);
         $this->database->close();
         exit;
     }
@@ -87,7 +87,8 @@ class Enclosure
     {
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
-        $statement = $this->database->select('content', $criteria, ['type', 'media', 'accessGroups', 'onlineStatus']);
+        $statement = $this->database->select('content', $criteria, 
+            ['type', 'media', 'expiresOn', 'accessGroups', 'onlineStatus']);
 
         if (!$statement) {
             \trigger_error(TFISH_ERROR_NO_STATEMENT, E_USER_NOTICE);
@@ -127,7 +128,7 @@ class Enclosure
                 \ob_start();
                 $filepath = TFISH_MEDIA_PATH . $media;
                 $filename = empty($filename) ? \pathinfo($filepath, PATHINFO_FILENAME) : $filename;
-                $fileExtension = \pathinfo($filepath, PATHINFO_EXTENSION);
+                $fileExtension = \strtolower(\pathinfo($filepath, PATHINFO_EXTENSION));
                 $fileSize = \filesize(TFISH_MEDIA_PATH . $media);
                 $mimetypeList = $this->listMimetypes();
                 $mimetype = $mimetypeList[$fileExtension];
