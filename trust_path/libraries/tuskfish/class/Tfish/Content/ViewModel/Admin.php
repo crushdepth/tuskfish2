@@ -50,21 +50,21 @@ class Admin implements \Tfish\Interface\Listable
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
 
-    private $model;
-    private $preference;
-    private $contentTitle = '';
-    private $contentList = [];
-    private $contentCount = 0;
-    private $id = 0;
-    private $status = 0;
-    private $start = 0;
-    private $tag = 0;
-    private $type = '';
-    private $inFeed = 2;
-    private $onlineStatus = 2;
-    private $action = '';
-    private $backUrl = '';
-    private $response = '';
+    private object $model;
+    private \Tfish\Entity\Preference $preference;
+    private string $contentTitle = '';
+    private array $contentList = [];
+    private int $contentCount = 0;
+    private int $id = 0;
+    private int $status = 0;
+    private int $start = 0;
+    private int $tag = 0;
+    private string $type = '';
+    private int $inFeed = 2;
+    private int $onlineStatus = 2;
+    private string $action = '';
+    private string $backUrl = '';
+    private string $response = '';
 
     /**
      * Constructor.
@@ -72,7 +72,7 @@ class Admin implements \Tfish\Interface\Listable
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference)
+    public function __construct(object $model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
         $this->preference = $preference;
@@ -88,8 +88,10 @@ class Admin implements \Tfish\Interface\Listable
 
     /**
      * Cancel action and redirect to admin page.
+     *
+     * @return void
      */
-    public function displayCancel()
+    public function displayCancel(): void
     {
         \header('Location: ' . TFISH_ADMIN_URL);
         exit;
@@ -97,8 +99,10 @@ class Admin implements \Tfish\Interface\Listable
 
     /**
      * Display delete confirmation form.
+     *
+     * @return void
      */
-    public function displayConfirmDelete()
+    public function displayConfirmDelete(): void
     {
         $this->pageTitle = TFISH_CONFIRM;
         $this->template = 'confirmDelete';
@@ -108,8 +112,10 @@ class Admin implements \Tfish\Interface\Listable
 
     /**
      * Delete content object and display result.
+     *
+     * @return void
      */
-    public function displayDelete()
+    public function displayDelete(): void
     {
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
@@ -130,8 +136,10 @@ class Admin implements \Tfish\Interface\Listable
      * Display the admin summary table.
      *
      * Table a list of content and links to view, edit and delete items.
+     *
+     * @return void
      */
-    public function displayTable()
+    public function displayTable(): void
     {
         $this->pageTitle = TFISH_ADMIN;
         $this->listContent();
@@ -185,8 +193,10 @@ class Admin implements \Tfish\Interface\Listable
 
     /**
      * Count content objects meeting filter criteria.
+     *
+     * @return void
      */
-    public function countContent()
+    public function countContent(): void
     {
         $this->contentCount = $this->model->getCount(
             [
@@ -228,8 +238,10 @@ class Admin implements \Tfish\Interface\Listable
      * Get content objects matching cached filter criteria.
      *
      * Result is cached as $contentList property.
+     *
+     * @return void
      */
-    public function listContent()
+    public function listContent(): void
     {
         $this->contentList = $this->model->getObjects(
             [
@@ -264,7 +276,7 @@ class Admin implements \Tfish\Interface\Listable
      * @param   string $zeroOption Text to display as default select box option.
      * @return  array IDs and titles as key-value pairs.
      */
-    public function tagOptions($zeroOption = TFISH_SELECT_TAGS)
+    public function tagOptions($zeroOption = TFISH_SELECT_TAGS): array
     {
         $zeroOption = $this->trimString($zeroOption);
         $params = ['type' => 'TfTag'];
@@ -289,7 +301,7 @@ class Admin implements \Tfish\Interface\Listable
      * @param   string $zeroOption Text to display as default select box option.
      * @return  array IDs and content types as key-value pairs.
      */
-    public function typeOptions($zeroOption = TFISH_SELECT_TYPE)
+    public function typeOptions($zeroOption = TFISH_SELECT_TYPE): array
     {
         $zeroOption = $this->trimString($zeroOption);
 
@@ -302,7 +314,7 @@ class Admin implements \Tfish\Interface\Listable
      * @param   string $defaultOption Text to display as default select box option.
      * @return  array Online (1), offline (0) or both (2).
      */
-    public function statusOptions($defaultOption = TFISH_SELECT_STATUS)
+    public function statusOptions($defaultOption = TFISH_SELECT_STATUS): array
     {
         $defaultOption = $this->trimString($defaultOption);
 
@@ -369,8 +381,10 @@ class Admin implements \Tfish\Interface\Listable
      * Set ID.
      *
      * @param   int $id ID of content object.
+     *
+     * @return void
      */
-    public function setId(int $id)
+    public function setId(int $id): void
     {
         $this->id = $id;
     }
@@ -385,18 +399,31 @@ class Admin implements \Tfish\Interface\Listable
 
     /**
      * Set title of content object.
+     *
+     * @return void
      */
-    public function setContentTitle()
+    public function setContentTitle(): void
     {
         $this->contentTitle = $this->model->getTitle($this->id);
     }
 
+    /**
+     * Return status.
+     *
+     * @return integer
+     */
     public function status(): int
     {
         return (int) $this->status;
     }
 
-    public function setStatus(int $status)
+    /**
+     * Set status.
+     *
+     * @param integer $status
+     * @return void
+     */
+    public function setStatus(int $status): void
     {
         $this->status = $status;
     }
@@ -413,17 +440,18 @@ class Admin implements \Tfish\Interface\Listable
 
     /**
      * Set onlineStatus.
-     * 
+     *
      * @var int $onlineStatus
+     * @return void
      */
-    public function setOnlineStatus(int $onlineStatus)
+    public function setOnlineStatus(int $onlineStatus): void
     {
         $this->onlineStatus = $onlineStatus;
     }
 
     /**
      * Return inFeed status.
-     * 
+     *
      * @return  int In feed (1) or not (0).
      */
     public function inFeed(): int
@@ -435,8 +463,9 @@ class Admin implements \Tfish\Interface\Listable
      * Set inFeed status.
      *
      * @param   int $onlineStatus Online (1) or offline (0).
+     * @return void
      */
-    public function setInFeed(int $inFeed)
+    public function setInFeed(int $inFeed): void
     {
         $this->inFeed = $inFeed;
     }
@@ -467,8 +496,9 @@ class Admin implements \Tfish\Interface\Listable
      * First record to return from result set.
      *
      * @param int $start ID of first object to return in the set of available records.
+     * @return void
      */
-    public function setStart(int $start)
+    public function setStart(int $start): void
     {
         $this->start = $start;
     }
@@ -487,8 +517,9 @@ class Admin implements \Tfish\Interface\Listable
      * Set tag ID.
      *
      * @param   int $tag ID of tag.
+     * @return void
      */
-    public function setTag(int $tag)
+    public function setTag(int $tag): void
     {
         $this->tag = $tag;
     }
@@ -509,8 +540,9 @@ class Admin implements \Tfish\Interface\Listable
      * Filter list by content type.
      *
      * @param   string $type Type of content object.
+     * @return void
      */
-    public function setType(string $type)
+    public function setType(string $type): void
     {
         $this->type = $this->trimString($type);
     }
