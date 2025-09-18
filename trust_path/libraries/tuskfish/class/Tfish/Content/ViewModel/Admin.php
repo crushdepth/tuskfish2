@@ -149,8 +149,10 @@ class Admin implements \Tfish\Interface\Listable
 
     /**
      * Toggle a content object online or offline using htmx.
+     *
+     * @return void
      */
-    public function displayToggle(): string
+    public function displayToggle(): void
     {
         $this->model->toggleOnlineStatus($this->id);
 
@@ -228,8 +230,10 @@ class Admin implements \Tfish\Interface\Listable
 
         if (!empty($this->tag)) $extraParams['tag'] = $this->tag;
         if (!empty($this->type)) $extraParams['type'] = $this->type;
-        if (isset($this->onlineStatus) && $this->onlineStatus == 0 || $this->onlineStatus == 1)
+        if ($this->onlineStatus === 0 || $this->onlineStatus === 1) {
             $extraParams['onlineStatus'] = $this->onlineStatus;
+        }
+
 
         return $extraParams;
     }
