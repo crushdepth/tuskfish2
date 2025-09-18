@@ -334,11 +334,21 @@ class Listing
         $this->session->setNextUrl($path);
     }
 
+    /**
+     * Set redirect page title.
+     * 
+     * @return void
+     */
     public function setRedirectTitle(string $title): void
     {
         $this->session->setRedirectTitle($title);
     }
 
+    /**
+     * Set redirect page context message.
+     * 
+     * @return void
+     */
     public function setRedirectMessage(string $message): void
     {
         $this->session->setRedirectMessage($message);
