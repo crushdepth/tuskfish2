@@ -28,15 +28,13 @@ namespace Tfish\Content\Model;
  * @var         \Tfish\Database $database Instance of the Tuskfish database class.
  * @var         \Tfish\CriteriaFactory $criteriaFactory A factory class that returns instances of Criteria and CriteriaItem.
  * @var         \Tfish\Entity\Preference Instance of the Tfish site preferences class.
- * @var         \Tfish\Cache Instance of the Tfish cache class.
  */
 
 class Rss
 {
-    private $database;
-    private $criteriaFactory;
-    private $preference;
-    private $cache;
+    private \Tfish\Database $database;
+    private \Tfish\CriteriaFactory $criteriaFactory;
+    private \Tfish\Entity\Preference $preference;
 
     /**
      * Constructor.
@@ -44,19 +42,16 @@ class Rss
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.
      * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish site preferences class.
-     * @param   \Tfish\Cache Instance of the Tuskfish cache class.
      */
     public function __construct(
         \Tfish\Database $database,
         \Tfish\CriteriaFactory $criteriaFactory,
-        \Tfish\Entity\Preference $preference,
-        \Tfish\Cache $cache
+        \Tfish\Entity\Preference $preference
         )
     {
         $this->database = $database;
         $this->criteriaFactory = $criteriaFactory;
         $this->preference = $preference;
-        $this->cache = $cache;
     }
 
     /* Getters and setters. */
@@ -67,7 +62,7 @@ class Rss
      * @param   int $id ID of a target tag or collection object.
      * @return array Array containing title and description of custom feed.
      */
-    public function customFeed(int $id)
+    public function customFeed(int $id): array
     {
         if ($id < 1) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
@@ -150,7 +145,7 @@ class Rss
         $result = $statement->execute($params);
 
         if (!$result) {
-            \trigger_error(TFISH_ERROR_INSERTION_FAILED, E_USER_ERROR);
+            \trigger_error(TFISH_ERROR_NO_RESULT, E_USER_ERROR);
             return false;
         }
 
