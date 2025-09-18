@@ -55,24 +55,23 @@ class Listing implements \Tfish\Interface\Listable
     use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
 
-    private $model;
-    private $preference;
-    private $content = '';
-    private $contentTags = '';
-    private $contentList = [];
-    private $contentCount = 0;
-    private $parent = '';
-    private $children = [];
-    private $description = '';
-    private $author = '';
-    private $backUrl = '';
-    private $response = '';
-    private $id = 0;
-    private $start = 0;
-    private $tag = 0;
-    private $type = '';
-    private $inFeed = 1;
-    private $onlineStatus = 1;
+    private object $model;
+    private \Tfish\Entity\Preference $preference;
+    private ?\Tfish\Content\Entity\Content $content = null;
+    private array $contentList = [];
+    private int $contentCount = 0;
+    private ?\Tfish\Content\Entity\Content $parent = null;
+    private array $children = [];
+    private string $description = '';
+    private string $author = '';
+    private string $backUrl = '';
+    private string $response = '';
+    private int $id = 0;
+    private int $start = 0;
+    private int $tag = 0;
+    private string $type = '';
+    private int $inFeed = 1;
+    private int $onlineStatus = 1;
 
     /**
      * Constructor.
@@ -80,7 +79,7 @@ class Listing implements \Tfish\Interface\Listable
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference)
+    public function __construct(object $model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
         $this->preference = $preference;
@@ -92,8 +91,10 @@ class Listing implements \Tfish\Interface\Listable
 
     /**
      * Display list of content in short (teaser) form.
+     *
+     * @return void
      */
-    public function displayList()
+    public function displayList(): void
     {
         $this->template = 'listView';
         $this->listContent();
@@ -103,8 +104,10 @@ class Listing implements \Tfish\Interface\Listable
 
     /**
      * Display a single content object.
+     *
+     * @return void
      */
-    public function displayObject()
+    public function displayObject(): void
     {
         $this->content = $this->getObject($this->id);
 
@@ -198,8 +201,10 @@ class Listing implements \Tfish\Interface\Listable
 
     /**
      * Count content objects meeting filter criteria.
+     *
+     * @return void
      */
-    public function countContent()
+    public function countContent(): void
     {
         $params = [
             'tag' => $this->tag,
@@ -224,7 +229,7 @@ class Listing implements \Tfish\Interface\Listable
      *
      * @return  array Array of tags as id/title key-value pairs.
      */
-    public function contentTags()
+    public function contentTags(): array
     {
         $tags = $this->model->getTagsForObject($this->id, 'content', 'content');
 
@@ -257,8 +262,9 @@ class Listing implements \Tfish\Interface\Listable
      * Get a content object.
      *
      * @param   int $id ID of content object.
+     * @return \Tfish\Content\Entity\Content $content
      */
-    private function getObject(int $id)
+    private function getObject(int $id): \Tfish\Content\Entity\Content
     {
         return $this->model->getObject($id);
     }
@@ -284,11 +290,11 @@ class Listing implements \Tfish\Interface\Listable
     }
 
     /**
-     * Get children of a content object (collection or tag).
+     * Retrieve children of a content object (collection or tag).
      *
-     * @return  array Array of content objects.
+     * @return  void
      */
-    public function listChildren()
+    public function listChildren(): void
     {
         $params = [
             'start' => $this->start,
@@ -311,8 +317,10 @@ class Listing implements \Tfish\Interface\Listable
      * Get content objects matching cached filter criteria.
      *
      * Result is cached as $contentList property.
+     *
+     * @return void
      */
-    public function listContent()
+    public function listContent(): void
     {
         $this->contentList = $this->model->getObjects(
             [
@@ -350,7 +358,7 @@ class Listing implements \Tfish\Interface\Listable
      *
      * @return  array Array of content objects.
      */
-    public function children()
+    public function children(): array
     {
         return $this->children;
     }
@@ -360,7 +368,7 @@ class Listing implements \Tfish\Interface\Listable
      *
      * @return  \Tfish\Content\Entity\Content
      */
-    public function content()
+    public function content(): ?\Tfish\Content\Entity\Content
     {
         return $this->content;
     }
@@ -407,8 +415,9 @@ class Listing implements \Tfish\Interface\Listable
      * Set ID.
      *
      * @param   int $id ID of content object.
+     * @return void
      */
-    public function setId(int $id)
+    public function setId(int $id): void
     {
         $this->id = $id;
     }
@@ -428,7 +437,7 @@ class Listing implements \Tfish\Interface\Listable
      *
      * @return  \Tfish\Content\Entity\Content Parent content object.
      */
-    public function parent()
+    public function parent(): ?\Tfish\Content\Entity\Content
     {
         return $this->parent;
     }
@@ -447,8 +456,9 @@ class Listing implements \Tfish\Interface\Listable
      * Set start.
      *
      * @param   int $start of first object to view in the set of available records.
+     * @return void
      */
-    public function setStart(int $start)
+    public function setStart(int $start): void
     {
         $this->start = $start;
     }
@@ -467,8 +477,9 @@ class Listing implements \Tfish\Interface\Listable
      * Set tag ID.
      *
      * @param   int $tag ID of tag.
+     * @return void
      */
-    public function setTag(int $tag)
+    public function setTag(int $tag): void
     {
         $this->tag = $tag;
     }
@@ -489,8 +500,9 @@ class Listing implements \Tfish\Interface\Listable
      * Filter list by content type.
      *
      * @param   string $type Type of content object.
+     * @return void
      */
-    public function setType(string $type)
+    public function setType(string $type): void
     {
         if (!empty($type) && !\array_key_exists($type, $this->listTypes())) {
            \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
@@ -526,8 +538,9 @@ class Listing implements \Tfish\Interface\Listable
      * Overrides trait setMetadata().
      *
      * @param   array $metadata Metadata overrides as key-value pairs.
+     * @return void
      */
-    public function setMetadata(array $metadata = [])
+    public function setMetadata(array $metadata = []): void
     {
         if (!empty($this->pageTitle)) $metadata['title'] = $this->pageTitle;
         if (!empty($this->description)) $metadata['description'] = $this->description;
