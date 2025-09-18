@@ -33,7 +33,6 @@ namespace Tfish\Content\Controller;
 
 class Rss
 {
-    private object $model;
     private object $viewModel;
 
     /**

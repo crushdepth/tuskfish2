@@ -33,7 +33,6 @@ class Listing
 {
     use \Tfish\Traits\ValidateString;
 
-    private $model;
     private $viewModel;
 
     /**

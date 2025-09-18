@@ -33,7 +33,6 @@ class Search
 {
     use \Tfish\Traits\ValidateString;
 
-    private object $model;
     private object $viewModel;
 
     /**
