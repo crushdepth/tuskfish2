@@ -45,7 +45,7 @@
   <figure class="float-end figure-right">
     <img class="image img-fluid" src="<?php echo $content->cachedImage(640); ?>"
       <?php if ($content->caption()): ?>
-        title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"<!-- CHANGED: will close <img> in HTML5 style below -->
+        title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"
       <?php else: ?>
         alt=""
       <?php endif; ?>>

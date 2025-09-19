@@ -46,7 +46,7 @@
     <img class="image img-fluid"
        src="<?php echo $content->cachedImage(640); ?>"
        <?php if ($content->caption()): ?>
-         title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"<!-- CHANGED: will close img tag below -->
+         title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"
        <?php else: ?>
          alt=""
        <?php endif; ?>>
