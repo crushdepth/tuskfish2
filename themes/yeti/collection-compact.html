@@ -11,7 +11,6 @@
 
 <!-- Title and meta information -->
 <div>
-  <?php if ($content->media()): ?>
   <h2 class="title">
     <?php if ($content->media()): ?>
     <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>" class="icon-link">
@@ -24,7 +23,6 @@
     <?php echo '<span class="icon-link">' . $content->icon($content->type()) . '</span><span class="title-link">' . xss($content->title()) . '</span>'; ?>
     <?php endif; ?>
   </h2>
-  <?php endif; ?>
 
   <p class="content-info">
     <span class="small">
@@ -48,14 +46,16 @@
 <div>
   <figure class="float-end figure-right">
     <img class="image img-fluid" srcset="<?php echo $content->cachedImage(400); ?> 400w, <?php echo $content->cachedImage(200); ?> 200w"
-        sizes="(max-width: 767px) 200px, 400px"
-        src="<?php echo $content->cachedImage(640); ?>" 
+         sizes="(max-width: 767px) 200px, 400px"
+         src="<?php echo $content->cachedImage(640); ?>"
       <?php if ($content->caption()): ?>
-        title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"/>
-        <figcaption><em><?php echo xss($content->caption()); ?></em></figcaption>
+         title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"
       <?php else: ?>
-        alt="" />
-      <?php endif; ?>
+         alt=""
+      <?php endif; ?>>
+    <?php if ($content->caption()): ?>
+      <figcaption><em><?php echo xss($content->caption()); ?></em></figcaption>
+    <?php endif; ?>
   </figure>
 </div>
 <?php endif; ?>
@@ -68,7 +68,14 @@
 <!-- Media attachment -->
 <?php if ($content->media()): ?>
 <div>
-  <p class="media"><b><a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>"><i title="<?php echo TFISH_DOWNLOAD; ?>" class="fas fa-download"></i> <?php echo xss($content->media()); ?></a></b></p>
+  <p class="media">
+    <strong>
+      <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>">
+        <i title="<?php echo TFISH_DOWNLOAD; ?>" class="fas fa-download"></i> 
+        <?php echo xss($content->media()); ?>
+      </a>
+    </strong>
+  </p>
 </div>
 <?php endif; ?>
 
