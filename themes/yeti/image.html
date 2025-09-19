@@ -49,22 +49,26 @@
 
     <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>">
       <img class="image img-fluid" src="<?php echo $content->cachedImage(1296); ?>"
-      <?php if ($content->caption()): ?>
-        title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"/>
-      <?php else: ?>
-        alt="" />
-      <?php endif; ?>
+        <?php if ($content->caption()): ?>
+          title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"
+        <?php else: ?>
+          alt=""
+        <?php endif; ?>>
     </a>
-    <figcaption><em><?php echo xss($content->caption()); ?></em></figcaption>
+    <?php if ($content->caption()): ?>
+      <figcaption><em><?php echo xss($content->caption()); ?></em></figcaption>
+    <?php endif; ?>
 
     <?php else: ?>
 
       <img class="image img-fluid" src="<?php echo $content->cachedImage(1296); ?>"
+        <?php if ($content->caption()): ?>
+          title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"
+        <?php else: ?>
+          alt=""
+        <?php endif; ?>>
       <?php if ($content->caption()): ?>
-        title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"/>
         <figcaption><em><?php echo xss($content->caption()); ?></em></figcaption>
-      <?php else: ?>
-        alt="" />
       <?php endif; ?>
 
     <?php endif; ?>
