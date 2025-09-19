@@ -68,7 +68,7 @@
 <!-- Media attachment -->
 <?php if ($content->media()): ?>
 <div>
-  <p class="media"><b><a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>"><i title="<?php echo TFISH_DOWNLOAD; ?>" class="fas fa-download"></i> <?php echo xss($content->media()); ?></a></b></p>
+  <p class="media"><b><a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>"><i title="<?php echo TFISH_DOWNLOAD; ?>" class="icon-download"></i> <?php echo xss($content->media()); ?></a></b></p>
 </div>
 <?php endif; ?>
 
