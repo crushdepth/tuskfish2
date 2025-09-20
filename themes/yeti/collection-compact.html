@@ -45,9 +45,7 @@
 <?php if ($content->image()): ?>
 <div>
   <figure class="float-end figure-right">
-    <img class="image img-fluid" srcset="<?php echo $content->cachedImage(400); ?> 400w, <?php echo $content->cachedImage(200); ?> 200w"
-         sizes="(max-width: 767px) 200px, 400px"
-         src="<?php echo $content->cachedImage(640); ?>"
+    <img class="image img-fluid" src="<?php echo $content->cachedImage(640); ?>"
       <?php if ($content->caption()): ?>
          title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"
       <?php else: ?>
