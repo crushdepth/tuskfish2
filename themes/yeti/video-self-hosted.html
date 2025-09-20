@@ -28,7 +28,7 @@
 </div>
 
 <?php if ($content->media()): ?>
-<div class="video-player text-left">
+<div class="video-player text-start">
   <video controls>
     <source src="<?php echo TFISH_MEDIA_URL . xss($content->media()); ?>" type="<?php echo xss($content->format()); ?>">
         <?php echo TFISH_BROWSER_DOES_NOT_SUPPORT_VIDEO; ?>
@@ -44,7 +44,14 @@
 <!-- Media attachment -->
 <?php if ($content->media()): ?>
 <div>
-  <p class="media"><b><a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>"><i title="<?php echo TFISH_DOWNLOAD; ?>" class="icon-download"></i> <?php echo xss($content->media()); ?></a></b></p>
+  <p class="media">
+    <strong>
+      <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>">
+        <i title="<?php echo TFISH_DOWNLOAD; ?>" class="icon-download"></i> 
+        <?php echo xss($content->media()); ?>
+      </a>
+    </strong>
+  </p>
 </div>
 <?php endif; ?>
 
