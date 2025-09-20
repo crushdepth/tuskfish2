@@ -186,7 +186,8 @@ trait ResizeImage
         int $height = 0)
     {
         // The path to the sRGB colour profile must be configured below, for Linux it is usually:
-        $profilePath = '/usr/share/color/icc/sRGB.icc';
+        $profilePath = '/usr/share/color/icc/sRGB.icc'; // default
+        $profileExists = \is_file($profilePath);
 
         // Resize image while maintaining proportions.
         $resizeOption = $width . 'x' . $height;
@@ -200,7 +201,11 @@ trait ResizeImage
         // Set flags depending on mime type. Colour space, compression and sharpening are handled differently.
         switch ($mime) {
             case 'image/jpeg':
-                $command .= ' -profile ' . \escapeshellarg($profilePath);
+                if ($profileExists) {
+                    $command .= ' -profile ' . \escapeshellarg($profilePath);
+                } else {
+                    \trigger_error(TFISH_ERROR_SRGB_NOT_FOUND, E_USER_ERROR);
+                }
                 $command .= ' -thumbnail ' . \escapeshellarg($resizeOption);
                 $command .= ' -sharpen 0x0.5 -quality 75';
                 break;
@@ -334,7 +339,7 @@ trait ResizeImage
                     // Set the blending mode for an image.
                     \imagealphablending($thumbnail, false);
                     // Allocate a colour for an image ($image, $red, $green, $blue, $alpha).
-                    $colour = imagecolorallocatealpha($thumbnail, 0, 0, 0, 127);
+                    $colour = \imagecolorallocatealpha($thumbnail, 0, 0, 0, 127);
                     // Flood fill again.
                     \imagefill($thumbnail, 0, 0, $colour);
                     // Set the flag to save full alpha channel information (as opposed to single
