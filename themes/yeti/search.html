@@ -39,7 +39,7 @@
 
     <!-- Submit -->
     <div class="col-12">
-      <input type="hidden" name="action" value="search" />
+      <input type="hidden" name="action" value="search">
       <button type="submit" class="btn btn-primary">
         <?php echo TFISH_SEARCH ?>
       </button>
@@ -83,8 +83,11 @@
           <figure class="figure-left">
             <a href="<?php echo xss($content->url()); ?>">
               <img class="img-fluid" src="<?php echo $content->cachedImage(200); ?>"
-                <?php if ($content->caption()): ?>title="<?php echo xss($content->caption()); ?>"
-                  alt="<?php echo xss($content->caption()); ?>"<?php endif; ?> />
+                <?php if ($content->caption()): ?>
+                  title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"<!-- CHANGED -->
+                <?php else: ?>
+                  alt=""
+                <?php endif; ?>>
             </a>
           </figure>
         </div>
