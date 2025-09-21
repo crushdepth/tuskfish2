@@ -31,6 +31,13 @@ trait ErrorHandler
     protected function userWarning(string $m): void    { \trigger_error($m, E_USER_WARNING); }
     protected function userDeprecated(string $m): void { \trigger_error($m, E_USER_DEPRECATED); }
 
+    /**
+     * Throw an error.
+     *
+     * @param string $m The error message (context) to log or display.
+     * @param \Throwable|null $prev
+     * @return never
+     */
     protected function userError(string $m, ?\Throwable $prev = null): never
     {
         throw new \RuntimeException($m, 0, $prev);

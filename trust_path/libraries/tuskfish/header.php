@@ -73,9 +73,10 @@ $rules = [
 ];
 $dice = $dice->addRules($rules);
 
-// Set custom error handler.
+// Set custom error and exception handlers.
 $logger = $dice->create('\\Tfish\\Logger');
 \set_error_handler([$logger, "logError"]);
+\set_exception_handler([$logger, "throwException"]);
 
 /**
  * Universal XSS output escape function for use in templates.
