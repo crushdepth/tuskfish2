@@ -30,7 +30,7 @@ namespace Tfish;
  * @package     database
  * @uses        trait \Tfish\Traits\IntegerCheck	Validate and range check integers.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
- * @var         \PDO $database Instance of the \PDO database abstraction layer.
+ * @var         ?\Pdo $database Instance of the \PDO database abstraction layer.
  * @var         \Tfish\FileHandler $fileHandler Instance of the Tuskfish file handler.
  * @var         \Tfish\Logger $logger Instance of the Tuskfish error logger.
  */
@@ -39,7 +39,7 @@ class Database
     use Traits\IntegerCheck;
     use Traits\ValidateString;
 
-    private $database;
+    private ?\Pdo $database = null;
     private $fileHandler;
     private $logger;
 
@@ -104,11 +104,12 @@ class Database
     public function connect(): bool
     {
         if (\defined("TFISH_DATABASE")) {
-            $this->database = new \PDO('sqlite:' . TFISH_DATABASE);
+            $this->database = new \Pdo('sqlite:' . TFISH_DATABASE);
 
             if ($this->database) {
                 // Set \PDO to throw exceptions every time it encounters an error.
                 $this->database->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+                $this->database->setAttribute(\PDO::ATTR_TIMEOUT, 5);
                 return true;
             }
         }
@@ -147,13 +148,17 @@ class Database
         // Create database file and append a constant with the database path to config.php
         try {
             $dbPath = TFISH_DATABASE_PATH . $prefix . '_' . $dbName;
-            $this->database = new \PDO('sqlite:' . $dbPath);
+            $this->database = new \Pdo('sqlite:' . $dbPath);
+            $this->database->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $this->database->setAttribute(\PDO::ATTR_TIMEOUT, 5);
+
             $db_constant = PHP_EOL . 'if (!\defined("TFISH_DATABASE")) define("TFISH_DATABASE", "'
                     . $dbPath . '");' . PHP_EOL;
             $result = $this->fileHandler->appendToFile(TFISH_CONFIGURATION_PATH, $db_constant);
 
             if (!$result) {
-                \trigger_error(TFISH_ERROR_FAILED_TO_APPEND_FILE, E_USER_NOTICE);
+                \trigger_error(TFISH_ERROR_FAILED_TO_APPEND_FILE, E_USER_WARNING);
+                $this->close();
                 return false;
             }
 
@@ -471,13 +476,10 @@ class Database
      *
      * @return int|bool Row ID on success, false on failure.
      */
-    public function lastInsertId()
+    public function lastInsertId(): int|false
     {
-        if ($this->database->lastInsertId()) {
-            return (int) $this->database->lastInsertId();
-        } else {
-            return false;
-        }
+        $id = $this->database->lastInsertId();
+        return $id === '0' || $id === false ? false : (int)$id;
     }
 
     /**
@@ -487,7 +489,7 @@ class Database
      * mitigating direct SQL injection attacks.
      *
      * @param string $sql SQL statement.
-     * @return \PDOStatement \PDOStatement object on success \PDOException object on failure.
+     * @return \PDOStatement|false \PDOStatement object on success false on failure.
      */
     public function preparedStatement(string $sql)
     {
