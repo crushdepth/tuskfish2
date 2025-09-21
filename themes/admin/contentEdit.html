@@ -33,7 +33,7 @@
 
       <!-- Media file type compatibility alert -->
       <div class="col-12">
-        <div class="mb-3 alert alert-danger alert-dismissible fade show" role="alert">
+        <div id="mediaAlert" class="mb-3 alert alert-danger alert-dismissible d-none" role="alert" aria-live="polite">
           <?php echo '<i class="fas fa-exclamation-triangle"></i> ' . TFISH_MEDIA_NOT_COMPATIBLE; ?>
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
