@@ -592,6 +592,7 @@ class Session
         // Force session to use cookies to prevent the session ID being passed in the URL.
         \ini_set('session.use_cookies', '1');
         \ini_set('session.use_only_cookies', '1');
+        \ini_set('session.use_trans_sid', '0');
 
         // Session name. If the preference has been messed up it will assign one.
         $sessionName = !empty($this->preference->sessionName()) ? $this->preference->sessionName() : 'tfish';
