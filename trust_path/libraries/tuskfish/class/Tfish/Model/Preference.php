@@ -34,7 +34,7 @@ class Preference
     private \Tfish\Database $database;
     private \Tfish\CriteriaFactory $criteriaFactory;
     private \Tfish\Entity\Preference $preference;
-    private \Tfish\Cache $cache; 
+    private \Tfish\Cache $cache;
 
     /**
      * Constructor.
