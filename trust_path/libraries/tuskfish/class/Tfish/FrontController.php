@@ -125,8 +125,7 @@ class FrontController
 
         // Hard-stop if route mask contains invalid bits.
         if (($routeMask & ~$this->groupsMask()) !== 0) {
-            \trigger_error(TFISH_ERROR_INVALID_GROUP, E_USER_ERROR);
-            exit;
+            throw new \RuntimeException(TFISH_ERROR_INVALID_GROUP);
         }
 
         $userMask = (int) $this->session->verifyPrivileges();
@@ -180,8 +179,7 @@ class FrontController
         $layout = $this->trimString($viewModel->layout() ?? 'layout');
 
         if ($this->hasTraversalorNullByte($theme) || $this->hasTraversalorNullByte($layout)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
-            exit; // Hard stop due to high probability of abuse.
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
 
         include_once TFISH_THEMES_PATH . $theme . "/" . $layout . ".html";

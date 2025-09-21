@@ -78,8 +78,7 @@ trait Viewable
         $template = $this->trimString($template);
 
         if (!$this->isAlnumUnderscore($template)) {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
 
         $this->template = $template;
@@ -105,8 +104,7 @@ trait Viewable
         $layout = $this->trimString($layout);
 
         if (!$this->isAlnumUnderscore($layout)) {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
 
         $this->layout = $layout;
@@ -134,8 +132,7 @@ trait Viewable
         $theme = $this->trimString($theme);
 
         if (!$this->isAlnumUnderscore($theme)) {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
 
         $this->theme = $theme;

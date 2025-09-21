@@ -505,8 +505,7 @@ class Listing implements \Tfish\Interface\Listable
     public function setType(string $type): void
     {
         if (!empty($type) && !\array_key_exists($type, $this->listTypes())) {
-           \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
-           exit;
+           throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_TYPE);
         }
 
         $this->type = $this->trimString($type);

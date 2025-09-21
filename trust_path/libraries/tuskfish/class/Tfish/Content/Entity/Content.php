@@ -272,7 +272,7 @@ class Content
     public function setId(int $id)
     {
         if ($id < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->id = $id;
@@ -320,7 +320,7 @@ class Content
         if (\array_key_exists($type, $this->listTypes())) {
             $this->type = $type;
         } else {
-            \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_TYPE);
         }
     }
 
@@ -434,8 +434,7 @@ class Content
         $filename = $this->trimString($filename);
 
         if ($this->hasTraversalorNullByte($filename)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
-            exit; // Hard stop due to high probability of abuse.
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
 
         // Video files are now assumed to be hosted externally so this should be a URL.
@@ -488,7 +487,7 @@ class Content
         $whitelist = $this->listMimetypes();
 
         if (!empty($format) && !\in_array($format, $whitelist, true)) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_MIMETYPE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_MIMETYPE);
         }
 
         $this->format = $format;
@@ -522,7 +521,7 @@ class Content
     public function setFileSize(int $fileSize)
     {
         if ($fileSize < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->fileSize = $fileSize;
@@ -541,7 +540,7 @@ class Content
         $url = $this->trimString($url);
 
         if (!empty($url) && !$this->isUrl($url)) {
-            \trigger_error(TFISH_ERROR_NOT_URL, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_URL);
         }
 
         $this->externalMedia = $url;
@@ -567,8 +566,7 @@ class Content
         $filename = $this->trimString($filename);
 
         if ($this->hasTraversalorNullByte($filename)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
-            exit; // Hard stop due to high probability of abuse.
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
 
         $whitelist = $this->listImageMimetypes();
@@ -576,7 +574,7 @@ class Content
 
         if (!empty($extension) && !\array_key_exists($extension, $whitelist)) {
             $this->image = '';
-            \trigger_error(TFISH_ERROR_ILLEGAL_MIMETYPE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_MIMETYPE);
         } else {
             $this->image = $filename;
         }
@@ -674,7 +672,7 @@ class Content
     public function setSubmissionTime(int $timestamp)
     {
         if ($timestamp < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->submissionTime = $timestamp;
@@ -698,7 +696,7 @@ class Content
     public function setLastUpdated(int $timestamp)
     {
         if ($timestamp < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->lastUpdated = $timestamp;
@@ -758,7 +756,7 @@ class Content
     public function setCounter(int $counter)
     {
         if ($counter < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->counter = $counter;
@@ -770,7 +768,7 @@ class Content
     public function setMinimumViews(int $minimumViews)
     {
         if ($minimumViews < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->minimumViews = $minimumViews;
@@ -804,7 +802,7 @@ class Content
         $whitelistMask = $this->groupsMask();
 
         if (($groups & ~$whitelistMask) !== 0) {
-            \trigger_error(TFISH_ERROR_INVALID_GROUP, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_INVALID_GROUP);
         }
 
         $this->accessGroups = $groups;
@@ -828,7 +826,7 @@ class Content
     public function setInFeed(int $inFeed)
     {
         if ($inFeed !== 0 && $inFeed !== 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->inFeed = $inFeed;
@@ -852,7 +850,7 @@ class Content
     public function setOnlineStatus(int $status)
     {
         if ($status !== 0 && $status !== 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->onlineStatus = $status;
@@ -876,11 +874,11 @@ class Content
     public function setParent(int $parent)
     {
         if ($parent < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         if ($parent === $this->id && $parent > 0) {
-            \trigger_error(TFISH_ERROR_CIRCULAR_PARENT_REFERENCE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_CIRCULAR_PARENT_REFERENCE);
         }
 
         $this->parent = $parent;
@@ -932,7 +930,7 @@ class Content
     public function setRights(int $rights)
     {
         if (!\array_key_exists($rights, $this->listRights())) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->rights = $rights;
@@ -979,7 +977,7 @@ class Content
         $template = $this->trimString($template);
 
         if ($this->hasTraversalorNullByte($template)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
 
         $type = $this->type;
@@ -987,7 +985,7 @@ class Content
         if ($type !== '' && isset($this->listTemplates()[$type])) {
             $allowed = $this->listTemplates()[$type];
             if ($template !== '' && !\in_array($template, $allowed, true)) {
-                \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+                throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
             }
         }
 

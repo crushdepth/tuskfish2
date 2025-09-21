@@ -72,8 +72,7 @@ class Enclosure
     public function streamFileToBrowser(int $id, string $filename = ''): void
     {
         if ($id < 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $filename = !empty($filename) ? $this->trimString($filename) : '';
@@ -87,11 +86,11 @@ class Enclosure
     {
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
-        $statement = $this->database->select('content', $criteria, 
+        $statement = $this->database->select('content', $criteria,
             ['type', 'media', 'expiresOn', 'accessGroups', 'onlineStatus']);
 
         if (!$statement) {
-            \trigger_error(TFISH_ERROR_NO_STATEMENT, E_USER_NOTICE);
+            throw new \RuntimeException(TFISH_ERROR_NO_STATEMENT);
         }
 
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
@@ -106,7 +105,6 @@ class Enclosure
             $contentMask = (int) $row['accessGroups'];
             $userMask = (int) $this->session->verifyPrivileges();
 
-            // 
             if (!$this->canAccess($userMask, $contentMask)) {
                 if ($userMask === 0) {
                     $this->setNextUrl($_SERVER['REQUEST_URI'] ?? '/');

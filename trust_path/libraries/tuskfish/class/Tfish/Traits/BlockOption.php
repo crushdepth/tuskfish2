@@ -113,7 +113,7 @@ trait BlockOption
             $path = $this->blockPath($class);
             $template = $configTemplates[$class];
         } else {
-            \trigger_error(TFISH_ERROR_TEMPLATE_NOT_FOUND, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_TEMPLATE_NOT_FOUND);
         }
 
         return $path . $template . '.html';

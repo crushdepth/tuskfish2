@@ -107,8 +107,7 @@ class Spotlight implements \Tfish\Interface\Block
         $filepath = TFISH_CONTENT_BLOCK_PATH . $this->template . '.html';
 
         if (!\file_exists($filepath)) {
-            \trigger_error(TFISH_ERROR_TEMPLATE_NOT_FOUND, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_TEMPLATE_NOT_FOUND);
         }
 
         \ob_start();
@@ -128,8 +127,7 @@ class Spotlight implements \Tfish\Interface\Block
         $json = \json_encode($this->config);
 
         if ($json == false || !\json_validate($json, 3)) {
-            \trigger_error(TFISH_ERROR_INVALID_JSON, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_INVALID_JSON);
         }
 
         return $json;

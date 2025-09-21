@@ -184,7 +184,7 @@ class Preference
      */
     public function setAdminPagination(int $value): void
     {
-        if ($value < 1) \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+        if ($value < 1) throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
 
         $this->adminPagination = $value;
     }
@@ -250,7 +250,7 @@ class Preference
      */
     public function setCacheLife(int $value): void
     {
-        if ($value < 0) \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+        if ($value < 0) throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
 
         $this->cacheLife = $value;
     }
@@ -273,7 +273,7 @@ class Preference
     public function setCloseSite(int $value): void
     {
         if ($value !== 0 && $value !== 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->closeSite = $value;
@@ -321,13 +321,13 @@ class Preference
         $value = $this->trimString($value);
 
         if (!$this->isAlpha($value)) {
-            \trigger_error(TFISH_ERROR_NOT_ALPHA, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALPHA);
         }
 
         $languageWhitelist = $this->listLanguages();
 
         if (!\array_key_exists($value, $languageWhitelist)) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
         $this->defaultLanguage = $value;
@@ -396,7 +396,7 @@ class Preference
         $value = $this->trimString($value);
 
         if (!$this->emailIsValid($value)) {
-            \trigger_error(TFISH_ERROR_NOT_EMAIL, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_EMAIL);
         }
 
         $this->siteEmail = $value;
@@ -435,7 +435,7 @@ class Preference
     public function setEnableCache(int $value)
     {
         if ($value !== 0 && $value !== 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->enableCache = $value;
@@ -459,7 +459,7 @@ class Preference
     public function setGalleryPagination(int $value): void
     {
         if ($value < 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->galleryPagination = $value;
@@ -483,7 +483,7 @@ class Preference
     public function setCollectionPagination(int $value): void
     {
         if ($value < 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->collectionPagination = $value;
@@ -523,7 +523,7 @@ class Preference
     public function setMinSearchLength(int $value): void
     {
         if ($value < 3) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->minSearchLength = $value;
@@ -549,7 +549,7 @@ class Preference
     public function setPaginationElements(int $value): void
     {
         if ($value < 3) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->paginationElements = $value;
@@ -574,7 +574,7 @@ class Preference
     public function setMinimumViews(int $value): void
     {
         if ($value < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->minimumViews = $value;
@@ -598,7 +598,7 @@ class Preference
     public function setRssPosts(int $value): void
     {
         if ($value < 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->rssPosts = $value;
@@ -622,7 +622,7 @@ class Preference
     public function setSearchPagination(int $value): void
     {
         if ($value < 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->searchPagination = $value;
@@ -648,7 +648,7 @@ class Preference
         $timezones = $this->listTimezones();
 
         if (!\array_key_exists($value, $timezones)) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
         $this->serverTimezone = $value;
@@ -674,7 +674,7 @@ class Preference
     public function setSessionLife(int $value): void
     {
         if ($value < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            (TFISH_ERROR_NOT_INT);
         }
 
         $this->sessionLife = $value;
@@ -702,7 +702,7 @@ class Preference
         $value = $this->trimString($value);
 
         if (!$this->isAlnum($value)) {
-            \trigger_error(TFISH_ERROR_NOT_ALNUM, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUM);
         }
 
         $this->sessionName = $value;
@@ -778,7 +778,7 @@ class Preference
         $timezones = $this->listTimezones();
 
         if (!\array_key_exists($value, $timezones)) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
         $this->serverTimezone = $value;
     }
@@ -802,7 +802,7 @@ class Preference
     public function setUserPagination(int $value): void
     {
         if ($value < 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->userPagination = $value;

@@ -198,7 +198,7 @@ class UserEdit
         $email = !empty($form['adminEmail']) ? $this->trimString($form['adminEmail']) : '';
 
         if (empty($email) || !$this->isEmail($email)) {
-            \trigger_error(TFISH_ERROR_NOT_EMAIL, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_EMAIL);
         }
 
         // adminEmail
@@ -207,14 +207,14 @@ class UserEdit
         // On add (insert) password is mandatory.
         if ($passwordRequired === true) {
             if (empty($form['password']) || \mb_strlen($form['password'], "UTF-8") < 15) {
-                \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+                throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
             }
         }
 
         // On edit (update) password is optional and represents a reset.
         if ($passwordRequired === false) {
             if (!empty($form['password']) && \mb_strlen($form['password'], "UTF-8") < 15) {
-                \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+                throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
             }
         }
 
@@ -228,7 +228,7 @@ class UserEdit
         if (!empty($yubikeyId)) {
 
             if (\mb_strlen($yubikeyId) !== 12) {
-                \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+                throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
             }
 
             if (!$this->isValidYubikeyId($id, $yubikeyId)) {
@@ -242,7 +242,7 @@ class UserEdit
         if (!empty($yubikeyId2)) {
 
             if (\mb_strlen($yubikeyId2) !== 12) {
-                \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+                throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
             }
 
             if (!$this->isValidYubikeyId($id, $yubikeyId2)) {
@@ -256,7 +256,7 @@ class UserEdit
         if (!empty($yubikeyId3)) {
 
             if (\mb_strlen($yubikeyId3) !== 12) {
-                \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+                throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
             }
 
             if (!$this->isValidYubikeyId($id, $yubikeyId3)) {
@@ -269,14 +269,13 @@ class UserEdit
 
         // User group.
         if (empty($form['userGroup'])) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
         $groupOptions = $this->listUserGroups();
 
         if (!\array_key_exists((int) $form['userGroup'], $groupOptions)) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
         // Do not allow assignment to Admin group. Admin's user group will not be overwritten).
@@ -290,7 +289,7 @@ class UserEdit
         $onlineStatus = !empty($form['onlineStatus']) ? (int) $form['onlineStatus'] : 0;
 
         if ($onlineStatus < 0 || $onlineStatus > 1) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
         $clean['onlineStatus'] = $onlineStatus;

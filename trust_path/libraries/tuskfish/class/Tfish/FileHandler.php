@@ -50,8 +50,7 @@ class FileHandler
     {
         // Check for directory traversals and null byte injection.
         if ($this->hasTraversalorNullByte($filepath)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
-            return false;
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
 
         $cleanFilepath = $this->trimString($filepath);
@@ -92,8 +91,7 @@ class FileHandler
     {
         // Check for directory traversals and null byte injection.
         if ($this->hasTraversalorNullByte($filepath)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
-            return false;
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
 
         $cleanFilepath = $this->trimString($filepath);
@@ -193,7 +191,7 @@ class FileHandler
 
         // Check for directory traversals and null byte injection.
         if ($this->hasTraversalorNullByte($filepath)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
             return false;
         }
 
@@ -257,8 +255,7 @@ class FileHandler
     {
         // Check for directory traversals and null byte injection.
         if ($this->hasTraversalorNullByte($filepath)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
-            return false;
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
 
         $cleanFilepath = $this->trimString($filepath);
@@ -310,8 +307,7 @@ class FileHandler
     {
         // Check for directory traversals and null byte injection.
         if ($this->hasTraversalorNullByte($filename)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
 
         $filename = $this->trimString($filename);
@@ -321,8 +317,7 @@ class FileHandler
         if ($fieldname === 'image' || $fieldname === 'media') {
             $clean_fieldname = $this->trimString($fieldname);
         } else {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
         $mimetypeList = $this->listMimetypes(); // extension => mimetype
@@ -387,8 +382,7 @@ class FileHandler
         $tmp = $_FILES['content']['tmp_name'][$fieldname] ?? '';
 
         if ($tmp === '' || !\is_uploaded_file($tmp)) {
-            \trigger_error(TFISH_ERROR_FILE_UPLOAD_FAILED, E_USER_ERROR);
-            return false;
+            throw new \RuntimeException(TFISH_ERROR_FILE_UPLOAD_FAILED);
         }
 
         $finfo = new \finfo(\FILEINFO_MIME_TYPE);
@@ -401,7 +395,7 @@ class FileHandler
         }
 
         if (!\move_uploaded_file($_FILES['content']["tmp_name"][$fieldname], $upload_path)) {
-            \trigger_error(TFISH_ERROR_FILE_UPLOAD_FAILED, E_USER_ERROR);
+            throw new \RuntimeException(TFISH_ERROR_FILE_UPLOAD_FAILED);
         } else {
             $permissions = \chmod($upload_path, 0644);
             if ($permissions) {

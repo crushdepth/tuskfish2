@@ -217,8 +217,7 @@ class Cache
 
         // Check for directory traversals and null byte injection.
         if ($this->hasTraversalorNullByte($path)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
-            return false;
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
 
         $this->path = $this->removeTraversals($path);

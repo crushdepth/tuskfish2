@@ -80,7 +80,7 @@ trait Listable
     public function setSort(string $field)
     {
         if (!$this->isAlnumUnderscore($field)) {
-            \trigger_error(E_USER_ERROR, TFISH_ERROR_NOT_ALNUMUNDER);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
 
         $this->sort = $this->trimString($field);
@@ -94,7 +94,7 @@ trait Listable
     public function setOrder(string $order)
     {
         if (!empty($order) && ($order !== "ASC" && $order !== "DESC")) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
         $this->order = $this->trimString($order);
@@ -108,7 +108,7 @@ trait Listable
     public function setSecondarySort(string $field)
     {
         if (!$this->isAlnumUnderscore($field)) {
-            \trigger_error(E_USER_ERROR, TFISH_ERROR_NOT_ALNUMUNDER);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
 
         $this->secondarySort = $this->trimString($field);
@@ -122,7 +122,7 @@ trait Listable
     public function setSecondaryOrder(string $order)
     {
         if (!empty($order) && ($order !== "ASC" && $order !== "DESC")) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
         $this->secondaryOrder = $this->trimString($order);
@@ -170,8 +170,7 @@ trait Listable
         $template = $this->trimString($template);
 
         if (!$this->isAlnumUnderscore($template)) {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
 
         $this->template = $template;
@@ -197,8 +196,7 @@ trait Listable
         $layout = $this->trimString($layout);
 
         if (!$this->isAlnumUnderscore($layout)) {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
 
         $this->layout = $layout;
@@ -226,8 +224,7 @@ trait Listable
         $theme = $this->trimString($theme);
 
         if (!$this->isAlnumUnderscore($theme)) {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
 
         $this->theme = $theme;

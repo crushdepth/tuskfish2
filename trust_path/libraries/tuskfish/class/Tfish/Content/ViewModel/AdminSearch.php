@@ -308,7 +308,7 @@ class AdminSearch implements \Tfish\Interface\Listable
         $searchType = $this->trimString($searchType);
 
         if (!\in_array($searchType, ['AND', 'OR', 'exact'], true)) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
         $this->searchType = $searchType;

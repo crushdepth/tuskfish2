@@ -102,8 +102,7 @@ class Preference
             $result = $this->database->executeTransaction($statement);
 
             if (!$result) {
-                \trigger_error(TFISH_ERROR_INSERTION_FAILED, E_USER_ERROR);
-                return false;
+                throw new \RuntimeException(TFISH_ERROR_INSERTION_FAILED);
             }
         }
 

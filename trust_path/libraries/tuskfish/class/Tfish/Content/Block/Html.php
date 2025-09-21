@@ -99,8 +99,7 @@ class Html implements \Tfish\Interface\Block
         $filepath = TFISH_CONTENT_BLOCK_PATH . $this->template . '.html';
 
         if (!\file_exists($filepath)) {
-            \trigger_error(TFISH_ERROR_TEMPLATE_NOT_FOUND, E_USER_ERROR);
-            exit;
+            throw new \RuntimeException(TFISH_ERROR_TEMPLATE_NOT_FOUND);
         }
 
         \ob_start();
@@ -122,8 +121,7 @@ class Html implements \Tfish\Interface\Block
         // json_validate() (PHP 8.3+) has signature json_validate(string $json): bool
         // Validation is constrained to 3 levels of nesting as a SANITY CHECK.
         if ($json === false || (\function_exists('json_validate') && !\json_validate($json, 3))) {
-            \trigger_error(TFISH_ERROR_INVALID_JSON, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_INVALID_JSON);
         }
 
         return $json;

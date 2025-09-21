@@ -88,7 +88,7 @@ class CriteriaItem
         if ($this->isAlnumUnderscore($cleanValue)) {
             $this->column = $cleanValue;
         } else {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
     }
 
@@ -104,7 +104,7 @@ class CriteriaItem
         if (\in_array($cleanValue, $this->listPermittedOperators(), true)) {
             $this->operator = $cleanValue;
         } else {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
     }
 
@@ -118,7 +118,7 @@ class CriteriaItem
         $cleanValue = match (true) {
             \is_string($value) => $this->trimString($value),
             \is_int($value), \is_float($value), \is_array($value), \is_bool($value)  => $value,
-            default => \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR),
+            default => throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_TYPE),
         };
 
         $this->value = $cleanValue;

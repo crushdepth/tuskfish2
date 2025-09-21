@@ -95,7 +95,7 @@ class User
     public function setId(int $id)
     {
         if ($id < 1) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
         $this->id = $id;
@@ -166,7 +166,7 @@ class User
         $whitelistMask = \array_sum(\array_keys($this->listUserGroups()));
 
         if (($groups & ~$whitelistMask) !== 0) {
-            \trigger_error(TFISH_ERROR_INVALID_GROUP, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_INVALID_GROUP);
         }
 
         $this->userGroup = $groups;
@@ -253,7 +253,7 @@ class User
     public function setOnlineStatus(int $status)
     {
         if ($status !== 0 && $status !== 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->onlineStatus = $status;
@@ -284,7 +284,7 @@ class User
         $errors = (int) $errors;
 
         if ($errors < 0) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
        $this->loginErrors = $errors;

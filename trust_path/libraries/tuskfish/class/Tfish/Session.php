@@ -363,8 +363,7 @@ class Session
     private function _authenticateUser(array $user, string $dirtyPassword)
     {
         if (!\is_array($user)) {
-            \trigger_error(TFISH_ERROR_NOT_ARRAY_OR_EMPTY, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY_OR_EMPTY);
         }
 
         // If the user has previous failed login atttempts sleep to frustrate brute force attacks.

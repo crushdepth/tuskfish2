@@ -18,9 +18,6 @@ namespace Tfish;
 /**
  * Provides a custom error handler which writes to a logfile.
  *
- * Custom error handler functions such as this one should return FALSE; otherwise calls to
- * trigger_error($msg, E_USER_ERROR) will not cause a script to stop execution!
- *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>

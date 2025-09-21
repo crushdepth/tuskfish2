@@ -204,7 +204,7 @@ trait ResizeImage
                 if ($profileExists) {
                     $command .= ' -profile ' . \escapeshellarg($profilePath);
                 } else {
-                    \trigger_error(TFISH_ERROR_SRGB_NOT_FOUND, E_USER_ERROR);
+                    throw new \InvalidArgumentException(TFISH_ERROR_SRGB_NOT_FOUND);
                 }
                 $command .= ' -thumbnail ' . \escapeshellarg($resizeOption);
                 $command .= ' -sharpen 0x0.5 -quality 75';

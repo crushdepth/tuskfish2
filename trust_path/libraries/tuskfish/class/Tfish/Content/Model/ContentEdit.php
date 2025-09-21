@@ -283,7 +283,7 @@ class ContentEdit
         $statement = $this->database->select('content', $criteria);
 
         if(!$statement) {
-            \trigger_error(TFISH_ERROR_NO_RESULT, E_USER_ERROR);
+            throw new \RuntimeException(TFISH_ERROR_NO_RESULT);
         }
 
         return $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Content\Entity\Content');
@@ -359,7 +359,7 @@ class ContentEdit
         $type = $this->trimString($form['type'] ?? '');
 
         if (!\array_key_exists($type, $this->listTypes())) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_TYPE);
         }
 
         $clean['type'] = $type;
@@ -367,7 +367,7 @@ class ContentEdit
         $template = $this->trimString($form['template'] ?? '');
 
         if (!\in_array($template, $this->listTemplates()[$clean['type']])) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_TEMPLATE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_TEMPLATE);
         }
 
         $clean['template'] = $template;
@@ -387,7 +387,7 @@ class ContentEdit
 
         // accessGroups must only contain bits from the whitelist.
         if (($accessGroups & ~$whitelist) !== 0) {
-            \trigger_error(TFISH_ERROR_INVALID_GROUP, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_INVALID_GROUP);
         }
 
         $clean['accessGroups'] = $accessGroups;
@@ -414,7 +414,7 @@ class ContentEdit
         $format = $this->trimString($form['format'] ?? '');
 
         if (!empty($format) && !\in_array($format, $this->listMimetypes())) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_MIMETYPE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_MIMETYPE);
         }
 
         $clean['format'] = $format;
@@ -423,7 +423,7 @@ class ContentEdit
         $externalMedia = $this->trimString($form['externalMedia'] ?? '');
 
         if (!empty($externalMedia) && !$this->isUrl($externalMedia)) {
-            \trigger_error(TFISH_ERROR_NOT_URL, E_USER_ERROR);
+            (TFISH_ERROR_NOT_URL);
         }
 
         $clean['externalMedia'] = $externalMedia;
@@ -431,15 +431,15 @@ class ContentEdit
         $image = $this->trimString($form['image'] ?? '');
 
         if (!empty($image) && $this->hasTraversalorNullByte($image)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
 
         if (!empty($image)) {
             $extension = \strtolower(\pathinfo($image, PATHINFO_EXTENSION));
-            if ($ext !== '') {
+            if ($extension !== '') {
                 $mtype = $this->listMimetypes();
                 if (!isset($mtype[$extension]) || !\str_starts_with($mtype[$extension], 'image/')) {
-                    \trigger_error(TFISH_ERROR_ILLEGAL_MIMETYPE, E_USER_ERROR);
+                    throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_MIMETYPE);
                 }
             }
         }

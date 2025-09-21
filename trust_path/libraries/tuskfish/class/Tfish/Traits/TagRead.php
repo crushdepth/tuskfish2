@@ -45,8 +45,7 @@ trait TagRead
         $module = $this->trimString($module); // Alphanumeric and underscores, only.
 
         if (!$this->isAlnumUnderscore($module)) {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
 
         // Get a list of active tag IDs (those listed in the taglnks table)
@@ -78,8 +77,7 @@ trait TagRead
     public function collectionTagOptions(int $id)
     {
         if ($id < 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $criteria = $this->criteriaFactory->criteria();
@@ -108,16 +106,14 @@ trait TagRead
         $module = $this->trimString($module); // Alphanumeric and underscores, only.
 
         if (!$this->isAlnumUnderscore($module)) {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
 
 
         $table = $this->trimString($table); // Alphanumeric characters only.
 
         if (!$this->isAlnum($table)) {
-            \trigger_error(TFISH_ERROR_NOT_ALNUM, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUM);
         }
 
         // Look up tags associated with this content object in the taglinks table.
@@ -160,7 +156,7 @@ trait TagRead
         $statement = $this->database->select('content', $criteria, $columns);
 
         if(!$statement) {
-            \trigger_error(TFISH_ERROR_NO_RESULT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NO_RESULT);
         }
 
         return $statement->fetchAll(\PDO::FETCH_KEY_PAIR);

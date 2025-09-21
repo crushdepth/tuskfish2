@@ -65,7 +65,7 @@ class Rss
     public function customFeed(int $id): array
     {
         if ($id < 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $criteria = $this->criteriaFactory->criteria();
@@ -113,7 +113,7 @@ class Rss
     public function getObjectsforTag(int $tagId): array|bool
     {
         if ($tagId < 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $criteria = $this->criteriaFactory->criteria();
@@ -145,8 +145,7 @@ class Rss
         $result = $statement->execute($params);
 
         if (!$result) {
-            \trigger_error(TFISH_ERROR_NO_RESULT, E_USER_ERROR);
-            return false;
+            throw new \RuntimeException(TFISH_ERROR_NO_RESULT);
         }
 
         return $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Content\Entity\Content');

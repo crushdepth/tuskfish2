@@ -246,9 +246,7 @@ class BlockEdit
             $statement->bindValue(':blockId', $id, \PDO::PARAM_INT);
             if (!$statement->execute()) {
                 $this->database->rollBack();
-                \trigger_error(TFISH_BLOCK_ROUTE_UPDATE_FAILED, E_USER_ERROR);
-
-                return false;
+                throw new \RuntimeException(TFISH_BLOCK_ROUTE_UPDATE_FAILED);
             }
 
             // Insert new routes, if any.
@@ -264,9 +262,7 @@ class BlockEdit
                     $route = $routeValue;
                     if (!$statement->execute()) {
                         $this->database->rollBack();
-                        \trigger_error(TFISH_BLOCK_ROUTE_UPDATE_FAILED, E_USER_ERROR);
-
-                        return false;
+                        throw new \RuntimeException(TFISH_BLOCK_ROUTE_UPDATE_FAILED);
                     }
                 }
             }
@@ -277,9 +273,7 @@ class BlockEdit
 
         } catch (\Exception $e) {
             $this->database->rollBack();
-            \trigger_error(TFISH_BLOCK_ROUTE_UPDATE_FAILED, E_USER_ERROR);
-
-            return false;
+            throw new \RuntimeException(TFISH_BLOCK_ROUTE_UPDATE_FAILED);
         }
     }
 
@@ -302,7 +296,7 @@ class BlockEdit
         $type = $this->trimString($form['type'] ?? '');
 
         if (!\array_key_exists($type, $this->blockTypes())) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_TYPE);
         }
 
         $clean['type'] = $type;
@@ -312,7 +306,7 @@ class BlockEdit
         $blockTemplates = $this->blockTemplates()[$clean['type']];
 
         if (!\array_key_exists($template, $blockTemplates)) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_TYPE);
         }
 
         $clean['template'] = $template;
@@ -321,7 +315,7 @@ class BlockEdit
         $position = $this->trimString($form['position'] ?? '');
 
         if ($position && !\array_key_exists($position, $this->blockPositions())) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_TYPE);
         }
 
         $clean['position'] = $position;
@@ -337,7 +331,7 @@ class BlockEdit
         $onlineStatus = !empty($form['onlineStatus']) ? (int) $form['onlineStatus'] : 0;
 
         if ($onlineStatus < 0 || $onlineStatus > 1) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
         $clean['onlineStatus'] = $onlineStatus;
@@ -370,7 +364,7 @@ class BlockEdit
         $json = \json_encode($config);
 
         if (!\json_validate($json)) {
-            \trigger_error(TFISH_ERROR_INVALID_JSON, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_INVALID_JSON);
         }
 
         return $json;
@@ -380,7 +374,7 @@ class BlockEdit
      * Validate submitted form data for block.
      *
      * @param array $routes Submitted route data from form.
-     * @return void Validated route data.
+     * @return array Validated route data.
      */
     public function validateRoutes(array $routes): array
     {

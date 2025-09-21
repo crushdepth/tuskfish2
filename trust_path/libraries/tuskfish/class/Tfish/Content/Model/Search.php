@@ -134,8 +134,7 @@ class Search
         $position = \array_search($searchType, $whitelist, true);
 
         if ($position === false) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
         $cleanSearchType = $whitelist[$position];

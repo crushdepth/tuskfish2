@@ -135,7 +135,7 @@ class Database
         if ($this->isAlnumUnderscore($dbName)) {
             return $this->_create($dbName . '.db');
         } else {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
             exit;
         }
     }
@@ -157,7 +157,7 @@ class Database
             $result = $this->fileHandler->appendToFile(TFISH_CONFIGURATION_PATH, $db_constant);
 
             if (!$result) {
-                \trigger_error(TFISH_ERROR_FAILED_TO_APPEND_FILE, E_USER_WARNING);
+                throw new \RuntimeException(TFISH_ERROR_FAILED_TO_APPEND_FILE);
                 $this->close();
                 return false;
             }
@@ -196,12 +196,12 @@ class Database
                 $key = $this->escapeIdentifier($key);
 
                 if (!$this->isAlnumUnderscore($key)) {
-                    \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
+                    throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
                     exit;
                 }
 
                 if (!\in_array($value, $typeWhitelist, true)) {
-                    \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+                    throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE,);
                     exit;
                 }
 
@@ -209,7 +209,7 @@ class Database
                 unset($key, $value);
             }
         } else {
-            \trigger_error(TFISH_ERROR_NOT_ARRAY_OR_EMPTY, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY_OR_EMPTY);
             exit;
         }
 
@@ -222,7 +222,7 @@ class Database
             }
 
             if (!isset($cleanPrimaryKey)) {
-                \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
+                throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
                 exit;
             }
         }
@@ -257,7 +257,7 @@ class Database
             if ($statement) {
                 return true;
             } else {
-                \trigger_error(TFISH_ERROR_NO_STATEMENT, E_USER_ERROR);
+                throw new \RuntimeException(TFISH_ERROR_NO_STATEMENT);
             }
         }
     }
@@ -330,7 +330,7 @@ class Database
                 $sql .= $this->renderSql($criteria);
                 $pdoPlaceholders = $this->renderPdo($criteria);
             } else {
-                \trigger_error(TFISH_ERROR_NOT_ARRAY, E_USER_ERROR);
+                throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY);
             }
 
             // Set the sorting column and order (default is ascending), limit and offset.
@@ -583,7 +583,7 @@ class Database
         if ($cleanCondition === "AND" || $cleanCondition === "OR") {
             return $cleanCondition;
         } else {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
     }
 
@@ -677,7 +677,7 @@ class Database
         if (\in_array($cleanOperator, $permittedOperators, true)) {
             return $cleanOperator;
         } else {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
     }
@@ -804,7 +804,7 @@ class Database
                 $sql .= $this->renderSql($criteria);
                 $pdoPlaceholders = $this->renderPdo($criteria);
             } else {
-                \trigger_error(TFISH_ERROR_NOT_ARRAY, E_USER_ERROR);
+                throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY);
             }
 
             if (!empty($criteria->item) && !empty($criteria->tag)) {
@@ -866,7 +866,7 @@ class Database
             if ($this->isAlnumUnderscore($column)) {
                 $cleanColumn = $column;
             } else {
-                \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
+                throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
                 exit;
             }
         } else {
@@ -904,7 +904,7 @@ class Database
                 $sql .= $this->renderSql($criteria);
                 $pdoPlaceholders = $this->renderPdo($criteria);
             } else {
-                \trigger_error(TFISH_ERROR_NOT_ARRAY, E_USER_ERROR);
+                throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY);
                 exit;
             }
 
@@ -987,7 +987,7 @@ class Database
                 $sql .= $this->renderSql($criteria);
                 $pdoPlaceholders = $this->renderPdo($criteria);
             } else {
-                \trigger_error(TFISH_ERROR_NOT_ARRAY, E_USER_ERROR);
+                throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY);
                 exit;
             }
 
@@ -1201,7 +1201,7 @@ class Database
                 $sql .= $this->renderSql($criteria);
                 $pdoPlaceholders = $this->renderPdo($criteria);
             } else {
-                \trigger_error(TFISH_ERROR_NOT_ARRAY, E_USER_ERROR);
+                throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY);
                 exit;
             }
         }
@@ -1239,7 +1239,7 @@ class Database
             \is_string($data), \is_float($data) => \PDO::PARAM_STR,
             \is_bool($data) => \PDO::PARAM_BOOL,
             \is_null($data) => \PDO::PARAM_NULL,
-            default => \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR),
+            default => throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_TYPE),
         };
     }
 
@@ -1270,86 +1270,71 @@ class Database
     {
         if ($criteria->item) {
             if (!\is_array($criteria->item)) {
-                \trigger_error(TFISH_ERROR_NOT_ARRAY, E_USER_ERROR);
-                exit;
+                throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY);
             }
 
             if (empty($criteria->condition)) {
-                \trigger_error(TFISH_ERROR_REQUIRED_PROPERTY_NOT_SET, E_USER_ERROR);
-                exit;
+                throw new \InvalidArgumentException(TFISH_ERROR_REQUIRED_PROPERTY_NOT_SET);
             }
 
             if (!\is_array($criteria->condition)) {
-                \trigger_error(TFISH_ERROR_NOT_ARRAY, E_USER_ERROR);
-                exit;
+                throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY);
             }
 
             if (\count($criteria->item) != \count($criteria->condition)) {
-                \trigger_error(TFISH_ERROR_COUNT_MISMATCH, E_USER_ERROR);
-                exit;
+                throw new \InvalidArgumentException(TFISH_ERROR_COUNT_MISMATCH);
             }
 
             foreach ($criteria->item as $item) {
                 if (!\is_a($item, '\Tfish\CriteriaItem')) {
-                    \trigger_error(TFISH_ERROR_NOT_CRITERIA_ITEM_OBJECT, E_USER_ERROR);
-                    exit;
+                    throw new \InvalidArgumentException(TFISH_ERROR_NOT_CRITERIA_ITEM_OBJECT);
                 }
 
                 if (!$this->isAlnumUnderscore($item->column)) {
-                    \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
-                    exit;
+                    throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
                 }
 
                 if ($item->operator && !\in_array($item->operator, $item->listPermittedOperators(),
                         true)) {
-                    \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
-                    exit;
+                    throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
                 }
             }
 
             foreach ($criteria->condition as $condition) {
                 if ($condition != "AND" && $condition != "OR") {
-                    \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
-                    exit;
+                    throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
                 }
             }
         }
 
         if ($criteria->groupBy && !$this->isAlnumUnderscore($criteria->groupBy)) {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
 
         if ($criteria->limit && !$this->isInt($criteria->limit, 1)) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         if ($criteria->offset && !$this->isInt($criteria->offset, 0)) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         if ($criteria->sort && !$this->isAlnumUnderscore($criteria->sort)) {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
 
         if ($criteria->order &&
                 ($criteria->order != "ASC" && $criteria->order != "DESC")) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
         if ($criteria->secondarySort && !$this->isAlnumUnderscore($criteria->secondarySort)) {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
 
         if ($criteria->secondaryOrder &&
                 ($criteria->secondaryOrder != "ASC" && $criteria->secondaryOrder != "DESC")) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
         return $criteria;
@@ -1372,8 +1357,7 @@ class Database
                 if ($this->isAlnumUnderscore($column)) {
                     $cleanColumns[] = $column;
                 } else {
-                    \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
-                    exit;
+                    throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
                 }
 
                 unset($column);
@@ -1381,8 +1365,7 @@ class Database
 
             return $cleanColumns;
         } else {
-            \trigger_error(TFISH_ERROR_NOT_ARRAY, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY);
         }
     }
 
@@ -1398,8 +1381,7 @@ class Database
         if ($this->isInt($cleanId, 1)) {
             return $cleanId;
         } else {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
     }
 
@@ -1423,8 +1405,7 @@ class Database
                 if ($this->isAlnumUnderscore($key)) {
                     $cleanKeys[$key] = $value;
                 } else {
-                    \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
-                    exit;
+                    throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
                 }
 
                 unset($key, $value);
@@ -1432,8 +1413,7 @@ class Database
 
             return $cleanKeys;
         } else {
-            \trigger_error(TFISH_ERROR_NOT_ARRAY_OR_EMPTY, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY_OR_EMPTY);
         }
     }
 
@@ -1450,8 +1430,7 @@ class Database
         if ($this->isAlnum($tableName)) {
             return $tableName;
         } else {
-            \trigger_error(TFISH_ERROR_NOT_ALNUM, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUM);
         }
     }
 }
