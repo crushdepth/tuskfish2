@@ -1,0 +1,13 @@
+<?php declare(strict_types=1); ?>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col text-center">
+      <h1><?php echo xss($viewModel->redirectTitle() ?? TFISH_LOGIN); ?></h1>
+      <?php if (!empty($message = $viewModel->redirectMessage())): ?>
+        <p><?php echo xss($message); ?></p>
+      <?php endif; ?>
+    </div>
+  </div>
+
+</div> <!-- /.container-fluid -->

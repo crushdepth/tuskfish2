@@ -1,0 +1,30 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Container -->
+<div class="container">
+
+<div class="row">
+  <div class="col">
+    <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <div class="alert alert-success">
+      <strong><?php echo xss($viewModel->response()); ?></strong>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <form method="post" action="<?php echo xss($viewModel->backUrl()); ?>">
+      <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>">
+      <button type="submit" class="btn btn-primary m-0"><?php echo TFISH_BACK; ?></button>
+    </form>
+  </div>
+</div>
+
+<!-- /.container -->
+</div>

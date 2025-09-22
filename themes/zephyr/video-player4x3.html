@@ -1,0 +1,47 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Title and meta information -->
+<div>
+  <h2 class="title"><?php echo xss($content->title()); ?></h2>
+  <p class="content-info">
+    <span class="small">
+      <?php echo xss($content->date()
+        ->format($viewModel->dateFormat())) . ' | '; ?>
+      <?php echo xss($content->info()); ?>
+      <?php if ($contentTags) {
+          echo ' | ';
+          $tags = [];
+          foreach ($contentTags as $key => $value) {
+            $tags[] = '<a href="?id=' . xss($key) . '">' . xss($value) . '</a>';
+          }
+          echo \implode(', ', $tags);
+        } ?>
+    </span>
+  </p>
+</div>
+
+<!-- Available video aspect ratios are ratio-1x1, ratio-4x3, ratio-16x9, ratio-21x9 -->
+<?php if ($content->externalMedia()): ?>
+<div class="ratio ratio-4x3 video-player text-start">
+  <iframe
+    src="<?php echo xss($content->externalMedia()); ?>"
+    title="YouTube video player"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen>
+  </iframe>
+</div>
+<?php endif; ?>
+
+<!-- Description -->
+<div class="description">
+  <?php if ($content->description()) echo $content->descriptionForDisplay(); ?>
+</div>
+
+<!-- Rights -->
+<?php if ($content->rights()): ?>
+<div>
+  <p class="rights"><?php echo xss($content->listRights()[$content->rights()]); ?></p>
+</div>
+<?php endif; ?>
+
+<?php if (!empty($parent)) include_once('parent.html'); ?>

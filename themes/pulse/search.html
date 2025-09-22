@@ -1,0 +1,116 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Container -->
+<div class="container">
+
+<div class="row">
+  <div class="col">
+    <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+  </div>
+</div>
+
+<!-- Advanced search form -->
+<div class="row justify-content-center">
+  <form class="col-md-4" method="get" accept-charset="UTF-8">
+    <div class="row g-2">
+
+    <!-- Search terms -->
+    <div class="col-12">
+      <input type="text"
+        class="form-control"
+        name="searchTerms"
+        id="searchTerms"
+        <?php if ($searchTerms = $viewModel->searchTermsForForm()): ?>
+          value="<?php echo htmlspecialchars($searchTerms, ENT_QUOTES, "UTF-8", false); ?>"
+        <?php else: ?>
+          placeholder="<?php echo TFISH_SEARCH_ENTER_TERMS; ?>"
+        <?php endif; ?>
+          required>
+    </div>
+
+    <!-- Search type -->
+    <div class="col-12">
+      <select class="form-select" name="searchType" id="searchType">
+        <option <?php if ($viewModel->searchType() === "AND") echo "selected"; ?> value="AND"><?php echo TFISH_SEARCH_ALL; ?></option>
+        <option <?php if ($viewModel->searchType() === "OR") echo "selected"; ?> value="OR"><?php echo TFISH_SEARCH_ANY; ?></option>
+        <option <?php if ($viewModel->searchType() === "exact") echo "selected"; ?> value="exact"><?php echo TFISH_SEARCH_EXACT; ?></option>
+      </select>
+    </div>
+
+    <!-- Submit -->
+    <div class="col-12">
+      <input type="hidden" name="action" value="search">
+      <button type="submit" class="btn btn-primary">
+        <?php echo TFISH_SEARCH ?>
+      </button>
+    </div>
+
+    </div>
+
+  </form>
+</div>
+
+<?php if (($_REQUEST['action'] ?? false)): ?>
+<!-- Search results -->
+<div class="row">
+  <div class="col">
+    <hr>
+    <div class="text-start">
+      <?php if ($searchResults = $viewModel->searchResults()): ?>
+
+      <h2><?php echo xss($viewModel->contentCount()) . ' ' . TFISH_SEARCH_RESULTS . ':'; ?></h2><hr>
+
+      <?php if ($pagination ?? null): ?>
+      <div class="row">
+        <div class="col d-flex justify-content-end pagination-top">
+          <?php echo $pagination; ?>
+        </div>
+      </div>
+      <?php endif; ?>
+
+      <?php foreach ($searchResults as $key => $content): ?>
+      <div class="clearfix">
+        <h3 class="title">
+          <a href="<?php echo xss($content->url()); ?>" class="icon-link">
+            <?php echo $content->icon($content->type()); ?>
+          </a>
+          <a href="<?php echo xss($content->url()); ?>" class="title-link">
+            <?php echo xss($content->title()); ?>
+          </a>
+        </h3>
+        <?php if ($content->image()): ?>
+        <div class="float-start">
+          <figure class="figure-left">
+            <a href="<?php echo xss($content->url()); ?>">
+              <img class="img-fluid" src="<?php echo $content->cachedImage(200); ?>"
+                <?php if ($content->caption()): ?>
+                  title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"<!-- CHANGED -->
+                <?php else: ?>
+                  alt=""
+                <?php endif; ?>>
+            </a>
+          </figure>
+        </div>
+        <?php endif; ?>
+       <?php echo $content->teaserForDisplay(); ?>
+      </div>
+      <?php endforeach; ?>
+
+        <?php if ($pagination ?? null): ?>
+        <div class="row">
+          <div class="col d-flex justify-content-end pagination-bottom">
+            <?php echo $pagination; ?>
+          </div>
+        </div>
+        <?php endif; ?>
+
+        <?php else: ?>
+        <h2><?php echo TFISH_SEARCH_NO_RESULTS; ?></h2><hr>
+        <?php endif; ?>
+    </div>
+  </div>
+</div>
+<?php endif; ?>
+
+<!-- /.container -->
+</div>
