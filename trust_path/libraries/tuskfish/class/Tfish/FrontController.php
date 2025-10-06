@@ -199,51 +199,31 @@ class FrontController
      */
     private function renderBlocks(string $path): array
     {
-        $blocks = [];
-
-        $sql = "SELECT `block`.`id`, `type`, `position`, `title`, `html`, `config`, `weight`, "
-            . "`template`, `onlineStatus` FROM `block` "
-            . "INNER JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId` "
-            . "WHERE `blockRoute`.`route` = :path "
-            . "AND `onlineStatus` = '1'";
+        $sql = "SELECT `block`.`id`, `type`, `position`, `title`, `html`, `config`, `weight`,
+         `template`, `onlineStatus`
+          FROM `block`
+          INNER JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId`
+          WHERE `blockRoute`.`route` = :path AND `onlineStatus` = '1'
+          ORDER BY `position`, `weight`, `block`.`id`
+        ";
 
         $statement = $this->database->preparedStatement($sql);
         $statement->bindValue(':path', $path, \PDO::PARAM_STR);
-        $statement->setFetchMode(\PDO::FETCH_UNIQUE); // Index by ID.
         $statement->execute();
-        $rows = $statement->fetchAll();
 
-        if (empty($rows)) {
-            return $blocks;
-        }
+        $blocks = ['position' => []];
 
-        foreach ($rows as $key => $row) {
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
             $className = $row['type'];
-            if (\class_exists($className)) {
-                $blocks[$row['id']] = new $className($row, $this->database, $this->criteriaFactory);
-            }
-        }
+            if (!\class_exists($className)) { continue; }
 
-        // Add block positions.
-        $blocks['position'] = [];
+            $obj = new $className($row, $this->database, $this->criteriaFactory);
+            $blocks[$row['id']] = $obj;
 
-        foreach ($blocks as $id => &$block) {
-            if (\is_numeric($id)) {
-                $position = $block->position();
-
-                if (!isset($blocks['position'][$position])) {
-                    $blocks['position'][$position] = [];
-                }
-
-                $blocks['position'][$position][] = &$block; // Reference (not copy) existing rows.
-            }
-        }
-
-        // Sort each position by weight, ascending.
-        foreach ($blocks['position'] as $position => &$rows) {
-            \usort($rows, function ($a, $b) {
-                return $a->weight() <=> $b->weight();
-            });
+            // Group.
+            $pos = $row['position'];
+            $blocks['position'][$pos] ??= [];
+            $blocks['position'][$pos][] = $obj;
         }
 
         return $blocks;
