@@ -31,10 +31,10 @@ namespace Tfish\Model;
 
 class Preference
 {
-    private $database;
-    private $criteriaFactory;
-    private $preference;
-    private $cache;
+    private \Tfish\Database $database;
+    private \Tfish\CriteriaFactory $criteriaFactory;
+    private \Tfish\Entity\Preference $preference;
+    private \Tfish\Cache $cache;
 
     /**
      * Constructor.
@@ -64,11 +64,21 @@ class Preference
      *
      * @return  bool True on success, false on failure.
      */
-    public function update()
+    public function update(): bool
     {
+        if (!isset($_POST['preference']) || !\is_array($_POST['preference'])) {
+            return false;
+        }
+
         $this->preference->load($_POST['preference']);
 
-        return $this->writePreferences();
+        $result = $this->writePreferences();
+
+        if ($result) {
+            $this->cache->flush();
+        }
+
+        return $result;
     }
 
     /**
@@ -92,8 +102,7 @@ class Preference
             $result = $this->database->executeTransaction($statement);
 
             if (!$result) {
-                \trigger_error(TFISH_ERROR_INSERTION_FAILED, E_USER_ERROR);
-                return false;
+                throw new \RuntimeException(TFISH_ERROR_INSERTION_FAILED);
             }
         }
 
@@ -110,12 +119,12 @@ class Preference
             return [];
         }
 
-        $entries = scandir(TFISH_THEMES_PATH);
+        $entries = \scandir(TFISH_THEMES_PATH);
         $dirs = [];
         $excluded = ['.', '..', 'admin', 'rss', 'signin'];
 
         foreach ($entries as $entry) {
-            if (\in_array($entry, $excluded)) {
+            if (\in_array($entry, $excluded, true)) {
                 continue;
             }
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\ViewModel;
 
 /**
- * \Tfish\ViewModelModel\PreferenceList class file.
+ * \Tfish\ViewModel\PreferenceList class file.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -42,8 +42,8 @@ class PreferenceList implements \Tfish\Interface\Viewable
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;
 
-    private $model;
-    private $preference;
+    private object $model;
+    private \Tfish\Entity\Preference $preference;
 
     /**
      * Constructor
@@ -51,7 +51,7 @@ class PreferenceList implements \Tfish\Interface\Viewable
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tfish site preference class.
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference)
+    public function __construct(object $model, \Tfish\Entity\Preference $preference)
     {
         $this->pageTitle = TFISH_PREFERENCES;
         $this->model = $model;
@@ -66,7 +66,7 @@ class PreferenceList implements \Tfish\Interface\Viewable
     /**
      * Display the table of preference values.
      */
-    public function displayForm() {}
+    public function displayForm(): void {}
 
     /**
      * Return an instance of the site preferences class.

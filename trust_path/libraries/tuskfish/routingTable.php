@@ -8,6 +8,13 @@ namespace Tfish;
  * Stores the static routing table used by the Router class.
  *
  * The routing table is used to select components to initialise for a given page (route).
+ * The trailing integer is a bitmask controlling group access permissions. This works a bit like
+ * CHMOD file permissions. Site admninistrator has implicit access to all routes.
+ *
+ * 0 = public.
+ * 1 = site administrator only.
+ * 2 = editors.
+ * 4 = members.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -71,7 +78,7 @@ return [
         '\\Tfish\\ViewModel\\Password',
         '\\Tfish\\View\\Single',
         '\\Tfish\\Controller\\Password',
-        2),
+        7),
     '/flush/' => new Route(
         '\\Tfish\\Model\\Cache',
         '\\Tfish\\ViewModel\\Cache',
@@ -106,6 +113,12 @@ return [
         '\\Tfish\\ViewModel\\Login',
         '\\Tfish\\View\\Single',
         '\\Tfish\\Controller\\Logout',
+        0),
+    '/restricted/' => new Route(
+        '\\Tfish\\Model\\Login',
+        '\\Tfish\\ViewModel\\Restricted',
+        '\\Tfish\\View\\Single',
+        '\\Tfish\\Controller\\Login',
         0),
     '/preference/' => new Route(
         '\\Tfish\\Model\\Preference',

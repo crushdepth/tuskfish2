@@ -47,7 +47,7 @@ class FeaturedVideo implements \Tfish\Interface\Block
     private mixed $content = false;
 
     /** Constructor. */
-    public function __construct(array $row, \Tfish\Database $database, \Tfish\criteriaFactory $criteriaFactory)
+    public function __construct(array $row, \Tfish\Database $database, \Tfish\CriteriaFactory $criteriaFactory)
     {
         if (empty($row['id'])) return;
 
@@ -64,14 +64,14 @@ class FeaturedVideo implements \Tfish\Interface\Block
      */
     public function load(array $row): void
     {
-        $this->id = (int)$row['id'];
-        $this->position = $this->trimString($row['position']);
-        $this->title = $this->trimString($row['title']);
-        $this->setConfig($row['config'] ?? '');
-        $this->weight = (int)$row['weight'];
-        $this->template = \in_array($row['template'], $this->listTemplates(), true)
-            ? $row['template'] : 'featured-video';
-        $this->onlineStatus = ($row['onlineStatus'] == 1) ? 1 : 0;
+        $this->id = (int)($row['id'] ?? 0);
+        $this->position = $this->trimString((string)($row['position'] ?? ''));
+        $this->title = $this->trimString((string)($row['title'] ?? ''));
+        $this->setConfig((string)($row['config'] ?? ''));
+        $this->weight = (int)($row['weight'] ?? 0);
+        $tpl = (string)($row['template'] ?? '');
+        $this->template = \in_array($tpl, $this->listTemplates(), true) ? $tpl : 'featured-video';
+        $this->onlineStatus = ((int)($row['onlineStatus'] ?? 0) === 1) ? 1 : 0;
     }
 
     /**
@@ -83,7 +83,8 @@ class FeaturedVideo implements \Tfish\Interface\Block
      */
     public function content(\Tfish\Database $database, \Tfish\CriteriaFactory $criteriaFactory): void
     {
-        $id = $this->isInt($this->config['id'], 1) ? $this->config['id'] : 0;
+        $cfgId = $this->config['id'] ?? 0;
+        $id = $this->isInt($cfgId, 1) ? (int)$cfgId : 0;
 
         $criteria = $criteriaFactory->criteria();
         $criteria->add($criteriaFactory->item('id', $id));
@@ -106,12 +107,11 @@ class FeaturedVideo implements \Tfish\Interface\Block
         $filepath = TFISH_CONTENT_BLOCK_PATH . $this->template . '.html';
 
         if (!\file_exists($filepath)) {
-            \trigger_error(TFISH_ERROR_TEMPLATE_NOT_FOUND, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_TEMPLATE_NOT_FOUND);
         }
 
         \ob_start();
-        include TFISH_CONTENT_BLOCK_PATH . $this->template . '.html';
+        include $filepath;
         $this->html = \ob_get_clean();
     }
 
@@ -126,9 +126,9 @@ class FeaturedVideo implements \Tfish\Interface\Block
     {
         $json = \json_encode($this->config);
 
-        if ($json == false || !\json_validate($json, 3)) {
-            \trigger_error(TFISH_ERROR_INVALID_JSON, E_USER_ERROR);
-            exit;
+        // Strict false check; guard json_validate() for PHP < 8.3.
+        if ($json === false || (\function_exists('json_validate') && !\json_validate($json, 3))) {
+            throw new \InvalidArgumentException(TFISH_ERROR_INVALID_JSON);
         }
 
         return $json;
@@ -138,7 +138,7 @@ class FeaturedVideo implements \Tfish\Interface\Block
      * Returns a list of display-side template options for this block.
      *
      * Add your custom templates to this list (without .html extension) and put a template file
-     * with the same name (with .html extensin) in the Block directory.
+     * with the same name (with .html extension) in the Block directory.
      *
      * @return  array Array of type-template key values.
      */
@@ -255,9 +255,10 @@ class FeaturedVideo implements \Tfish\Interface\Block
      * @param string $json
      * @return void
      */
-    public function setConfig(string $json)
+    public function setConfig(string $json): void
     {
-        $config = \json_decode($json, true);
+        $decoded = \json_decode($json, true);
+        $config = \is_array($decoded) ? $decoded : [];
         $this->config = $this->validateConfig($config);
     }
 
@@ -274,7 +275,7 @@ class FeaturedVideo implements \Tfish\Interface\Block
         $validConfig = [];
 
         // ID of spotlighted content.
-        $validConfig['id'] = (int)$config['id'] ?? 0;
+        $validConfig['id'] = isset($config['id']) ? (int)$config['id'] : 0;
 
         // Show a different image (ID).
 

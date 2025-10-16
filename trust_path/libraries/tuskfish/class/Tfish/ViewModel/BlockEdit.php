@@ -30,7 +30,7 @@ namespace Tfish\ViewModel;
  * @var         object $model Classname of the model used to display this page.
  * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  * @var         int $id ID of a single block object to be displayed.
- * @var         mixed $content Block object to be edited.
+ * @var         array $content Block object to be edited.
  * @var         string $action Action to be embedded in the form and executed after next submission.
  * @var         string $response Message to display to the user after processing action (success/failure).
  * @var         string $backUrl $backUrl URL to return to if the user cancels the action.
@@ -42,14 +42,14 @@ class BlockEdit implements \Tfish\Interface\Viewable
     use \Tfish\Traits\ValidateToken;
     use \Tfish\Traits\Viewable;
 
-    private $model;
-    private $id = 0;
-    private $content = '';
-    private $route = [];
-    private $action = '';
-    private $response = '';
-    private $backUrl = '';
-    private $preference;
+    private object $model;
+    private int $id = 0;
+    private array $content = [];
+    private array $route = [];
+    private string $action = '';
+    private string $response = '';
+    private string $backUrl = '';
+    private \Tfish\Entity\Preference $preference;
 
     /**
      * Constructor.
@@ -57,7 +57,7 @@ class BlockEdit implements \Tfish\Interface\Viewable
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference)
+    public function __construct(object $model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
         $this->preference = $preference;
@@ -70,11 +70,8 @@ class BlockEdit implements \Tfish\Interface\Viewable
     /**
      * Display Add block form.
      */
-    public function displayAdd()
+    public function displayAdd(): void
     {
-        $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
-        $this->validateToken($token);
-
         if ($_POST['isReload'] ?? '') {
             $content = $_POST['content'] ?? [];
             $this->setContent($content);
@@ -89,7 +86,7 @@ class BlockEdit implements \Tfish\Interface\Viewable
     /**
      * Cancel action and redirect to admin page.
      */
-    public function displayCancel()
+    public function displayCancel(): void
     {
         \header('Location: ' . TFISH_ADMIN_BLOCK_URL);
         exit;
@@ -98,7 +95,7 @@ class BlockEdit implements \Tfish\Interface\Viewable
     /**
      * Display edit block form.
      */
-    public function displayEdit()
+    public function displayEdit(): void
     {
         $id = (int) ($_GET['id'] ?? 0);
 
@@ -110,7 +107,7 @@ class BlockEdit implements \Tfish\Interface\Viewable
         } else {
             $this->pageTitle = TFISH_FAILED;
             $this->response = TFISH_ERROR_NO_SUCH_OBJECT;
-            $this->backUrl = TFISH_ADMIN_USER_URL;
+            $this->backUrl = TFISH_ADMIN_BLOCK_URL;
             $this->template = 'response';
         }
     }
@@ -118,7 +115,7 @@ class BlockEdit implements \Tfish\Interface\Viewable
     /**
      * Save block object (new or updated).
      */
-    public function displaySave()
+    public function displaySave(): void
     {
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
@@ -192,9 +189,9 @@ class BlockEdit implements \Tfish\Interface\Viewable
     /**
      * Return a block object.
      *
-     * @return mixed
+     * @return array
      */
-    public function content(): mixed
+    public function content(): array
     {
         return $this->content;
     }
@@ -202,9 +199,9 @@ class BlockEdit implements \Tfish\Interface\Viewable
     /**
      * Set block object.
      *
-     * @param   mixed $content block object to be edited.
+     * @param   array $content block object to be edited.
      */
-    public function setContent(mixed $content)
+    public function setContent(array $content): void
     {
         $this->content = $content;
     }

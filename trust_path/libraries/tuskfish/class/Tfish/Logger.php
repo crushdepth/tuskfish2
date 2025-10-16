@@ -18,9 +18,6 @@ namespace Tfish;
 /**
  * Provides a custom error handler which writes to a logfile.
  *
- * Custom error handler functions such as this one should return FALSE; otherwise calls to
- * trigger_error($msg, E_USER_ERROR) will not cause a script to stop execution!
- *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -37,7 +34,14 @@ class Logger
     /**
      * Constructor.
      */
-    public function __construct(){}
+    public function __construct()
+    {
+        $dir = \dirname(TFISH_ERROR_LOG_PATH);
+
+        if (!\is_dir($dir) || !\is_writable($dir)) {
+            \error_log(TFISH_ERROR_LOG_PATH_NOT_WRITEABLE);
+        }
+    }
 
     /**
      * Tuskfish custom error logger class.
@@ -48,24 +52,44 @@ class Logger
      * @param string $error The error message.
      * @param string $file Name of the file where the error occurred.
      * @param int|null $line Line number the error was raised at.
-     * @return bool Returns false to halt script execution.
+     * @return bool Returns false delegating error logging to the header \ini_set('log_errors', '1');.
      */
     public function logError(
         int|null $errno = null,
         string $error = '',
         string $file = '',
         int|null $line = null
-        )
+        ): bool
     {
-        $errno = isset($errno) ? $this->trimString($errno) : TFISH_ERROR_UNSPECIFIED;
-        $error = !empty($error) ? $this->trimString($error) : TFISH_ERROR_UNSPECIFIED;
-        $file = !empty($file) ? $this->trimString($file) : TFISH_ERROR_UNSPECIFIED;
-        $line = isset($line) ? $this->trimString($line) : TFISH_ERROR_UNSPECIFIED;
+        $errno = $errno ?? TFISH_ERROR_UNSPECIFIED;
+        $error = $error !== '' ? $this->trimString($error) : TFISH_ERROR_UNSPECIFIED;
+        $file  = $file  !== '' ? $this->trimString($file)  : TFISH_ERROR_UNSPECIFIED;
+        $line  = $line  ?? TFISH_ERROR_UNSPECIFIED;
 
-        $message = \date("Y-m-d, H:i:s", \time()) . ": [ERROR][$errno][$error]";
-        $message .= "[$file:$line]\n";
+        $message = \date('Y-m-d, H:i:s') . ": [ERROR][$errno][$error][$file:$line]\n";
         \error_log($message, 3, TFISH_ERROR_LOG_PATH);
 
         return false;
+    }
+
+    /**
+     * Exception handler.
+     *
+     * Called by \Tfish\ErrorHandler::userError()
+     *
+     * @param \Throwable $e Error.
+     * @return void
+     */
+    public function throwException(\Throwable $e): void
+    {
+        $message  = \date('Y-m-d, H:i:s') . ': [EXCEPTION][' . \get_class($e) . '] ';
+        $message .= '[' . $this->trimString($e->getMessage()) . ']';
+        $message .= '[' . $e->getFile() . ':' . $e->getLine() . "]\n";
+        $message .= $e->getTraceAsString() . "\n";
+        \error_log($message, 3, TFISH_ERROR_LOG_PATH);
+
+        if (!\headers_sent()) {
+            \http_response_code(500);
+        }
     }
 }

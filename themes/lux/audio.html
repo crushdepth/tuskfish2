@@ -40,7 +40,7 @@
 </div>
 
 <?php if ($content->media()): ?>
-<div class="audio-player text-left">
+<div class="audio-player text-start">
   <audio controls>
     <source src="<?php echo TFISH_MEDIA_URL . xss($content->media()); ?>" type="<?php echo xss($content->format()); ?>">
     <?php echo TFISH_BROWSER_DOES_NOT_SUPPORT_AUDIO; ?>
@@ -53,27 +53,28 @@
 <div>
   <figure class="float-end figure-right">
     <?php if ($content->media()): ?>
-
     <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>">
       <img class="image img-fluid" src="<?php echo $content->cachedImage(640); ?>"
+        <?php if ($content->caption()): ?>
+          title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"<
+        <?php else: ?>
+          alt=""
+        <?php endif; ?>>
       <?php if ($content->caption()): ?>
-        title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"/>
-      <?php else: ?>
-        alt="" />
+        <figcaption><em><?php echo xss($content->caption()); ?></em></figcaption>
       <?php endif; ?>
     </a>
-    <figcaption><em><?php echo xss($content->caption()); ?></em></figcaption>
-
     <?php else: ?>
       <img class="image img-fluid" src="<?php echo $content->cachedImage(640); ?>"
+        <?php if ($content->caption()): ?>
+          title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"
+        <?php else: ?>
+          alt=""
+        <?php endif; ?>>
       <?php if ($content->caption()): ?>
-        title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"/>
         <figcaption><em><?php echo xss($content->caption()); ?></em></figcaption>
-      <?php else: ?>
-        alt="" />
       <?php endif; ?>
     <?php endif; ?>
-
   </figure>
 </div>
 <?php endif; ?>
@@ -86,7 +87,14 @@
 <!-- Media attachment -->
 <?php if ($content->media()): ?>
 <div>
-  <p class="media"><b><a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>"><i title="<?php echo TFISH_DOWNLOAD; ?>" class="icon-download"></i> <?php echo xss($content->media()); ?></a></b></p>
+  <p class="media">
+    <strong>
+      <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>">
+        <i title="<?php echo TFISH_DOWNLOAD; ?>" class="icon-download"></i> 
+        <?php echo xss($content->media()); ?>
+      </a>
+    </strong>
+  </p>
 </div>
 <?php endif; ?>
 

@@ -83,7 +83,7 @@ trait BlockOption
         return [
             '\Tfish\Content\Block\RecentContent' => ['recent-content-compact' => TFISH_BLOCK_RECENT_CONTENT_COMPACT],
             '\Tfish\Content\Block\Spotlight' => ['spotlight-compact' => TFISH_BLOCK_SPOTLIGHT_COMPACT],
-            '\Tfish\Content\Block\FeaturedVideo' => ['featured-video', TFISH_BLOCK_VIDEO_COMPACT],
+            '\Tfish\Content\Block\FeaturedVideo' => ['featured-video' => TFISH_BLOCK_VIDEO_COMPACT],
             '\Tfish\Content\Block\Html' => ['html' => TFISH_BLOCK_HTML],
         ];
     }
@@ -113,7 +113,7 @@ trait BlockOption
             $path = $this->blockPath($class);
             $template = $configTemplates[$class];
         } else {
-            \trigger_error(TFISH_ERROR_TEMPLATE_NOT_FOUND, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_TEMPLATE_NOT_FOUND);
         }
 
         return $path . $template . '.html';

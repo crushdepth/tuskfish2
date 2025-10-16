@@ -44,15 +44,15 @@ class Gallery implements \Tfish\Interface\Listable
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\ValidateString;
 
-    private $model;
-    private $preference;
-    private $contentList = [];
-    private $contentCount = 0;
-    private $id = 0;
-    private $start = 0;
-    private $tag = 0;
-    private $type = '';
-    private $onlineStatus = 1;
+    private object $model;
+    private \Tfish\Entity\Preference $preference;
+    private array $contentList = [];
+    private int $contentCount = 0;
+    private int $id = 0;
+    private int $start = 0;
+    private int $tag = 0;
+    private string $type = '';
+    private int $onlineStatus = 1;
 
     /**
      * Constructor.
@@ -60,7 +60,7 @@ class Gallery implements \Tfish\Interface\Listable
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference)
+    public function __construct(object $model, \Tfish\Entity\Preference $preference)
     {
         $this->pageTitle = TFISH_IMAGE_GALLERY;
         $this->model = $model;
@@ -74,8 +74,10 @@ class Gallery implements \Tfish\Interface\Listable
 
     /**
      * Display a list of images.
+     *
+     * @return void
      */
-    public function displayList()
+    public function displayList(): void
     {
         $this->listContent();
         $this->countContent();
@@ -138,8 +140,10 @@ class Gallery implements \Tfish\Interface\Listable
 
     /**
      * Count content objects meeting filter criteria.
+     *
+     * @return void
      */
-    public function countContent()
+    public function countContent(): void
     {
         $this->contentCount = $this->model->getCount(
             [
@@ -159,7 +163,7 @@ class Gallery implements \Tfish\Interface\Listable
      */
     public function extraParams(): array
     {
-        return ($this->tag) ? [$this->tag] : [];
+        return $this->tag ? ['tag' => $this->tag] : [];
     }
 
     /**
@@ -176,8 +180,10 @@ class Gallery implements \Tfish\Interface\Listable
      * Get content objects matching cached filter criteria.
      *
      * Result is cached as $contentList property.
+     *
+     * @return void
      */
-    public function listContent()
+    public function listContent(): void
     {
         $this->contentList = $this->model->getObjects(
             [
@@ -212,7 +218,7 @@ class Gallery implements \Tfish\Interface\Listable
      *
      * @return  array Array of content objects.
      */
-    public function contentList()
+    public function contentList(): array
     {
         return $this->contentList;
     }
@@ -231,8 +237,9 @@ class Gallery implements \Tfish\Interface\Listable
      * Set ID.
      *
      * @param   int $id ID of content object.
+     * @return void
      */
-    public function setId(int $id)
+    public function setId(int $id): void
     {
         $this->id = $id;
     }
@@ -251,8 +258,9 @@ class Gallery implements \Tfish\Interface\Listable
      * Set start.
      *
      * @param   int $start ID of content object to start on.
+     * @return void
      */
-    public function setStart(int $start)
+    public function setStart(int $start): void
     {
         $this->start = $start;
     }
@@ -271,8 +279,9 @@ class Gallery implements \Tfish\Interface\Listable
      * Set tag ID.
      *
      * @param   int $tag ID of tag.
+     * @return void
      */
-    public function setTag(int $tag)
+    public function setTag(int $tag): void
     {
         $this->tag = $tag;
     }
@@ -293,8 +302,9 @@ class Gallery implements \Tfish\Interface\Listable
      * Filter list by content type.
      *
      * @param   string $type Type of content object.
+     * @return void
      */
-    public function setType(string $type)
+    public function setType(string $type): void
     {
         $this->type = $this->trimString($type);
     }

@@ -30,8 +30,8 @@ namespace Tfish\Controller;
 
 class Cache
 {
-    private $model;
-    private $viewModel;
+    private object $model;
+    private object $viewModel;
 
     /**
      * Constructor.
@@ -39,7 +39,7 @@ class Cache
      * @param   object $model Instance of a model class.
      * @param   object $viewModel Instance of a viewModel class.
      */
-    public function __construct($model, $viewModel)
+    public function __construct(object $model, object $viewModel)
     {
         $this->model = $model;
         $this->viewModel = $viewModel;
@@ -60,7 +60,7 @@ class Cache
     }
 
     /**
-     * Display confirmatation message.
+     * Display confirmation message.
      *
      * @return  array Empty array (the output of this action is not cached).
      */
@@ -78,6 +78,11 @@ class Cache
      */
     public function flush(): array
     {
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            $this->viewModel->displayConfirm();
+            return [];
+        }
+
         $this->viewModel->displayFlush();
 
         return [];

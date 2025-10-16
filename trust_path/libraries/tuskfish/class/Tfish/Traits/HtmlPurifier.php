@@ -31,14 +31,24 @@ trait HtmlPurifier
     /**
      * Return a configured instance of HTMLPurifier.
      *
+     * Cached for speed.
+     *
      * @return \HtmlPurifier
      */
     public function getHtmlPurifier()
     {
+        static $purifier = null;
+
+        if ($purifier instanceof \HTMLPurifier) {
+            return $purifier;
+        }
+
         require_once TFISH_LIBRARIES_PATH . 'htmlpurifier/library/HTMLPurifier.auto.php';
 
         $config = $this->configureHTMLPurifier([]);
-        return new \HTMLPurifier($config);
+        $purifier = new \HTMLPurifier($config);
+
+        return $purifier;
     }
 
     /**

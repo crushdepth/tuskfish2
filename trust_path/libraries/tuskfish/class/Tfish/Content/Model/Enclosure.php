@@ -24,6 +24,7 @@ namespace Tfish\Content\Model;
  * @version     Release: 2.0
  * @since       2.0
  * @package     content
+ * @uses        trait \Tfish\Traits\Group Whitelist of user groups on system and bitmask authorisation tests.
  * @uses        trait \Tfish\Traits\Mimetypes	Provides a list of common (permitted) mimetypes for file uploads.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         \Tfish\Database $database Instance of the Tuskfish database class.
@@ -32,22 +33,26 @@ namespace Tfish\Content\Model;
 
 class Enclosure
 {
+    use \Tfish\Traits\Group;
     use \Tfish\Traits\Mimetypes;
     use \Tfish\Traits\ValidateString;
 
-    private $database;
-    private $criteriaFactory;
+    private \Tfish\Database $database;
+    private \Tfish\CriteriaFactory $criteriaFactory;
+    private \Tfish\Session $session;
 
     /**
      * Constructor.
      *
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.
      * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
+     * @param   \Tfish\Session $session Instance of the Tuskfish session manager class.
      */
-    public function __construct(\Tfish\Database $database, \Tfish\CriteriaFactory $criteriaFactory)
+    public function __construct(\Tfish\Database $database, \Tfish\CriteriaFactory $criteriaFactory, \Tfish\Session $session)
     {
         $this->database = $database;
         $this->criteriaFactory = $criteriaFactory;
+        $this->session = $session;
     }
 
     /**
@@ -62,17 +67,16 @@ class Enclosure
      * @param int $id ID of the associated content object.
      * @param string $filename An alternative name (rename) for the file you wish to transfer,
      * excluding extension.
-     * @return bool True on success, false on failure.
+     * @return void
      */
-    public function streamFileToBrowser(int $id, string $filename = '')
+    public function streamFileToBrowser(int $id, string $filename = ''): void
     {
         if ($id < 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $filename = !empty($filename) ? $this->trimString($filename) : '';
-        $result = $this->_streamFileToBrowser($id, $filename);
+        $this->_streamFileToBrowser($id, $filename);
         $this->database->close();
         exit;
     }
@@ -82,10 +86,11 @@ class Enclosure
     {
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
-        $statement = $this->database->select('content', $criteria, ['type', 'media', 'onlineStatus']);
+        $statement = $this->database->select('content', $criteria,
+            ['type', 'media', 'expiresOn', 'accessGroups', 'onlineStatus']);
 
         if (!$statement) {
-            \trigger_error(TFISH_ERROR_NO_STATEMENT, E_USER_NOTICE);
+            throw new \RuntimeException(TFISH_ERROR_NO_STATEMENT);
         }
 
         $row = $statement->fetch(\PDO::FETCH_ASSOC);
@@ -96,13 +101,32 @@ class Enclosure
         if ($row && $row['onlineStatus'] == '1'
             && (empty($row['expiresOn']) || $row['expiresOn'] >= \time())) {
 
+            // Authorisation check.
+            $contentMask = (int) $row['accessGroups'];
+            $userMask = (int) $this->session->verifyPrivileges();
+
+            if (!$this->canAccess($userMask, $contentMask)) {
+                if ($userMask === 0) {
+                    $this->setNextUrl($_SERVER['REQUEST_URI'] ?? '/');
+                    $this->setRedirectTitle(TFISH_MEMBER_CONTENT);
+                    $this->setRedirectMessage(TFISH_PLEASE_LOGIN);
+                    \header('Location: ' . TFISH_URL . 'login/', true, 303);
+                    exit;
+                }
+
+                $this->setRedirectTitle(TFISH_RESTRICTED_ACCESS);
+                $this->setRedirectMessage(TFISH_RESTRICTED_ACCESS_MESSAGE);
+                \header('Location: ' . TFISH_URL . 'restricted/', true, 303);
+                exit;
+            }
+
             $media = $row['media'] ?? false;
 
             if ($media && \is_readable(TFISH_MEDIA_PATH . $media)) {
                 \ob_start();
                 $filepath = TFISH_MEDIA_PATH . $media;
                 $filename = empty($filename) ? \pathinfo($filepath, PATHINFO_FILENAME) : $filename;
-                $fileExtension = \pathinfo($filepath, PATHINFO_EXTENSION);
+                $fileExtension = \strtolower(\pathinfo($filepath, PATHINFO_EXTENSION));
                 $fileSize = \filesize(TFISH_MEDIA_PATH . $media);
                 $mimetypeList = $this->listMimetypes();
                 $mimetype = $mimetypeList[$fileExtension];
@@ -123,7 +147,7 @@ class Enclosure
             }
         } else {
             $this->database->close();
-            \header("HTTP/1.0 404 Not Found");
+            \header('Location: ' . TFISH_URL . 'error/', true, 303);
             exit;
         }
     }
@@ -148,8 +172,45 @@ class Enclosure
         \readfile($filepath);
     }
 
-    private function updateCounter(int $id)
+    /**
+     * Update download counter.
+     * 
+     * @param int $id ID of content object.
+     * @return void
+     */
+    private function updateCounter(int $id): void
     {
         $this->database->updateCounter($id, 'content', 'counter');
+    }
+
+    /**
+     * Set onwards redirection path after successful authentication.
+     *
+     * @param string $path
+     * @return void
+     */
+    public function setNextUrl(string $path): void
+    {
+        $this->session->setNextUrl($path);
+    }
+
+    /**
+     * Set redirect page title.
+     * 
+     * @return void
+     */
+    public function setRedirectTitle(string $title): void
+    {
+        $this->session->setRedirectTitle($title);
+    }
+
+    /**
+     * Set redirect page context message.
+     * 
+     * @return void
+     */
+    public function setRedirectMessage(string $message): void
+    {
+        $this->session->setRedirectMessage($message);
     }
 }

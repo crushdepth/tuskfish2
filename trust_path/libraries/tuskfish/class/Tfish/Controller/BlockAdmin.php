@@ -42,7 +42,7 @@ class BlockAdmin
      * @param   object $model Instance of a model class.
      * @param   object $viewModel Instance of a viewModel class.
      */
-    public function __construct($model, $viewModel)
+    public function __construct(object $model, object $viewModel)
     {
         $this->model = $model;
         $this->viewModel = $viewModel;
@@ -113,6 +113,10 @@ class BlockAdmin
         $this->viewModel->setPosition($position);
 
         $onlineStatus = (int) ($_REQUEST['onlineStatus'] ?? 2);
+        if ($onlineStatus !== 0 && $onlineStatus !== 1 && $onlineStatus !== 2) {
+            $onlineStatus = 2;
+        }
+
         $this->viewModel->setOnlineStatus($onlineStatus);
 
         $this->viewModel->setSort('position');
@@ -131,7 +135,7 @@ class BlockAdmin
      * Uses AJAX call (htmx) to avoid page reload. Implemented post v2.0.6.
      */
 
-    public function toggle()
+    public function toggle(): void
     {
         $id = (int) ($_POST['id'] ?? 0);
         $status = (int) ($_POST['status'] ?? 0); // online status of individual block item.

@@ -32,7 +32,7 @@ namespace Tfish\User\Entity;
  * @var         int $id Auto-increment, set by database.
  * @var         string $adminEmail Email address of this user.
  * @var         string $passwordHash Password hash for this user.
- * @var         string $userGroup User group to which this user belongs.
+ * @var         int $userGroup User group(s) to which this user belongs.
  * @var         string $yubikeyId Public ID of primary yubikey for two factor authentication.
  * @var         string $yubikeyId2 Public ID of secondary yubikey for two factor authentication.
  * @var         string $yubikeyId3 Public ID of tertiary yubikey for two factor authentication.
@@ -42,6 +42,7 @@ namespace Tfish\User\Entity;
 
 class User
 {
+    use \Tfish\Traits\Group;
     use \Tfish\Traits\ValidateString;
 
     private int $id = 0;
@@ -93,8 +94,8 @@ class User
      */
     public function setId(int $id)
     {
-        if ($id < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+        if ($id < 1) {
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
         $this->id = $id;
@@ -153,20 +154,22 @@ class User
     }
 
     /**
-     * Set user group.
+     * Set user groups.
+     * 
+     * Must only contain bits from the whitelist.
      *
-     * @param integer $group
+     * @param integer $groups
      * @return void
      */
-    public function setUserGroup(int $group)
+    public function setUserGroup(int $groups)
     {
-        $group = (int) $group;
+        $whitelistMask = \array_sum(\array_keys($this->listUserGroups()));
 
-        if ($group < 0 || $group > 3) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+        if (($groups & ~$whitelistMask) !== 0) {
+            throw new \InvalidArgumentException(TFISH_ERROR_INVALID_GROUP);
         }
 
-        $this->userGroup = $group;
+        $this->userGroup = $groups;
     }
 
     /**
@@ -250,7 +253,7 @@ class User
     public function setOnlineStatus(int $status)
     {
         if ($status !== 0 && $status !== 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->onlineStatus = $status;
@@ -281,7 +284,7 @@ class User
         $errors = (int) $errors;
 
         if ($errors < 0) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
        $this->loginErrors = $errors;

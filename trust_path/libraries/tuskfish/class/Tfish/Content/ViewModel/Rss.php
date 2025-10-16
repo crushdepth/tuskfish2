@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\Content\ViewModel;
 
 /**
- * \Tfish\Content\ViewModelModel\Rss class file.
+ * \Tfish\Content\ViewModel\Rss class file.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -40,13 +40,13 @@ class Rss implements \Tfish\Interface\Viewable
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;
 
-    private $model;
-    private $id = 0;
-    private $tag = 0;
-    private $title = '';
-    private $description = '';
-    private $items = [];
-    private $preference;
+    private object $model;
+    private int $id = 0;
+    private int $tag = 0;
+    private string $title = '';
+    private string $description = '';
+    private array $items = [];
+    private \Tfish\Entity\Preference $preference;
 
     /**
      * Constructor.
@@ -54,7 +54,7 @@ class Rss implements \Tfish\Interface\Viewable
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference)
+    public function __construct(object $model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
         $this->preference = $preference;
@@ -66,21 +66,21 @@ class Rss implements \Tfish\Interface\Viewable
     /* Output. */
 
     /**
-     * Return content objects for the feed.
+     * Retrive content objects for the feed.
      *
-     * @return  array Array of content objects.
+     * @return  void
      */
-    public function listContent()
+    public function listContent(): void
     {
         $this->items = $this->model->getObjects($this->id);
     }
 
     /**
-     * Return content objects for a given tag.
+     * Retrieve content objects for a given tag.
      *
-     * @return  array Array of content objects.
+     * @return  void
      */
-    public function listContentForTag()
+    public function listContentForTag(): void
     {
         $this->items = $this->model->getObjectsForTag($this->tag);
     }
@@ -91,8 +91,9 @@ class Rss implements \Tfish\Interface\Viewable
      * Customise RSS feed title description for a specific tag or collection.
      *
      * @param int $id ID of the tag or collection to customise feed for.
+     * @return void
      */
-    private function customFeed(int $id)
+    private function customFeed(int $id): void
     {
         $customFeed = $this->model->customFeed($id);
 
@@ -141,7 +142,7 @@ class Rss implements \Tfish\Interface\Viewable
      *
      * @return  string URL.
      */
-    public function link()
+    public function link(): string
     {
         $url = TFISH_RSS_URL;
 
@@ -158,8 +159,9 @@ class Rss implements \Tfish\Interface\Viewable
      * Set collection ID.
      *
      * @param   int $id ID of collection.
+     * @return void
      */
-    public function setCollection(int $id)
+    public function setCollection(int $id): void
     {
         $this->id = $id;
         $this->customFeed($id);
@@ -169,8 +171,9 @@ class Rss implements \Tfish\Interface\Viewable
      * Set tag ID.
      *
      * @param   int $tag ID of tag.
+     * @return void
      */
-    public function setTag(int $tag)
+    public function setTag(int $tag): void
     {
         $this->tag = $tag;
         $this->customFeed($tag);

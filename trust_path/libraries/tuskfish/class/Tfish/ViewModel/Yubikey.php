@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\ViewModel;
 
 /**
- * \Tfish\ViewModelModel\Yubikey class file.
+ * \Tfish\ViewModel\Yubikey class file.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -34,14 +34,14 @@ class Yubikey implements \Tfish\Interface\Viewable
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;
 
-    private $model;
+    private object $model;
 
     /**
      * Constructor
      *
      * @param   object $model Instance of a model class.
      */
-    public function __construct($model)
+    public function __construct(object $model)
     {
         $this->pageTitle = TFISH_LOGIN;
         $this->model = $model;
@@ -55,5 +55,5 @@ class Yubikey implements \Tfish\Interface\Viewable
     /**
      * Display the login form.
      */
-    public function displayForm() {}
+    public function displayForm(): void {}
 }

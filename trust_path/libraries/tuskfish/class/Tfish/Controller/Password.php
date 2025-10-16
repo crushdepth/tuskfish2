@@ -30,8 +30,8 @@ namespace Tfish\Controller;
 
 class Password
 {
-    private $model;
-    private $viewModel;
+    private object $model;
+    private object $viewModel;
 
     /**
      * Constructor
@@ -39,7 +39,7 @@ class Password
      * @param   object $model Instance of a model class.
      * @param   object $viewModel Instance of a viewModel class.
      */
-    public function __construct($model, $viewModel)
+    public function __construct(object $model, object $viewModel)
     {
         $this->model = $model;
         $this->viewModel = $viewModel;
@@ -66,6 +66,11 @@ class Password
      */
     public function submit(): array
     {
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            $this->viewModel->displayForm();
+            return [];
+        }
+
         $this->viewModel->setPassword($_POST['password'] ?? '');
         $this->viewModel->setConfirm($_POST['confirm'] ?? '');
 

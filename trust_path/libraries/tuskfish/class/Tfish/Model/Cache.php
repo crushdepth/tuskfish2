@@ -29,17 +29,14 @@ namespace Tfish\Model;
 
 class Cache
 {
-    private $cache;
+    private \Tfish\Cache $cache;
 
     /**
      * Constructor.
      *
-     * @param   \Tfish\Database $database Instance of the Tuskfish database class.
-     * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
-     * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish site preferences class.
      * @param   \Tfish\Cache Instance of the Tuskfish cache class.
      */
-    public function __construct(\Tfish\Database $database, \Tfish\CriteriaFactory $criteriaFactory, \Tfish\Entity\Preference $preference, \Tfish\Cache $cache)
+    public function __construct(\Tfish\Cache $cache)
     {
         $this->cache = $cache;
     }

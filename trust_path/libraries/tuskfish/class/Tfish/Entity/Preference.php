@@ -107,13 +107,13 @@ class Preference
      */
     public function getPreferencesAsArray(): array
     {
-        unset($this->database);
-
         $preferences = [];
 
         foreach ($this as $key => $value) {
             $preferences[$key] = $value;
         }
+
+        unset($preferences['database']);
 
         return $preferences;
     }
@@ -133,8 +133,8 @@ class Preference
         $this->setSiteEmail($input['siteEmail'] ?? '');
         $this->setSiteCopyright($input['siteCopyright'] ?? '');
         $this->setCloseSite((int) ($input['closeSite'] ?? 0));
-        $this->setServerTimezone((int) $input['serverTimezone'] ?? '0');
-        $this->setSiteTimezone((int) $input['siteTimezone'] ?? '0');
+        $this->setServerTimezone((int) ($input['serverTimezone'] ?? '0'));
+        $this->setSiteTimezone((int) ($input['siteTimezone'] ?? '0'));
         $this->setMinSearchLength((int) ($input['minSearchLength'] ?? 3));
         $this->setSearchPagination((int) ($input['searchPagination'] ?? 20));
         $this->setUserPagination((int) ($input['userPagination'] ?? 10));
@@ -150,9 +150,9 @@ class Preference
         $this->setDateFormat($input['dateFormat'] ?? 'j F Y');
         $this->setEnableCache((int) ($input['enableCache'] ?? 0));
         $this->setCacheLife((int) ($input['cacheLife'] ?? 86400));
-        $this->setMapsApiKey((string) $input['mapsApiKey'] ?? '');
+        $this->setMapsApiKey((string) ($input['mapsApiKey'] ?? ''));
         $this->setAdminTheme((string) $input['adminTheme'] ?? 'admin');
-        $this->setDefaultTheme((string) $input['defaultTheme'] ?? 'default');
+        $this->setDefaultTheme((string) ($input['defaultTheme'] ?? 'default'));
     }
 
     /**
@@ -182,9 +182,9 @@ class Preference
      *
      * @param int $value Number of objects to view on a single page.
      */
-    public function setAdminPagination(int $value)
+    public function setAdminPagination(int $value): void
     {
-        if ($value < 1) \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+        if ($value < 1) throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
 
         $this->adminPagination = $value;
     }
@@ -205,7 +205,7 @@ class Preference
      * @param string $value Name of admin theme directory.
      * @return void
      */
-    public function setAdminTheme(string $value)
+    public function setAdminTheme(string $value): void
     {
         $this->adminTheme = $this->trimString($value);
     }
@@ -225,7 +225,7 @@ class Preference
      *
      * @param string $value Name of the site author.
      */
-    public function setSiteAuthor(string $value)
+    public function setSiteAuthor(string $value): void
     {
         $this->siteAuthor = $this->trimString($value);
     }
@@ -248,9 +248,9 @@ class Preference
      *
      * @param int $value Expiry timer on cached items (seconds).
      */
-    public function setCacheLife(int $value)
+    public function setCacheLife(int $value): void
     {
-        if ($value < 0) \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+        if ($value < 0) throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
 
         $this->cacheLife = $value;
     }
@@ -270,10 +270,10 @@ class Preference
      *
      * @param int $value Site open (0) or closed (1).
      */
-    public function setCloseSite(int $value)
+    public function setCloseSite(int $value): void
     {
         if ($value !== 0 && $value !== 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->closeSite = $value;
@@ -296,7 +296,7 @@ class Preference
      *
      * @param string $value Template for formatting dates.
      */
-    public function setDateFormat(string $value)
+    public function setDateFormat(string $value): void
     {
         $this->dateFormat = $this->trimString($value);
     }
@@ -316,18 +316,18 @@ class Preference
      *
      * @param string $value ISO 639-1 two-letter language codes.
      */
-    public function setDefaultLanguage(string $value)
+    public function setDefaultLanguage(string $value): void
     {
         $value = $this->trimString($value);
 
         if (!$this->isAlpha($value)) {
-            \trigger_error(TFISH_ERROR_NOT_ALPHA, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALPHA);
         }
 
         $languageWhitelist = $this->listLanguages();
 
         if (!\array_key_exists($value, $languageWhitelist)) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
         $this->defaultLanguage = $value;
@@ -349,7 +349,7 @@ class Preference
      * @param string $value Name of theme directory.
      * @return void
      */
-    public function setDefaultTheme(string $value)
+    public function setDefaultTheme(string $value): void
     {
         $this->defaultTheme = $this->trimString($value);
     }
@@ -369,7 +369,7 @@ class Preference
      *
      * @param string $value Site description.
      */
-    public function setSiteDescription(string $value)
+    public function setSiteDescription(string $value): void
     {
         $this->siteDescription = $this->trimString($value);
     }
@@ -391,12 +391,12 @@ class Preference
      *
      * @param string $value Email address.
      */
-    public function setSiteEmail(string $value)
+    public function setSiteEmail(string $value): void
     {
         $value = $this->trimString($value);
 
         if (!$this->emailIsValid($value)) {
-            \trigger_error(TFISH_ERROR_NOT_EMAIL, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_EMAIL);
         }
 
         $this->siteEmail = $value;
@@ -405,12 +405,13 @@ class Preference
     /**
      * Validate email address meets specification.
      *
+     * @param string $email
      * @return bool True if valid, false if invalid.
      */
-    private function emailIsValid(string $email)
+    private function emailIsValid(string $email): bool
     {
         if (\mb_strlen($email, 'UTF-8') > 2) {
-            return \filter_var($email, FILTER_VALIDATE_EMAIL);
+            return (bool) \filter_var($email, FILTER_VALIDATE_EMAIL);
         }
 
         return false;
@@ -434,7 +435,7 @@ class Preference
     public function setEnableCache(int $value)
     {
         if ($value !== 0 && $value !== 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->enableCache = $value;
@@ -455,10 +456,10 @@ class Preference
      *
      * @param int $value Number of objects to display on a single page view.
      */
-    public function setGalleryPagination(int $value)
+    public function setGalleryPagination(int $value): void
     {
         if ($value < 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->galleryPagination = $value;
@@ -479,10 +480,10 @@ class Preference
      *
      * @param int $value Number of objects to display on a single page view.
      */
-    public function setCollectionPagination(int $value)
+    public function setCollectionPagination(int $value): void
     {
         if ($value < 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->collectionPagination = $value;
@@ -493,7 +494,7 @@ class Preference
         return $this->mapsApiKey;
     }
 
-    public function setMapsApiKey(string $value)
+    public function setMapsApiKey(string $value): void
     {
         $value = $this->trimString($value);
 
@@ -519,10 +520,10 @@ class Preference
      *
      * @param int $value Minimum number of characters.
      */
-    public function setMinSearchLength(int $value)
+    public function setMinSearchLength(int $value): void
     {
         if ($value < 3) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->minSearchLength = $value;
@@ -545,10 +546,10 @@ class Preference
      *
      * @param int $value Number of page slots to display in pagination control.
      */
-    public function setPaginationElements(int $value)
+    public function setPaginationElements(int $value): void
     {
         if ($value < 3) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->paginationElements = $value;
@@ -570,10 +571,10 @@ class Preference
      * @param integer $value Number of views before showing counter.
      * @return void
      */
-    public function setMinimumViews(int $value)
+    public function setMinimumViews(int $value): void
     {
         if ($value < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->minimumViews = $value;
@@ -594,10 +595,10 @@ class Preference
      *
      * @param int $value Number of items to include in feed.
      */
-    public function setRssPosts(int $value)
+    public function setRssPosts(int $value): void
     {
         if ($value < 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->rssPosts = $value;
@@ -618,10 +619,10 @@ class Preference
      *
      * @param int $value Number of objects to display in a single page view.
      */
-    public function setSearchPagination(int $value)
+    public function setSearchPagination(int $value): void
     {
         if ($value < 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->searchPagination = $value;
@@ -642,8 +643,14 @@ class Preference
      *
      * @param int $value Timezone.
      */
-    public function setServerTimezone(int $value)
+    public function setServerTimezone(int $value): void
     {
+        $timezones = $this->listTimezones();
+
+        if (!\array_key_exists($value, $timezones)) {
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
+        }
+
         $this->serverTimezone = $value;
     }
 
@@ -664,10 +671,10 @@ class Preference
      *
      * @param int $value Session life (minutes).
      */
-    public function setSessionLife(int $value)
+    public function setSessionLife(int $value): void
     {
         if ($value < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            (TFISH_ERROR_NOT_INT);
         }
 
         $this->sessionLife = $value;
@@ -690,12 +697,12 @@ class Preference
      *
      * @param string $value Session name.
      */
-    public function setSessionName(string $value)
+    public function setSessionName(string $value): void
     {
         $value = $this->trimString($value);
 
         if (!$this->isAlnum($value)) {
-            \trigger_error(TFISH_ERROR_NOT_ALNUM, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUM);
         }
 
         $this->sessionName = $value;
@@ -744,7 +751,7 @@ class Preference
      *
      * @param string $value
      */
-    public function setSiteName(string $value)
+    public function setSiteName(string $value): void
     {
         $this->siteName = $this->trimString($value);
     }
@@ -766,9 +773,14 @@ class Preference
      *
      * @param int $value Timezone.
      */
-    public function setSiteTimezone(int $value)
+    public function setSiteTimezone(int $value): void
     {
-        $this->siteTimezone = $value;
+        $timezones = $this->listTimezones();
+
+        if (!\array_key_exists($value, $timezones)) {
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
+        }
+        $this->serverTimezone = $value;
     }
 
     /**
@@ -787,10 +799,10 @@ class Preference
      *
      * @param int $value Number of objects to display.
      */
-    public function setUserPagination(int $value)
+    public function setUserPagination(int $value): void
     {
         if ($value < 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->userPagination = $value;

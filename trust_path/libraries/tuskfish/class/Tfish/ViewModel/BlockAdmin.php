@@ -49,29 +49,28 @@ class BlockAdmin implements \Tfish\Interface\Listable
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
 
-    private $model;
-    private $preference;
-    private $contentTitle = '';
-    private $contentList = [];
-    private $contentCount = 0;
-    private $id = 0;
-    private $status = 0;
-    private $start = 0;
-    private $route = '';
-    private $position = '';
-    private $onlineStatus = 2;
-    private $action = '';
-    private $backUrl = '';
-    private $response = '';
+    private object $model;
+    private \Tfish\Entity\Preference $preference;
+    private string $contentTitle = '';
+    private array $contentList = [];
+    private int $contentCount = 0;
+    private int $id = 0;
+    private int $status = 0;
+    private int $start = 0;
+    private string $route = '';
+    private string $position = '';
+    private int $onlineStatus = 2;
+    private string $action = '';
+    private string $backUrl = '';
+    private string $response = '';
 
     /**
      * Constructor.
      *
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
-     * @param   \Tfish\BlockFactory $blockFactory
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference)
+    public function __construct(object $model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
         $this->preference = $preference;
@@ -87,19 +86,21 @@ class BlockAdmin implements \Tfish\Interface\Listable
 
     /**
      * Display Add user form.
+     *
+     * @return void
      */
-    public function displayAdd()
+    public function displayAdd(): void
     {
-        $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
-        $this->validateToken($token);
         $this->pageTitle = TFISH_BLOCK_ADD;
         $this->template = 'blockEntry';
     }
 
     /**
-     * Save user object (new or updated).
+     * Save block object (new or updated).
+     *
+     * @return void
      */
-    public function displaySave()
+    public function displaySave(): void
     {
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
@@ -129,13 +130,15 @@ class BlockAdmin implements \Tfish\Interface\Listable
         }
 
         $this->template = 'response';
-        $this->backUrl = TFISH_ADMIN_USER_URL;
+        $this->backUrl = TFISH_ADMIN_BLOCK_URL;
     }
 
     /**
      * Cancel action and redirect to admin page.
+     *
+     * @return void
      */
-    public function displayCancel()
+    public function displayCancel(): void
     {
         \header('Location: ' . TFISH_ADMIN_URL . 'blocks/');
         exit;
@@ -143,8 +146,10 @@ class BlockAdmin implements \Tfish\Interface\Listable
 
     /**
      * Display delete confirmation form.
+     *
+     * @return void
      */
-    public function displayConfirmDelete()
+    public function displayConfirmDelete(): void
     {
         $this->pageTitle = TFISH_CONFIRM;
         $this->template = 'confirmDeleteBlock';
@@ -154,8 +159,10 @@ class BlockAdmin implements \Tfish\Interface\Listable
 
     /**
      * Delete block object and display result.
+     *
+     * @return void
      */
-    public function displayDelete()
+    public function displayDelete(): void
     {
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
@@ -168,7 +175,7 @@ class BlockAdmin implements \Tfish\Interface\Listable
             $this->response = TFISH_OBJECT_DELETION_FAILED;
         }
 
-        $this->template ='response';
+        $this->template = 'response';
         $this->backUrl = TFISH_ADMIN_URL . 'blocks/';
     }
 
@@ -176,8 +183,10 @@ class BlockAdmin implements \Tfish\Interface\Listable
      * Display the admin summary table.
      *
      * Table a list of blocks and links to view, edit and delete items.
+     *
+     * @return void
      */
-    public function displayTable()
+    public function displayTable(): void
     {
         $this->pageTitle = TFISH_ADMIN_BLOCKS;
         $this->listItems();
@@ -211,10 +220,10 @@ class BlockAdmin implements \Tfish\Interface\Listable
      *
      * @return void
      */
-    public function displayWeights()
+    public function displayWeights(): void
     {
         $weights = $_POST['weights'] ?? [];
-        $this->template ='response';
+        $this->template = 'response';
         $this->backUrl = TFISH_ADMIN_URL . 'blocks/';
 
         if (empty($weights)) {
@@ -235,8 +244,10 @@ class BlockAdmin implements \Tfish\Interface\Listable
 
     /**
      * Count block objects meeting filter criteria.
+     *
+     * @return void
      */
-    public function countItems()
+    public function countItems(): void
     {
         $this->contentCount = $this->model->getCount(
             [
@@ -251,6 +262,8 @@ class BlockAdmin implements \Tfish\Interface\Listable
 
     /**
      * Returns the template for formatting the date from preferences.
+     *
+     * @return string
      */
     public function dateFormat(): string
     {
@@ -268,7 +281,7 @@ class BlockAdmin implements \Tfish\Interface\Listable
 
         if (!empty($this->route)) $extraParams['route'] = $this->route;
         if (!empty($this->position)) $extraParams['position'] = $this->position;
-        if (isset($this->onlineStatus) && $this->onlineStatus == 0 || $this->onlineStatus == 1)
+        if ($this->onlineStatus === 0 || $this->onlineStatus === 1)
             $extraParams['onlineStatus'] = $this->onlineStatus;
 
         return $extraParams;
@@ -278,8 +291,10 @@ class BlockAdmin implements \Tfish\Interface\Listable
      * Get data for blocks adminstration page (DB rows).
      *
      * Result is cached as $contentList property.
+     *
+     * @return void
      */
-    public function listItems()
+    public function listItems(): void
     {
         $this->contentList = $this->model->getItems(
             [
@@ -353,7 +368,7 @@ class BlockAdmin implements \Tfish\Interface\Listable
      * @param   string $defaultOption Text to display as default select box option.
      * @return  array Online (1), offline (0) or both (2).
      */
-    public function statusOptions($defaultOption = TFISH_SELECT_STATUS): array
+    public function statusOptions(string $defaultOption = TFISH_SELECT_STATUS): array
     {
         $defaultOption = $this->trimString($defaultOption);
 
@@ -420,8 +435,9 @@ class BlockAdmin implements \Tfish\Interface\Listable
      * Set ID.
      *
      * @param   int $id ID of content object.
+     * @return void
      */
-    public function setId(int $id)
+    public function setId(int $id): void
     {
         $this->id = $id;
     }
@@ -436,18 +452,31 @@ class BlockAdmin implements \Tfish\Interface\Listable
 
     /**
      * Set title of content object.
+     *
+     * @return void
      */
-    public function setContentTitle()
+    public function setContentTitle(): void
     {
         $this->contentTitle = $this->model->getTitle($this->id);
     }
 
+    /**
+     * Return status.
+     *
+     * @return integer
+     */
     public function status(): int
     {
         return (int) $this->status;
     }
 
-    public function setStatus(int $status)
+    /**
+     * Set Status
+     *
+     * @param integer $status
+     * @return void
+     */
+    public function setStatus(int $status): void
     {
         $this->status = $status;
     }
@@ -466,8 +495,9 @@ class BlockAdmin implements \Tfish\Interface\Listable
      * Set online status.
      *
      * @param   int $onlineStatus Online (1) or offline (0).
+     * @return void
      */
-    public function setOnlineStatus(int $onlineStatus)
+    public function setOnlineStatus(int $onlineStatus): void
     {
         $this->onlineStatus = (int) $onlineStatus;
     }
@@ -498,8 +528,9 @@ class BlockAdmin implements \Tfish\Interface\Listable
      * First record to return from result set.
      *
      * @param int $start ID of first object to return in the set of available records.
+     * @return void
      */
-    public function setStart(int $start)
+    public function setStart(int $start): void
     {
         $this->start = $start;
     }
@@ -520,8 +551,9 @@ class BlockAdmin implements \Tfish\Interface\Listable
      * Filter block list by route.
      *
      * @param string $route Route.
+     * @return void
      */
-    public function setRoute(string $route)
+    public function setRoute(string $route): void
     {
         $this->route = $this->trimString($route);
     }
@@ -542,8 +574,9 @@ class BlockAdmin implements \Tfish\Interface\Listable
      * Filter block list by position.
      *
      * @param string $position Position.
+     * @return void
      */
-    public function setPosition(string $position)
+    public function setPosition(string $position): void
     {
         $this->position = $this->trimString($position);
     }

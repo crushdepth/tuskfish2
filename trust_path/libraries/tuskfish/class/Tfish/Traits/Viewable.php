@@ -27,6 +27,7 @@ namespace Tfish\Traits;
  * @var         string $layout Name of layout file to display this page (alphanumeric and underscore characters, only).
  * @var         string $theme Name of the theme (directory) for this page.
  * @var         array $metadata Meta tags to be overridden with custom values.
+ * @var         bool $doNotCache Flag to disable caching of restricted access content.
  */
 trait Viewable
 {
@@ -35,6 +36,7 @@ trait Viewable
     private string $layout = 'layout';
     private string $theme = '';
     private array $metadata = [];
+    private bool $doNotCache = false;
 
     /**
      * Return title of this page.
@@ -76,8 +78,7 @@ trait Viewable
         $template = $this->trimString($template);
 
         if (!$this->isAlnumUnderscore($template)) {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
 
         $this->template = $template;
@@ -103,8 +104,7 @@ trait Viewable
         $layout = $this->trimString($layout);
 
         if (!$this->isAlnumUnderscore($layout)) {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
 
         $this->layout = $layout;
@@ -132,8 +132,7 @@ trait Viewable
         $theme = $this->trimString($theme);
 
         if (!$this->isAlnumUnderscore($theme)) {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
 
         $this->theme = $theme;
@@ -157,5 +156,31 @@ trait Viewable
     public function setMetadata(array $metadata)
     {
         $this->metadata = $metadata;
+    }
+
+    /** Utilities */
+
+    /**
+     * Return doNotCache flag.
+     *
+     * Bypass caching for content with restricted access (ie. that is not public).
+     *
+     * @return boolean
+     */
+    public function doNotCache(): bool
+    {
+        return $this->doNotCache;
+    }
+
+    /**
+     * Set doNotCache flag.
+     *
+     * Used to disable caching of content with restricted access (ie. that is not public).
+     *
+     * @param boolean $flag
+     * @return void
+     */
+    public function setDoNotCache(bool $flag) {
+        $this->doNotCache = $flag;
     }
 }

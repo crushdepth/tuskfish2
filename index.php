@@ -41,17 +41,17 @@ $url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http
 $path = \parse_url($url, PHP_URL_PATH);
 
 // Add trailing slash for consistent route handling.
-if (\mb_substr($path, -1, null, "UTF-8") != '/') {
+if (\mb_substr($path, -1, null, "UTF-8") !== '/') {
     $path .= '/';
 }
 
 // Calculate relative path (without query) to align with routing table if installed in subdirectory.
-$relativeUrl = \parse_url($url, PHP_URL_QUERY);
+$relativeUrl = \parse_url($url, PHP_URL_QUERY) ?? '';
 $relativePath = \str_replace(TFISH_LINK, '', $url);
 $relativePath = \str_replace('?' . $relativeUrl, '', $relativePath);
 
 // Add trailing slash for consistent route handling.
-if (\mb_substr($relativePath, -1, null, "UTF-8") != '/') {
+if (\mb_substr($relativePath, -1, null, "UTF-8") !== '/') {
     $relativePath .= '/';
 }
 

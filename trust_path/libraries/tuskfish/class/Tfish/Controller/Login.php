@@ -36,9 +36,9 @@ class Login
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
 
-    private $model;
-    private $viewModel;
-    private $session;
+    private object $model;
+    private object $viewModel;
+    private \Tfish\Session $session;
 
     /**
      * Constructor
@@ -47,7 +47,7 @@ class Login
      * @param   object $viewModel Instance of a viewModel class.
      * @param   \Tfish\Session $session Instance of the session management class.
      */
-    public function __construct($model, $viewModel, \Tfish\Session $session)
+    public function __construct(object $model, object $viewModel, \Tfish\Session $session)
     {
         $this->model = $model;
         $this->viewModel = $viewModel;
@@ -75,6 +75,11 @@ class Login
      */
     public function login(): array
     {
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            $this->viewModel->displayForm();
+            return [];
+        }
+
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
 

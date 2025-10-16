@@ -30,8 +30,8 @@ namespace Tfish\Controller;
 
 class Sitemap
 {
-    private $model;
-    private $viewModel;
+    private object $model;
+    private object $viewModel;
 
     /**
      * Constructor
@@ -39,7 +39,7 @@ class Sitemap
      * @param   object $model Instance of a model class.
      * @param   object $viewModel Instance of a viewModel class.
      */
-    public function __construct($model, $viewModel)
+    public function __construct(object $model, object $viewModel)
     {
         $this->model = $model;
         $this->viewModel = $viewModel;
@@ -60,7 +60,7 @@ class Sitemap
     }
 
     /**
-     * Display confirmatation message.
+     * Display confirmation message.
      *
      * @return  array Empty array (the output of this action is not cached).
      */
@@ -78,6 +78,11 @@ class Sitemap
      */
     public function generate(): array
     {
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            $this->viewModel->displayConfirm();
+            return [];
+        }  
+
         $this->viewModel->displayGenerate();
 
         return [];

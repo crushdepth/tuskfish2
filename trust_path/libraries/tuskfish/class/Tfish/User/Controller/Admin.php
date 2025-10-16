@@ -25,6 +25,7 @@ namespace Tfish\User\Controller;
  * @since       2.0
  * @package     user
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
+ * @uses        trait \Tfish\Trait\ValidateToken Methods for CSRF protection.
  * @var         object $model Classname of the model used to display this page.
  * @var         object $viewModel Classname of the viewModel used to display this page.
  */
@@ -32,9 +33,10 @@ namespace Tfish\User\Controller;
 class Admin
 {
     use \Tfish\Traits\ValidateString;
+    use \Tfish\Traits\ValidateToken;
 
-    private $model;
-    private $viewModel;
+    private object $model;
+    private object $viewModel;
 
     /**
      * Constructor.
@@ -42,7 +44,7 @@ class Admin
      * @param   object $model Instance of a model class.
      * @param   object $viewModel Instance of a viewModel class.
      */
-    public function __construct($model, $viewModel)
+    public function __construct(object $model, object $viewModel)
     {
         $this->model = $model;
         $this->viewModel = $viewModel;
@@ -85,9 +87,16 @@ class Admin
      */
     public function delete(): array
     {
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            $this->viewModel->displayCancel();
+            return [];
+        }
+
+        $token = isset($_POST['token']) ? (string) $_POST['token'] : '';
+        $this->validateToken($token);
+
         $id = (int) ($_POST['id'] ?? 0);
         $this->viewModel->setId($id);
-
         $this->viewModel->displayDelete();
 
         return [];

@@ -87,7 +87,7 @@ class Tree
      * @param string|null $rootId Name of root object ID field. This is the object that will be used as
      * the base node for building a tree (or subtree) from the $objectArr.
      * */
-    function __construct(array &$objectArr, string $myId, string $parentId, string $rootId = null)
+    function __construct(array &$objectArr, string $myId, string $parentId, ?string $rootId = null)
     {
         $this->_objects = & $objectArr;
         $this->_myId = $myId;
@@ -142,7 +142,7 @@ class Tree
 
             foreach ($this->_tree[$key]['child'] as $childkey) {
                 $ret[$childkey] = & $this->_tree[$childkey]['obj'];
-                $children = & $this->getAllChild($childkey, $ret);
+                $children = $this->getAllChild($childkey, $ret);
 
                 foreach (\array_keys($children) as $newkey) {
                     $ret[$newkey] = & $children[$newkey];
@@ -235,7 +235,6 @@ class Tree
      * Returns an indented array of options that can be used to build a HTML select box, indented
      * according to the relative hierarchy.
      *
-     * @param string $name Name of the select box.
      * @param string $fieldName Name of the member variable from the node objects that should be
      * used as the title field for the options.
      * @param string $prefix String to indent deeper levels.
@@ -245,8 +244,8 @@ class Tree
      * @param int $key ID of the object to display as the root of select options.
      * @return array Select box options as ID => title pairs.
      * */
-    public function makeSelBox(string $name, string $fieldName, string $prefix = '-- ',
-        int $selected = 0, bool $addEmptyOption = false, int $key = 0): array
+    public function makeSelBox(string $fieldName, string $prefix = '-- ',
+        int $selected = 0, int $key = 0): array
     {
         $ret = [0 => TFISH_SELECT_BOX_ZERO_OPTION];
         $this->_makeSelBoxOptions($fieldName, $selected, $key, $ret, $prefix);
@@ -261,12 +260,12 @@ class Tree
      * be used as the title for the options.
      * @param int $selected Value to display as selected.
      * @param int $key ID of the object to display as the root of select options.
-     * @param string $ret Result from previous recursions (reference to a string when called from outside).
+     * @param array $ret Result from previous recursions (reference to array when called from outside).
      * @param string $prefix_orig String to indent items at deeper levels.
      * @param string $prefix_curr String to indent the current item.
      * @return array Select box options.
      */
-    private function _makeSelBoxOptions($fieldName, $selected, $key, &$ret,
+    private function _makeSelBoxOptions(string $fieldName, int $selected, int $key, array &$ret,
                 $prefix_orig, $prefix_curr = '')
     {
         if ($key > 0) {

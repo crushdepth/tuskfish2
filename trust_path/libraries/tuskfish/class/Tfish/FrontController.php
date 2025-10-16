@@ -39,6 +39,7 @@ namespace Tfish;
 
 class FrontController
 {
+    use Traits\Group;
     use Traits\TraversalCheck;
     use Traits\ValidateString;
 
@@ -99,37 +100,51 @@ class FrontController
 
         $cacheParams = $this->controller->{$action}();
         $cache->check($path, $cacheParams);
-
         $this->renderLayout($metadata, $viewModel, $path);
-        $cache->save($cacheParams, \ob_get_contents());
+
+        // Do not cache restricted content.
+        if ($viewModel->doNotCache() === false) {
+            $cache->save($cacheParams, \ob_get_contents());
+        }
+
         $database->close();
         return \ob_end_flush();
     }
 
     /**
-     * Check if the present route is restricted to admins.
+     * Check if user is authorised to access this route (bitwise tests).
+     *
+     * Redirect to login screen on failure. Site admin has access to all routes.
      *
      * @param   \Tfish\Route $route
      */
-    private function checkAccessRights(Route $route)
+    private function checkAccessRights(Route $route): void
     {
-        // Route restricted to admin.
-        if ($route->loginRequired() === 1 && !$this->session->isAdmin()) {
-            \header('Location: ' . TFISH_URL . 'login/');
+        $routeMask = (int) $route->loginRequired();
+        if ($routeMask === 0) return; // Public
+
+        // Hard-stop if route mask contains invalid bits.
+        if (($routeMask & ~$this->groupsMask()) !== 0) {
+            throw new \RuntimeException(TFISH_ERROR_INVALID_GROUP);
+        }
+
+        $userMask = (int) $this->session->verifyPrivileges();
+
+        // SUPER always has access, else any overlap with allowed route groups.
+        if (($userMask & self::G_SUPER) !== 0 || $this->hasAnyGroup($userMask, $routeMask)) {
+            return;
+        }
+
+        // Restricted route, unauthenticated users must log in, renders 303.
+        if ($userMask === 0) {
+            $this->session->setNextUrl($_SERVER['REQUEST_URI'] ?? '/');
+            \header('Location: ' . TFISH_URL . 'login/', true, 303);
             exit;
         }
 
-        // Route restricted to editors and admin.
-        if ($route->loginRequired() === 2 && !$this->session->isEditor()) {
-            \header('Location: ' . TFISH_URL . 'login/');
-            exit;
-        }
-
-        // Route restricted to members, editors and admin.
-        if ($route->loginRequired() === 3 && !$this->session->isMember()) {
-            \header('Location: ' . TFISH_URL . 'login/');
-            exit;
-        }
+        // Restricted route, authenticated user but unauthorised for this route, renders 403.
+        \header('Location: ' . TFISH_URL . 'restricted/', true, 303);
+        exit;
     }
 
     /**
@@ -140,7 +155,7 @@ class FrontController
     private function checkSiteClosed(Entity\Preference $preference, string $path)
     {
         if ($preference->closeSite() && !$this->session->isAdmin() && $path !== '/login/') {
-            \header('Location: ' . TFISH_URL . 'login/');
+            \header('Location: ' . TFISH_URL . 'login/', true, 303);
             exit;
         }
     }
@@ -164,8 +179,7 @@ class FrontController
         $layout = $this->trimString($viewModel->layout() ?? 'layout');
 
         if ($this->hasTraversalorNullByte($theme) || $this->hasTraversalorNullByte($layout)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
-            exit; // Hard stop due to high probability of abuse.
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
 
         include_once TFISH_THEMES_PATH . $theme . "/" . $layout . ".html";
@@ -185,51 +199,31 @@ class FrontController
      */
     private function renderBlocks(string $path): array
     {
-        $blocks = [];
-
-        $sql = "SELECT `block`.`id`, `type`, `position`, `title`, `html`, `config`, `weight`, "
-            . "`template`, `onlineStatus` FROM `block` "
-            . "INNER JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId` "
-            . "WHERE `blockRoute`.`route` = :path "
-            . "AND `onlineStatus` = '1'";
+        $sql = "SELECT `block`.`id`, `type`, `position`, `title`, `html`, `config`, `weight`,
+         `template`, `onlineStatus`
+          FROM `block`
+          INNER JOIN `blockRoute` ON `block`.`id` = `blockRoute`.`blockId`
+          WHERE `blockRoute`.`route` = :path AND `onlineStatus` = '1'
+          ORDER BY `position`, `weight`, `block`.`id`
+        ";
 
         $statement = $this->database->preparedStatement($sql);
         $statement->bindValue(':path', $path, \PDO::PARAM_STR);
-        $statement->setFetchMode(\PDO::FETCH_UNIQUE); // Index by ID.
         $statement->execute();
-        $rows = $statement->fetchAll();
 
-        if (empty($rows)) {
-            return $blocks;
-        }
+        $blocks = ['position' => []];
 
-        foreach ($rows as $key => $row) {
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
             $className = $row['type'];
-            if (\class_exists($className)) {
-                $blocks[$row['id']] = new $className($row, $this->database, $this->criteriaFactory);
-            }
-        }
+            if (!\class_exists($className)) { continue; }
 
-        // Add block positions.
-        $blocks['position'] = [];
+            $obj = new $className($row, $this->database, $this->criteriaFactory);
+            $blocks[$row['id']] = $obj;
 
-        foreach ($blocks as $id => &$block) {
-            if (\is_numeric($id)) {
-                $position = $block->position();
-
-                if (!isset($blocks['position'][$position])) {
-                    $blocks['position'][$position] = [];
-                }
-
-                $blocks['position'][$position][] = &$block; // Reference (not copy) existing rows.
-            }
-        }
-
-        // Sort each position by weight, ascending.
-        foreach ($blocks['position'] as $position => &$rows) {
-            \usort($rows, function ($a, $b) {
-                return $a->weight() <=> $b->weight();
-            });
+            // Group.
+            $pos = $row['position'];
+            $blocks['position'][$pos] ??= [];
+            $blocks['position'][$pos][] = $obj;
         }
 
         return $blocks;

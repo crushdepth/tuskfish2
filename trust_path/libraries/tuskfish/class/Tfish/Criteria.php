@@ -90,7 +90,7 @@ class Criteria
         if ($clean_condition === "AND" || $clean_condition === "OR") {
             $this->condition[] = $clean_condition;
         } else {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
     }
 
@@ -106,7 +106,7 @@ class Criteria
         if ($this->isAlnumUnderscore($cleanGroupBy)) {
             $this->groupBy = $cleanGroupBy;
         } else {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
     }
 
@@ -130,7 +130,7 @@ class Criteria
         if ($this->isInt($limit, 0)) {
             $this->limit = (int) $limit;
         } else {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
     }
 
@@ -144,7 +144,7 @@ class Criteria
         if ($this->isInt($offset, 0)) {
             $this->offset = (int) $offset;
         } else {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
     }
 
@@ -160,7 +160,7 @@ class Criteria
         if ($this->isAlnumUnderscore($column)) {
             $this->sort = $column;
         } else {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
     }
 
@@ -192,7 +192,7 @@ class Criteria
         if ($this->isAlnumUnderscore($column)) {
             $this->secondarySort = $column;
         } else {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
     }
 
@@ -226,14 +226,13 @@ class Criteria
                 if ($this->isInt($tag, 1)) {
                     $cleanTags[] = (int) $tag;
                 } else {
-                    \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+                    throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
                 }
-                unset($tag);
             }
 
             $this->tag = $cleanTags;
         } else {
-            \trigger_error(TFISH_ERROR_NOT_ARRAY, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY);
         }
     }
 }

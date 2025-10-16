@@ -91,8 +91,7 @@ class Template
         $path = TFISH_THEMES_PATH . $this->theme . '/' . $this->template . '.html';
 
         if ($this->hasTraversalorNullByte($path)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
 
         return $path;

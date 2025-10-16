@@ -25,6 +25,7 @@ namespace Tfish\User\Model;
  * @since       2.0
  * @package     user
  * @uses        trait \Tfish\Traits\EmailCheck Validate that email address conforms to specification.
+ * @uses        trait \Tfish\Traits\Group Whitelist of groups permitted on the system.
  * @uses        trait \Tfish\Traits\ValidateString Provides methods for validating UTF-8 character encoding and string composition.
  * @var         \Tfish\Database $database Instance of the Tuskfish database class.
  * @var         \Tfish\Session $session Instance of the Tuskfish session manager class.
@@ -34,12 +35,13 @@ namespace Tfish\User\Model;
 class UserEdit
 {
     use \Tfish\Traits\EmailCheck;
+    use \Tfish\Traits\Group;
     use \Tfish\Traits\ValidateString;
 
-    private $database;
-    private $session;
-    private $criteriaFactory;
-    private $preference;
+    private \Tfish\Database $database;
+    private \Tfish\Session $session;
+    private \Tfish\CriteriaFactory $criteriaFactory;
+    private \Tfish\Entity\Preference $preference;
 
     /**
      * Constructor.
@@ -88,6 +90,11 @@ class UserEdit
      */
     public function insert(): bool
     {
+        if (!isset($_POST['content']) || !\is_array($_POST['content'])) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_NOTICE);
+            return false;
+        }
+
         if ($this->duplicateYubikeysSubmitted()) {
             \trigger_error(TFISH_ERROR_YUBIKEY_NOT_UNIQUE, E_USER_NOTICE);
             return false;
@@ -115,6 +122,11 @@ class UserEdit
      */
     public function update(): bool
     {
+        if (!isset($_POST['content']) || !\is_array($_POST['content'])) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_NOTICE);
+            return false;
+        }
+
         if ($this->duplicateYubikeysSubmitted()) {
             \trigger_error(TFISH_ERROR_YUBIKEY_NOT_UNIQUE, E_USER_NOTICE);
             return false;
@@ -186,7 +198,7 @@ class UserEdit
         $email = !empty($form['adminEmail']) ? $this->trimString($form['adminEmail']) : '';
 
         if (empty($email) || !$this->isEmail($email)) {
-            \trigger_error(TFISH_ERROR_NOT_EMAIL, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_EMAIL);
         }
 
         // adminEmail
@@ -195,14 +207,14 @@ class UserEdit
         // On add (insert) password is mandatory.
         if ($passwordRequired === true) {
             if (empty($form['password']) || \mb_strlen($form['password'], "UTF-8") < 15) {
-                \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+                throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
             }
         }
 
         // On edit (update) password is optional and represents a reset.
         if ($passwordRequired === false) {
             if (!empty($form['password']) && \mb_strlen($form['password'], "UTF-8") < 15) {
-                \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+                throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
             }
         }
 
@@ -216,7 +228,7 @@ class UserEdit
         if (!empty($yubikeyId)) {
 
             if (\mb_strlen($yubikeyId) !== 12) {
-                \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+                throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
             }
 
             if (!$this->isValidYubikeyId($id, $yubikeyId)) {
@@ -230,7 +242,7 @@ class UserEdit
         if (!empty($yubikeyId2)) {
 
             if (\mb_strlen($yubikeyId2) !== 12) {
-                \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+                throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
             }
 
             if (!$this->isValidYubikeyId($id, $yubikeyId2)) {
@@ -244,7 +256,7 @@ class UserEdit
         if (!empty($yubikeyId3)) {
 
             if (\mb_strlen($yubikeyId3) !== 12) {
-                \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+                throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
             }
 
             if (!$this->isValidYubikeyId($id, $yubikeyId3)) {
@@ -255,9 +267,20 @@ class UserEdit
 
         $clean['yubikeyId3'] = $yubikeyId3;
 
-        // userGroup, locked to Editor (2) on insert, but unset (unchanged) on update.
-        if ($passwordRequired === true) { //
-            $clean['userGroup'] = 2;
+        // User group.
+        if (empty($form['userGroup'])) {
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
+        }
+
+        $groupOptions = $this->listUserGroups();
+
+        if (!\array_key_exists((int) $form['userGroup'], $groupOptions)) {
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
+        }
+
+        // Do not allow assignment to Admin group. Admin's user group will not be overwritten).
+        if ((int) $form['userGroup'] !== self::G_SUPER ) {
+            $clean['userGroup'] = (int) $form['userGroup'];
         }
 
         // loginErrors.
@@ -266,7 +289,7 @@ class UserEdit
         $onlineStatus = !empty($form['onlineStatus']) ? (int) $form['onlineStatus'] : 0;
 
         if ($onlineStatus < 0 || $onlineStatus > 1) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
         $clean['onlineStatus'] = $onlineStatus;
@@ -289,6 +312,7 @@ class UserEdit
         $row = $this->getRow($clean['id']);
 
         if ((int) $row['userGroup'] === 1) {
+            unset($clean['password']); // Admin must use the 'Change password' feature for their own.
             $clean['userGroup'] = 1;
             $clean['onlineStatus'] = 1;
         }
@@ -303,15 +327,19 @@ class UserEdit
      */
     private function duplicateYubikeysSubmitted(): bool
     {
-        if (!empty($_POST['content']['yubikeyId']) && !empty($_POST['content']['yubikeyId'])) {
-            $yubikeyId = $this->trimString($_POST['content']['yubikeyId']);
-            $yubikeyId2 = $this->trimString($_POST['content']['yubikeyId2']);
-            $yubikeyId3 = $this->trimString($_POST['content']['yubikeyId3']);
-
-            if ($yubikeyId === $yubikeyId2 || $yubikeyId === $yubikeyId3 || $yubikeyId2 === $yubikeyId3) return true;
+        if (!isset($_POST['content']) || !\is_array($_POST['content'])) {
+            return false;
         }
 
-        return false;
+        $y1 = isset($_POST['content']['yubikeyId'])  ? $this->trimString((string)$_POST['content']['yubikeyId'])  : '';
+        $y2 = isset($_POST['content']['yubikeyId2']) ? $this->trimString((string)$_POST['content']['yubikeyId2']) : '';
+        $y3 = isset($_POST['content']['yubikeyId3']) ? $this->trimString((string)$_POST['content']['yubikeyId3']) : '';
+
+        // Collect non-empty values
+        $ids = \array_filter([$y1, $y2, $y3], fn($v) => $v !== '');
+
+        // If any duplicates exist, the count shrinks when using array_unique
+        return count($ids) !== \count(\array_unique($ids));
     }
 
     /**

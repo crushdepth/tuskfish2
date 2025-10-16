@@ -32,7 +32,17 @@ class Login
 {
     use \Tfish\Traits\ValidateString;
 
-    private $session;
+    private \Tfish\Session $session;
+
+    /**
+     * Constructor.
+     *
+     * @param   \Tfish\Session $session Instance of the Tuskfish session manager class.
+     */
+    public function __construct(\Tfish\Session $session)
+    {
+        $this->session = $session;
+    }
 
     /**
      * Process admin login.
@@ -42,7 +52,7 @@ class Login
      * @param   string $email Email address.
      * @param   string $password Password.
      */
-    public function login(string $email, string $password)
+    public function login(string $email, string $password): void
     {
         $email = $this->trimString($email);
         $this->session->login($email, $password);
@@ -51,9 +61,9 @@ class Login
     /**
      * Logout the user and redirect to the login form.
      */
-    public function logout()
+    public function logout(): void
     {
-        $this->session->logout(TFISH_URL . 'login/');
+        $this->session->logout(TFISH_URL);
     }
 
     /**
@@ -63,8 +73,30 @@ class Login
      *
      * @param   \Tfish\Session $session Instance of the session management class.
      */
-    public function setSession(\Tfish\Session $session)
+    public function setSession(\Tfish\Session $session): void
     {
         $this->session = $session;
+    }
+
+    /** Utilities */
+
+    /**
+     * Set title for redirect page.
+     *
+     * @return string|null Title of page.
+     */
+    public function redirectTitle(): ?string
+    {
+        return $this->session->redirectTitle();
+    }
+
+    /**
+     * Set context message for redirect page.
+     *
+     * @return string|null Context message.
+     */
+    public function redirectMessage(): ?string
+    {
+        return $this->session->redirectMessage();
     }
 }

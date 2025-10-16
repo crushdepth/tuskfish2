@@ -35,10 +35,10 @@ class Search
 {
     use \Tfish\Traits\ValidateString;
 
-    private $database;
-    private $criteriaFactory;
-    private $preference;
-    private $onlineStatus;
+    private \Tfish\Database $database;
+    private \Tfish\CriteriaFactory $criteriaFactory;
+    private \Tfish\Entity\Preference $preference;
+    private int $onlineStatus;
 
     /**
      * Constructor.
@@ -89,8 +89,9 @@ class Search
      * Set onlineStatus.
      *
      * @param   int $onlineStatus Retrieve all content (0) or only online content (1).
+     * @return void
      */
-    public function setOnlineStatus(int $onlineStatus)
+    public function setOnlineStatus(int $onlineStatus): void
     {
         if ($onlineStatus == 0 || $onlineStatus == 1) {
             $this->onlineStatus = $onlineStatus;
@@ -121,8 +122,11 @@ class Search
      */
     private function searchContent(array $params): array
     {
-        $sql = $count = $contentCount = '';
-        $searchTermPlaceholders = $escapedTermPlaceholders = [];
+        $sql = '';
+        $count = 0;
+        $contentCount = 0;
+        $searchTermPlaceholders = [];
+        $escapedTermPlaceholders = [];
         $result = [];
 
         $searchType = $this->trimString(($params['searchType'] ?? ''));
@@ -130,8 +134,7 @@ class Search
         $position = \array_search($searchType, $whitelist, true);
 
         if ($position === false) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
         $cleanSearchType = $whitelist[$position];
@@ -187,7 +190,7 @@ class Search
             }
 
         } else {
-            return false;
+            return [];
         }
 
         // Execute the statement.
@@ -212,11 +215,12 @@ class Search
             for ($i = 0; $i < $count; $i++) {
                 $statement->bindValue($searchTermPlaceholders[$i], "%" . $params['searchTerms'][$i] . "%", \PDO::PARAM_STR);
                 $statement->bindValue($escapedTermPlaceholders[$i], "%" . $params['escapedSearchTerms'][$i] . "%", \PDO::PARAM_STR);
-                $statement->bindValue(":limit", (int) $params['limit'], \PDO::PARAM_INT);
+            }
 
-                if (isset($params['start'])) {
-                    $statement->bindValue(":offset", (int) $params['start'], \PDO::PARAM_INT);
-                }
+            $statement->bindValue(":limit", (int) $params['limit'], \PDO::PARAM_INT);
+
+            if (isset($params['start'])) {
+                $statement->bindValue(":offset", (int) $params['start'], \PDO::PARAM_INT);
             }
 
             if ($params['onlineStatus'] !== 0) {
@@ -224,7 +228,7 @@ class Search
             }
 
         } else {
-            return false;
+            return [];
         }
 
         $statement->execute();
@@ -244,20 +248,18 @@ class Search
      */
     private function validateParams(array $params): array
     {
-        $cleanParams = [];
+        $cleanParams = [
+            'searchTerms' => [], 'escapedSearchTerms' => []
+        ];
 
-        if (\is_array($params['searchTerms'])) {
-
-            $cleanParams['searchTerms'] = [];
+        if (\is_array($params['escapedSearchTerms'] ?? null)) {
 
             foreach($params['searchTerms'] as $value) {
                 $cleanParams['searchTerms'][] = $this->trimString($value);
             }
         }
 
-        if (\is_array($params['escapedSearchTerms'])) {
-
-            $cleanParams['escapedSearchTerms'] = [];
+        if (\is_array($params['escapedSearchTerms'] ?? null)) {
 
             foreach($params['escapedSearchTerms'] as $value) {
                 $cleanParams['escapedSearchTerms'][] = $this->trimString($value);

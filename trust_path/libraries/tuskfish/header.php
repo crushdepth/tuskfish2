@@ -73,15 +73,18 @@ $rules = [
 ];
 $dice = $dice->addRules($rules);
 
-// Set custom error handler.
+// Set custom error and exception handlers.
 $logger = $dice->create('\\Tfish\\Logger');
 \set_error_handler([$logger, "logError"]);
+\set_exception_handler([$logger, "throwException"]);
 
 /**
  * Universal XSS output escape function for use in templates.
  *
  * Encodes entities (but does not double encode). Do not use on HTML markup,
  * only on plain text (HTML should be input filtered with HTMLPurifier).
+ * Also swaps out invalid UTF-8 sequences and disallowed unicode characters,
+ * with entity set and parsing rules matched to the HTML5 spec.
  *
  * @param   string $value Unescaped output.
  * @return  string XSS-escaped output safe for display.
@@ -89,5 +92,5 @@ $logger = $dice->create('\\Tfish\\Logger');
 function xss($value): string
 {
     $value = (string) $value;
-    return \htmlspecialchars($value, ENT_QUOTES, 'UTF-8', false);
+    return \htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED | ENT_HTML5, 'UTF-8', false);
 }

@@ -24,7 +24,8 @@ namespace Tfish\Content\ViewModel;
  * @version     Release: 2.0
  * @since       2.0
  * @package     content
- * @uses        trait \Tfish\Traits\Content\ContentTypes	Provides definition of permitted content object types.
+ * @uses        trait \Tfish\Traits\Content\ContentTypes Provides definition of permitted content object types.
+ * @uses        trait \Tfish\Traits\Group Whitelist of user groups on system and bitmask authorisation tests.
  * @uses        trait \Tfish\Traits\TagRead Retrieve tag information for display.
  * @uses        trait \Tfish\Traits\Listable Provides a standard implementation of the \Tfish\View\Listable interface.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
@@ -49,28 +50,28 @@ namespace Tfish\Content\ViewModel;
 class Listing implements \Tfish\Interface\Listable
 {
     use \Tfish\Content\Traits\ContentTypes;
+    use \Tfish\Traits\Group;
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
 
-    private $model;
-    private $preference;
-    private $content = '';
-    private $contentTags = '';
-    private $contentList = [];
-    private $contentCount = 0;
-    private $parent = '';
-    private $children = [];
-    private $description = '';
-    private $author = '';
-    private $backUrl = '';
-    private $response = '';
-    private $id = 0;
-    private $start = 0;
-    private $tag = 0;
-    private $type = '';
-    private $inFeed = 1;
-    private $onlineStatus = 1;
+    private object $model;
+    private \Tfish\Entity\Preference $preference;
+    private mixed $content = '';
+    private array $contentList = [];
+    private int $contentCount = 0;
+    private mixed $parent = '';
+    private array $children = [];
+    private string $description = '';
+    private string $author = '';
+    private string $backUrl = '';
+    private string $response = '';
+    private int $id = 0;
+    private int $start = 0;
+    private int $tag = 0;
+    private string $type = '';
+    private int $inFeed = 1;
+    private int $onlineStatus = 1;
 
     /**
      * Constructor.
@@ -78,7 +79,7 @@ class Listing implements \Tfish\Interface\Listable
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference)
+    public function __construct(object $model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
         $this->preference = $preference;
@@ -90,8 +91,10 @@ class Listing implements \Tfish\Interface\Listable
 
     /**
      * Display list of content in short (teaser) form.
+     *
+     * @return void
      */
-    public function displayList()
+    public function displayList(): void
     {
         $this->template = 'listView';
         $this->listContent();
@@ -101,12 +104,34 @@ class Listing implements \Tfish\Interface\Listable
 
     /**
      * Display a single content object.
+     *
+     * @return void
      */
-    public function displayObject()
+    public function displayObject(): void
     {
         $this->content = $this->getObject($this->id);
 
         if ($this->content) {
+
+            // Authorisation check.
+            $contentMask = (int) $this->content->accessGroups();
+            $userMask = (int) $this->model->currentUserMask();
+
+            if (!$this->canAccess($userMask, $contentMask)) {
+                if ($userMask === 0) {
+                    $this->model->setNextUrl($_SERVER['REQUEST_URI'] ?? '/');
+                    $this->model->setRedirectTitle(TFISH_MEMBER_CONTENT);
+                    $this->model->setRedirectMessage(TFISH_PLEASE_LOGIN);
+                    \header('Location: ' . TFISH_URL . 'login/', true, 303);
+                    exit;
+                }
+
+                $this->model->setRedirectTitle(TFISH_RESTRICTED_ACCESS);
+                $this->model->setRedirectMessage(TFISH_RESTRICTED_ACCESS_MESSAGE);
+                \header('Location: ' . TFISH_URL . 'restricted/', true, 303);
+                exit;
+            }
+
             $this->pageTitle = $this->content->metaTitle();
             $this->description = $this->content->metaDescription();
             $this->author = $this->content->creator();
@@ -119,6 +144,10 @@ class Listing implements \Tfish\Interface\Listable
 
             $this->template = !empty($this->template) ? $this->template : $this->content->template();
             $this->setMetadata();
+
+            if ($this->content->accessGroups() !== 0) {
+                $this->doNotCache = true;
+            }
         } else {
             $this->pageTitle = TFISH_ERROR;
             $this->response = TFISH_ERROR_NO_SUCH_CONTENT;
@@ -172,8 +201,10 @@ class Listing implements \Tfish\Interface\Listable
 
     /**
      * Count content objects meeting filter criteria.
+     *
+     * @return void
      */
-    public function countContent()
+    public function countContent(): void
     {
         $params = [
             'tag' => $this->tag,
@@ -198,7 +229,7 @@ class Listing implements \Tfish\Interface\Listable
      *
      * @return  array Array of tags as id/title key-value pairs.
      */
-    public function contentTags()
+    public function contentTags(): array
     {
         $tags = $this->model->getTagsForObject($this->id, 'content', 'content');
 
@@ -231,8 +262,9 @@ class Listing implements \Tfish\Interface\Listable
      * Get a content object.
      *
      * @param   int $id ID of content object.
+     * @return \Tfish\Content\Entity\Content $content
      */
-    private function getObject(int $id)
+    private function getObject(int $id): mixed
     {
         return $this->model->getObject($id);
     }
@@ -258,11 +290,11 @@ class Listing implements \Tfish\Interface\Listable
     }
 
     /**
-     * Get children of a content object (collection or tag).
+     * Retrieve children of a content object (collection or tag).
      *
-     * @return  array Array of content objects.
+     * @return  void
      */
-    public function listChildren()
+    public function listChildren(): void
     {
         $params = [
             'start' => $this->start,
@@ -285,8 +317,10 @@ class Listing implements \Tfish\Interface\Listable
      * Get content objects matching cached filter criteria.
      *
      * Result is cached as $contentList property.
+     *
+     * @return void
      */
-    public function listContent()
+    public function listContent(): void
     {
         $this->contentList = $this->model->getObjects(
             [
@@ -324,7 +358,7 @@ class Listing implements \Tfish\Interface\Listable
      *
      * @return  array Array of content objects.
      */
-    public function children()
+    public function children(): array
     {
         return $this->children;
     }
@@ -334,7 +368,7 @@ class Listing implements \Tfish\Interface\Listable
      *
      * @return  \Tfish\Content\Entity\Content
      */
-    public function content()
+    public function content(): ?\Tfish\Content\Entity\Content
     {
         return $this->content;
     }
@@ -381,8 +415,9 @@ class Listing implements \Tfish\Interface\Listable
      * Set ID.
      *
      * @param   int $id ID of content object.
+     * @return void
      */
-    public function setId(int $id)
+    public function setId(int $id): void
     {
         $this->id = $id;
     }
@@ -402,7 +437,7 @@ class Listing implements \Tfish\Interface\Listable
      *
      * @return  \Tfish\Content\Entity\Content Parent content object.
      */
-    public function parent()
+    public function parent(): mixed
     {
         return $this->parent;
     }
@@ -421,8 +456,9 @@ class Listing implements \Tfish\Interface\Listable
      * Set start.
      *
      * @param   int $start of first object to view in the set of available records.
+     * @return void
      */
-    public function setStart(int $start)
+    public function setStart(int $start): void
     {
         $this->start = $start;
     }
@@ -441,8 +477,9 @@ class Listing implements \Tfish\Interface\Listable
      * Set tag ID.
      *
      * @param   int $tag ID of tag.
+     * @return void
      */
-    public function setTag(int $tag)
+    public function setTag(int $tag): void
     {
         $this->tag = $tag;
     }
@@ -463,12 +500,12 @@ class Listing implements \Tfish\Interface\Listable
      * Filter list by content type.
      *
      * @param   string $type Type of content object.
+     * @return void
      */
-    public function setType(string $type)
+    public function setType(string $type): void
     {
         if (!empty($type) && !\array_key_exists($type, $this->listTypes())) {
-           \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
-           exit;
+           throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_TYPE);
         }
 
         $this->type = $this->trimString($type);
@@ -500,8 +537,9 @@ class Listing implements \Tfish\Interface\Listable
      * Overrides trait setMetadata().
      *
      * @param   array $metadata Metadata overrides as key-value pairs.
+     * @return void
      */
-    public function setMetadata(array $metadata = [])
+    public function setMetadata(array $metadata = []): void
     {
         if (!empty($this->pageTitle)) $metadata['title'] = $this->pageTitle;
         if (!empty($this->description)) $metadata['description'] = $this->description;

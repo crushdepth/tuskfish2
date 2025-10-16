@@ -16,7 +16,7 @@
       <div class="row">
 
         <div class="col-md-4">
-          <select class="form-control custom-select" name="route" id="route" onchange="this.form.submit()">
+          <select class="form-select" name="route" id="route" onchange="this.form.submit()">
           <?php
             foreach ($viewModel->routeOptions() as $key => $value) {
               echo ($key === $viewModel->route()) ?
@@ -28,7 +28,7 @@
         </div>
 
         <div class="col-md-4">
-          <select class="form-control custom-select" name="position" id="position" onchange="this.form.submit()">
+          <select class="form-select" name="position" id="position" onchange="this.form.submit()">
           <?php
             foreach ($viewModel->positionOptions() as $key => $value) {
               echo ($key === $viewModel->position()) ?
@@ -40,7 +40,7 @@
         </div>
 
         <div class="col-md-4">
-          <select class="form-control custom-select" name="onlineStatus" id="onlineStatus" onchange="this.form.submit()">
+          <select class="form-select" name="onlineStatus" id="onlineStatus" onchange="this.form.submit()">
           <?php
             foreach ($viewModel->statusOptions() as $key => $value) {
               echo ($key === $viewModel->onlineStatus()) ?
@@ -58,7 +58,7 @@
 
 <?php if ($pagination ?? null): ?>
 <div class="row">
-  <div class="col d-flex justify-content-end pagination-top clearfix">
+  <div class="col d-flex justify-content-end pagination-top">
     <?php echo $pagination; ?>
   </div>
 </div>
@@ -77,28 +77,28 @@
         </button>
       </div>
 
-      <table class="table table-bordered table-striped table-hover text-left">
+      <table class="table table-bordered table-striped table-hover text-start">
         <thead class="table-primary">
           <tr>
-            <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell text-nowrap"><?php echo TFISH_ID; ?></th>
-            <th><?php echo TFISH_POSITION; ?></th>
+            <th scope="col" class="d-none d-md-table-cell text-nowrap"><?php echo TFISH_ID; ?></th>
+            <th scope="col"><?php echo TFISH_POSITION; ?></th>
             <th><?php echo TFISH_BLOCK_TYPE; ?></th>
-            <th class="w-50"><?php echo TFISH_TITLE; ?></th>
-            <th class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell text-center text-nowrap">
+            <th scope="col" class="w-50"><?php echo TFISH_TITLE; ?></th>
+            <th scope="col" class="d-none d-md-table-cell text-center text-nowrap">
               <?php echo TFISH_WEIGHT; ?>
             </th>
-            <th class="text-center text-nowrap"><?php echo TFISH_ONLINE; ?></th>
-            <th colspan="2" class="text-center text-nowrap"><?php echo TFISH_ACTION; ?></th>
+            <th scope="col" class="text-center text-nowrap"><?php echo TFISH_ONLINE; ?></th>
+            <th scope="col" colspan="2" class="text-center text-nowrap"><?php echo TFISH_ACTION; ?></th>
           </tr>
         </thead>
         <tbody>
           <?php foreach ($viewModel->contentList() as &$row): ?>
             <tr>
-              <td class="d-none d-md-table-cell d-lg-table-cell d-xl-table-cell text-nowrap"><?php echo xss($row['id']); ?></td>
+              <td class="d-none d-md-table-cell text-nowrap"><?php echo xss($row['id']); ?></td>
               <td><?php echo xss($row['position']); ?></td>
               <td>
                 <?php
-                  $type = \mb_substr($row['type'], mb_strrpos($row['type'], '\\') + 1);
+                  $type = \mb_substr($row['type'], \mb_strrpos($row['type'], '\\') + 1);
                    echo xss($type);
                 ?>
               </td>
@@ -129,7 +129,7 @@
               <td class="text-center text-nowrap"><a href="<?php echo TFISH_ADMIN_URL . 'blocks/edit/'; ?>?action=edit&amp;id=<?php echo xss($row['id']); ?>"><i class="icon-pen-to-square"></i></a></td>
               <td class="text-center text-nowrap"><a href="<?php echo TFISH_ADMIN_URL . 'blocks/'; ?>?action=confirmDelete&amp;id=<?php echo xss($row['id']); ?>"><i class="icon-trash-can"></i></a></td>
             </tr>
-          <?php endforeach; ?>
+          <?php endforeach; unset($row); ?>
         </tbody>
       </table>
     </form>
@@ -138,7 +138,7 @@
 
 <?php if ($pagination ?? null): ?>
 <div class="row">
-  <div class="col d-flex justify-content-end pagination-bottom clearfix">
+  <div class="col d-flex justify-content-end pagination-bottom">
     <?php echo $pagination; ?>
   </div>
 </div>

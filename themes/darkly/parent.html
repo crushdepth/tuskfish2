@@ -16,15 +16,15 @@
     <figure class="figure-left">
       <a href="<?php echo xss($parent->url()); ?>">
         <img class="image img-fluid" src="<?php echo $parent->cachedImage(150); ?>"
-        <?php if ($parent->caption()): ?>
-          title="<?php echo xss($parent->caption()); ?>" alt="<?php echo xss($parent->caption()); ?>"
-        <?php else: ?>
+          <?php if ($parent->caption()): ?>
+            title="<?php echo xss($parent->caption()); ?>" alt="<?php echo xss($parent->caption()); ?>"
+          <?php else: ?>
             alt=""
-        <?php endif; ?>
-      /></a>
+          <?php endif; ?>>
+      </a>
     </figure>
-    </div>
-    <?php endif; ?>
+  </div>
+  <?php endif; ?>
     <div class="teaser">
       <?php echo $parent->teaserForDisplay(); ?>
     </div>

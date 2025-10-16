@@ -42,11 +42,11 @@ class Admin
     use \Tfish\Traits\TagRead;
     use \Tfish\Traits\ValidateString;
 
-    private $database;
-    private $criteriaFactory;
-    private $preference;
-    private $cache;
-    private $fileHandler;
+    private \Tfish\Database $database;
+    private \Tfish\CriteriaFactory $criteriaFactory;
+    private \Tfish\Entity\Preference $preference;
+    private \Tfish\Cache $cache;
+    private \Tfish\FileHandler $fileHandler;
 
     /**
      * Constructor.
@@ -182,8 +182,9 @@ class Admin
      * Clear the expiry date, if set, when an offline object is toggled online.
      *
      * @param integer $id
+     * @return void
      */
-    private function clearExpiresOn(int $id)
+    private function clearExpiresOn(int $id): void
     {
         $sql = "UPDATE `content` set `expiresOn` = '' WHERE `id` = :id AND `onlineStatus` = '1';";
         $statement = $this->database->preparedStatement($sql);
@@ -223,7 +224,7 @@ class Admin
      * @param   array $columns Columns to select to build the options.
      * @return  array
      */
-    public function getOptions(array $params, array $columns = [])
+    public function getOptions(array $params, array $columns = []): array
     {
         $cleanParams = $this->validateParams($params);
         $criteria = $this->setCriteria($cleanParams);
@@ -248,7 +249,7 @@ class Admin
      * @param   int $id ID of content object.
      * @return  array Associative array containing type, id, image and media values.
      */
-    private function getRow(int $id)
+    private function getRow(int $id): array
     {
         if ($id < 1) {
             \trigger_error(TFISH_ERROR_NOT_INT, E_USER_NOTICE);
@@ -258,8 +259,10 @@ class Admin
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
 
-        return $this->database->select('content', $criteria, ['type', 'id', 'image', 'media'])
-            ->fetch(\PDO::FETCH_ASSOC);
+        $stmt = $this->database->select('content', $criteria, ['type', 'id', 'image', 'media']);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        return ($row !== false) ? $row : [];
     }
 
     /**
@@ -270,9 +273,11 @@ class Admin
      */
     private function deleteImage(string $filename): bool
     {
-        if ($filename) {
-            return $this->fileHandler->deleteFile('image/' . $filename);
+        if ($filename === '') { // nothing to delete
+            return true;
         }
+
+        return $this->fileHandler->deleteFile('image/' . $filename);
     }
 
     /**
@@ -283,9 +288,11 @@ class Admin
      */
     private function deleteMedia(string $filename): bool
     {
-        if ($filename) {
-            return $this->fileHandler->deleteFile('media/' . $filename);
+        if ($filename === '') { // nothing to delete
+            return true;
         }
+
+        return $this->fileHandler->deleteFile('media/' . $filename);
     }
 
     /**
@@ -294,7 +301,7 @@ class Admin
      * @param int $id ID of the parent collection.
      * @return boolean True on success, false on failure.
      */
-    private function deleteReferencesToParent(int $id)
+    private function deleteReferencesToParent(int $id): bool
     {
         if ($id < 1) return false;
 
@@ -310,14 +317,15 @@ class Admin
      * @param   int $id ID of content object.
      * @return  string Title of content object.
      */
-    public function getTitle(int $id)
+    public function getTitle(int $id): string
     {
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
 
         $statement = $this->database->select('content', $criteria, ['title']);
+        $title = $statement->fetch(\PDO::FETCH_COLUMN);
 
-        return $statement->fetch(\PDO::FETCH_COLUMN);
+        return ($title === false) ? '' : (string) $title;
     }
 
     /**

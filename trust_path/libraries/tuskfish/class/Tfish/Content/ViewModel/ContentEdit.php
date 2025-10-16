@@ -24,6 +24,7 @@ namespace Tfish\Content\ViewModel;
  * @version     Release: 2.0
  * @since       2.0
  * @package     content
+ * @uses        trait \Tfish\Traits\Group Whitelist of user groups on system and bitmask authorisation tests.
  * @uses        trait \Tfish\Traits\Timezones	Provides an array of time zones.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
@@ -39,19 +40,20 @@ namespace Tfish\Content\ViewModel;
  */
 class ContentEdit implements \Tfish\Interface\Viewable
 {
+    use \Tfish\Traits\Group;
     use \Tfish\Traits\Timezones;
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
     use \Tfish\Traits\Viewable;
 
-    private $model;
-    private $id = 0;
-    private $content = '';
-    private $parentOptions = '';
-    private $action = '';
-    private $response = '';
-    private $backUrl = '';
-    private $preference;
+    private object $model;
+    private int $id = 0;
+    private ?\Tfish\Content\Entity\Content $content = null;
+    private array $parentOptions = [];
+    private string $action = '';
+    private string $response = '';
+    private string $backUrl = '';
+    private \Tfish\Entity\Preference $preference;
 
     /**
      * Constructor.
@@ -59,7 +61,7 @@ class ContentEdit implements \Tfish\Interface\Viewable
      * @param   object $model Instance of a model class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
-    public function __construct($model, \Tfish\Entity\Preference $preference)
+    public function __construct(object $model, \Tfish\Entity\Preference $preference)
     {
         $this->model = $model;
         $this->preference = $preference;
@@ -71,8 +73,10 @@ class ContentEdit implements \Tfish\Interface\Viewable
 
     /**
      * Display Add content form.
+     *
+     * @return void
      */
-    public function displayAdd()
+    public function displayAdd(): void
     {
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
@@ -85,8 +89,10 @@ class ContentEdit implements \Tfish\Interface\Viewable
 
     /**
      * Cancel action and redirect to admin page.
+     *
+     * @return void
      */
-    public function displayCancel()
+    public function displayCancel(): void
     {
         \header('Location: ' . TFISH_ADMIN_URL);
         exit;
@@ -94,8 +100,10 @@ class ContentEdit implements \Tfish\Interface\Viewable
 
     /**
      * Display edit content form.
+     *
+     * @return void
      */
-    public function displayEdit()
+    public function displayEdit(): void
     {
         $id = (int) ($_GET['id'] ?? 0);
 
@@ -118,8 +126,10 @@ class ContentEdit implements \Tfish\Interface\Viewable
 
     /**
      * Save content object (new or updated).
+     *
+     * @return void
      */
-    public function displaySave()
+    public function displaySave(): void
     {
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
@@ -189,7 +199,7 @@ class ContentEdit implements \Tfish\Interface\Viewable
      *
      * @return  array Array of parent (collection) IDs and titles as key-value pairs.
      */
-    public function parentOptions()
+    public function parentOptions(): array
     {
         $collections = $this->model->collections();
         $parentTree = new \Tfish\Tree($collections, 'id', 'parent');
@@ -206,6 +216,17 @@ class ContentEdit implements \Tfish\Interface\Viewable
     {
         return $this->preference->siteAuthor();
     }
+
+    /**
+     * Return select box options for group access control
+     * 
+     * @return array Array of access group select box options.
+     */
+    public function visibilityOptions(): array
+    {
+        return [0 => TFISH_PUBLIC] + $this->listUserGroups();
+    }
+
 
     /** Getters and setters */
 
@@ -247,8 +268,9 @@ class ContentEdit implements \Tfish\Interface\Viewable
      * Set content.
      *
      * @param   \Tfish\Content\Entity\Content $content Content object to be edited.
+     * @return void
      */
-    public function setContent(\Tfish\Content\Entity\Content $content)
+    public function setContent(\Tfish\Content\Entity\Content $content): void
     {
         $this->content = $content;
     }

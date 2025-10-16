@@ -89,9 +89,7 @@ trait TagLink
      * 'id', 'type', 'module' and 'tags' array.
      *
      * Tags are stored separately in the taglinks table. Tags are assembled in one batch before
-     * proceeding to insertion; so if one fails a range check all should fail. If the
-     * lastInsertId could not be retrieved, then halt execution because this data
-     * is necessary in sort to correctly assign taglinks to content objects.
+     * proceeding to insertion; so if one fails a range check all should fail.
      *
      * @param   int $contentId ID of the content object associated with these taglinks.
      * @param   string $contentType The type of content object.
@@ -105,8 +103,6 @@ trait TagLink
             \trigger_error(TFISH_ERROR_ILLEGAL_VALUE, E_USER_NOTICE);
             return false;
         }
-
-        $cleanTaglinks = [];
 
         foreach ($tags as $tag) {
             $taglink = [];
@@ -136,14 +132,12 @@ trait TagLink
      */
     private function updateTaglinks(int $contentId, string $contentType, string $module, array $tags): bool
     {
-        // Delete existing taglinks for this content.
+        // Delete existing taglinks
         if (!$this->deleteTaglinks($contentId, $module)) {
             return false;
         }
 
         // Save the updated taglinks for this content.
-        $content['tags'] = $tags;
-
         if (!$this->saveTaglinks($contentId, $contentType, $module, $tags)) {
             return false;
         }

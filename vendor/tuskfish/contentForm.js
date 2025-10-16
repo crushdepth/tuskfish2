@@ -10,6 +10,8 @@
 
 // Shows/hides form fields that are relevant/irrelevant to the content type.
 $(document).ready(function() {
+    hideAlerts();
+
     // Show or hide content properties as appropriate for this content type.
     showHide();
 
@@ -87,12 +89,13 @@ $(document).ready(function() {
 // Shows / hides a warning if the media file is inappropriate for the content
 // type.
 function checkMedia() {
+    hideAlerts();
+
     var mimeTypes = {};
     var mediaMimeType = $('#format').val() ? $('#format').val() : '';
 
     // If there is no media attachment then no need to show file type warnings.
     if (mediaMimeType === '') {
-        hideAlerts();
         return;
     }
 
@@ -127,8 +130,6 @@ function checkMedia() {
     // Show or hide the mimetype warning.
     if ($.inArray(mediaMimeType, typeList) === -1) {
         showAlerts(); // Mimetype is bad.
-    } else {
-        hideAlerts(); // Mimetype is good.
     }
 }
 

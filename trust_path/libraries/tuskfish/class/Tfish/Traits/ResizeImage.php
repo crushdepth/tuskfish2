@@ -64,7 +64,8 @@ trait ResizeImage
         // URL. CONVENTION: Thumbnail name should follow the pattern:
         // imageFileName . '-' . $width . 'x' . $height
         $filename = \pathinfo($this->image, PATHINFO_FILENAME);
-        $extension = '.' . \pathinfo($this->image, PATHINFO_EXTENSION);
+        $ext = \pathinfo($this->image, PATHINFO_EXTENSION);
+        $extension = ($ext !== '') ? ('.' . $ext) : '';
         $cachedPath = TFISH_PUBLIC_CACHE_PATH . $filename . '-';
         $cachedUrl = TFISH_CACHE_URL . $filename . '-';
         $originalPath = TFISH_IMAGE_PATH . $filename . $extension;
@@ -89,7 +90,8 @@ trait ResizeImage
         // for outputting size attribute.
         $properties = \getimagesize($originalPath);
 
-        if (!$properties) {
+        // Guard against corrupt images (zero dims) to avoid division by zero
+        if (!$properties || (int)$properties[0] < 1 || (int)$properties[1] < 1) {
             return false;
         }
 
@@ -100,6 +102,11 @@ trait ResizeImage
         } else {
             $destinationWidth = (int) (($cleanHeight / $properties[1]) * $properties[0]);
             $destinationHeight = $cleanHeight;
+        }
+
+        // Final sanity on computed dimensions.
+        if ($destinationWidth < 1 || $destinationHeight < 1) {
+            return false;
         }
 
         $result = $this->scaleAndCacheImage($properties, $originalPath, $cachedPath,
@@ -137,11 +144,20 @@ trait ResizeImage
         switch ($properties['mime']) {
             case "image/jpeg":
                 $original = \imagecreatefromjpeg($originalPath);
+
+                if (!$original) {
+                    \imagedestroy($thumbnail);
+                    return false;
+                }
+
                 \imagecopyresampled($thumbnail, $original, 0, 0, 0, 0, $destinationWidth,
                         $destinationHeight, $properties[0], $properties[1]);
 
                 // Optional third quality argument 0-99, higher is better quality.
                 $result = \imagejpeg($thumbnail, $cachedPath, 80);
+
+                // Free original.
+                \imagedestroy($original);
                 break;
 
             case "image/png":
@@ -151,6 +167,12 @@ trait ResizeImage
                 } else {
                     $original = \imagecreatefrompng($originalPath);
                 }
+
+                if (!$original) {
+                    \imagedestroy($thumbnail);
+                    return false;
+                }
+
                 /**
                  * Handle transparency
                  *
@@ -209,7 +231,7 @@ trait ResizeImage
                     // Set the blending mode for an image.
                     \imagealphablending($thumbnail, false);
                     // Allocate a colour for an image ($image, $red, $green, $blue, $alpha).
-                    $colour = imagecolorallocatealpha($thumbnail, 0, 0, 0, 127);
+                    $colour = \imagecolorallocatealpha($thumbnail, 0, 0, 0, 127);
                     // Flood fill again.
                     \imagefill($thumbnail, 0, 0, $colour);
                     // Set the flag to save full alpha channel information (as opposed to single
@@ -231,13 +253,20 @@ trait ResizeImage
                     // Do not use compression = 0, it creates massive file size.
                     $result = \imagepng($thumbnail, $cachedPath, 6);
                 }
+
+                // Free original
+                \imagedestroy($original);
                 break;
 
             // Anything else, no can do.
             default:
+                // Free $thumbnail before returning.
+                \imagedestroy($thumbnail);
                 return false;
         }
         if (!$result) {
+            // Destroy thumbnail on failure.
+            \imagedestroy($thumbnail);
             return false;
         }
 

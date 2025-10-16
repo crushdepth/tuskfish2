@@ -32,6 +32,7 @@ namespace Tfish\Traits;
  * @var         string $order Primary sorting order (ASC or DESC).
  * @var         string $secondarySort Secondary column to sort results by.
  * @var         string $secondaryOrder Secondary sorting order (ASC or DESC).
+ * @var         bool $doNotCache Flag to disable caching of restricted access content.
  */
 trait Listable
 {
@@ -44,6 +45,7 @@ trait Listable
     private string $order = '';
     private string $secondarySort = '';
     private string $secondaryOrder = '';
+    private bool $doNotCache = false;
 
     /** Utilities. */
 
@@ -77,6 +79,10 @@ trait Listable
      */
     public function setSort(string $field)
     {
+        if (!$this->isAlnumUnderscore($field)) {
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
+        }
+
         $this->sort = $this->trimString($field);
     }
 
@@ -87,6 +93,10 @@ trait Listable
      */
     public function setOrder(string $order)
     {
+        if (!empty($order) && ($order !== "ASC" && $order !== "DESC")) {
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
+        }
+
         $this->order = $this->trimString($order);
     }
 
@@ -97,6 +107,10 @@ trait Listable
      */
     public function setSecondarySort(string $field)
     {
+        if (!$this->isAlnumUnderscore($field)) {
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
+        }
+
         $this->secondarySort = $this->trimString($field);
     }
 
@@ -107,6 +121,10 @@ trait Listable
      */
     public function setSecondaryOrder(string $order)
     {
+        if (!empty($order) && ($order !== "ASC" && $order !== "DESC")) {
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
+        }
+
         $this->secondaryOrder = $this->trimString($order);
     }
 
@@ -152,8 +170,7 @@ trait Listable
         $template = $this->trimString($template);
 
         if (!$this->isAlnumUnderscore($template)) {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
 
         $this->template = $template;
@@ -179,8 +196,7 @@ trait Listable
         $layout = $this->trimString($layout);
 
         if (!$this->isAlnumUnderscore($layout)) {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
 
         $this->layout = $layout;
@@ -208,8 +224,7 @@ trait Listable
         $theme = $this->trimString($theme);
 
         if (!$this->isAlnumUnderscore($theme)) {
-            \trigger_error(TFISH_ERROR_NOT_ALNUMUNDER, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
 
         $this->theme = $theme;
@@ -233,5 +248,31 @@ trait Listable
     public function setMetadata(array $metadata)
     {
         $this->metadata = $metadata;
+    }
+
+    /** Utilities */
+
+    /**
+     * Return doNotCache flag.
+     *
+     * Bypass caching for content with restricted access (ie. that is not public).
+     *
+     * @return boolean
+     */
+    public function doNotCache(): bool
+    {
+        return $this->doNotCache;
+    }
+
+    /**
+     * Set doNotCache flag.
+     *
+     * Used to disable caching of content with restricted access (ie. that is not public).
+     *
+     * @param boolean $flag
+     * @return void
+     */
+    public function setDoNotCache(bool $flag) {
+        $this->doNotCache = $flag;
     }
 }

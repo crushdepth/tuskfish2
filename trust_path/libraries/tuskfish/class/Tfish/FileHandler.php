@@ -50,8 +50,7 @@ class FileHandler
     {
         // Check for directory traversals and null byte injection.
         if ($this->hasTraversalorNullByte($filepath)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
-            return false;
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
 
         $cleanFilepath = $this->trimString($filepath);
@@ -92,8 +91,7 @@ class FileHandler
     {
         // Check for directory traversals and null byte injection.
         if ($this->hasTraversalorNullByte($filepath)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
-            return false;
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
 
         $cleanFilepath = $this->trimString($filepath);
@@ -155,9 +153,14 @@ class FileHandler
             $filepath = TFISH_UPLOADS_PATH . $filepath;
             $resolvedPath = \realpath($filepath);
 
+            if ($resolvedPath === false) {
+                \trigger_error(TFISH_ERROR_BAD_PATH, E_USER_NOTICE);
+                return false;
+            }
+
             // To avoid clashes with Windows director separator:
             $testPath = \mb_strtolower($filepath, "UTF-8");
-            $resolvedPath = mb_strtolower(\str_replace("\\", "/", $resolvedPath), "UTF-8");
+            $resolvedPath = \mb_strtolower(\str_replace("\\", "/", $resolvedPath), "UTF-8");
 
             if ($testPath === $resolvedPath) {
                 return $filepath; // Path is good.
@@ -188,7 +191,7 @@ class FileHandler
 
         // Check for directory traversals and null byte injection.
         if ($this->hasTraversalorNullByte($filepath)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
             return false;
         }
 
@@ -252,8 +255,7 @@ class FileHandler
     {
         // Check for directory traversals and null byte injection.
         if ($this->hasTraversalorNullByte($filepath)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
-            return false;
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
 
         $cleanFilepath = $this->trimString($filepath);
@@ -284,6 +286,7 @@ class FileHandler
                 \unlink($filepath);
             } catch (\Exception $e) {
                 \trigger_error(TFISH_ERROR_FAILED_TO_DELETE_FILE, E_USER_NOTICE);
+                return false;
             }
         } else {
             \trigger_error(TFISH_ERROR_BAD_PATH, E_USER_NOTICE);
@@ -304,23 +307,21 @@ class FileHandler
     {
         // Check for directory traversals and null byte injection.
         if ($this->hasTraversalorNullByte($filename)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
 
         $filename = $this->trimString($filename);
-        $cleanFilename = \mb_strtolower(pathinfo($filename, PATHINFO_FILENAME), 'UTF-8');
+        $cleanFilename = \mb_strtolower(\pathinfo($filename, PATHINFO_FILENAME), 'UTF-8');
 
         // Check that target directory is whitelisted (locked to uploads/image or uploads/media).
         if ($fieldname === 'image' || $fieldname === 'media') {
             $clean_fieldname = $this->trimString($fieldname);
         } else {
-            \trigger_error(TFISH_ERROR_ILLEGAL_VALUE);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
         $mimetypeList = $this->listMimetypes(); // extension => mimetype
-        $extension = \mb_strtolower(pathinfo($filename, PATHINFO_EXTENSION), 'UTF-8');
+        $extension = \mb_strtolower(\pathinfo($filename, PATHINFO_EXTENSION), 'UTF-8');
         $clean_extension = \array_key_exists($extension, $mimetypeList)
                 ? $this->trimString($extension) : false;
 
@@ -343,7 +344,7 @@ class FileHandler
         $filename = \time() . '_' . $filename;
         $upload_path = TFISH_UPLOADS_PATH . $fieldname . '/' . $filename . '.' . $extension;
 
-        if ($_FILES['content']["error"][$fieldname]) {
+        if (($_FILES['content']['error'][$fieldname] ?? 0) !== 0) {
             switch ($_FILES['content']["error"][$fieldname]) {
                 case 1: // UPLOAD_ERR_INI_SIZE
                     \trigger_error(TFISH_ERROR_UPLOAD_ERR_INI_SIZE, E_USER_NOTICE);
@@ -377,8 +378,24 @@ class FileHandler
             }
         }
 
+        // Verify mimetype by file content before moving.
+        $tmp = $_FILES['content']['tmp_name'][$fieldname] ?? '';
+
+        if ($tmp === '' || !\is_uploaded_file($tmp)) {
+            throw new \RuntimeException(TFISH_ERROR_FILE_UPLOAD_FAILED);
+        }
+
+        $finfo = new \finfo(\FILEINFO_MIME_TYPE);
+        $detected = $finfo->file($tmp) ?: '';
+        $allowed = $this->listMimetypes()[$extension] ?? '';
+
+        if ($detected !== $allowed) {
+            \trigger_error(TFISH_ERROR_ILLEGAL_MIMETYPE, E_USER_NOTICE);
+            return false;
+        }
+
         if (!\move_uploaded_file($_FILES['content']["tmp_name"][$fieldname], $upload_path)) {
-            \trigger_error(TFISH_ERROR_FILE_UPLOAD_FAILED, E_USER_ERROR);
+            throw new \RuntimeException(TFISH_ERROR_FILE_UPLOAD_FAILED);
         } else {
             $permissions = \chmod($upload_path, 0644);
             if ($permissions) {

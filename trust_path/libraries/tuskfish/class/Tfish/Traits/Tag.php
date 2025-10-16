@@ -56,10 +56,8 @@ trait Tag
             if ($cleanTag > 0) {
                 $cleanTags[] = $cleanTag;
             } else {
-               \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+               throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
             }
-
-            unset($cleanTag);
         }
 
         $this->tags = $cleanTags;

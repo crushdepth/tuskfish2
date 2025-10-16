@@ -182,6 +182,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 
 // Utilities
 \define("TFISH_STATE", "State");
+\define("TFISH_PUBLIC", "Public");
 
 // Base intellectual property licenses.
 \define("TFISH_RIGHTS_COPYRIGHT", "Copyright, all rights reserved.");
@@ -259,6 +260,14 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_ERROR_BAD_ACTION", "Bad action submitted to front controller, high probability attempted abuse.");
 \define("TFISH_ERROR_UNSPECIFIED", "Unspecified error.");
 \define("TFISH_BLOCK_ROUTE_UPDATE_FAILED", "Block route update failed.");
+\define("TFISH_ERROR_YUBIKEY_ID_UNDEFINED", "Yubikey ID undefined.");
+\define("TFISH_ERROR_SRGB_NOT_FOUND", "sRGB profile not found, you must install one to use ImageMagick.");
+\define("TFISH_ERROR_LOG_PATH_NOT_WRITEABLE", "TFISH log file path not writeable.");
+
+// User group / permission errors.
+\define("TFISH_ERROR_INVALID_GROUP", "Invalid group.");
+\define("TFISH_RESTRICTED_ACCESS", "Restricted access");
+\define("TFISH_RESTRICTED_ACCESS_MESSAGE", "Sorry, you are not authorised to view this page.");
 
 // Token errors.
 \define("TFISH_INVALID_TOKEN", "Invalid token error");
@@ -311,9 +320,12 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_IN_THIS_COLLECTION", "In this collection");
 
 // Miscellaneous.
+\define("TFISH_CONTENT_ACCESS", "Access");
 \define("TFISH_DOWNLOAD", "Download");
 \define("TFISH_DOWNLOADS", "Downloads");
 \define("TFISH_ZERO_OPTION", "---");
+\define("TFISH_MEMBER_CONTENT", "Member content");
+\define("TFISH_PLEASE_LOGIN", "Please login to view this content.");
 
 // Errors.
 \define("TFISH_MEDIA_NOT_COMPATIBLE", "The selected media file is not compatible with the current "

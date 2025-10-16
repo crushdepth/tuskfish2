@@ -82,13 +82,18 @@ class Listing
 
         $params['id'] = $id;
 
-        if (!$this->session->isAdmin()) { // NOT admin.
+        if (!$this->session->isAdmin()) { // Restrict to online content if NOT admin.
             $params['onlineStatus'] = 1;
         }
 
         $cleanParams = $this->validateParams($params);
         $criteria = $this->setCriteria($cleanParams);
         $statement = $this->database->select('content', $criteria);
+
+        if (!$statement) {
+            \trigger_error(TFISH_ERROR_NO_STATEMENT, E_USER_NOTICE);
+            return false;
+        }
 
         $content = $statement->fetchObject('\Tfish\Content\Entity\Content');
 
@@ -160,12 +165,23 @@ class Listing
     {
         $statement = $this->database->select('content', $criteria);
 
+        if (!$statement) {
+            \trigger_error(TFISH_ERROR_NO_STATEMENT, E_USER_WARNING);
+            return [];
+        }
+
         return $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Content\Entity\Content');
     }
 
     private function runTagQuery(\Tfish\Criteria $criteria): array
     {
         $statement = $this->database->select('content', $criteria);
+
+        if (!$statement) {
+            \trigger_error(TFISH_ERROR_NO_STATEMENT, E_USER_WARNING);
+            return [];
+        }
+
         return $statement->fetchAll(\PDO::FETCH_ASSOC);
     }
 
@@ -309,5 +325,48 @@ class Listing
         }
 
         return $cleanParams;
+    }
+
+    /**
+     * Return the current userMask via the session.
+     *
+     * Used by the viewModel to conduct group authorisation checks.
+     *
+     * @return integer
+     */
+    public function currentUserMask(): int
+    {
+        return (int) $this->session->verifyPrivileges();
+    }
+
+    /**
+     * Set onwards redirection path after successful authentication.
+     *
+     * @param string $path
+     * @return void
+     */
+    public function setNextUrl(string $path): void
+    {
+        $this->session->setNextUrl($path);
+    }
+
+    /**
+     * Set redirect page title.
+     * 
+     * @return void
+     */
+    public function setRedirectTitle(string $title): void
+    {
+        $this->session->setRedirectTitle($title);
+    }
+
+    /**
+     * Set redirect page context message.
+     * 
+     * @return void
+     */
+    public function setRedirectMessage(string $message): void
+    {
+        $this->session->setRedirectMessage($message);
     }
 }

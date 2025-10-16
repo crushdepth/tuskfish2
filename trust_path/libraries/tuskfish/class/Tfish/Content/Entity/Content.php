@@ -54,6 +54,7 @@ namespace Tfish\Content\Entity;
  * @var         int $lastUpdated Timestamp representing last time this object was updated.
  * @var         string $expiresOn Date for this object expressed as a string.
  * @var         int $counter Number of times this content was viewed or downloaded.
+ * @var         int $groups Bitmask of user group IDs permitted to access this content.
  * @var         int $inFeed Include in news / RSS feed (1) or not (0).
  * @var         int $onlineStatus Toggle object on or offline.
  * @var         int $parent A source work or collection of which this content is part.
@@ -67,6 +68,7 @@ namespace Tfish\Content\Entity;
 class Content
 {
     use \Tfish\Content\Traits\ContentTypes;
+    use \Tfish\Traits\Group;
     use \Tfish\Traits\Language;
     use \Tfish\Traits\Metadata;
     use \Tfish\Traits\Mimetypes;
@@ -77,32 +79,33 @@ class Content
     use \Tfish\Traits\UrlCheck;
     use \Tfish\Traits\ValidateString;
 
-    private $id = 0;
-    private $type = '';
-    private $title = '';
-    private $teaser = '';
-    private $description = '';
-    private $creator = '';
-    private $media = '';
-    private $externalMedia = '';
-    private $format = '';
-    private $fileSize = 0;
-    private $image = '';
-    private $caption = '';
-    private $date = '';
-    private $submissionTime = 0;
-    private $lastUpdated = 0;
-    private $expiresOn = '';
-    private $counter = 0;
-    private $minimumViews = 0;
-    private $inFeed = 1;
-    private $onlineStatus = 0;
-    private $parent = 0;
-    private $language = '';
-    private $rights = 1;
-    private $publisher = '';
-    private $template = '';
-    private $module = 'content';
+    private int $id = 0;
+    private string $type = '';
+    private string $title = '';
+    private string $teaser = '';
+    private string $description = '';
+    private string $creator = '';
+    private string $media = '';
+    private string $externalMedia = '';
+    private string $format = '';
+    private int $fileSize = 0;
+    private string $image = '';
+    private string $caption = '';
+    private string $date = '';
+    private int $submissionTime = 0;
+    private int $lastUpdated = 0;
+    private string $expiresOn = '';
+    private int $counter = 0;
+    private int $minimumViews = 0;
+    private int $accessGroups = 0; // public access
+    private int $inFeed = 1;
+    private int $onlineStatus = 0;
+    private int $parent = 0;
+    private string $language = '';
+    private int $rights = 1;
+    private string $publisher = '';
+    private string $template = '';
+    private string $module = 'content';
 
     /**
      * Load properties.
@@ -133,6 +136,7 @@ class Content
         $this->setLastUpdated((int) ($row['lastUpdated'] ?? 0));
         $this->setExpiresOn((string) ($row['expiresOn'] ?? ''));
         $this->setCounter((int) ($row['counter'] ?? 0));
+        $this->setAccessGroups((int) ($row['accessGroups'] ?? 0));
         $this->setInFeed((int) ($row['inFeed'] ?? 1));
         $this->setOnlineStatus((int) ($row['onlineStatus'] ?? 1));
         $this->setParent((int) ($row['parent'] ?? 0));
@@ -163,29 +167,22 @@ class Content
      *
      * @return string Bytes expressed as convenient human readable units.
      */
-    public function bytesToHumanReadable()
+    public function bytesToHumanReadable(): string
     {
-        $bytes = $this->fileSize;
-        $unit = $val = '';
+        $bytes = (int) $this->fileSize;
 
-        if ($bytes >= 0 && $bytes < ONE_KILOBYTE) {
-            $unit = ' bytes';
-            $val = $bytes;
-        } elseif ($bytes >= ONE_KILOBYTE && $bytes < ONE_MEGABYTE) {
-            $unit = ' KB';
-            $val = ($bytes / ONE_KILOBYTE);
-        } elseif ($bytes >= ONE_MEGABYTE && $bytes < ONE_GIGABYTE) {
-            $unit = ' MB';
-            $val = ($bytes / ONE_MEGABYTE);
-        } else {
-            $unit = ' GB';
-            $val = ($bytes / ONE_GIGABYTE);
+        if ($bytes < ONE_KILOBYTE) {
+            return $bytes . ' bytes';
         }
-
-        $val = round($val, 2);
-
-        return $val . ' ' . $unit;
+        if ($bytes < ONE_MEGABYTE) {
+            return \round($bytes / ONE_KILOBYTE, 2) . ' KB';
+        }
+        if ($bytes < ONE_GIGABYTE) {
+            return \round($bytes / ONE_MEGABYTE, 2) . ' MB';
+        }
+        return \round($bytes / ONE_GIGABYTE, 2) . ' GB';
     }
+
 
     /**
      * Convert the site base URL to the TFISH_LINK constant and vice versa.
@@ -275,7 +272,7 @@ class Content
     public function setId(int $id)
     {
         if ($id < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->id = $id;
@@ -323,7 +320,7 @@ class Content
         if (\array_key_exists($type, $this->listTypes())) {
             $this->type = $type;
         } else {
-            \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_TYPE);
         }
     }
 
@@ -437,8 +434,7 @@ class Content
         $filename = $this->trimString($filename);
 
         if ($this->hasTraversalorNullByte($filename)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
-            exit; // Hard stop due to high probability of abuse.
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
 
         // Video files are now assumed to be hosted externally so this should be a URL.
@@ -454,7 +450,7 @@ class Content
         if (empty($extension) || (!empty($extension) && !\array_key_exists($extension, $whitelist))) {
             $this->media = '';
             $this->format = '';
-            $this->fileSize = '';
+            $this->fileSize = 0;
         } else {
             $this->media = $filename;
         }
@@ -491,7 +487,7 @@ class Content
         $whitelist = $this->listMimetypes();
 
         if (!empty($format) && !\in_array($format, $whitelist, true)) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_MIMETYPE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_MIMETYPE);
         }
 
         $this->format = $format;
@@ -525,7 +521,7 @@ class Content
     public function setFileSize(int $fileSize)
     {
         if ($fileSize < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->fileSize = $fileSize;
@@ -544,7 +540,7 @@ class Content
         $url = $this->trimString($url);
 
         if (!empty($url) && !$this->isUrl($url)) {
-            \trigger_error(TFISH_ERROR_NOT_URL, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_URL);
         }
 
         $this->externalMedia = $url;
@@ -570,8 +566,7 @@ class Content
         $filename = $this->trimString($filename);
 
         if ($this->hasTraversalorNullByte($filename)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
-            exit; // Hard stop due to high probability of abuse.
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
 
         $whitelist = $this->listImageMimetypes();
@@ -579,7 +574,7 @@ class Content
 
         if (!empty($extension) && !\array_key_exists($extension, $whitelist)) {
             $this->image = '';
-            \trigger_error(TFISH_ERROR_ILLEGAL_MIMETYPE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_MIMETYPE);
         } else {
             $this->image = $filename;
         }
@@ -620,13 +615,13 @@ class Content
      *
      * @param   string $date
      */
-    public function setDate(string $date)
+    public function setDate(string $date): void
     {
         $date = $this->trimString($date);
-        $checkDate = \date_parse_from_format('Y-m-d', $date);
+        $check = \date_parse_from_format('Y-m-d', $date);
 
-        if (!$checkDate || $checkDate['warning_count'] > 0 || $checkDate['error_count'] > 0) {
-            $date = \date(DATE_RSS, \time());
+        if (!$check || $check['warning_count'] > 0 || $check['error_count'] > 0) {
+            $date = \date('Y-m-d');
             \trigger_error(TFISH_ERROR_BAD_DATE_DEFAULTING_TO_TODAY, E_USER_WARNING);
         }
 
@@ -677,7 +672,7 @@ class Content
     public function setSubmissionTime(int $timestamp)
     {
         if ($timestamp < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->submissionTime = $timestamp;
@@ -701,7 +696,7 @@ class Content
     public function setLastUpdated(int $timestamp)
     {
         if ($timestamp < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->lastUpdated = $timestamp;
@@ -724,7 +719,21 @@ class Content
      */
     public function setExpiresOn(string $date)
     {
-        $this->expiresOn = $this->trimString($date);
+        $date = $this->trimString($date);
+
+        if ($date === '') {
+            $this->expiresOn = '';
+            return;
+        }
+
+        $check = \date_parse_from_format('Y-m-d', $date);
+        if (!$check || $check['warning_count'] > 0 || $check['error_count'] > 0) {
+            \trigger_error(TFISH_ERROR_BAD_DATE_DEFAULTING_TO_TODAY, E_USER_WARNING);
+            $this->expiresOn = '';
+            return;
+        }
+
+        $this->expiresOn = $date;
     }
 
     /**
@@ -747,24 +756,61 @@ class Content
     public function setCounter(int $counter)
     {
         if ($counter < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->counter = $counter;
     }
 
+    /**
+     * Set minimum views to display view counter.
+     */
     public function setMinimumViews(int $minimumViews)
     {
         if ($minimumViews < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->minimumViews = $minimumViews;
     }
 
     /**
+     * Return groups permitted to access this content.
+     *
+     * @return int Bitmask of user groups.
+     */
+    public function accessGroups(): int
+    {
+        return (int) $this->accessGroups;
+    }
+
+    /**
+     * Set groups permitted to access this content.
+     *
+     * Use 0 to indicate public content (no restriction).
+     *
+     * @param int $groups Bitmask of allowed groups.
+     */
+    public function setAccessGroups(int $groups): void
+    {
+        // Public content is explicitly allowed.
+        if ($groups === 0) {
+            $this->accessGroups = 0;
+            return;
+        }
+
+        $whitelistMask = $this->groupsMask();
+
+        if (($groups & ~$whitelistMask) !== 0) {
+            throw new \InvalidArgumentException(TFISH_ERROR_INVALID_GROUP);
+        }
+
+        $this->accessGroups = $groups;
+    }
+
+    /**
      * Return inFeed status.
-     * 
+     *
      * @return int 1 if included in news/RSS feed, otherwise 0.
      */
     public function inFeed(): int
@@ -774,13 +820,13 @@ class Content
 
     /**
      * Set inFeed status.
-     * 
+     *
      * @param   int $inFeed
      */
     public function setInFeed(int $inFeed)
     {
         if ($inFeed !== 0 && $inFeed !== 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->inFeed = $inFeed;
@@ -804,7 +850,7 @@ class Content
     public function setOnlineStatus(int $status)
     {
         if ($status !== 0 && $status !== 1) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->onlineStatus = $status;
@@ -828,11 +874,11 @@ class Content
     public function setParent(int $parent)
     {
         if ($parent < 0) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         if ($parent === $this->id && $parent > 0) {
-            \trigger_error(TFISH_ERROR_CIRCULAR_PARENT_REFERENCE);
+            throw new \InvalidArgumentException(TFISH_ERROR_CIRCULAR_PARENT_REFERENCE);
         }
 
         $this->parent = $parent;
@@ -884,7 +930,7 @@ class Content
     public function setRights(int $rights)
     {
         if (!\array_key_exists($rights, $this->listRights())) {
-            \trigger_error(TFISH_ERROR_NOT_INT, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->rights = $rights;
@@ -931,7 +977,16 @@ class Content
         $template = $this->trimString($template);
 
         if ($this->hasTraversalorNullByte($template)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
+        }
+
+        $type = $this->type;
+
+        if ($type !== '' && isset($this->listTemplates()[$type])) {
+            $allowed = $this->listTemplates()[$type];
+            if ($template !== '' && !\in_array($template, $allowed, true)) {
+                throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
+            }
         }
 
         $this->template = $template;

@@ -71,6 +71,7 @@ class Pagination
         $this->start = 0;
         $this->tag = 0;
         $this->extraParams = [];
+        $this->extraParamsString = '';
     }
 
     /**
@@ -84,12 +85,12 @@ class Pagination
      * If you want to create pagination controls for other presentation-side libraries add
      * additional methods to this class.
      *
-     * @return string HTML pagination control.
+     * @return string|bool HTML pagination control or false if not required.
      */
-    public function renderPaginationControl()
+    public function renderPaginationControl(): string|bool
     {
         // If the count is zero there is no need for a pagination control.
-        if ($this->count === 0) {
+        if ($this->count === 0 || $this->limit <= 0) {
             return false;
         }
 
@@ -228,8 +229,7 @@ class Pagination
 
         foreach ($extraParams as $key => $value) {
             if ($this->hasTraversalorNullByte((string) $key) || $this->hasTraversalorNullByte((string) $value)) {
-                \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
-                exit; // Hard stop due to high probability of abuse.
+                throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
             }
 
             // URL encode and \htmlspecialchars() the key/value pairs.
@@ -240,7 +240,7 @@ class Pagination
         if (empty($clean_extraParams)) {
             $this->extraParamsString = '';
         } else {
-            $this->extraParamsString = \implode("&", $clean_extraParams);
+            $this->extraParamsString = \implode("&amp;", $clean_extraParams);
         }
     }
 

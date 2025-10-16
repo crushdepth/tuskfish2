@@ -45,11 +45,13 @@
   <figure class="float-end figure-right">
     <img class="image img-fluid" src="<?php echo $content->cachedImage(640); ?>"
       <?php if ($content->caption()): ?>
-        title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"/>
-      <figcaption><em><?php echo xss($content->caption()); ?></em></figcaption>
+        title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"
       <?php else: ?>
-        alt="" />
-      <?php endif; ?>
+        alt=""
+      <?php endif; ?>>
+    <?php if ($content->caption()): ?>
+      <figcaption><em><?php echo xss($content->caption()); ?></em></figcaption>
+    <?php endif; ?>
     </figure>
 </div>
 <?php endif; ?>
@@ -62,7 +64,14 @@
 <!-- Media attachment -->
 <?php if ($content->media()): ?>
 <div>
-  <p class="media"><b><a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>"><i title="<?php echo TFISH_DOWNLOAD; ?>" class="icon-download"></i> <?php echo xss($content->media()); ?></a></b></p>
+  <p class="media">
+    <strong>
+      <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>">
+        <i title="<?php echo TFISH_DOWNLOAD; ?>" class="icon-download"></i> 
+        <?php echo xss($content->media()); ?>
+      </a>
+    </strong>
+  </p>
 </div>
 <?php endif; ?>
 

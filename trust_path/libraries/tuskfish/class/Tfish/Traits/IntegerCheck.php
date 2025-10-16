@@ -31,38 +31,30 @@ trait IntegerCheck
     /**
      * Validate integer, optionally include range check.
      *
-     * @param int $int Input to be tested.
-     * @param int|null $min Minimum acceptable value.
-     * @param int|null $max Maximum acceptable value.
+     * @param mixed $int Input to be tested.
+     * @param mixed $min Minimum acceptable value.
+     * @param mixed $max Maximum acceptable value.
      * @return bool True if valid int and within optional range check, false otherwise.
      */
-    public function isInt(int $int, int|null $min = null, int|null $max = null): bool
+    public function isInt(mixed $int, mixed $min = null, mixed $max = null): bool
     {
-        $int = \is_int($int) ? $int : null;
-        $min = \is_int($min) ? $min : null;
-        $max = \is_int($max) ? $max : null;
-
-        // If input is not an integer, return false.
         if (!\is_int($int)) {
             return false;
         }
 
-        // Perform range check if both min and max are provided.
-        if (\is_int($min) && \is_int($max)) {
-            return $int >= $min && $int <= $max;
+        if ($min !== null && (!\is_int($min) || $int < $min)) {
+            return false;
         }
 
-        // Perform minimum value check if only min is provided.
-        if (\is_int($min)) {
-            return $int >= $min;
+        if ($max !== null && (!\is_int($max) || $int > $max)) {
+            return false;
         }
 
-        // Perform maximum value check if only max is provided.
-        if (\is_int($max)) {
-            return $int <= $max;
+        // Detect programmer error.
+        if (\is_int($min) && \is_int($max) && $min > $max) {
+            throw new \InvalidArgumentException('min must be <= max');
         }
 
-        // If neither min nor max is provided, return true.
         return true;
     }
 }

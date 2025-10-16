@@ -28,8 +28,8 @@ namespace Tfish\Model;
 
 class Sitemap
 {
-    private $database;
-    private $criteriaFactory;
+    private \Tfish\Database $database;
+    private \Tfish\CriteriaFactory $criteriaFactory;
 
     /**
      * Constructor

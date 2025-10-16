@@ -47,7 +47,7 @@ trait ValidateToken
         }
 
         // Invalid token - redirect to warning message and cease processing the request.
-        \header('location: ' . TFISH_URL . 'token/');
+        \header('location: ' . TFISH_URL . 'token/', true, 303);
         exit;
     }
 }

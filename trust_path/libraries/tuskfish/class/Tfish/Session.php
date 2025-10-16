@@ -25,6 +25,7 @@ namespace Tfish;
  * @since       1.0
  * @package     security
  * @uses        trait \Tfish\Traits\EmailCheck
+ * @uses        trait \Tfish\Traits\Group
  * @uses        trait \Tfish\Traits\UrlCheck
  * @uses        trait \Tfish\Traits\ValidateString
  * @var         \Tfish\Database $db Instance of the Tuskfish database class.
@@ -34,6 +35,7 @@ namespace Tfish;
 class Session
 {
     use Traits\EmailCheck;
+    use Traits\Group;
     use Traits\UrlCheck;
     use Traits\ValidateString;
 
@@ -74,7 +76,7 @@ class Session
      */
     public function getLoginLink(): string
     {
-        if ($this->isEditor()) {
+        if ($this->isLoggedIn()) {
             return '<a href="' . TFISH_URL . 'logout/">' . TFISH_LOGOUT . '</a>';
         } else {
             return '<a href="' . TFISH_URL . 'login/">' . TFISH_LOGIN . '</a>';
@@ -99,7 +101,7 @@ class Session
     }
 
     /**
-     * Shorthand editor privileges check (admin also qualifies)
+     * Shorthand editor privileges check (admin also qualifies).
      *
      * @return boolean
      */
@@ -115,19 +117,96 @@ class Session
     }
 
     /**
-     * Shorthand member privileges check (admin and editors also qualify)
+     * Shorthand check if the user is logged in.
      *
-     * @return boolean
+     * DO NOT USE FOR AUTH CHECKS, DOES NOT PROVIDE GROUP INFORMATION.
+     *
+     * @return boolean True if logged in (ID is set), otherwise false.
      */
-    public function isMember(): bool
+    public function isLoggedIn(): bool
     {
-        $privileges = $this->verifyPrivileges();
-
-        if (\in_array($privileges, [1, 2, 3], true)) {
-          return true;
+        if (!empty($_SESSION['id'])) {
+            return true;
         }
 
         return false;
+    }
+
+
+    /**
+     * Return the target URL path for redirection AFTER a successful authentication (user group) challenge.
+     *
+     * Allows a user to be redirected onwards to their destination after passing an authentication challenge.
+     * Note that the user must be a member of a group authorised to access the protected content.
+     *
+     * Convention: Use a relative URL (path and query string), not an absolute URL for portability.
+     * The TFISH_URL constant should be used on the receiving side to construct the full URL.
+     *
+     * @return string $next URL path.
+     */
+    public function nextUrl(): ?string
+    {
+        $next = $_SESSION['nextUrl'] ?? null;
+        unset($_SESSION['nextUrl']);
+
+        return $next;
+    }
+
+    /**
+     * Set the target URL for redirection pending a successful authentication (user group) challenge.
+     *
+     * Allows the intended destination to be stored for redirection when a user is subjected to
+     * an authorisation check, for example to access member-ony content.
+     *
+     * @param string $path URL path.
+     */
+    public function setNextUrl(string $path = '')
+    {
+        $_SESSION['nextUrl'] = $path;
+    }
+
+    /**
+     * Set title of a redirect screen.
+     *
+     * Single use only.
+     */
+    public function redirectTitle(): ?string
+    {
+        $title = $_SESSION['redirectTitle'] ?? null;
+        unset($_SESSION['redirectTitle']);
+
+        return $title;
+    }
+
+    /**
+     * Set a custom title for a redirection page.
+     *
+     * Use to provide context for login challenges, error messages, and confirmation screens.
+     */
+    public function setRedirectTitle(string $title = ''): void
+    {
+        $_SESSION['redirectTitle'] = $this->trimString($title);
+    }
+
+    /**
+     * Set a context message for a redirect screen.
+     */
+    public function redirectMessage(): ?string
+    {
+        $message = $_SESSION['redirectMessage'] ?? null;
+        unset($_SESSION['redirectMessage']);
+
+        return $message;
+    }
+
+    /**
+     * set a custom message for a redirection page.
+     *
+     * Use to provide context for login challenges, error messages, and confirmation screens.
+     */
+    public function setRedirectMessage(string $message = ''): void
+    {
+        $_SESSION['redirectMessage'] = $this->trimString($message);
     }
 
     /**
@@ -138,7 +217,7 @@ class Session
      *
      * @return int User group.
      */
-    private function verifyPrivileges(): int
+    public function verifyPrivileges(): int
     {
         if (empty($_SESSION['adminEmail'])) {
             return 0;
@@ -284,8 +363,7 @@ class Session
     private function _authenticateUser(array $user, string $dirtyPassword)
     {
         if (!\is_array($user)) {
-            \trigger_error(TFISH_ERROR_NOT_ARRAY_OR_EMPTY, E_USER_ERROR);
-            exit;
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY_OR_EMPTY);
         }
 
         // If the user has previous failed login atttempts sleep to frustrate brute force attacks.
@@ -307,11 +385,18 @@ class Session
             // Reset failed login counter to zero.
             $this->db->update('user', (int) $user['id'], ['loginErrors' => 0]);
 
-            // Send an admim notification email.
+            // Send an admin notification email.
             $this->notifyAdminLogin($user['adminEmail']);
 
-            // Redirect to admin page.
-            \header('Location: ' . TFISH_ADMIN_URL);
+            // Redirect onwards (if nextUrl() is set), or to group home page if not. Note that the
+            // redirect will still return a login page if privileges are not sufficient to access.
+            $next = $this->nextUrl();
+
+            if (!empty($next)) {
+                \header('Location: ' . TFISH_LINK . $next, true, 303);
+            } else {
+                \header('Location: ' . $this->groupHomes()[$user['userGroup']], true, 303);
+            }
             exit;
         } else {
             // Increment failed login counter, destroy session and redirect to the login page.
@@ -352,11 +437,9 @@ class Session
      */
     private function setLoginFlags(array $user)
     {
-        if ((int) $user['userGroup'] === 1 || (int) $user['userGroup'] === 2) {
-            $_SESSION['id'] = $user['id'];
-            $_SESSION['adminEmail'] = $user['adminEmail'];
-            $_SESSION['authHash'] = \hash('sha256', $user['passwordHash']);
-        }
+        $_SESSION['id'] = $user['id'];
+        $_SESSION['adminEmail'] = $user['adminEmail'];
+        $_SESSION['authHash'] = \hash('sha256', $user['passwordHash']);
     }
 
     /**
@@ -410,13 +493,11 @@ class Session
         // Destroy the session and redirect
         \session_destroy();
 
-        if ($cleanUrl) {
-            \header('Location: ' . $cleanUrl);
-            exit;
-        } else {
-            \header('Location: ' . TFISH_URL);
-            exit;
-        }
+        // No-store: avoid caching any personalized logout response
+        \header('Cache-Control: no-store', true);
+        $target = $cleanUrl ?: TFISH_URL;
+        \header('Location: ' . $target, true, 303);
+        exit;
     }
 
     /**
@@ -510,6 +591,7 @@ class Session
         // Force session to use cookies to prevent the session ID being passed in the URL.
         \ini_set('session.use_cookies', '1');
         \ini_set('session.use_only_cookies', '1');
+        \ini_set('session.use_trans_sid', '0');
 
         // Session name. If the preference has been messed up it will assign one.
         $sessionName = !empty($this->preference->sessionName()) ? $this->preference->sessionName() : 'tfish';
@@ -523,7 +605,8 @@ class Session
 
         // Cookie domain, for example www.php.net. To make cookies visible on all subdomains
         // (default) prefix with dot eg. '.php.net'
-        $domain = ltrim($_SERVER['SERVER_NAME'], 'www');
+        $host   = $_SERVER['SERVER_NAME'] ?? '';
+        $domain = \strncasecmp($host, 'www.', 4) === 0 ? \substr($host, 4) : $host;
 
         // If true the cookie will only be sent over secure connections.
         // Note: If using NGINX as reverse proxy and to terminate SSL, you should lock this to
@@ -572,7 +655,7 @@ class Session
      *
      * A random token is generated and stored in the current session (if not already set). The value
      * of this token is included as a hidden field in forms when they are loaded by the user. This
-     * allows forms to be validated via validateFormToken().
+     * allows forms to be validated via validateToken().
      */
     public function setToken()
     {

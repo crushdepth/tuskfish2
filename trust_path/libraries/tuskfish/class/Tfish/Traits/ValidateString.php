@@ -118,7 +118,7 @@ trait ValidateString
     /**
      * Cast to string, check UTF-8 encoding and strip trailing whitespace and control characters.
      *
-     * Removes trailing whitespace and control characters (ASCII <= 32 / UTF-8 points 0-32 inclusive),
+     * Removes whitespace and control characters (ASCII <= 32 / UTF-8 points 0-32 inclusive),
      * checks for UTF-8 character set and casts input to a string. Note that the data returned by
      * this function still requires escaping at the point of use; it is not database or XSS safe.
      *

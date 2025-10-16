@@ -24,7 +24,8 @@ namespace Tfish\Content\Model;
  * @version     Release: 2.0
  * @since       1.1
  * @package     content
- * @uses        trait \Tfish\Traits\Content\ContentTypes Provides definition of permitted content object types.
+ * @uses        trait \Tfish\Content\Traits\ContentTypes Provides definition of permitted content object types.
+ * @uses        trait \Tfish\Traits\Group Whitelist of user groups on the system.
  * @uses        trait \Tfish\Traits\HtmlPurifier Includes HTMLPurifier library.
  * @uses        trait \Tfish\Traits\Mimetypes Provides a list of common (permitted) mimetypes for file uploads.
  * @uses        trait \Tfish\Traits\Taglink Manage object-tag associations via taglinks.
@@ -42,6 +43,7 @@ namespace Tfish\Content\Model;
 class ContentEdit
 {
     use \Tfish\Content\Traits\ContentTypes;
+    use \Tfish\Traits\Group;
     use \Tfish\Traits\HtmlPurifier;
     use \Tfish\Traits\Mimetypes;
     use \Tfish\Traits\Taglink;
@@ -50,12 +52,12 @@ class ContentEdit
     use \Tfish\Traits\UrlCheck;
     use \Tfish\Traits\ValidateString;
 
-    private $database;
-    private $criteriaFactory;
-    private $preference;
-    private $cache;
-    private $htmlPurifier;
-    private $fileHandler;
+    private \Tfish\Database $database;
+    private \Tfish\CriteriaFactory $criteriaFactory;
+    private \Tfish\Entity\Preference $preference;
+    private \Tfish\Cache $cache;
+    private \HTMLPurifier $htmlPurifier;
+    private \Tfish\FileHandler $fileHandler;
 
     /**
      * Constructor.
@@ -167,7 +169,7 @@ class ContentEdit
         }
 
         // Check if delete flag was set.
-        if ($_POST['deleteImage'] === '1' && !empty($savedContent['image'])) {
+        if (($_POST['deleteImage'] ?? '0') === '1' && !empty($savedContent['image'])) {
             $content['image'] = '';
             $this->fileHandler->deleteFile('image/' . $savedContent['image']);
         }
@@ -178,7 +180,7 @@ class ContentEdit
                 $this->fileHandler->deleteFile('media/' . $savedContent['media']);
             }
 
-            if ($_POST['deleteMedia'] === '1' && !empty($savedContent['media'])) {
+            if (($_POST['deleteMedia'] ?? '0') === '1' && !empty($savedContent['media'])) {
                 $content['media'] = '';
                 $content['format'] = '';
                 $content['fileSize'] = 0;
@@ -247,8 +249,9 @@ class ContentEdit
      *
      * @param   array $content An array of the updated content object data as key value pairs.
      * @param   array $savedContent The old content object data as currently stored in database.
+     * @return void
      */
-    private function checkExCollection(array $content, array $savedContent)
+    private function checkExCollection(array $content, array $savedContent): void
     {
         if ($savedContent['type'] === 'TfCollection' && $content['type'] !== 'TfCollection') {
 
@@ -266,7 +269,7 @@ class ContentEdit
      *
      * @return  array Array of collections.
      */
-    public function collections()
+    public function collections(): array
     {
         $criteria = $this->criteriaFactory->criteria();
 
@@ -280,7 +283,7 @@ class ContentEdit
         $statement = $this->database->select('content', $criteria);
 
         if(!$statement) {
-            \trigger_error(TFISH_ERROR_NO_RESULT, E_USER_ERROR);
+            throw new \RuntimeException(TFISH_ERROR_NO_RESULT);
         }
 
         return $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Content\Entity\Content');
@@ -307,8 +310,9 @@ class ContentEdit
      * Move an uploaded image from temporary to permanent storage location.
      *
      * @param   array $content Content object as associative array.
+     * @return void
      */
-    private function uploadImage(array & $content)
+    private function uploadImage(array & $content): void
     {
         if (!empty($_FILES['content']['name']['image'])) {
             $filename = $this->trimString($_FILES['content']['name']['image']);
@@ -324,8 +328,9 @@ class ContentEdit
      * Move an uploaded media file from temporary to permanent storage location.
      *
      * @param   array $content Content object as associative array.
+     * @return void
      */
-    private function uploadMedia(array & $content)
+    private function uploadMedia(array & $content): void
     {
         if (!empty($_FILES['content']['name']['media'])) {
             $filename = $this->trimString($_FILES['content']['name']['media']);
@@ -354,7 +359,7 @@ class ContentEdit
         $type = $this->trimString($form['type'] ?? '');
 
         if (!\array_key_exists($type, $this->listTypes())) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_TYPE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_TYPE);
         }
 
         $clean['type'] = $type;
@@ -362,7 +367,7 @@ class ContentEdit
         $template = $this->trimString($form['template'] ?? '');
 
         if (!\in_array($template, $this->listTemplates()[$clean['type']])) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_TEMPLATE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_TEMPLATE);
         }
 
         $clean['template'] = $template;
@@ -371,6 +376,21 @@ class ContentEdit
         if ($id > 0) $clean['id'] = $id;
 
         $clean['title'] = $this->trimString($form['title'] ?? '');
+
+        /**
+         * accessGroups is a bitmask. Presently the form allows assignment of one group, but the
+         * bitmask can actually handle multiple groups *if* the select box is made a multi.
+         * This would require a change in validation below to handle an array instead of int.
+         */
+        $accessGroups = ((int) ($form['accessGroups'] ?? 0));
+        $whitelist = $this->groupsMask();
+
+        // accessGroups must only contain bits from the whitelist.
+        if (($accessGroups & ~$whitelist) !== 0) {
+            throw new \InvalidArgumentException(TFISH_ERROR_INVALID_GROUP);
+        }
+
+        $clean['accessGroups'] = $accessGroups;
 
         // Validate HTML fields.
         $teaser = $this->trimString($form['teaser'] ?? '');
@@ -394,7 +414,7 @@ class ContentEdit
         $format = $this->trimString($form['format'] ?? '');
 
         if (!empty($format) && !\in_array($format, $this->listMimetypes())) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_MIMETYPE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_MIMETYPE);
         }
 
         $clean['format'] = $format;
@@ -403,7 +423,7 @@ class ContentEdit
         $externalMedia = $this->trimString($form['externalMedia'] ?? '');
 
         if (!empty($externalMedia) && !$this->isUrl($externalMedia)) {
-            \trigger_error(TFISH_ERROR_NOT_URL, E_USER_ERROR);
+            (TFISH_ERROR_NOT_URL);
         }
 
         $clean['externalMedia'] = $externalMedia;
@@ -411,11 +431,17 @@ class ContentEdit
         $image = $this->trimString($form['image'] ?? '');
 
         if (!empty($image) && $this->hasTraversalorNullByte($image)) {
-            \trigger_error(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE, E_USER_ERROR);
+            throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
 
-        if (!empty($image) && !\in_array($image, $this->listImageMimetypes())) {
-            \trigger_error(TFISH_ERROR_ILLEGAL_MIMETYPE, E_USER_ERROR);
+        if (!empty($image)) {
+            $extension = \strtolower(\pathinfo($image, PATHINFO_EXTENSION));
+            if ($extension !== '') {
+                $mtype = $this->listMimetypes();
+                if (!isset($mtype[$extension]) || !\str_starts_with($mtype[$extension], 'image/')) {
+                    throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_MIMETYPE);
+                }
+            }
         }
 
         $clean['image'] = $image;
