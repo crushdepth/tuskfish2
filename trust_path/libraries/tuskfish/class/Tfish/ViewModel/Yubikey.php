@@ -27,6 +27,7 @@ namespace Tfish\ViewModel;
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\Interface\Viewable interface.
  * @var         object $model Classname of the model used to display this page.
+ * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  */
 
 class Yubikey implements \Tfish\Interface\Viewable
@@ -41,12 +42,12 @@ class Yubikey implements \Tfish\Interface\Viewable
      *
      * @param   object $model Instance of a model class.
      */
-    public function __construct(object $model)
+    public function __construct(object $model, \Tfish\Entity\Preference $preference)
     {
         $this->pageTitle = TFISH_LOGIN;
         $this->model = $model;
         $this->template = 'yubikey';
-        $this->theme = 'signin';
+        $this->theme = $preference->defaultTheme();
         $this->setMetadata(['robots' => 'noindex,nofollow']);
     }
 
