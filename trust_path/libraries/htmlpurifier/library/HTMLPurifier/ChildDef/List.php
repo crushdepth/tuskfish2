@@ -15,13 +15,14 @@ class HTMLPurifier_ChildDef_List extends HTMLPurifier_ChildDef
      * @type string
      */
     public $type = 'list';
-    public $whitespace;
     /**
      * @type array
      */
     // lying a little bit, so that we can handle ul and ol ourselves
     // XXX: This whole business with 'wrap' is all a bit unsatisfactory
     public $elements = array('li' => true, 'ul' => true, 'ol' => true);
+
+    public $whitespace;
 
     /**
      * @param array $children
