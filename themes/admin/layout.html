@@ -141,7 +141,8 @@
             <div class="col">
               <hr>
               <footer class="clearfix">
-                <p class="copyright">Copyright &copy; <?php echo xss($metadata->author) . ' ' . \date('Y'); ?> | <?php echo $session->getLoginLink(); ?></p>
+                <?php include TFISH_PATH . 'version.php'; ?>
+                <p class="copyright">Copyright &copy; <?php echo xss($metadata->author) . ' ' . \date('Y'); ?> | <?php echo ' ' . xss($version) . ' | ' ?? ''; ?> <?php echo $session->getLoginLink(); ?></p>
               </footer>
             </div>
           </div>
