@@ -104,17 +104,17 @@
         <td class="text-center">
           <a class="text-success" hx-post="<?php echo TFISH_ADMIN_URL; ?>?action=toggle" target="closest td"
             hx-vals='{"id": "<?php echo xss($content->id()); ?>", "status": "1"}' hx-swap="outerHTML">
-            <i class="fas fa-check"></i></a>
-          </td>
+            <i class="icon-check"></i></a>
+        </td>
         <?php else: ?>
         <td class="text-center">
           <a class="text-danger" hx-post="<?php echo TFISH_ADMIN_URL; ?>?action=toggle" target="closest td"
             hx-vals='{"id": "<?php echo xss($content->id()); ?>", "status": "0"}' hx-swap="outerHTML">
-            <i class="fas fa-times"></i></a>
+            <i class="icon-xmark"></i></a>
         </td>
         <?php endif; ?>
-        <td class="text-center"><a href="<?php echo TFISH_ADMIN_URL . 'content/'; ?>?action=edit&amp;id=<?php echo xss($content->id()); ?>"><i class="fas fa-edit"></i></a></td>
-        <td class="text-center"><a href="<?php echo TFISH_ADMIN_URL; ?>?action=confirmDelete&amp;id=<?php echo xss($content->id()); ?>"><i class="fas fa-trash-alt"></i></a></td>
+        <td class="text-center"><a href="<?php echo TFISH_ADMIN_URL . 'content/'; ?>?action=edit&amp;id=<?php echo xss($content->id()); ?>"><i class="icon-pen-to-square"></i></a></td>
+        <td class="text-center"><a href="<?php echo TFISH_ADMIN_URL; ?>?action=confirmDelete&amp;id=<?php echo xss($content->id()); ?>"><i class="icon-trash-can"></i></a></td>
       </tr>
     <?php endforeach; unset($content); ?>
     </tbody>
