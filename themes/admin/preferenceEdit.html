@@ -48,13 +48,11 @@
     <!-- Close site -->
     <div class="col-sm-12 col-md-4 mb-3 text-start">
       <p><strong><?php echo TFISH_PREFERENCE_CLOSE_SITE; ?></strong></p>
-      <div class="form-check form-check-inline">
-        <input type="radio" class="form-check-input" id="closed" name="preference[closeSite]" value="1" <?php if ($preference->closeSite()) { echo 'checked'; } ?> required>
-        <label class="form-check-label" for="closed"><?php echo TFISH_YES; ?></label>
-      </div>
-      <div class="form-check form-check-inline">
-        <input type="radio" class="form-check-input" id="open" name="preference[closeSite]" value="0" <?php if (!$preference->closeSite()) { echo 'checked'; } ?>>
-        <label class="form-check-label" for="open"><?php echo TFISH_NO; ?></label>
+
+      <input type="hidden" name="preference[closeSite]" value="0">
+      <div class="form-check form-switch d-inline-flex align-items-center gap-2 m-0">
+        <input id="closeSite" class="form-check-input" type="checkbox" role="switch" name="preference[closeSite]" value="1" <?php echo $preference->closeSite() ? 'checked' : ''; ?>>
+        <label class="form-check-label m-0" for="" data-off="<?php echo TFISH_NO; ?>" data-on="<?php echo TFISH_YES; ?>"></label>
       </div>
     </div>
 
@@ -183,13 +181,10 @@
     <!-- Enable cache -->
     <div class="col-md-6 col-lg-4 mb-3 text-start">
       <p><strong><?php echo TFISH_PREFERENCE_ENABLE_CACHE; ?></strong></p>
-      <div class="form-check form-check-inline">
-          <input type="radio" class="form-check-input" id="enabled" name="preference[enableCache]" value="1" <?php if ($preference->enableCache()) { echo 'checked'; } ?> required>
-        <label class="form-check-label" for="enabled"><?php echo TFISH_YES; ?></label>
-      </div>
-      <div class="form-check form-check-inline">
-          <input type="radio" class="form-check-input" id="disabled" name="preference[enableCache]" value="0" <?php if (!$preference->enableCache()) { echo 'checked'; } ?>>
-        <label class="form-check-label" for="disabled"><?php echo TFISH_NO; ?></label>
+      <input type="hidden" name="preference[enableCache]" value="0">
+      <div class="form-check form-switch d-inline-flex align-items-center gap-2 m-0">
+        <input id="enableCache" class="form-check-input" type="checkbox" role="switch" name="preference[enableCache]" value="1" <?php echo $preference->enableCache() ? 'checked' : ''; ?>>
+        <label class="form-check-label m-0" for="" data-off="<?php echo TFISH_NO; ?>" data-on="<?php echo TFISH_YES; ?>"></label>
       </div>
     </div>
 

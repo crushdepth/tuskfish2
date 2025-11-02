@@ -160,3 +160,22 @@ figcaption {
     height:0;
     margin-bottom: 1em;
 }
+
+/* Colours for toggle switches */
+#enableCache + .form-check-label::after { content: attr(data-off); }
+#enableCache:checked + .form-check-label::after { content: attr(data-on);}
+#enableCache {
+    background-color: var(--bs-danger);
+    border-color: #000;
+    --bs-form-switch-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='%23ffffff'/></svg>");
+}
+#enableCache:checked {background-color: var(--bs-success); border-color: #000;}
+
+#closeSite + .form-check-label::after { content: attr(data-off); }
+#closeSite:checked + .form-check-label::after { content: attr(data-on); }
+#closeSite {
+    background-color: var(--bs-success);
+    border-color: #000;
+    --bs-form-switch-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='%23ffffff'/></svg>");
+}
+#closeSite:checked {background-color: var(--bs-danger);border-color: #000;}
