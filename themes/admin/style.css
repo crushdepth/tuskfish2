@@ -162,14 +162,31 @@ figcaption {
 }
 
 /* Colours for toggle switches */
-#enableCache + .form-check-label::after { content: attr(data-off); }
-#enableCache:checked + .form-check-label::after { content: attr(data-on);}
-#enableCache {
-    background-color: var(--bs-danger);
-    border-color: #000;
-    --bs-form-switch-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='%23ffffff'/></svg>");
+/* On/Off text */
+#enableCache + .form-check-label::after,
+#inFeed + .form-check-label::after,
+#onlineStatus + .form-check-label::after { content: attr(data-off); }
+
+#enableCache:checked + .form-check-label::after,
+#inFeed:checked + .form-check-label::after,
+#onlineStatus:checked + .form-check-label::after { content: attr(data-on); }
+
+/* Track + border + white knob (both inputs share the same rules) */
+#enableCache,
+#inFeed,
+#onlineStatus {
+  background-color: var(--bs-danger);
+  border-color: #000;
+  --bs-form-switch-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='%23ffffff'/></svg>");
 }
-#enableCache:checked {background-color: var(--bs-success); border-color: #000;}
+
+#enableCache:checked,
+#inFeed:checked,
+#onlineStatus:checked {
+  background-color: var(--bs-success);
+  border-color: #000;
+  --bs-form-switch-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='%23ffffff'/></svg>");
+}
 
 #closeSite + .form-check-label::after { content: attr(data-off); }
 #closeSite:checked + .form-check-label::after { content: attr(data-on); }

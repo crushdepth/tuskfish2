@@ -40,7 +40,7 @@
         </div>
 
         <div class="col-md-4">
-          <select class="form-select" name="onlineStatus" id="onlineStatus" onchange="this.form.submit()">
+          <select class="form-select" name="onlineStatus" id="onlineStatusSelect" onchange="this.form.submit()">
           <?php
             foreach ($viewModel->statusOptions() as $key => $value) {
               echo ($key === $viewModel->onlineStatus()) ?

@@ -308,30 +308,24 @@
         </select>
       </div>
 
-      <!-- inFeed status -->
-      <div class="col-md-3 mb-3 text-start" id="inFeedContainer">
+      <!-- In feed -->
+      <div class="col-md-2 mb-3 text-start" id="inFeedContainer">
         <p><strong><?php echo TFISH_IN_FEED; ?></strong></p>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" id="inFeed" name="content[inFeed]" value="1" <?php if ($content->inFeed()) { echo 'checked="checked"'; } ?> checked>
-            <label class="form-check-label text-success" for="inFeed"><?php echo TFISH_YES; ?></label>
-          </div>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" id="notInFeed" name="content[inFeed]" value="0" <?php if (!$content->inFeed()) { echo 'checked="checked"'; } ?> required>
-            <label class="form-check-label text-danger" for="notInFeed"><?php echo TFISH_NO; ?></label>
-          </div>
+        <input type="hidden" name="content[inFeed]" value="0">
+        <div class="form-check form-switch d-inline-flex align-items-center gap-2 m-0">
+          <input id="inFeed" class="form-check-input" type="checkbox" role="switch" name="content[inFeed]" value="1" <?php echo $content->inFeed() == 1 ? 'checked' : ''; ?>>
+          <label class="form-check-label m-0" for="inFeed" data-off="<?php echo TFISH_NO; ?>" data-on="<?php echo TFISH_YES; ?>"></label>
+        </div>
       </div>
 
       <!-- Online status -->
-      <div class="col-md-3 mb-3 text-start" id="onlineContainer">
+      <div class="col-md-2 mb-3 text-start" id="onlineContainer">
         <p><strong><?php echo TFISH_ONLINE_STATUS; ?></strong></p>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" id="online" name="content[onlineStatus]" value="1" <?php if ($content->onlineStatus()) { echo 'checked="checked"'; } ?> checked>
-            <label class="form-check-label text-success" for="online"><?php echo TFISH_ONLINE; ?></label>
-          </div>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" id="offline" name="content[onlineStatus]" value="0" <?php if (!$content->onlineStatus()) { echo 'checked="checked"'; } ?> required>
-            <label class="form-check-label text-danger" for="offline"><?php echo TFISH_OFFLINE; ?></label>
-          </div>
+        <input type="hidden" name="content[onlineStatus]" value="0">
+        <div class="form-check form-switch d-inline-flex align-items-center gap-2 m-0">
+          <input id="onlineStatus" class="form-check-input" type="checkbox" role="switch" name="content[onlineStatus]" value="1" <?php echo $content->onlineStatus() == 1 ? 'checked' : ''; ?>>
+          <label class="form-check-label m-0" for="onlineStatus" data-off="<?php echo TFISH_OFFLINE; ?>" data-on="<?php echo TFISH_ONLINE; ?>"></label>
+        </div>
       </div>
 
       <!-- Counter -->
