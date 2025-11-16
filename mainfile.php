@@ -20,6 +20,7 @@ declare(strict_types=1);
  * TFISH_ROOT_PATH is the file path to your web root, eg: /home/youraccount/public_html/
  * TFISH_TRUST_PATH is the file path to your trust_path directory eg.: /home/youraccount/trust_path/
  * TFISH_URL is simply your domain with a trailing slash, eg: https://yourdomain.com/
+ * Docker containers: The root/trust paths must reflect their location in the container, not the host!
  *
  * When done, you MUST set the access permissions for this file (CHMOD) to 0400.
  */
