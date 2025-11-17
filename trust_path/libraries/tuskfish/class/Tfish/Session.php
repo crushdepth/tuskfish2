@@ -609,7 +609,7 @@ class Session
         $domain = \strncasecmp($host, 'www.', 4) === 0 ? \substr($host, 4) : $host;
 
         // If true the cookie will only be sent over secure connections.
-        // Note: If using NGINX as reverse proxy and to terminate SSL, you should lock this to
+        // Note: If using NGINX as reverse proxy or Cloudflare tunnel to terminate SSL, you should lock this to
         // true (use the commented out line as an alternative).
         $secure = isset($_SERVER['HTTPS']);
         // $secure = true;
