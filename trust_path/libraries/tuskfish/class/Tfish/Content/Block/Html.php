@@ -103,7 +103,7 @@ class Html implements \Tfish\Interface\Block
         }
 
         \ob_start();
-        $filepath;
+        include $filepath;
         $this->html = \ob_get_clean();
     }
 
