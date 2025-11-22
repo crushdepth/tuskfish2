@@ -70,9 +70,9 @@ class Rss
 
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
-        $criteria->add($this->criteriaFactory->item('inFeed', 1));
-        // $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
-        // $criteria->add($this->criteriaFactory->item('type', 'TfTag', '!='));
+        // $criteria->add($this->criteriaFactory->item('inFeed', 1));
+        $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
+        $criteria->add($this->criteriaFactory->item('type', 'TfTag', '!='));
         $statement = $this->database->select('content', $criteria, ['title', 'description']);
 
         return $statement->fetch(\PDO::FETCH_ASSOC);
