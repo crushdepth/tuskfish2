@@ -121,8 +121,8 @@ trait TagRead
             . "FROM `taglink` "
             . "INNER JOIN `{$table}` AS `tag` ON `taglink`.`tagId` = `tag`.`id` "
             . "WHERE `taglink`.`contentId` = :id "
-                . "AND `taglink`.`module` = :module "
-                . "AND `tag`.`onlineStatus` = 1";
+                . "AND `taglink`.`module` = :module ";
+            //  . "AND `tag`.`onlineStatus` = 1";
 
         // Bind values
         $statement = $this->database->preparedStatement($sql);
