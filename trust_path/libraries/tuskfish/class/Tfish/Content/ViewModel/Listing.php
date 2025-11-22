@@ -366,9 +366,9 @@ class Listing implements \Tfish\Interface\Listable
     /**
      * Return content object.
      *
-     * @return  \Tfish\Content\Entity\Content
+     * @return  string|\Tfish\Content\Entity\Content
      */
-    public function content(): ?\Tfish\Content\Entity\Content
+    public function content(): string:\Tfish\Content\Entity\Content
     {
         return $this->content;
     }
