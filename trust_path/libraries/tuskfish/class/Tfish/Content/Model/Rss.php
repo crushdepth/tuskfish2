@@ -60,9 +60,9 @@ class Rss
      * Customise RSS feed title and description for a specific tag or collection.
      *
      * @param   int $id ID of a target tag or collection object.
-     * @return array Array containing title and description of custom feed.
+     * @return arrayl|bool Array containing title and description of custom feed or false if no result.
      */
-    public function customFeed(int $id): array
+    public function customFeed(int $id): array|bool
     {
         if ($id < 1) {
             throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
