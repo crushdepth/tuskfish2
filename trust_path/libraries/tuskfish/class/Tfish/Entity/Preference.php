@@ -674,7 +674,7 @@ class Preference
     public function setSessionLife(int $value): void
     {
         if ($value < 0) {
-            (TFISH_ERROR_NOT_INT);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
         $this->sessionLife = $value;
