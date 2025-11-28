@@ -42,7 +42,7 @@ trait ValidateToken
         $cleanToken = $this->trimString($token);
 
         // Valid token.
-        if (!empty($_SESSION['token']) && $_SESSION['token'] === $cleanToken) {
+        if (!empty($_SESSION['token']) && \hash_equals($_SESSION['token'], $cleanToken)) {
             return true;
         }
 
