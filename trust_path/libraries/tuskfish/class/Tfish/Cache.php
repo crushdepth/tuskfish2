@@ -164,13 +164,10 @@ class Cache
             return;
         }
 
-        // Atomic write to prevent torn cache files.
-        $tmp = $canonical . '.tmp';
-
-        if (@\file_put_contents($tmp, $buffer, LOCK_EX) !== false) {
-            @\rename($tmp, $canonical);
-        } else {
-            @\unlink($tmp);
+        // Write the page to the cache.
+        if (false !== ($f = @\fopen($canonical, 'w'))) {
+            \fwrite($f, $buffer);
+            \fclose($f);
         }
     }
 
