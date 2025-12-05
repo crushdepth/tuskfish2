@@ -52,10 +52,7 @@
         alt="<?php echo xss($content->title()); ?>">
       <?php endif; ?>
     </a>
-  </div>>
-  <?php if ($i % 2 === 0): ?><div class="clearfix d-none d-sm-block d-md-none"></div><?php endif; ?>
-  <?php if ($i % 3 === 0): ?><div class="clearfix d-none d-md-block d-lg-none"></div><?php endif; ?>
-  <?php if ($i % 4 === 0): ?><div class="clearfix d-none d-sm-block d-md-none d-lg-block d-xl-none"></div><?php endif; ?>
+  </div>
 
 <?php $i++; endforeach; ?>
 </div>
