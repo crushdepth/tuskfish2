@@ -180,16 +180,21 @@ class Cache
     private function _getCachedFileName(array $params)
     {
         $fileName = $this->path;
+        $isFirstParam = true;
 
         if (!empty($params)) {
 
             foreach ($params as $key => $value) {
+
                 if ($value) {
                     $cleanKey = $this->trimString($key);
                     $cleanValue = $this->trimString($value);
+
                     if ($this->isAlnumUnderscore($cleanKey)
                             && $this->isAlnumUnderscore($cleanValue)) {
-                        $fileName .= '&' . $cleanKey . '=' . $cleanValue;
+                        $separator = $isFirstParam ? '' : '&';
+                        $fileName .= $separator . $cleanKey . '=' . $cleanValue;
+                        $isFirstParam = false;
                     }
                 }
 
