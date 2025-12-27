@@ -78,8 +78,8 @@ class WebAuthnCredential
         $credentialName = $this->trimString($credentialName);
 
         // Validate credential name length (prevent database bloat and potential XSS)
-        if (\mb_strlen($credentialName) > 255) {
-            $credentialName = \mb_substr($credentialName, 0, 255);
+        if (\mb_strlen($credentialName, 'UTF-8') > 255) {
+            $credentialName = \mb_substr($credentialName, 0, 255, 'UTF-8');
         }
 
         if (!$this->validateCredentialId($credentialId) || !$this->validatePublicKey($publicKey)) {
