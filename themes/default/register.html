@@ -5,28 +5,28 @@
   <div class="row">
     <div class="col text-center">
       <h1><?php echo xss($viewModel->pageTitle()); ?></h1>
-      <p>Manage your passkeys and security keys for secure authentication.</p>
+      <p><?php echo TFISH_WEBAUTHN_MANAGE_CREDENTIALS; ?></p>
     </div>
   </div>
 
   <!-- Register new credential -->
   <div class="row justify-content-center my-4">
-    <div class="col-md-6">
+    <div class="col-md-8">
       <div class="card">
         <div class="card-header">
-          <h5>Register New Passkey or Security Key</h5>
+          <h5><?php echo TFISH_WEBAUTHN_REGISTER_NEW; ?></h5>
         </div>
         <div class="card-body">
           <form id="registerForm">
             <div class="mb-3">
-              <label for="credentialName" class="form-label">Name (optional)</label>
+              <label for="credentialName" class="form-label"><?php echo TFISH_WEBAUTHN_NAME_LABEL; ?></label>
               <input type="text" class="form-control" id="credentialName"
-                     placeholder="e.g., Yubikey 5C, TouchID, Windows Hello">
-              <small class="form-text text-muted">Give this credential a friendly name to identify it later.</small>
+                     placeholder="<?php echo TFISH_WEBAUTHN_NAME_PLACEHOLDER; ?>">
+              <small class="form-text text-muted"><?php echo TFISH_WEBAUTHN_NAME_HELP; ?></small>
             </div>
             <input type="hidden" id="registerToken" value="<?php echo xss($_SESSION['token']); ?>">
             <button type="button" id="registerButton" class="btn btn-primary">
-              <i class="icon-key"></i> Register Passkey/Security Key
+              <i class="icon-key"></i> <?php echo TFISH_WEBAUTHN_REGISTER_BUTTON; ?>
             </button>
           </form>
           <div id="registerStatus" class="mt-3"></div>
@@ -38,32 +38,32 @@
   <!-- List existing credentials -->
   <?php if ($viewModel->hasCredentials()): ?>
   <div class="row justify-content-center my-4">
-    <div class="col-md-6">
+    <div class="col-md-8">
       <div class="card">
         <div class="card-header">
-          <h5>Your Registered Credentials</h5>
+          <h5><?php echo TFISH_WEBAUTHN_YOUR_CREDENTIALS; ?></h5>
         </div>
         <div class="card-body">
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Created</th>
-                  <th>Last Used</th>
-                  <th>Action</th>
+                  <th><?php echo TFISH_WEBAUTHN_TABLE_NAME; ?></th>
+                  <th><?php echo TFISH_WEBAUTHN_TABLE_CREATED; ?></th>
+                  <th><?php echo TFISH_WEBAUTHN_TABLE_LAST_USED; ?></th>
+                  <th><?php echo TFISH_WEBAUTHN_TABLE_ACTION; ?></th>
                 </tr>
               </thead>
               <tbody>
                 <?php foreach ($viewModel->credentials() as $credential): ?>
                 <tr>
-                  <td><?php echo xss($credential['credentialName'] ?: 'Unnamed'); ?></td>
+                  <td><?php echo xss($credential['credentialName'] ?: TFISH_WEBAUTHN_UNNAMED); ?></td>
                   <td><?php echo xss(date('Y-m-d', (int)$credential['createdAt'])); ?></td>
                   <td>
                     <?php
                       echo $credential['lastUsed']
                         ? xss(date('Y-m-d', (int)$credential['lastUsed']))
-                        : 'Never';
+                        : TFISH_WEBAUTHN_NEVER_USED;
                     ?>
                   </td>
                   <td>
@@ -71,8 +71,8 @@
                       <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>">
                       <input type="hidden" name="id" value="<?php echo (int)$credential['id']; ?>">
                       <button type="submit" class="btn btn-sm btn-danger"
-                              onclick="return confirm('Are you sure you want to revoke this credential?');">
-                        <i class="icon-xmark"></i> Revoke
+                              onclick="return confirm('<?php echo xss(TFISH_WEBAUTHN_REVOKE_CONFIRM); ?>');">
+                        <i class="icon-xmark"></i> <?php echo TFISH_WEBAUTHN_REVOKE; ?>
                       </button>
                     </form>
                   </td>
@@ -87,9 +87,9 @@
   </div>
   <?php else: ?>
   <div class="row justify-content-center">
-    <div class="col-md-6">
+    <div class="col-md-8">
       <div class="alert alert-info">
-        <strong>No credentials registered.</strong> Register your first passkey or security key above.
+        <strong><?php echo TFISH_WEBAUTHN_NO_CREDENTIALS; ?></strong> <?php echo TFISH_WEBAUTHN_REGISTER_FIRST; ?>
       </div>
     </div>
   </div>
@@ -158,7 +158,14 @@ document.getElementById('registerButton').addEventListener('click', async functi
     setTimeout(() => location.reload(), 1500);
 
   } catch (error) {
-    statusDiv.innerHTML = '<div class="alert alert-danger"><strong>Error:</strong> ' + error.message + '</div>';
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-danger';
+    const strong = document.createElement('strong');
+    strong.textContent = 'Error: ';
+    alertDiv.appendChild(strong);
+    alertDiv.appendChild(document.createTextNode(error.message));
+    statusDiv.innerHTML = '';
+    statusDiv.appendChild(alertDiv);
   }
 });
 

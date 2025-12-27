@@ -332,3 +332,24 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
         . "content type. Inline media players will not display.");
 \define("TFISH_ERROR_PARENT_UPDATE_FAILED", "Attempt to update references to a non-extant collection"
         . " failed.");
+
+// WebAuthn
+\define("TFISH_WEBAUTHN_TWO_FACTOR_REQUIRED", "Two-Factor Authentication Required");
+\define("TFISH_WEBAUTHN_AUTHENTICATE_PROMPT", "Please authenticate with your passkey or security key.");
+\define("TFISH_WEBAUTHN_MANAGE_CREDENTIALS", "Manage your passkeys and security keys for secure authentication.");
+\define("TFISH_WEBAUTHN_REGISTER_NEW", "Register New Passkey or Security Key");
+\define("TFISH_WEBAUTHN_NAME_LABEL", "Name (optional)");
+\define("TFISH_WEBAUTHN_NAME_PLACEHOLDER", "e.g., Yubikey 5C, TouchID, Windows Hello");
+\define("TFISH_WEBAUTHN_NAME_HELP", "Give this credential a friendly name to identify it later.");
+\define("TFISH_WEBAUTHN_REGISTER_BUTTON", "Register Passkey/Security Key");
+\define("TFISH_WEBAUTHN_YOUR_CREDENTIALS", "Your Registered Credentials");
+\define("TFISH_WEBAUTHN_TABLE_NAME", "Name");
+\define("TFISH_WEBAUTHN_TABLE_CREATED", "Created");
+\define("TFISH_WEBAUTHN_TABLE_LAST_USED", "Last Used");
+\define("TFISH_WEBAUTHN_TABLE_ACTION", "Action");
+\define("TFISH_WEBAUTHN_UNNAMED", "Unnamed");
+\define("TFISH_WEBAUTHN_NEVER_USED", "Never");
+\define("TFISH_WEBAUTHN_REVOKE", "Revoke");
+\define("TFISH_WEBAUTHN_REVOKE_CONFIRM", "Are you sure you want to revoke this credential?");
+\define("TFISH_WEBAUTHN_NO_CREDENTIALS", "No credentials registered.");
+\define("TFISH_WEBAUTHN_REGISTER_FIRST", "Register your first passkey or security key above.");

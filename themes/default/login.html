@@ -65,8 +65,8 @@
 
       <div id="webauthn-prompt" style="display: none;" class="mt-4">
         <div class="alert alert-info">
-          <strong>Two-Factor Authentication Required</strong>
-          <p>Please authenticate with your passkey or security key.</p>
+          <strong><?php echo TFISH_WEBAUTHN_TWO_FACTOR_REQUIRED; ?></strong>
+          <p><?php echo TFISH_WEBAUTHN_AUTHENTICATE_PROMPT; ?></p>
         </div>
         <div id="webauthn-status"></div>
       </div>
@@ -157,7 +157,14 @@ document.querySelector('form').addEventListener('submit', async function(e) {
     }
   } catch (error) {
     if (statusDiv) {
-      statusDiv.innerHTML = '<div class="alert alert-danger"><strong>Error:</strong> ' + error.message + '</div>';
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-danger';
+      const strong = document.createElement('strong');
+      strong.textContent = 'Error: ';
+      alertDiv.appendChild(strong);
+      alertDiv.appendChild(document.createTextNode(error.message));
+      statusDiv.innerHTML = '';
+      statusDiv.appendChild(alertDiv);
     } else {
       alert('Error: ' + error.message);
     }

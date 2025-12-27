@@ -41,7 +41,21 @@
 
       </form>
 
+      <div id="webauthn-prompt" style="display: none;" class="mt-4">
+        <div class="alert alert-info">
+          <strong><?php echo TFISH_WEBAUTHN_TWO_FACTOR_REQUIRED; ?></strong>
+          <p><?php echo TFISH_WEBAUTHN_AUTHENTICATE_PROMPT; ?></p>
+        </div>
+        <div id="webauthn-status"></div>
+      </div>
+
     </div> <!-- /.col -->
   </div> <!-- /.row -->
 
 </div> <!-- /.container -->
+
+<script>
+// Define TFISH_URL for JavaScript
+const TFISH_URL = '<?php echo TFISH_URL; ?>';
+</script>
+<script src="<?php echo TFISH_URL; ?>vendor/tuskfish/webauthn-login.js?v=<?php echo time(); ?>"></script>

@@ -169,14 +169,22 @@ class WebAuthnService
         ?int $prevSignatureCount = null
     ): bool
     {
+        // Decode base64-encoded data from browser
+        $clientDataDecoded = \base64_decode($clientDataJSON);
+        $authenticatorDataDecoded = \base64_decode($authenticatorData);
+        $signatureDecoded = \base64_decode($signature);
+
+        // Decode public key from database (stored as base64-encoded PEM string)
+        // Library expects PEM string, not binary
+        $publicKeyPem = \base64_decode($credentialPublicKey);
+
         $challengeBuffer = new \lbuchs\WebAuthn\Binary\ByteBuffer($challenge);
-        $publicKeyBuffer = new \lbuchs\WebAuthn\Binary\ByteBuffer($credentialPublicKey);
 
         return $this->webAuthn->processGet(
-            $clientDataJSON,
-            $authenticatorData,
-            $signature,
-            $publicKeyBuffer,
+            $clientDataDecoded,
+            $authenticatorDataDecoded,
+            $signatureDecoded,
+            $publicKeyPem,  // Pass PEM string directly, not ByteBuffer
             $challengeBuffer,
             $prevSignatureCount,
             false,  // requireUserVerification: false (generic support)

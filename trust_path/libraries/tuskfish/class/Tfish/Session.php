@@ -152,7 +152,6 @@ class Session
         return $_SESSION['adminEmail'] ?? null;
     }
 
-
     /**
      * Return the target URL path for redirection AFTER a successful authentication (user group) challenge.
      *
@@ -330,39 +329,41 @@ class Session
      * @param string $email Input email.
      * @param string $password Input password.
      */
-    public function login(string $email, string $password)
+    public function login(string $email, string $password): array
     {
         // Check email and password have been supplied
         if (empty($email) || empty($password)) {
             // Issue incomplete form warning and redirect to the login page.
             $this->logout(TFISH_URL . "login/");
-        } else {
-            // Validate the admin email (which functions as the username in Tuskfish CMS)
-            $cleanEmail = $this->trimString($email);
-
-            if ($this->isEmail($cleanEmail)) {
-                $this->_login($cleanEmail, $password);
-            } else {
-                // Issue warning - email should follow email format
-                $this->logout(TFISH_URL . "login/");
-            }
+            return [];
         }
+
+        // Validate the admin email (which functions as the username in Tuskfish CMS)
+        $cleanEmail = $this->trimString($email);
+
+        if ($this->isEmail($cleanEmail)) {
+            return $this->_login($cleanEmail, $password);
+        }
+
+        // Issue warning - email should follow email format
+        $this->logout(TFISH_URL . "login/");
+        return [];
     }
 
     /** @internal */
-    private function _login(string $cleanEmail, string $dirtyPassword)
+    private function _login(string $cleanEmail, string $dirtyPassword): array
     {
         // Query the database for a matching user.
         $user = $this->_getUser($cleanEmail);
 
         // Authenticate user by calculating their password hash and comparing it to the one on file.
         if ($user) {
-            $this->_authenticateUser($user, $dirtyPassword);
-        } else {
-            // Redirect to login page.
-            $this->logout(TFISH_URL . "login/");
-            exit;
+            return $this->_authenticateUser($user, $dirtyPassword);
         }
+
+        // Redirect to login page.
+        $this->logout(TFISH_URL . "login/");
+        exit;
     }
 
     /** @internal */
@@ -380,7 +381,7 @@ class Session
     }
 
     /** @internal */
-    private function _authenticateUser(array $user, string $dirtyPassword)
+    private function _authenticateUser(array $user, string $dirtyPassword): array
     {
         if (!\is_array($user)) {
             throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY_OR_EMPTY);
@@ -399,6 +400,25 @@ class Session
 
         // If login successful regenerate session due to privilege escalation.
         if (\password_verify($dirtyPassword, $user['passwordHash'])) {
+            // Check if second factor authentication is required
+            $webauthnLogin = new \Tfish\Model\WebAuthnLogin($this->db);
+            $secondFactorType = $webauthnLogin->requiresSecondFactor((int)$user['id']);
+
+            if ($secondFactorType === 'webauthn') {
+                // Store pending user ID for WebAuthn verification
+                $challengeModel = new \Tfish\Model\WebAuthnChallenge();
+                $challengeModel->storePendingUserId((int)$user['id']);
+                return ['webauthn_required' => true];
+            }
+
+            if ($secondFactorType === 'otp') {
+                // User requires Yubikey OTP - fail closed (deny access)
+                // OTP users should use the alternative /login/ route configured for Yubikey
+                $this->logout(TFISH_URL . "login/");
+                exit;
+            }
+
+            // No second factor required - complete login
             $this->regenerate();
             $this->setLoginFlags($user);
 
@@ -561,6 +581,119 @@ class Session
     }
 
     /**
+     * Get WebAuthn authentication options for pending login.
+     *
+     * @return  object|null Authentication options or null on failure.
+     */
+    public function getWebAuthnAuthenticationOptions(): ?object
+    {
+        $challengeModel = new \Tfish\Model\WebAuthnChallenge();
+        $userId = $challengeModel->getPendingUserId();
+
+        if (!$userId) {
+            return null;
+        }
+
+        // Query credentials
+        $sql = "SELECT `credentialId` FROM `webauthn_credentials` WHERE `userId` = :userId";
+        $statement = $this->db->preparedStatement($sql);
+        $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
+        $statement->execute();
+        $credentials = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (empty($credentials)) {
+            return null;
+        }
+
+        $credentialIds = \array_column($credentials, 'credentialId');
+
+        // Decode base64 credential IDs to binary for WebAuthn library
+        $credentialIdsBinary = \array_map(function($id) {
+            return \base64_decode($id);
+        }, $credentialIds);
+
+        // Generate authentication options
+        $service = new \Tfish\WebAuthnService($this->preference->siteName(), $_SERVER['SERVER_NAME']);
+        $options = $service->getAuthenticationOptions($credentialIdsBinary);
+
+        // Store authentication challenge
+        $challengeModel->storeAuthentication($service->getChallenge());
+        $challengeModel->storePendingUserId($userId);
+
+        return $options;
+    }
+
+    /**
+     * Verify WebAuthn authentication assertion.
+     *
+     * @param   string $clientDataJSON Client data from authenticator.
+     * @param   string $authenticatorData Authenticator data.
+     * @param   string $signature Signature from authenticator.
+     * @param   string $credentialId Credential ID used.
+     * @return  bool True on successful authentication.
+     */
+    public function verifyWebAuthnAssertion(
+        string $clientDataJSON,
+        string $authenticatorData,
+        string $signature,
+        string $credentialId
+    ): bool
+    {
+        $challengeModel = new \Tfish\Model\WebAuthnChallenge();
+        $challenge = $challengeModel->getAuthentication();
+        $userId = $challengeModel->getPendingUserId();
+
+        if (!$challenge || !$userId) {
+            return false;
+        }
+
+        // Get credential from database
+        $sql = "SELECT * FROM `webauthn_credentials` WHERE `credentialId` = :credentialId LIMIT 1";
+        $statement = $this->db->preparedStatement($sql);
+        $statement->bindValue(':credentialId', $credentialId, \PDO::PARAM_STR);
+        $statement->execute();
+        $credential = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$credential || (int)$credential['userId'] !== $userId) {
+            return false;
+        }
+
+        // Verify the assertion
+        $service = new \Tfish\WebAuthnService($this->preference->siteName(), $_SERVER['SERVER_NAME']);
+
+        $verified = $service->verifyAuthentication(
+            $clientDataJSON,
+            $authenticatorData,
+            $signature,
+            $credential['publicKey'],
+            $challenge,
+            (int)$credential['signCount']
+        );
+
+        if ($verified) {
+            // Update signature counter
+            $newSignCount = $service->getSignatureCounter();
+            $sql = "UPDATE `webauthn_credentials` SET `signCount` = :signCount WHERE `credentialId` = :credentialId";
+            $statement = $this->db->preparedStatement($sql);
+            $statement->bindValue(':signCount', $newSignCount, \PDO::PARAM_INT);
+            $statement->bindValue(':credentialId', $credentialId, \PDO::PARAM_STR);
+            $updated = $this->db->executeTransaction($statement);
+
+            if (!$updated) {
+                return false;
+            }
+
+            // Complete login
+            if ($this->loginWithWebAuthn($userId)) {
+                $challengeModel->clear();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Notify admin of login.
      *
      * Sends an email to the admin email notifying that an admin login has occurred. This
@@ -581,7 +714,7 @@ class Session
         ];
         $message = TFISH_LOGIN_NOTED_MESSAGE . xss($email) . '.';
 
-        mail($to, $subject, $message, $headers);
+        @mail($to, $subject, $message, $headers);
     }
 
     /**
