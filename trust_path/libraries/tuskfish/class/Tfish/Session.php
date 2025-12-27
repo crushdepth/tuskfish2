@@ -400,6 +400,9 @@ class Session
 
         // If login successful regenerate session due to privilege escalation.
         if (\password_verify($dirtyPassword, $user['passwordHash'])) {
+            // Regenerate session immediately after successful password verification
+            $this->regenerate();
+
             // Check if second factor authentication is required
             $webauthnLogin = new \Tfish\Model\WebAuthnLogin($this->db);
             $secondFactorType = $webauthnLogin->requiresSecondFactor((int)$user['id']);
@@ -419,7 +422,6 @@ class Session
             }
 
             // No second factor required - complete login
-            $this->regenerate();
             $this->setLoginFlags($user);
 
             // Reset failed login counter to zero.

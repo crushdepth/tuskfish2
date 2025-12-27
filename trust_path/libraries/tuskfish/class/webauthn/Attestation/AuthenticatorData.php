@@ -125,7 +125,7 @@ class AuthenticatorData {
         if (!($this->_attestedCredentialData instanceof \stdClass) || !isset($this->_attestedCredentialData->credentialPublicKey)) {
             throw  new WebAuthnException('credential data not included in authenticator data', WebAuthnException::INVALID_DATA);
         }
-        
+
         $der = null;
         switch ($this->_attestedCredentialData->credentialPublicKey->kty ?? null) {
             case self::$_EC2_TYPE: $der = $this->_getEc2Der(); break;
