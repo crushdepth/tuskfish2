@@ -114,6 +114,12 @@ return [
         '\\Tfish\\View\\Single',
         '\\Tfish\\Controller\\Logout',
         0),
+    '/register/' => new Route(
+        '\\Tfish\\Model\\WebAuthnCredential',
+        '\\Tfish\\ViewModel\\WebAuthn',
+        '\\Tfish\\View\\Single',
+        '\\Tfish\\Controller\\WebAuthn',
+        1),
     '/restricted/' => new Route(
         '\\Tfish\\Model\\Login',
         '\\Tfish\\ViewModel\\Restricted',

@@ -353,6 +353,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement = $database->preparedStatement($sql);
         $statement->execute();
 
+        // Create webauthn_credentials table for WebAuthn/FIDO2 authentication.
+        $sql = "CREATE TABLE IF NOT EXISTS `webauthn_credentials` (
+            `id` INTEGER PRIMARY KEY,
+            `userId` INTEGER NOT NULL,
+            `credentialId` TEXT NOT NULL UNIQUE,
+            `publicKey` TEXT NOT NULL,
+            `signCount` INTEGER NOT NULL DEFAULT 0,
+            `transports` TEXT NOT NULL,
+            `aaguid` TEXT NOT NULL,
+            `credentialName` TEXT NOT NULL DEFAULT '',
+            `createdAt` INTEGER NOT NULL,
+            `lastUsed` INTEGER NOT NULL DEFAULT 0,
+            FOREIGN KEY(`userId`) REFERENCES `user`(`id`) ON DELETE CASCADE
+        );";
+        $statement = $database->preparedStatement($sql);
+        $statement->execute();
+
         // Close the database connection.
         $database->close();
 

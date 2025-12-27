@@ -1,0 +1,182 @@
+<?php declare(strict_types=1); ?>
+
+<div class="container-fluid">
+
+  <div class="row">
+    <div class="col text-center">
+      <h1><?php echo xss($viewModel->pageTitle()); ?></h1>
+      <p>Manage your passkeys and security keys for secure authentication.</p>
+    </div>
+  </div>
+
+  <!-- Register new credential -->
+  <div class="row justify-content-center my-4">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h5>Register New Passkey or Security Key</h5>
+        </div>
+        <div class="card-body">
+          <form id="registerForm">
+            <div class="mb-3">
+              <label for="credentialName" class="form-label">Name (optional)</label>
+              <input type="text" class="form-control" id="credentialName"
+                     placeholder="e.g., Yubikey 5C, TouchID, Windows Hello">
+              <small class="form-text text-muted">Give this credential a friendly name to identify it later.</small>
+            </div>
+            <input type="hidden" id="registerToken" value="<?php echo xss($_SESSION['token']); ?>">
+            <button type="button" id="registerButton" class="btn btn-primary">
+              <i class="icon-key"></i> Register Passkey/Security Key
+            </button>
+          </form>
+          <div id="registerStatus" class="mt-3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- List existing credentials -->
+  <?php if ($viewModel->hasCredentials()): ?>
+  <div class="row justify-content-center my-4">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h5>Your Registered Credentials</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Created</th>
+                  <th>Last Used</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach ($viewModel->credentials() as $credential): ?>
+                <tr>
+                  <td><?php echo xss($credential['credentialName'] ?: 'Unnamed'); ?></td>
+                  <td><?php echo xss(date('Y-m-d', (int)$credential['createdAt'])); ?></td>
+                  <td>
+                    <?php
+                      echo $credential['lastUsed']
+                        ? xss(date('Y-m-d', (int)$credential['lastUsed']))
+                        : 'Never';
+                    ?>
+                  </td>
+                  <td>
+                    <form method="post" action="<?php echo TFISH_URL . 'register/?action=revoke'; ?>" style="display:inline;">
+                      <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>">
+                      <input type="hidden" name="id" value="<?php echo (int)$credential['id']; ?>">
+                      <button type="submit" class="btn btn-sm btn-danger"
+                              onclick="return confirm('Are you sure you want to revoke this credential?');">
+                        <i class="icon-xmark"></i> Revoke
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <?php else: ?>
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="alert alert-info">
+        <strong>No credentials registered.</strong> Register your first passkey or security key above.
+      </div>
+    </div>
+  </div>
+  <?php endif; ?>
+
+</div>
+
+<script>
+document.getElementById('registerButton').addEventListener('click', async function() {
+  const statusDiv = document.getElementById('registerStatus');
+  const credentialName = document.getElementById('credentialName').value;
+  const token = document.getElementById('registerToken').value;
+
+  try {
+    statusDiv.innerHTML = '<div class="alert alert-info">Requesting registration options...</div>';
+
+    // Get registration options from server
+    const optionsResponse = await fetch('<?php echo TFISH_URL; ?>register/?action=registerOptions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'token=' + encodeURIComponent(token)
+    });
+
+    if (!optionsResponse.ok) {
+      throw new Error('Failed to get registration options');
+    }
+
+    const options = await optionsResponse.json();
+
+    // Convert base64 strings to ArrayBuffers
+    options.publicKey.challenge = base64ToArrayBuffer(options.publicKey.challenge);
+    options.publicKey.user.id = base64ToArrayBuffer(options.publicKey.user.id);
+
+    // Convert excludeCredentials IDs to ArrayBuffers
+    if (options.publicKey.excludeCredentials) {
+      options.publicKey.excludeCredentials = options.publicKey.excludeCredentials.map(cred => ({
+        ...cred,
+        id: base64ToArrayBuffer(cred.id)
+      }));
+    }
+
+    statusDiv.innerHTML = '<div class="alert alert-info">Please interact with your authenticator...</div>';
+
+    // Create credential
+    const credential = await navigator.credentials.create(options);
+
+    statusDiv.innerHTML = '<div class="alert alert-info">Verifying credential...</div>';
+
+    // Send credential to server for verification
+    const verifyResponse = await fetch('<?php echo TFISH_URL; ?>register/?action=registerVerify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        token: token,
+        credentialName: credentialName,
+        clientDataJSON: arrayBufferToBase64(credential.response.clientDataJSON),
+        attestationObject: arrayBufferToBase64(credential.response.attestationObject)
+      })
+    });
+
+    if (!verifyResponse.ok) {
+      throw new Error('Failed to verify credential');
+    }
+
+    statusDiv.innerHTML = '<div class="alert alert-success"><strong>Success!</strong> Credential registered. Reloading...</div>';
+    setTimeout(() => location.reload(), 1500);
+
+  } catch (error) {
+    statusDiv.innerHTML = '<div class="alert alert-danger"><strong>Error:</strong> ' + error.message + '</div>';
+  }
+});
+
+function base64ToArrayBuffer(base64) {
+  const binary = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
+function arrayBufferToBase64(buffer) {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+</script>

@@ -132,6 +132,26 @@ class Session
         return false;
     }
 
+    /**
+     * Get the current user ID.
+     *
+     * @return int|null User ID or null if not logged in.
+     */
+    public function userId(): ?int
+    {
+        return isset($_SESSION['id']) ? (int)$_SESSION['id'] : null;
+    }
+
+    /**
+     * Get the current user email.
+     *
+     * @return string|null User email or null if not logged in.
+     */
+    public function userEmail(): ?string
+    {
+        return $_SESSION['adminEmail'] ?? null;
+    }
+
 
     /**
      * Return the target URL path for redirection AFTER a successful authentication (user group) challenge.
@@ -498,6 +518,46 @@ class Session
         $target = $cleanUrl ?: TFISH_URL;
         \header('Location: ' . $target, true, 303);
         exit;
+    }
+
+    /**
+     * Authenticate user with WebAuthn and establish a session.
+     *
+     * Called after WebAuthn assertion has been cryptographically verified.
+     * This method validates the user account is active and creates the session.
+     * Does not redirect - returns bool so controller can send JSON response.
+     *
+     * @param int $userId User ID from verified WebAuthn credential.
+     * @return bool True on success, false on failure.
+     */
+    public function loginWithWebAuthn(int $userId): bool
+    {
+        // Query database for user record
+        $statement = $this->db->preparedStatement("SELECT * FROM `user` WHERE `id` = :userId");
+        $statement->bindParam(':userId', $userId, \PDO::PARAM_INT);
+        $statement->execute();
+        $user = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        if (empty($user)) {
+            return false;
+        }
+
+        // If user is suspended, do not proceed
+        if ((int) $user['onlineStatus'] !== 1) {
+            return false;
+        }
+
+        // Regenerate session due to privilege escalation
+        $this->regenerate();
+        $this->setLoginFlags($user);
+
+        // Reset failed login counter to zero
+        $this->db->update('user', (int) $user['id'], ['loginErrors' => 0]);
+
+        // Send admin notification email
+        $this->notifyAdminLogin($user['adminEmail']);
+
+        return true;
     }
 
     /**

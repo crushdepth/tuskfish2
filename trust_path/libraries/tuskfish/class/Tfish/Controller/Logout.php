@@ -61,7 +61,8 @@ class Logout
      */
     public function display(): array
     {
-        $this->model->setSession($this->session);
+        // Redundant due to DICE injection?
+        // $this->model->setSession($this->session);
         $this->model->logout();
 
         return [];

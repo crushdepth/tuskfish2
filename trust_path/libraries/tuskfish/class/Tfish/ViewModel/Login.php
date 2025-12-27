@@ -38,6 +38,7 @@ class Login implements \Tfish\Interface\Viewable
     use \Tfish\Traits\Viewable;
 
     private object $model;
+    private \Tfish\Entity\Preference $preference;
 
     /**
      * Constructor
@@ -49,6 +50,7 @@ class Login implements \Tfish\Interface\Viewable
     {
         $this->pageTitle = TFISH_LOGIN;
         $this->model = $model;
+        $this->preference = $preference;
         $this->template = 'login';
         $this->theme = $preference->defaultTheme();
         $this->setMetadata(['robots' => 'noindex,nofollow']);
@@ -81,5 +83,61 @@ class Login implements \Tfish\Interface\Viewable
     public function redirectMessage(): ?string
     {
         return $this->model->redirectMessage();
+    }
+
+    /**
+     * Process login with WebAuthn detection.
+     *
+     * @param   string $email User email.
+     * @param   string $password User password.
+     * @return  array Empty array or ['webauthn_required' => true].
+     */
+    public function login(string $email, string $password): array
+    {
+        return $this->model->login($email, $password);
+    }
+
+    /**
+     * Get WebAuthn authentication options for pending login.
+     *
+     * @return  object|null Authentication options or null on failure.
+     */
+    public function getWebAuthnAuthenticationOptions(): ?object
+    {
+        return $this->model->getWebAuthnAuthenticationOptions();
+    }
+
+    /**
+     * Verify WebAuthn authentication assertion.
+     *
+     * @param   string $clientDataJSON Client data from authenticator.
+     * @param   string $authenticatorData Authenticator data.
+     * @param   string $signature Signature from authenticator.
+     * @param   string $credentialId Credential ID used.
+     * @return  bool True on successful authentication.
+     */
+    public function verifyWebAuthnAssertion(
+        string $clientDataJSON,
+        string $authenticatorData,
+        string $signature,
+        string $credentialId
+    ): bool
+    {
+        return $this->model->verifyWebAuthnAssertion(
+            $clientDataJSON,
+            $authenticatorData,
+            $signature,
+            $credentialId
+        );
+    }
+
+    /**
+     * Get preference entity.
+     *
+     * @return  \Tfish\Entity\Preference Preference instance.
+     */
+    public function preference(): \Tfish\Entity\Preference
+    {
+        return $this->preference;
     }
 }

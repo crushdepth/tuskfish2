@@ -29,6 +29,8 @@ namespace Tfish\Controller;
  * @var         object $model Instance of the model required by this route.
  * @var         object $viewModel Instance of the viewModel required by this route.
  * @var         \Tfish\Session $session Instance of the session management class.
+ * @var         \Tfish\Database $database Instance of the database class.
+ * @var         \Tfish\Entity\Preference $preference Instance of the preference class.
  */
 
 class Login
@@ -84,12 +86,111 @@ class Login
         $this->validateToken($token);
 
         if (isset($_POST['email']) && isset($_POST['password'])) {
-            $this->model->setSession($this->session);
-            $this->model->login($this->trimString($_POST['email']), $_POST['password']);
+            $result = $this->viewModel->login($this->trimString($_POST['email']), $_POST['password']);
+
+            // Check if WebAuthn second factor is required
+            if (!empty($result['webauthn_required'])) {
+                \header('Content-Type: application/json');
+                echo \json_encode(['webauthn_required' => true]);
+                exit;
+            }
         }
 
         $this->viewModel->displayForm();
 
         return [];
+    }
+
+    /**
+     * Generate WebAuthn authentication options (JSON endpoint).
+     *
+     * Returns challenge and credential IDs for navigator.credentials.get().
+     *
+     * @return  array Empty array (not used - exits before return).
+     */
+    public function authenticateOptions(): array
+    {
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            \http_response_code(405);
+            echo \json_encode(['error' => 'Method not allowed']);
+            exit;
+        }
+
+        $token = $_POST['token'] ?? '';
+        $this->validateToken($token);
+
+        try {
+            $options = $this->viewModel->getWebAuthnAuthenticationOptions();
+
+            if ($options === null) {
+                \http_response_code(400);
+                echo \json_encode(['error' => 'No pending login or credentials']);
+                exit;
+            }
+
+            \http_response_code(200);
+            \header('Content-Type: application/json');
+            echo \json_encode($options);
+        } catch (\Exception $e) {
+            \http_response_code(500);
+            echo \json_encode(['error' => $e->getMessage()]);
+        }
+
+        exit;
+    }
+
+    /**
+     * Verify WebAuthn authentication response (JSON endpoint).
+     *
+     * Processes assertion from navigator.credentials.get().
+     *
+     * @return  array Empty array (not used - exits before return).
+     */
+    public function authenticateVerify(): array
+    {
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            \http_response_code(405);
+            echo \json_encode(['error' => 'Method not allowed']);
+            exit;
+        }
+
+        $token = $_POST['token'] ?? '';
+        $this->validateToken($token);
+
+        $clientDataJSON = $_POST['clientDataJSON'] ?? '';
+        $authenticatorData = $_POST['authenticatorData'] ?? '';
+        $signature = $_POST['signature'] ?? '';
+        $credentialId = $_POST['credentialId'] ?? '';
+
+        if (empty($clientDataJSON) || empty($authenticatorData) || empty($signature) || empty($credentialId)) {
+            \http_response_code(400);
+            echo \json_encode(['error' => 'Missing parameters']);
+            exit;
+        }
+
+        try {
+            $verified = $this->viewModel->verifyWebAuthnAssertion(
+                $clientDataJSON,
+                $authenticatorData,
+                $signature,
+                $credentialId
+            );
+
+            if ($verified) {
+                $next = $this->session->nextUrl();
+                $redirect = $next ?: TFISH_ADMIN_URL;
+
+                \http_response_code(200);
+                echo \json_encode(['success' => true, 'redirect' => $redirect]);
+            } else {
+                \http_response_code(401);
+                echo \json_encode(['error' => 'Authentication failed']);
+            }
+        } catch (\Exception $e) {
+            \http_response_code(500);
+            echo \json_encode(['error' => $e->getMessage()]);
+        }
+
+        exit;
     }
 }
