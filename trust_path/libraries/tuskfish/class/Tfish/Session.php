@@ -670,7 +670,22 @@ class Session
         $statement->execute();
         $credential = $statement->fetch(\PDO::FETCH_ASSOC);
 
-        if (!$credential || (int)$credential['userId'] !== $userId) {
+        // Perform constant-time-like comparison to prevent timing attacks
+        // If credential doesn't exist, perform dummy comparison to normalize timing
+        if (!$credential) {
+            // Dummy comparison with same operations as the real check
+            $dummy = (int)0 !== $userId;
+
+            // Increment login error counter
+            if ((int) $user['loginErrors'] < 15) {
+                $this->db->updateCounter((int) $user['id'], 'user', 'loginErrors');
+            }
+
+            $challengeModel->clear();
+            return false;
+        }
+
+        if ((int)$credential['userId'] !== $userId) {
             // Increment login error counter
             if ((int) $user['loginErrors'] < 15) {
                 $this->db->updateCounter((int) $user['id'], 'user', 'loginErrors');

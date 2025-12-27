@@ -77,6 +77,11 @@ class WebAuthnCredential
         $aaguid = $this->trimString($aaguid);
         $credentialName = $this->trimString($credentialName);
 
+        // Validate credential name length (prevent database bloat and potential XSS)
+        if (\mb_strlen($credentialName) > 255) {
+            $credentialName = \mb_substr($credentialName, 0, 255);
+        }
+
         if (!$this->validateCredentialId($credentialId) || !$this->validatePublicKey($publicKey)) {
             return false;
         }
@@ -276,6 +281,12 @@ class WebAuthnCredential
     {
         // Get existing credentials to exclude
         $existingCredentials = $this->getByUserId($userId);
+
+        // Prevent credential flooding (DoS protection)
+        if (\count($existingCredentials) >= 10) {
+            throw new \RuntimeException('Maximum credential limit reached (10 per user)');
+        }
+
         $excludeIds = \array_column($existingCredentials, 'credentialId');
 
         // Decode base64 credential IDs back to binary for WebAuthn library
