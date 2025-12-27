@@ -132,8 +132,9 @@ class Login
             \header('Content-Type: application/json');
             echo \json_encode($options);
         } catch (\Exception $e) {
+            \error_log("WebAuthn authentication options error: " . $e->getMessage());
             \http_response_code(500);
-            echo \json_encode(['error' => $e->getMessage()]);
+            echo \json_encode(['error' => 'An error occurred processing your request']);
         }
 
         exit;
@@ -187,8 +188,9 @@ class Login
                 echo \json_encode(['error' => 'Authentication failed']);
             }
         } catch (\Exception $e) {
+            \error_log("WebAuthn authentication verification error: " . $e->getMessage());
             \http_response_code(500);
-            echo \json_encode(['error' => $e->getMessage()]);
+            echo \json_encode(['error' => 'An error occurred processing your request']);
         }
 
         exit;

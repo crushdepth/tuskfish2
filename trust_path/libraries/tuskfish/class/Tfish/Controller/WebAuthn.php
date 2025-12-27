@@ -118,8 +118,9 @@ class WebAuthn
             \header('Content-Type: application/json');
             echo \json_encode($options);
         } catch (\Exception $e) {
+            \error_log("WebAuthn registration options error: " . $e->getMessage());
             \http_response_code(500);
-            echo \json_encode(['error' => $e->getMessage()]);
+            echo \json_encode(['error' => 'An error occurred processing your request']);
         }
 
         exit;
@@ -183,8 +184,9 @@ class WebAuthn
                 echo \json_encode(['error' => 'Verification failed - check server error log for details']);
             }
         } catch (\Exception $e) {
+            \error_log("WebAuthn registration verification error: " . $e->getMessage());
             \http_response_code(500);
-            echo \json_encode(['error' => $e->getMessage()]);
+            echo \json_encode(['error' => 'An error occurred processing your request']);
         }
 
         exit;

@@ -588,7 +588,7 @@ class Session
     public function getWebAuthnAuthenticationOptions(): ?object
     {
         $challengeModel = new \Tfish\Model\WebAuthnChallenge();
-        $userId = $challengeModel->getPendingUserId();
+        $userId = $challengeModel->hasPendingUserId();
 
         if (!$userId) {
             return null;
@@ -618,7 +618,6 @@ class Session
 
         // Store authentication challenge
         $challengeModel->storeAuthentication($service->getChallenge());
-        $challengeModel->storePendingUserId($userId);
 
         return $options;
     }
@@ -644,7 +643,24 @@ class Session
         $userId = $challengeModel->getPendingUserId();
 
         if (!$challenge || !$userId) {
+            $challengeModel->clear();
             return false;
+        }
+
+        // Get user record for rate limiting
+        $userStatement = $this->db->preparedStatement("SELECT * FROM `user` WHERE `id` = :userId");
+        $userStatement->bindValue(':userId', $userId, \PDO::PARAM_INT);
+        $userStatement->execute();
+        $user = $userStatement->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            $challengeModel->clear();
+            return false;
+        }
+
+        // Apply rate limiting to prevent brute force attacks
+        if ($user['loginErrors']) {
+            $this->delayLogin((int) $user['loginErrors']);
         }
 
         // Get credential from database
@@ -655,6 +671,12 @@ class Session
         $credential = $statement->fetch(\PDO::FETCH_ASSOC);
 
         if (!$credential || (int)$credential['userId'] !== $userId) {
+            // Increment login error counter
+            if ((int) $user['loginErrors'] < 15) {
+                $this->db->updateCounter((int) $user['id'], 'user', 'loginErrors');
+            }
+
+            $challengeModel->clear();
             return false;
         }
 
@@ -671,15 +693,21 @@ class Session
         );
 
         if ($verified) {
-            // Update signature counter
+            // Update signature counter with clone detection
             $newSignCount = $service->getSignatureCounter();
-            $sql = "UPDATE `webauthn_credentials` SET `signCount` = :signCount WHERE `credentialId` = :credentialId";
-            $statement = $this->db->preparedStatement($sql);
-            $statement->bindValue(':signCount', $newSignCount, \PDO::PARAM_INT);
-            $statement->bindValue(':credentialId', $credentialId, \PDO::PARAM_STR);
-            $updated = $this->db->executeTransaction($statement);
+            $credentialModel = new \Tfish\Model\WebAuthnCredential($this->db, $this->preference);
+            $updated = $credentialModel->updateSignCount($credentialId, $newSignCount);
 
             if (!$updated) {
+                // Clone detected or update failed
+                \error_log("SECURITY ALERT: WebAuthn signature counter validation failed for credential {$credentialId}");
+
+                // Increment login error counter
+                if ((int) $user['loginErrors'] < 15) {
+                    $this->db->updateCounter((int) $user['id'], 'user', 'loginErrors');
+                }
+
+                $challengeModel->clear();
                 return false;
             }
 
@@ -688,8 +716,23 @@ class Session
                 $challengeModel->clear();
                 return true;
             }
+
+            // Login failed after successful verification
+            // Increment login error counter
+            if ((int) $user['loginErrors'] < 15) {
+                $this->db->updateCounter((int) $user['id'], 'user', 'loginErrors');
+            }
+
+            $challengeModel->clear();
+            return false;
         }
 
+        // Verification failed - increment login error counter
+        if ((int) $user['loginErrors'] < 15) {
+            $this->db->updateCounter((int) $user['id'], 'user', 'loginErrors');
+        }
+
+        $challengeModel->clear();
         return false;
     }
 

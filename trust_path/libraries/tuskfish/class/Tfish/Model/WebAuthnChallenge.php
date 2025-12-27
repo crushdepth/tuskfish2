@@ -98,6 +98,17 @@ class WebAuthnChallenge
     }
 
     /**
+     * Check if there is a pending login user ID without clearing it.
+     *
+     * @return  int|null User ID or null if not found.
+     */
+    public function hasPendingUserId(): ?int
+    {
+        $userId = $_SESSION['webauthn_pending_user_id'] ?? null;
+        return $userId !== null ? (int)$userId : null;
+    }
+
+    /**
      * Clear all WebAuthn session data.
      */
     public function clear(): void

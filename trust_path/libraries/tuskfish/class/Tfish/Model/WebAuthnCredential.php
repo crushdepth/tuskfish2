@@ -202,14 +202,7 @@ class WebAuthnCredential
             return false;
         }
 
-        // Prevent deleting the last credential.
-        $userCredentials = $this->getByUserId($userId);
-
-        if (\count($userCredentials) <= 1) {
-            return false;
-        }
-
-        // Verify credential belongs to user.
+        // Verify credential belongs to user and delete.
         $sql = "DELETE FROM `webauthn_credentials` WHERE `id` = :id AND `userId` = :userId";
         $statement = $this->database->preparedStatement($sql);
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);
