@@ -67,11 +67,10 @@
                     ?>
                   </td>
                   <td>
-                    <form method="post" action="<?php echo TFISH_URL . 'register/?action=revoke'; ?>" style="display:inline;">
+                    <form method="post" action="<?php echo TFISH_URL . 'register/?action=revoke'; ?>" style="display:inline;" class="revoke-form">
                       <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>">
                       <input type="hidden" name="id" value="<?php echo (int)$credential['id']; ?>">
-                      <button type="submit" class="btn btn-sm btn-danger"
-                              onclick="return confirm('<?php echo xss(TFISH_WEBAUTHN_REVOKE_CONFIRM); ?>');">
+                      <button type="submit" class="btn btn-sm btn-danger">
                         <i class="icon-xmark"></i> <?php echo TFISH_WEBAUTHN_REVOKE; ?>
                       </button>
                     </form>
@@ -186,4 +185,13 @@ function arrayBufferToBase64(buffer) {
   }
   return btoa(binary);
 }
+
+// Revoke credential confirmation
+document.querySelectorAll('.revoke-form').forEach(form => {
+  form.addEventListener('submit', function(e) {
+    if (!confirm(<?php echo \json_encode(TFISH_WEBAUTHN_REVOKE_CONFIRM, JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS); ?>)) {
+      e.preventDefault();
+    }
+  });
+});
 </script>
