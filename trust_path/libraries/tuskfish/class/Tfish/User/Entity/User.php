@@ -33,9 +33,6 @@ namespace Tfish\User\Entity;
  * @var         string $adminEmail Email address of this user.
  * @var         string $passwordHash Password hash for this user.
  * @var         int $userGroup User group(s) to which this user belongs.
- * @var         string $yubikeyId Public ID of primary yubikey for two factor authentication.
- * @var         string $yubikeyId2 Public ID of secondary yubikey for two factor authentication.
- * @var         string $yubikeyId3 Public ID of tertiary yubikey for two factor authentication.
  * @var         int $onlineStatus Whether the user's privileges are enabled (1) or suspended (0).
  * @var         int $loginErrors Number of failed logins since last successful long.
  */
@@ -49,9 +46,6 @@ class User
     private string $adminEmail = '';
     private string $passwordHash = '';
     private int $userGroup = 0;
-    private string $yubikeyId = '';
-    private string $yubikeyId2 = '';
-    private string $yubikeyId3 = '';
     private int $loginErrors = 0;
     private int $onlineStatus = 0;
 
@@ -68,9 +62,6 @@ class User
         $this->setAdminEmail((string) ($row['adminEmail'] ?? ''));
         $this->setPasswordHash((string) ($row['passwordHash'] ?? ''));
         $this->setUserGroup((int) ($row['userGroup'] ?? 0));
-        $this->setYubikeyId((string) ($row['yubikeyId'] ?? ''));
-        $this->setYubikeyId2((string) ($row['yubikeyId2'] ?? ''));
-        $this->setYubikeyId3((string) ($row['yubikeyId3'] ?? ''));
         $this->setLoginErrors((int) ($row['loginErrors'] ?? 0));
         $this->setOnlineStatus((int) ($row['onlineStatus'] ?? 0));
     }
@@ -155,7 +146,7 @@ class User
 
     /**
      * Set user groups.
-     * 
+     *
      * Must only contain bits from the whitelist.
      *
      * @param integer $groups
@@ -170,69 +161,6 @@ class User
         }
 
         $this->userGroup = $groups;
-    }
-
-    /**
-     * Return primary Yubikey ID of this user.
-     *
-     * @return string
-     */
-    public function yubikeyId(): string
-    {
-        return $this->yubikeyId;
-    }
-
-    /**
-     * Set primary Yubikey ID of this user.
-     *
-     * @param string $yubikey
-     * @return void
-     */
-    public function setYubikeyId(string $yubikey)
-    {
-        $this->yubikeyId = $this->trimString($yubikey);
-    }
-
-    /**
-     * Return secondary Yubikey ID of this user.
-     *
-     * @return string
-     */
-    public function yubikeyId2(): string
-    {
-        return $this->yubikeyId2;
-    }
-
-    /**
-     * Set secondary Yubikey ID of this user.
-     *
-     * @param string $yubikey
-     * @return void
-     */
-    public function setYubikeyId2(string $yubikey)
-    {
-        $this->yubikeyId2 = $this->trimString($yubikey);
-    }
-
-    /**
-     * Return tertiary Yubikey ID of this user.
-     *
-     * @return string
-     */
-    public function yubikeyId3(): string
-    {
-        return $this->yubikeyId3;
-    }
-
-    /**
-     * Set tertiary Yubikey ID of this user.
-     *
-     * @param string $yubikey
-     * @return void
-     */
-    public function setYubikeyId3(string $yubikey)
-    {
-        $this->yubikeyId3 = $this->trimString($yubikey);
     }
 
     /**
