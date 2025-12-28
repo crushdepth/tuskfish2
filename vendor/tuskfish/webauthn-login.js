@@ -27,10 +27,19 @@ document.addEventListener('DOMContentLoaded', function() {
     // Submit login credentials
     const response = await fetch(formAction, {
       method: 'POST',
-      body: formData
+      body: formData,
+      redirect: 'follow'
     });
 
-    // Check if response is JSON (WebAuthn required) or HTML (normal login)
+    // Check if server redirected us (password-only login succeeded)
+    if (response.redirected) {
+      // Password auth succeeded, server sent Location header
+      // Redirect browser to the final destination
+      window.location.href = response.url;
+      return;
+    }
+
+    // Check if response is JSON (WebAuthn required)
     const contentType = response.headers.get('content-type');
 
     if (contentType && contentType.includes('application/json')) {
@@ -91,8 +100,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
     } else {
-      // Normal HTML response - let browser handle redirect
-      window.location.href = formAction;
+      // Login failed or other error - show the error page
+      // The response contains the login form with error message
+      document.body.innerHTML = await response.text();
     }
   } catch (error) {
     if (statusDiv) {

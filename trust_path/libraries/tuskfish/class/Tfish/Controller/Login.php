@@ -29,7 +29,6 @@ namespace Tfish\Controller;
  * @var         object $model Instance of the model required by this route.
  * @var         object $viewModel Instance of the viewModel required by this route.
  * @var         \Tfish\Session $session Instance of the session management class.
- * @var         \Tfish\Database $database Instance of the database class.
  * @var         \Tfish\Entity\Preference $preference Instance of the preference class.
  */
 

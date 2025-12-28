@@ -414,13 +414,6 @@ class Session
                 return ['webauthn_required' => true];
             }
 
-            if ($secondFactorType === 'otp') {
-                // User requires Yubikey OTP - fail closed (deny access)
-                // OTP users should use the alternative /login/ route configured for Yubikey
-                $this->logout(TFISH_URL . "login/");
-                exit;
-            }
-
             // No second factor required - complete login
             $this->setLoginFlags($user);
 

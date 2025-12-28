@@ -69,17 +69,6 @@ class WebAuthnLogin
             return 'webauthn';
         }
 
-        // Fallback to OTP during migration period.
-        $sql = "SELECT yubikeyId FROM `user` WHERE `id` = :id LIMIT 1";
-        $statement = $this->database->preparedStatement($sql);
-        $statement->bindValue(':id', $userId, \PDO::PARAM_INT);
-        $statement->execute();
-        $row = $statement->fetch(\PDO::FETCH_ASSOC);
-
-        if ($row && !empty($row['yubikeyId'])) {
-            return 'otp';
-        }
-
         return 'none';
     }
 

@@ -31,7 +31,6 @@ namespace Tfish\Model;
 class Login
 {
     use \Tfish\Traits\ValidateString;
-    use \Tfish\Traits\EmailCheck;
 
     private \Tfish\Session $session;
 

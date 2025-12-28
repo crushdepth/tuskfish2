@@ -130,14 +130,4 @@ class Login implements \Tfish\Interface\Viewable
             $credentialId
         );
     }
-
-    /**
-     * Get preference entity.
-     *
-     * @return  \Tfish\Entity\Preference Preference instance.
-     */
-    public function preference(): \Tfish\Entity\Preference
-    {
-        return $this->preference;
-    }
 }
