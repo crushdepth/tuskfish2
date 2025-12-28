@@ -98,6 +98,16 @@ class Login implements \Tfish\Interface\Viewable
     }
 
     /**
+     * Return the next URL (redirect).
+     *
+     * @return string|null
+     */
+    public function nextUrl(): ?string
+    {
+        return $this->model->nextUrl();
+    }
+
+    /**
      * Get WebAuthn authentication options for pending login.
      *
      * @return  object|null Authentication options or null on failure.

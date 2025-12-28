@@ -28,7 +28,6 @@ namespace Tfish\Controller;
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
  * @var         object $model Instance of the model required by this route.
  * @var         object $viewModel Instance of the viewModel required by this route.
- * @var         \Tfish\Session $session Instance of the session management class.
  * @var         \Tfish\Entity\Preference $preference Instance of the preference class.
  */
 
@@ -39,20 +38,17 @@ class Login
 
     private object $model;
     private object $viewModel;
-    private \Tfish\Session $session;
 
     /**
      * Constructor
      *
      * @param   object $model Instance of a model class.
      * @param   object $viewModel Instance of a viewModel class.
-     * @param   \Tfish\Session $session Instance of the session management class.
      */
     public function __construct(object $model, object $viewModel, \Tfish\Session $session)
     {
         $this->model = $model;
         $this->viewModel = $viewModel;
-        $this->session = $session;
     }
 
     /* Actions. */
@@ -177,7 +173,7 @@ class Login
             );
 
             if ($verified) {
-                $next = $this->session->nextUrl();
+                $next = $this->viewModel->nextUrl();
                 $redirect = $next ?: TFISH_ADMIN_URL;
 
                 \http_response_code(200);

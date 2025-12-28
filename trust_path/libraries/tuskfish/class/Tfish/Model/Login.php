@@ -70,6 +70,16 @@ class Login
     /** Utilities */
 
     /**
+     * Return the next URL (redirect).
+     *
+     * @return string|null
+     */
+    public function nextUrl(): ?string
+    {
+        return $this->session->nextUrl();
+    }
+
+    /**
      * Set title for redirect page.
      *
      * @return string|null Title of page.
