@@ -353,3 +353,8 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_WEBAUTHN_REVOKE_CONFIRM", "Are you sure you want to revoke this credential?");
 \define("TFISH_WEBAUTHN_NO_CREDENTIALS", "No credentials registered.");
 \define("TFISH_WEBAUTHN_REGISTER_FIRST", "Register your first passkey or security key above.");
+\define("TFISH_WEBAUTHN_ERROR_METHOD_NOT_ALLOWED", "Method not allowed");
+\define("TFISH_WEBAUTHN_ERROR_NO_PENDING_LOGIN", "No pending login or credentials");
+\define("TFISH_WEBAUTHN_ERROR_PROCESSING_REQUEST", "An error occurred processing your request");
+\define("TFISH_WEBAUTHN_ERROR_MISSING_PARAMETERS", "Missing parameters");
+\define("TFISH_WEBAUTHN_ERROR_AUTHENTICATION_FAILED", "Authentication failed");

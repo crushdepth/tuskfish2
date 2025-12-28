@@ -111,7 +111,7 @@ class Login
     {
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             \http_response_code(405);
-            echo \json_encode(['error' => 'Method not allowed']);
+            echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_METHOD_NOT_ALLOWED]);
             exit;
         }
 
@@ -123,7 +123,7 @@ class Login
 
             if ($options === null) {
                 \http_response_code(400);
-                echo \json_encode(['error' => 'No pending login or credentials']);
+                echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_NO_PENDING_LOGIN]);
                 exit;
             }
 
@@ -133,7 +133,7 @@ class Login
         } catch (\Exception $e) {
             \error_log("WebAuthn authentication options error: " . $e->getMessage());
             \http_response_code(500);
-            echo \json_encode(['error' => 'An error occurred processing your request']);
+            echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_PROCESSING_REQUEST]);
         }
 
         exit;
@@ -150,7 +150,7 @@ class Login
     {
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             \http_response_code(405);
-            echo \json_encode(['error' => 'Method not allowed']);
+            echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_METHOD_NOT_ALLOWED]);
             exit;
         }
 
@@ -164,7 +164,7 @@ class Login
 
         if (empty($clientDataJSON) || empty($authenticatorData) || empty($signature) || empty($credentialId)) {
             \http_response_code(400);
-            echo \json_encode(['error' => 'Missing parameters']);
+            echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_MISSING_PARAMETERS]);
             exit;
         }
 
@@ -184,12 +184,12 @@ class Login
                 echo \json_encode(['success' => true, 'redirect' => $redirect]);
             } else {
                 \http_response_code(401);
-                echo \json_encode(['error' => 'Authentication failed']);
+                echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_AUTHENTICATION_FAILED]);
             }
         } catch (\Exception $e) {
             \error_log("WebAuthn authentication verification error: " . $e->getMessage());
             \http_response_code(500);
-            echo \json_encode(['error' => 'An error occurred processing your request']);
+            echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_PROCESSING_REQUEST]);
         }
 
         exit;
