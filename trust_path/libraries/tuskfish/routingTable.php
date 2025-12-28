@@ -110,7 +110,7 @@ return [
         '\\Tfish\\ViewModel\\WebAuthn',
         '\\Tfish\\View\\Single',
         '\\Tfish\\Controller\\WebAuthn',
-        1),
+        7),
     '/restricted/' => new Route(
         '\\Tfish\\Model\\Login',
         '\\Tfish\\ViewModel\\Restricted',
