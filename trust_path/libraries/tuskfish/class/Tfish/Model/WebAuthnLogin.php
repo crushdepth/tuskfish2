@@ -48,7 +48,7 @@ class WebAuthnLogin
      * Check if user requires second factor authentication.
      *
      * @param   int $userId User ID.
-     * @return  string 'webauthn', 'otp', or 'none'.
+     * @return  string 'webauthn' or 'none'.
      */
     public function requiresSecondFactor(int $userId): string
     {
@@ -56,8 +56,7 @@ class WebAuthnLogin
             return 'none';
         }
 
-        // Check for WebAuthn credentials first (preferred).
-        // Query directly instead of creating another model
+        // Check for WebAuthn credentials.
         $sql = "SELECT COUNT(*) as count FROM `webauthn_credentials` WHERE `userId` = :userId";
         $statement = $this->database->preparedStatement($sql);
         $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);

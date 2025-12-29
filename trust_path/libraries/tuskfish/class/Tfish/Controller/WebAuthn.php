@@ -89,7 +89,7 @@ class WebAuthn
     {
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             \http_response_code(405);
-            echo \json_encode(['error' => 'Method not allowed']);
+            echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_METHOD_NOT_ALLOWED]);
             exit;
         }
 
@@ -98,7 +98,7 @@ class WebAuthn
 
         if (!$this->session->isLoggedIn()) {
             \http_response_code(401);
-            echo \json_encode(['error' => 'Not authenticated']);
+            echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_NOT_AUTHENTICATED]);
             exit;
         }
 
@@ -108,7 +108,7 @@ class WebAuthn
 
             if (!$userId || !$userEmail) {
                 \http_response_code(401);
-                echo \json_encode(['error' => 'Session data unavailable']);
+                echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_SESSION_UNAVAILABLE]);
                 exit;
             }
 
@@ -120,7 +120,7 @@ class WebAuthn
         } catch (\Exception $e) {
             \error_log("WebAuthn registration options error: " . $e->getMessage());
             \http_response_code(500);
-            echo \json_encode(['error' => 'An error occurred processing your request']);
+            echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_PROCESSING_REQUEST]);
         }
 
         exit;
@@ -137,7 +137,7 @@ class WebAuthn
     {
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             \http_response_code(405);
-            echo \json_encode(['error' => 'Method not allowed']);
+            echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_METHOD_NOT_ALLOWED]);
             exit;
         }
 
@@ -146,7 +146,7 @@ class WebAuthn
 
         if (!$this->session->isLoggedIn()) {
             \http_response_code(401);
-            echo \json_encode(['error' => 'Not authenticated']);
+            echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_NOT_AUTHENTICATED]);
             exit;
         }
 
@@ -156,7 +156,7 @@ class WebAuthn
 
         if (empty($clientDataJSON) || empty($attestationObject)) {
             \http_response_code(400);
-            echo \json_encode(['error' => 'Missing parameters']);
+            echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_MISSING_PARAMETERS]);
             exit;
         }
 
@@ -165,7 +165,7 @@ class WebAuthn
 
             if (!$userId) {
                 \http_response_code(401);
-                echo \json_encode(['error' => 'Session data unavailable']);
+                echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_SESSION_UNAVAILABLE]);
                 exit;
             }
 
@@ -181,12 +181,12 @@ class WebAuthn
                 echo \json_encode(['success' => true]);
             } else {
                 \http_response_code(400);
-                echo \json_encode(['error' => 'Verification failed - check server error log for details']);
+                echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_VERIFICATION_FAILED]);
             }
         } catch (\Exception $e) {
             \error_log("WebAuthn registration verification error: " . $e->getMessage());
             \http_response_code(500);
-            echo \json_encode(['error' => 'An error occurred processing your request']);
+            echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_PROCESSING_REQUEST]);
         }
 
         exit;
@@ -208,7 +208,7 @@ class WebAuthn
         $this->validateToken($token);
 
         if (!$this->session->isLoggedIn()) {
-            $this->viewModel->setResponse('Not authenticated');
+            $this->viewModel->setResponse(TFISH_WEBAUTHN_ERROR_NOT_AUTHENTICATED);
             $this->viewModel->setBackUrl(TFISH_URL . 'login/');
             $this->viewModel->displayRevoke();
             return [];
@@ -218,7 +218,7 @@ class WebAuthn
         $userId = $this->session->userId();
 
         if (!$userId) {
-            $this->viewModel->setResponse('Not authenticated');
+            $this->viewModel->setResponse(TFISH_WEBAUTHN_ERROR_NOT_AUTHENTICATED);
             $this->viewModel->setBackUrl(TFISH_URL . 'login/');
             $this->viewModel->displayRevoke();
             return [];
@@ -227,9 +227,9 @@ class WebAuthn
         $result = $this->viewModel->deleteCredential($id, $userId);
 
         if ($result) {
-            $this->viewModel->setResponse('Credential was revoked');
+            $this->viewModel->setResponse(TFISH_WEBAUTHN_CREDENTIAL_REVOKED);
         } else {
-            $this->viewModel->setResponse('Failed to revoke credential');
+            $this->viewModel->setResponse(TFISH_WEBAUTHN_CREDENTIAL_REVOKE_FAILED);
         }
 
         $this->viewModel->setBackUrl(TFISH_URL . 'register/');

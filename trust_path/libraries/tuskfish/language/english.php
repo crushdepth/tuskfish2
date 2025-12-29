@@ -333,6 +333,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
         . " failed.");
 
 // WebAuthn
+\define("TFISH_WEBAUTHN_PAGE_TITLE", "Passkeys and Security Keys");
 \define("TFISH_WEBAUTHN_TWO_FACTOR_REQUIRED", "Two-Factor Authentication Required");
 \define("TFISH_WEBAUTHN_AUTHENTICATE_PROMPT", "Please authenticate with your passkey or security key.");
 \define("TFISH_WEBAUTHN_MANAGE_CREDENTIALS", "Manage your passkeys and security keys for secure authentication.");
@@ -357,3 +358,8 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_WEBAUTHN_ERROR_PROCESSING_REQUEST", "An error occurred processing your request");
 \define("TFISH_WEBAUTHN_ERROR_MISSING_PARAMETERS", "Missing parameters");
 \define("TFISH_WEBAUTHN_ERROR_AUTHENTICATION_FAILED", "Authentication failed");
+\define("TFISH_WEBAUTHN_ERROR_NOT_AUTHENTICATED", "Not authenticated");
+\define("TFISH_WEBAUTHN_ERROR_SESSION_UNAVAILABLE", "Session data unavailable");
+\define("TFISH_WEBAUTHN_ERROR_VERIFICATION_FAILED", "Verification failed - check server error log for details");
+\define("TFISH_WEBAUTHN_CREDENTIAL_REVOKED", "Credential was revoked");
+\define("TFISH_WEBAUTHN_CREDENTIAL_REVOKE_FAILED", "Failed to revoke credential");

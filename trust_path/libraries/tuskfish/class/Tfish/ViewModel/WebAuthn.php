@@ -49,7 +49,7 @@ class WebAuthn implements \Tfish\Interface\Viewable
     {
         $this->model = $model;
         $this->preference = $preference;
-        $this->pageTitle = 'Passkeys and Security Keys';
+        $this->pageTitle = TFISH_WEBAUTHN_PAGE_TITLE;
         $this->theme = 'admin';
         $this->template = 'register';
         $this->setMetadata(['robots' => 'noindex,nofollow']);
