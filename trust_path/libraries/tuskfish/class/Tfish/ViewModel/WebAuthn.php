@@ -25,7 +25,6 @@ namespace Tfish\ViewModel;
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\Viewable Provides a standard implementation of the \Tfish\Interface\Viewable interface.
  * @var         object $model Instance of the model required by this route.
- * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
  */
 
 class WebAuthn implements \Tfish\Interface\Viewable
@@ -34,7 +33,6 @@ class WebAuthn implements \Tfish\Interface\Viewable
     use \Tfish\Traits\Viewable;
 
     private object $model;
-    private \Tfish\Entity\Preference $preference;
     private array $credentials = [];
     private string $response = '';
     private string $backUrl = '';
@@ -43,12 +41,10 @@ class WebAuthn implements \Tfish\Interface\Viewable
      * Constructor.
      *
      * @param   object $model Instance of a model class.
-     * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish preference class.
      */
-    public function __construct(object $model, \Tfish\Entity\Preference $preference)
+    public function __construct(object $model)
     {
         $this->model = $model;
-        $this->preference = $preference;
         $this->pageTitle = TFISH_WEBAUTHN_PAGE_TITLE;
         $this->theme = 'admin';
         $this->template = 'register';
@@ -144,16 +140,6 @@ class WebAuthn implements \Tfish\Interface\Viewable
     public function backUrl(): string
     {
         return $this->backUrl;
-    }
-
-    /**
-     * Get preference entity.
-     *
-     * @return  \Tfish\Entity\Preference Preference instance.
-     */
-    public function preference(): \Tfish\Entity\Preference
-    {
-        return $this->preference;
     }
 
     /**
