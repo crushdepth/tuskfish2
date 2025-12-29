@@ -208,20 +208,16 @@ class WebAuthn
         $this->validateToken($token);
 
         if (!$this->session->isLoggedIn()) {
-            $this->viewModel->setResponse(TFISH_WEBAUTHN_ERROR_NOT_AUTHENTICATED);
-            $this->viewModel->setBackUrl(TFISH_URL . 'login/');
-            $this->viewModel->displayRevoke();
-            return [];
+            \header('Location: ' . TFISH_URL . 'login/', true, 303);
+            exit;
         }
 
         $id = (int) ($_POST['id'] ?? 0);
         $userId = $this->session->userId();
 
         if (!$userId) {
-            $this->viewModel->setResponse(TFISH_WEBAUTHN_ERROR_NOT_AUTHENTICATED);
-            $this->viewModel->setBackUrl(TFISH_URL . 'login/');
-            $this->viewModel->displayRevoke();
-            return [];
+            \header('Location: ' . TFISH_URL . 'login/', true, 303);
+            exit;
         }
 
         $result = $this->viewModel->deleteCredential($id, $userId);
