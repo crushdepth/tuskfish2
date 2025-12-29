@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         statusDiv.innerHTML = '<div class="alert alert-success"><strong>Success!</strong> Credential registered. Reloading...</div>';
-        setTimeout(() => location.reload(), 1500);
+        setTimeout(() => window.location.href = TFISH_URL + 'register/', 1500);
 
       } catch (error) {
         const alertDiv = document.createElement('div');

@@ -342,7 +342,7 @@ class WebAuthnCredential
 
         // Store credential
         // AAGUID may be null in 'none' attestation mode or for some authenticators
-        $aaguid = isset($data->aaguid) && $data->aaguid !== null ? \bin2hex($data->aaguid) : '';
+        $aaguid = isset($data->AAGUID) && $data->AAGUID !== null ? \bin2hex($data->AAGUID) : '';
 
         $result = $this->store(
             $userId,

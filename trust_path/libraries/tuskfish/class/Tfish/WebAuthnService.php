@@ -96,6 +96,11 @@ class WebAuthnService
             $excludeCredentialIds               // excludeCredentialIds
         );
 
+        // Override attestation to 'none' to avoid browser privacy dialogue
+        // We don't validate attestation anyway (failIfRootMismatch: false)
+        // All cryptographic security remains intact without attestation
+        $options->publicKey->attestation = 'none';
+
         return $options;
     }
 
