@@ -132,6 +132,25 @@ class Session
         return false;
     }
 
+    /**
+     * Get the current user ID.
+     *
+     * @return int|null User ID or null if not logged in.
+     */
+    public function userId(): ?int
+    {
+        return isset($_SESSION['id']) ? (int)$_SESSION['id'] : null;
+    }
+
+    /**
+     * Get the current user email.
+     *
+     * @return string|null User email or null if not logged in.
+     */
+    public function userEmail(): ?string
+    {
+        return $_SESSION['adminEmail'] ?? null;
+    }
 
     /**
      * Return the target URL path for redirection AFTER a successful authentication (user group) challenge.
@@ -310,39 +329,41 @@ class Session
      * @param string $email Input email.
      * @param string $password Input password.
      */
-    public function login(string $email, string $password)
+    public function login(string $email, string $password): array
     {
         // Check email and password have been supplied
         if (empty($email) || empty($password)) {
             // Issue incomplete form warning and redirect to the login page.
             $this->logout(TFISH_URL . "login/");
-        } else {
-            // Validate the admin email (which functions as the username in Tuskfish CMS)
-            $cleanEmail = $this->trimString($email);
-
-            if ($this->isEmail($cleanEmail)) {
-                $this->_login($cleanEmail, $password);
-            } else {
-                // Issue warning - email should follow email format
-                $this->logout(TFISH_URL . "login/");
-            }
+            return [];
         }
+
+        // Validate the admin email (which functions as the username in Tuskfish CMS)
+        $cleanEmail = $this->trimString($email);
+
+        if ($this->isEmail($cleanEmail)) {
+            return $this->_login($cleanEmail, $password);
+        }
+
+        // Issue warning - email should follow email format
+        $this->logout(TFISH_URL . "login/");
+        return [];
     }
 
     /** @internal */
-    private function _login(string $cleanEmail, string $dirtyPassword)
+    private function _login(string $cleanEmail, string $dirtyPassword): array
     {
         // Query the database for a matching user.
         $user = $this->_getUser($cleanEmail);
 
         // Authenticate user by calculating their password hash and comparing it to the one on file.
         if ($user) {
-            $this->_authenticateUser($user, $dirtyPassword);
-        } else {
-            // Redirect to login page.
-            $this->logout(TFISH_URL . "login/");
-            exit;
+            return $this->_authenticateUser($user, $dirtyPassword);
         }
+
+        // Redirect to login page.
+        $this->logout(TFISH_URL . "login/");
+        exit;
     }
 
     /** @internal */
@@ -360,7 +381,7 @@ class Session
     }
 
     /** @internal */
-    private function _authenticateUser(array $user, string $dirtyPassword)
+    private function _authenticateUser(array $user, string $dirtyPassword): array
     {
         if (!\is_array($user)) {
             throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY_OR_EMPTY);
@@ -379,7 +400,21 @@ class Session
 
         // If login successful regenerate session due to privilege escalation.
         if (\password_verify($dirtyPassword, $user['passwordHash'])) {
+            // Regenerate session immediately after successful password verification
             $this->regenerate();
+
+            // Check if second factor authentication is required
+            $webauthnLogin = new \Tfish\Model\WebAuthnLogin($this->db);
+            $secondFactorType = $webauthnLogin->requiresSecondFactor((int)$user['id']);
+
+            if ($secondFactorType === 'webauthn') {
+                // Store pending user ID for WebAuthn verification
+                $challengeModel = new \Tfish\Model\WebAuthnChallenge();
+                $challengeModel->storePendingUserId((int)$user['id']);
+                return ['webauthn_required' => true];
+            }
+
+            // No second factor required - complete login
             $this->setLoginFlags($user);
 
             // Reset failed login counter to zero.
@@ -501,6 +536,244 @@ class Session
     }
 
     /**
+     * Authenticate user with WebAuthn and establish a session.
+     *
+     * Called after WebAuthn assertion has been cryptographically verified.
+     * This method validates the user account is active and creates the session.
+     * Does not redirect - returns bool so controller can send JSON response.
+     *
+     * @param int $userId User ID from verified WebAuthn credential.
+     * @return bool True on success, false on failure.
+     */
+    public function loginWithWebAuthn(int $userId): bool
+    {
+        // Query database for user record
+        $statement = $this->db->preparedStatement("SELECT * FROM `user` WHERE `id` = :userId");
+        $statement->bindParam(':userId', $userId, \PDO::PARAM_INT);
+        $statement->execute();
+        $user = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        if (empty($user)) {
+            return false;
+        }
+
+        // If user is suspended, do not proceed
+        if ((int) $user['onlineStatus'] !== 1) {
+            return false;
+        }
+
+        // Regenerate session due to privilege escalation
+        $this->regenerate();
+        $this->setLoginFlags($user);
+
+        // Reset failed login counter to zero
+        $this->db->update('user', (int) $user['id'], ['loginErrors' => 0]);
+
+        // Send admin notification email
+        $this->notifyAdminLogin($user['adminEmail']);
+
+        return true;
+    }
+
+    /**
+     * Get WebAuthn authentication options for pending login.
+     *
+     * @return  object|null Authentication options or null on failure.
+     */
+    public function getWebAuthnAuthenticationOptions(): ?object
+    {
+        $challengeModel = new \Tfish\Model\WebAuthnChallenge();
+        $userId = $challengeModel->hasPendingUserId();
+
+        if (!$userId) {
+            return null;
+        }
+
+        // Query credentials
+        $sql = "SELECT `credentialId` FROM `webauthn_credentials` WHERE `userId` = :userId";
+        $statement = $this->db->preparedStatement($sql);
+        $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
+        $statement->execute();
+        $credentials = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (empty($credentials)) {
+            return null;
+        }
+
+        $credentialIds = \array_column($credentials, 'credentialId');
+
+        // Decode base64 credential IDs to binary for WebAuthn library
+        // Use strict mode and filter out any invalid entries
+        $credentialIdsBinary = \array_filter(\array_map(function($id) {
+            $decoded = \base64_decode($id, true);
+            if ($decoded === false) {
+                \error_log("SECURITY WARNING: Invalid base64 credential ID in database: " . \substr($id, 0, 20));
+            }
+            return $decoded;
+        }, $credentialIds), function($value) {
+            return $value !== false;
+        });
+
+        // If all credentials were corrupted, fail gracefully
+        if (empty($credentialIdsBinary)) {
+            \error_log("SECURITY ALERT: All credentials corrupted for user authentication attempt");
+            return null;
+        }
+
+        // Generate authentication options
+        // Use configured domain from TFISH_URL (not user-controlled headers)
+        $rpId = \parse_url(TFISH_URL, PHP_URL_HOST);
+
+        if (!$rpId) {
+            throw new \RuntimeException(TFISH_WEBAUTHN_ERROR_INVALID_TFISH_URL);
+        }
+
+        $service = new \Tfish\WebAuthnService($this->preference->siteName(), $rpId);
+        $options = $service->getAuthenticationOptions($credentialIdsBinary);
+
+        // Store authentication challenge
+        $challengeModel->storeAuthentication($service->getChallenge());
+
+        return $options;
+    }
+
+    /**
+     * Verify WebAuthn authentication assertion.
+     *
+     * @param   string $clientDataJSON Client data from authenticator.
+     * @param   string $authenticatorData Authenticator data.
+     * @param   string $signature Signature from authenticator.
+     * @param   string $credentialId Credential ID used.
+     * @return  bool True on successful authentication.
+     */
+    public function verifyWebAuthnAssertion(
+        string $clientDataJSON,
+        string $authenticatorData,
+        string $signature,
+        string $credentialId
+    ): bool
+    {
+        $challengeModel = new \Tfish\Model\WebAuthnChallenge();
+        $challenge = $challengeModel->getAuthentication();
+        $userId = $challengeModel->getPendingUserId();
+
+        if (!$challenge || !$userId) {
+            $challengeModel->clear();
+            return false;
+        }
+
+        // Get user record for rate limiting
+        $userStatement = $this->db->preparedStatement("SELECT * FROM `user` WHERE `id` = :userId");
+        $userStatement->bindValue(':userId', $userId, \PDO::PARAM_INT);
+        $userStatement->execute();
+        $user = $userStatement->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            $challengeModel->clear();
+            return false;
+        }
+
+        // Apply rate limiting to prevent brute force attacks
+        if ($user['loginErrors']) {
+            $this->delayLogin((int) $user['loginErrors']);
+        }
+
+        // Get credential from database
+        $sql = "SELECT * FROM `webauthn_credentials` WHERE `credentialId` = :credentialId LIMIT 1";
+        $statement = $this->db->preparedStatement($sql);
+        $statement->bindValue(':credentialId', $credentialId, \PDO::PARAM_STR);
+        $statement->execute();
+        $credential = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        // Perform constant-time-like comparison to prevent timing attacks
+        // If credential doesn't exist, perform dummy comparison to normalize timing
+        if (!$credential) {
+            // Dummy comparison with same operations as the real check
+            $dummy = (int)0 !== $userId;
+
+            // Increment login error counter
+            if ((int) $user['loginErrors'] < 15) {
+                $this->db->updateCounter((int) $user['id'], 'user', 'loginErrors');
+            }
+
+            $challengeModel->clear();
+            return false;
+        }
+
+        if ((int)$credential['userId'] !== $userId) {
+            // Increment login error counter
+            if ((int) $user['loginErrors'] < 15) {
+                $this->db->updateCounter((int) $user['id'], 'user', 'loginErrors');
+            }
+
+            $challengeModel->clear();
+            return false;
+        }
+
+        // Verify the assertion
+        // Use configured domain from TFISH_URL (not user-controlled headers)
+        $rpId = \parse_url(TFISH_URL, PHP_URL_HOST);
+
+        if (!$rpId) {
+            throw new \RuntimeException(TFISH_WEBAUTHN_ERROR_INVALID_TFISH_URL);
+        }
+
+        $service = new \Tfish\WebAuthnService($this->preference->siteName(), $rpId);
+
+        $verified = $service->verifyAuthentication(
+            $clientDataJSON,
+            $authenticatorData,
+            $signature,
+            $credential['publicKey'],
+            $challenge,
+            (int)$credential['signCount']
+        );
+
+        if ($verified) {
+            // Update signature counter with clone detection
+            $newSignCount = $service->getSignatureCounter();
+            $credentialModel = new \Tfish\Model\WebAuthnCredential($this->db, $this->preference);
+            $updated = $credentialModel->updateSignCount($credentialId, $newSignCount);
+
+            if (!$updated) {
+                // Clone detected or update failed
+                \error_log("SECURITY ALERT: WebAuthn signature counter validation failed for credential {$credentialId}");
+
+                // Increment login error counter
+                if ((int) $user['loginErrors'] < 15) {
+                    $this->db->updateCounter((int) $user['id'], 'user', 'loginErrors');
+                }
+
+                $challengeModel->clear();
+                return false;
+            }
+
+            // Complete login
+            if ($this->loginWithWebAuthn($userId)) {
+                $challengeModel->clear();
+                return true;
+            }
+
+            // Login failed after successful verification
+            // Increment login error counter
+            if ((int) $user['loginErrors'] < 15) {
+                $this->db->updateCounter((int) $user['id'], 'user', 'loginErrors');
+            }
+
+            $challengeModel->clear();
+            return false;
+        }
+
+        // Verification failed - increment login error counter
+        if ((int) $user['loginErrors'] < 15) {
+            $this->db->updateCounter((int) $user['id'], 'user', 'loginErrors');
+        }
+
+        $challengeModel->clear();
+        return false;
+    }
+
+    /**
      * Notify admin of login.
      *
      * Sends an email to the admin email notifying that an admin login has occurred. This
@@ -521,7 +794,7 @@ class Session
         ];
         $message = TFISH_LOGIN_NOTED_MESSAGE . xss($email) . '.';
 
-        mail($to, $subject, $message, $headers);
+        @mail($to, $subject, $message, $headers);
     }
 
     /**
@@ -662,120 +935,5 @@ class Session
         if (empty($_SESSION['token'])) {
             $_SESSION['token'] = \bin2hex(random_bytes(32)) ;
         }
-    }
-
-    /**
-     * Authenticate the user with two factors and establish a session.
-     *
-     * Requires a Yubikey hardware token as the second factor. Note that the authenticator type
-     * is not declared, as the desired response is to logout and redirect, rather than to throw
-     * an error.
-     *
-     * @param string $dirtyPassword Input password.
-     * @param string $dirtyOtp Input Yubikey one-time password.
-     * @param \Yubico\Auth_yubico $yubikey Instance of the Yubico authenticator class.
-     */
-    public function twoFactorLogin(string $dirtyPassword, string $dirtyOtp,
-            \Yubico\Auth_yubico $yubikey)
-    {
-        // Check password, OTP and Yubikey have been supplied
-        if (empty($dirtyPassword) || empty($dirtyOtp) || empty($yubikey)) {
-            $this->logout(TFISH_URL . "login/");
-            exit;
-        }
-
-        $dirtyOtp = $this->trimString($dirtyOtp);
-
-        // Yubikey OTP should be 44 characters long.
-        if (\mb_strlen($dirtyOtp, "UTF-8") != 44) {
-            $this->logout(TFISH_URL . "login/");
-            exit;
-        }
-
-        // Yubikey OTP should be alphabetic characters only.
-        if (!$this->isAlpha($dirtyOtp)) {
-            $this->logout(TFISH_URL . "login/");
-            exit;
-        }
-
-        // Public ID is the first 12 characters of the OTP.
-        $dirtyId = \mb_substr($dirtyOtp, 0, 12, 'UTF-8');
-
-        $this->_twoFactorLogin($dirtyId, $dirtyPassword, $dirtyOtp, $yubikey);
-    }
-
-    /** @internal */
-    private function _twoFactorLogin(string $dirtyId, string $dirtyPassword, string $dirtyOtp,
-        \Yubico\Auth_yubico $yubikey)
-    {
-        $first_factor = false;
-        $second_factor = false;
-        $cleanId = $this->trimString($dirtyId);
-
-        $user = $this->_getYubikeyUser($cleanId);
-
-        if (empty($user)) {
-            $this->logout(TFISH_URL . "login/");
-            exit;
-        }
-
-        // If the user has previous failed login attempts sleep to frustrate brute force attacks.
-        if ($user['loginErrors']) {
-            $this->delayLogin((int) $user['loginErrors']);
-        }
-
-        // If this user is suspended, do not proceed any further.
-        if ((int) $user['onlineStatus'] !== 1) {
-            $this->logout(TFISH_URL . "login/");
-            exit;
-        }
-
-        // First factor authentication: Calculate password hash and compare to the one on file.
-        if (\password_verify($dirtyPassword, $user['passwordHash'])) {
-            $first_factor = true;
-        }
-
-        // Second factor authentication: Submit one-time password to Yubico authentication server.
-        // Sync is set to 100 (most secure), timeout for responses is 15 seconds.
-        $second_factor = $yubikey->verify($dirtyOtp, null, false, 100, 15);
-
-        // If both checks are good regenerate session due to priviledge escalation and login.
-        if ($first_factor === true && $second_factor === true) {
-            $this->regenerate();
-            $this->setLoginFlags($user);
-
-            // Reset failed login counter to zero.
-            $this->db->update('user', (int) $user['id'], ['loginErrors' => 0]);
-
-            // Send email notification of login to this account.
-            $this->notifyAdminLogin($user['adminEmail']);
-
-            \header('Location: ' . TFISH_ADMIN_URL);
-            exit;
-        }
-
-        // Fail: Increment failed login counter, destroy session and redirect to the login page.
-        if ((int) $user['loginErrors'] < 15) {
-            $this->db->updateCounter((int) $user['id'], 'user', 'loginErrors');
-        }
-
-        $this->logout(TFISH_URL . "login/");
-        exit;
-    }
-
-    /** @internal */
-    private function _getYubikeyUser(string $cleanId)
-    {
-        $user = false;
-
-        $statement = $this->db->preparedStatement("SELECT * FROM user WHERE "
-                . "`yubikeyId` = :yubikeyId OR "
-                . "`yubikeyId2` = :yubikeyId OR "
-                . "`yubikeyId3` = :yubikeyId");
-        $statement->bindParam(':yubikeyId', $cleanId, \PDO::PARAM_STR);
-        $statement->execute();
-        $user = $statement->fetch(\PDO::FETCH_ASSOC);
-
-        return $user;
     }
 }

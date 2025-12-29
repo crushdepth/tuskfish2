@@ -19,8 +19,8 @@ declare(strict_types=1);
 // Include installation language files
 include_once "./english.php";
 
-// Check PHP version 8.3+
-if (PHP_VERSION_ID < 80300) {
+// Check PHP version 8.4+
+if (PHP_VERSION_ID < 80400) {
     echo TFISH_PHP_VERSION_TOO_LOW;
     exit;
 }
@@ -149,9 +149,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             `adminEmail` TEXT NOT NULL UNIQUE,
             `passwordHash` TEXT NOT NULL,
             `userGroup` INTEGER NOT NULL,
-            `yubikeyId` TEXT NOT NULL,
-            `yubikeyId2` TEXT NOT NULL,
-            `yubikeyId3` TEXT NOT NULL,
             `loginErrors` INTEGER NOT NULL,
             `onlineStatus` INTEGER NOT NULL
         );";
@@ -222,9 +219,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'adminEmail' => $adminEmail,
             'passwordHash' => $passwordHash,
             'userGroup' => 1,
-            'yubikeyId' => '',
-            'yubikeyId2' => '',
-            'yubikeyId3' => '',
             'loginErrors' => 0,
             'onlineStatus' => 1
         ];
@@ -350,6 +344,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             `route` TEXT NOT NULL
         );";
 
+        $statement = $database->preparedStatement($sql);
+        $statement->execute();
+
+        // Create webauthn_credentials table for WebAuthn/FIDO2 authentication.
+        $sql = "CREATE TABLE IF NOT EXISTS `webauthn_credentials` (
+            `id` INTEGER PRIMARY KEY,
+            `userId` INTEGER NOT NULL,
+            `credentialId` TEXT NOT NULL UNIQUE,
+            `publicKey` TEXT NOT NULL,
+            `signCount` INTEGER NOT NULL DEFAULT 0,
+            `transports` TEXT NOT NULL,
+            `aaguid` TEXT NOT NULL,
+            `credentialName` TEXT NOT NULL DEFAULT '',
+            `createdAt` INTEGER NOT NULL,
+            `lastUsed` INTEGER NOT NULL DEFAULT 0,
+            FOREIGN KEY(`userId`) REFERENCES `user`(`id`) ON DELETE CASCADE
+        );";
         $statement = $database->preparedStatement($sql);
         $statement->execute();
 

@@ -1,0 +1,104 @@
+<?php declare(strict_types=1); ?>
+
+<div class="container-fluid">
+
+  <div class="row">
+    <div class="col text-center">
+      <h1><?php echo xss($viewModel->pageTitle()); ?></h1>
+      <p><?php echo TFISH_WEBAUTHN_MANAGE_CREDENTIALS; ?></p>
+    </div>
+  </div>
+
+  <!-- Register new credential -->
+  <div class="row justify-content-center my-4">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h5><?php echo TFISH_WEBAUTHN_REGISTER_NEW; ?></h5>
+        </div>
+        <div class="card-body">
+          <form id="registerForm">
+            <div class="mb-3">
+              <label for="credentialName" class="form-label"><?php echo TFISH_WEBAUTHN_NAME_LABEL; ?></label>
+              <input type="text" class="form-control" id="credentialName"
+                     placeholder="<?php echo TFISH_WEBAUTHN_NAME_PLACEHOLDER; ?>">
+              <small class="form-text text-muted"><?php echo TFISH_WEBAUTHN_NAME_HELP; ?></small>
+            </div>
+            <input type="hidden" id="registerToken" value="<?php echo xss($_SESSION['token']); ?>">
+            <button type="button" id="registerButton" class="btn btn-primary">
+              <i class="icon-key"></i> <?php echo TFISH_WEBAUTHN_REGISTER_BUTTON; ?>
+            </button>
+          </form>
+          <div id="registerStatus" class="mt-3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- List existing credentials -->
+  <?php if ($viewModel->hasCredentials()): ?>
+  <div class="row justify-content-center my-4">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h5><?php echo TFISH_WEBAUTHN_YOUR_CREDENTIALS; ?></h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th><?php echo TFISH_WEBAUTHN_TABLE_NAME; ?></th>
+                  <th><?php echo TFISH_WEBAUTHN_TABLE_CREATED; ?></th>
+                  <th><?php echo TFISH_WEBAUTHN_TABLE_LAST_USED; ?></th>
+                  <th><?php echo TFISH_WEBAUTHN_TABLE_ACTION; ?></th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach ($viewModel->credentials() as $credential): ?>
+                <tr>
+                  <td><?php echo xss($credential['credentialName'] ?: TFISH_WEBAUTHN_UNNAMED); ?></td>
+                  <td><?php echo xss(date('Y-m-d', (int)$credential['createdAt'])); ?></td>
+                  <td>
+                    <?php
+                      echo $credential['lastUsed']
+                        ? xss(date('Y-m-d', (int)$credential['lastUsed']))
+                        : TFISH_WEBAUTHN_NEVER_USED;
+                    ?>
+                  </td>
+                  <td>
+                    <form method="post" action="<?php echo TFISH_URL . 'register/?action=revoke'; ?>" style="display:inline;" class="revoke-form">
+                      <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>">
+                      <input type="hidden" name="id" value="<?php echo (int)$credential['id']; ?>">
+                      <button type="submit" class="btn btn-sm btn-danger">
+                        <i class="icon-xmark"></i> <?php echo TFISH_WEBAUTHN_REVOKE; ?>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <?php else: ?>
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="alert alert-info">
+        <strong><?php echo TFISH_WEBAUTHN_NO_CREDENTIALS; ?></strong> <?php echo TFISH_WEBAUTHN_REGISTER_FIRST; ?>
+      </div>
+    </div>
+  </div>
+  <?php endif; ?>
+
+</div>
+
+<script>
+// Define global variables for JavaScript
+const TFISH_URL = '<?php echo TFISH_URL; ?>';
+const TFISH_WEBAUTHN_REVOKE_CONFIRM = <?php echo \json_encode(TFISH_WEBAUTHN_REVOKE_CONFIRM, JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS); ?>;
+</script>
+<script src="<?php echo TFISH_URL; ?>vendor/tuskfish/webauthn-register.js"></script>

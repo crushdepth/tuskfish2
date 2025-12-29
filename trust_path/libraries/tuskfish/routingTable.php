@@ -99,21 +99,18 @@ return [
         '\\Tfish\\View\\Single',
         '\\Tfish\\Controller\\Login',
         0),
-
-    // Alternative two-factor login route for use with Yubikey.
-    /**'/login/' => new Route(
-        '\\Tfish\\Model\\Yubikey',
-        '\\Tfish\\ViewModel\\Yubikey',
-        '\\Tfish\\View\\Single',
-        '\\Tfish\\Controller\\Yubikey',
-        0),**/
-
     '/logout/' => new Route(
         '\\Tfish\\Model\\Login',
         '\\Tfish\\ViewModel\\Login',
         '\\Tfish\\View\\Single',
         '\\Tfish\\Controller\\Logout',
         0),
+    '/register/' => new Route(
+        '\\Tfish\\Model\\WebAuthnCredential',
+        '\\Tfish\\ViewModel\\WebAuthn',
+        '\\Tfish\\View\\Single',
+        '\\Tfish\\Controller\\WebAuthn',
+        7),
     '/restricted/' => new Route(
         '\\Tfish\\Model\\Login',
         '\\Tfish\\ViewModel\\Restricted',

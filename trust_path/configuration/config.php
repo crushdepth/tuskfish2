@@ -41,6 +41,7 @@ if (!\defined("TFISH_ROOT_PATH")) die("TFISH_ERROR_ROOT_PATH_NOT_DEFINED");
 \define("TFISH_PREFERENCE_URL",  TFISH_URL . "preference/");
 \define("TFISH_PREFERENCE_EDIT_URL", TFISH_URL . "preference/edit/");
 \define("TFISH_PASSWORD_URL", TFISH_URL . "password/");
+\define("TFISH_WEBAUTHN_URL", TFISH_URL . "register/");
 \define("TFISH_CACHE_URL", TFISH_URL . "cache/");
 \define("TFISH_THEMES_URL", TFISH_URL . "themes/");
 \define("TFISH_VENDOR_URL", TFISH_URL . "vendor/");
@@ -89,12 +90,5 @@ function tfish_autoload(string $classname) {
     }
 }
 \spl_autoload_register('tfish_autoload');
-
-// Optional Yubikey support for two-factor authentication. See the user manual for how to configure.
-// if (!\defined("TFISH_YUBIKEY_ID"))
-//define("TFISH_YUBIKEY_ID", "your_client_id");
-
-// if (!\defined("TFISH_YUBIKEY_SIGNATURE_KEY"))
-    //define("TFISH_YUBIKEY_SIGNATURE_KEY", "your_api_key");
 
 // Site database name are appended here.

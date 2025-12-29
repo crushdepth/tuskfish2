@@ -45,17 +45,18 @@ class Login
     }
 
     /**
-     * Process admin login.
+     * Process admin login with WebAuthn detection.
      *
-     * Note that email validation is handled by the Session class.
+     * Checks if user requires WebAuthn second factor after password validation.
      *
      * @param   string $email Email address.
      * @param   string $password Password.
+     * @return  array Empty array for normal login, or associative array with 'webauthn_required' => true
      */
-    public function login(string $email, string $password): void
+    public function login(string $email, string $password): array
     {
         $email = $this->trimString($email);
-        $this->session->login($email, $password);
+        return $this->session->login($email, $password);
     }
 
     /**
@@ -66,19 +67,17 @@ class Login
         $this->session->logout(TFISH_URL);
     }
 
-    /**
-     * Set the session object.
-     *
-     * This will be deprecated when the DICE dependency injection container is adopted.
-     *
-     * @param   \Tfish\Session $session Instance of the session management class.
-     */
-    public function setSession(\Tfish\Session $session): void
-    {
-        $this->session = $session;
-    }
-
     /** Utilities */
+
+    /**
+     * Return the next URL (redirect).
+     *
+     * @return string|null
+     */
+    public function nextUrl(): ?string
+    {
+        return $this->session->nextUrl();
+    }
 
     /**
      * Set title for redirect page.
@@ -98,5 +97,39 @@ class Login
     public function redirectMessage(): ?string
     {
         return $this->session->redirectMessage();
+    }
+
+    /**
+     * Get WebAuthn authentication options for pending login.
+     *
+     * @return  object|null Authentication options or null on failure.
+     */
+    public function getWebAuthnAuthenticationOptions(): ?object
+    {
+        return $this->session->getWebAuthnAuthenticationOptions();
+    }
+
+    /**
+     * Verify WebAuthn authentication assertion.
+     *
+     * @param   string $clientDataJSON Client data from authenticator.
+     * @param   string $authenticatorData Authenticator data.
+     * @param   string $signature Signature from authenticator.
+     * @param   string $credentialId Credential ID used.
+     * @return  bool True on successful authentication.
+     */
+    public function verifyWebAuthnAssertion(
+        string $clientDataJSON,
+        string $authenticatorData,
+        string $signature,
+        string $credentialId
+    ): bool
+    {
+        return $this->session->verifyWebAuthnAssertion(
+            $clientDataJSON,
+            $authenticatorData,
+            $signature,
+            $credentialId
+        );
     }
 }

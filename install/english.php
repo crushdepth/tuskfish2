@@ -29,6 +29,8 @@
         . "<strong>0600</strong>.</li>"
         . "<li>Set the file permissions for /your_trust_path/configuration/<strong>config.php</strong> to "
         . "<strong>0400</strong>.</li>"
+        . "<li><strong>Set a second authentication factor</strong> (Android / iOS, TouchID, Hello or security key) in "
+        . "Admin => Settings => Two Factor Authentication.</li>"
         . "</ul>"
         . "<p>Please note that you may need to use the cPanel File Manager or shell access to set "
         . "file permissions to these levels, as your FTP client probably can't.</p>"
@@ -76,8 +78,8 @@
 
 // Pre-flight file path checks.
 \define("TFISH_PREFLIGHT_CHECKS", "Pre-flight system checks");
-\define("TFISH_PHP_VERSION_TOO_LOW", "PHP version too low, please upgrade to minimum system requirements (PHP 8.3+).");
-\define("TFISH_PHP_VERSION_OK", "PHP version ok (minimum 8.3)");
+\define("TFISH_PHP_VERSION_TOO_LOW", "PHP version too low, please upgrade to minimum system requirements (PHP 8.4+).");
+\define("TFISH_PHP_VERSION_OK", "PHP version ok (minimum 8.4)");
 \define("TFISH_PATH_TO_MAINFILE_OK", "Path to mainfile is good");
 \define("TFISH_PATH_TO_MAINFILE_INVALID", "mainfile.php is missing, please check that all files were "
         . "uploaded as installation cannot proceed");

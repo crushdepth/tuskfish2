@@ -95,17 +95,7 @@ class UserEdit
             return false;
         }
 
-        if ($this->duplicateYubikeysSubmitted()) {
-            \trigger_error(TFISH_ERROR_YUBIKEY_NOT_UNIQUE, E_USER_NOTICE);
-            return false;
-        }
-
         $content = $this->validateForm($_POST['content'], true);
-
-        // If a submitted yubikey ID is not present in $content this indicates it was not unique.
-        if (!empty($_POST['content']['yubikeyId']) && empty($content['yubikeyId'])) return false;
-        if (!empty($_POST['content']['yubikeyId2']) && empty($content['yubikeyId2'])) return false;
-        if (!empty($_POST['content']['yubikeyId3']) && empty($content['yubikeyId3'])) return false;
 
         // Insert new content.
         if (!$this->database->insert('user', $content)) {
@@ -127,26 +117,13 @@ class UserEdit
             return false;
         }
 
-        if ($this->duplicateYubikeysSubmitted()) {
-            \trigger_error(TFISH_ERROR_YUBIKEY_NOT_UNIQUE, E_USER_NOTICE);
-            return false;
-        }
-
         $content = $this->validateForm($_POST['content'], false);
-
-        // If a submitted yubikey ID is not present in $content this indicates it was not unique.
-        if (!empty($_POST['content']['yubikeyId']) && empty($content['yubikeyId'])) return false;
-        if (!empty($_POST['content']['yubikeyId2']) && empty($content['yubikeyId2'])) return false;
-        if (!empty($_POST['content']['yubikeyId3']) && empty($content['yubikeyId3'])) return false;
 
         $id = (int) $content['id'];
 
         // As this is being sent to storage, decode some entities that were encoded for display.
         $fieldsToDecode = [
             'adminEmail',
-            'yubikeyId',
-            'yubikeyId2',
-            'yubikeyId3',
         ];
 
         foreach ($fieldsToDecode as $field) {
@@ -220,53 +197,6 @@ class UserEdit
 
         if (!empty($form['password'])) $clean['passwordHash'] = $this->session->hashPassword($form['password']);
 
-        // Yubikey IDs
-        $yubikeyId = !empty($form['yubikeyId']) ? $this->trimString($form['yubikeyId']) : '';
-        $yubikeyId2 = !empty($form['yubikeyId2']) ? $this->trimString($form['yubikeyId2']) : '';
-        $yubikeyId3 = !empty($form['yubikeyId3']) ? $this->trimString($form['yubikeyId3']) : '';
-
-        if (!empty($yubikeyId)) {
-
-            if (\mb_strlen($yubikeyId) !== 12) {
-                throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
-            }
-
-            if (!$this->isValidYubikeyId($id, $yubikeyId)) {
-                $yubikeyId = '';
-                \trigger_error(TFISH_ERROR_YUBIKEY_NOT_UNIQUE, E_USER_NOTICE);
-            }
-        }
-
-        $clean['yubikeyId'] = $yubikeyId;
-
-        if (!empty($yubikeyId2)) {
-
-            if (\mb_strlen($yubikeyId2) !== 12) {
-                throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
-            }
-
-            if (!$this->isValidYubikeyId($id, $yubikeyId2)) {
-                $yubikeyId2 = '';
-                \trigger_error(TFISH_ERROR_YUBIKEY_NOT_UNIQUE, E_USER_NOTICE);
-            }
-        }
-
-        $clean['yubikeyId2'] = $yubikeyId2;
-
-        if (!empty($yubikeyId3)) {
-
-            if (\mb_strlen($yubikeyId3) !== 12) {
-                throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
-            }
-
-            if (!$this->isValidYubikeyId($id, $yubikeyId3)) {
-                $yubikeyId3 = '';
-                \trigger_error(TFISH_ERROR_YUBIKEY_NOT_UNIQUE, E_USER_NOTICE);
-            }
-        }
-
-        $clean['yubikeyId3'] = $yubikeyId3;
-
         // User group.
         if (empty($form['userGroup'])) {
             throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
@@ -318,60 +248,5 @@ class UserEdit
         }
 
         return $clean;
-    }
-
-    /**
-     * Check if the same yubikey ID has been submitted in primary and secondary fields.
-     *
-     * @return boolean True if duplicated, false if not.
-     */
-    private function duplicateYubikeysSubmitted(): bool
-    {
-        if (!isset($_POST['content']) || !\is_array($_POST['content'])) {
-            return false;
-        }
-
-        $y1 = isset($_POST['content']['yubikeyId'])  ? $this->trimString((string)$_POST['content']['yubikeyId'])  : '';
-        $y2 = isset($_POST['content']['yubikeyId2']) ? $this->trimString((string)$_POST['content']['yubikeyId2']) : '';
-        $y3 = isset($_POST['content']['yubikeyId3']) ? $this->trimString((string)$_POST['content']['yubikeyId3']) : '';
-
-        // Collect non-empty values
-        $ids = \array_filter([$y1, $y2, $y3], fn($v) => $v !== '');
-
-        // If any duplicates exist, the count shrinks when using array_unique
-        return count($ids) !== \count(\array_unique($ids));
-    }
-
-    /**
-     * Check if a submitted yubikey ID is unique.
-     *
-     * The yubikey Id is used to identify accounts when using two-factor authentication, so they
-     * must be unique, you cannot share them!
-     *
-     * @param int $id ID of user (0) if new user.
-     * @param string $yubikeyId First 12 characters of yubikey output is its public ID.
-     * @return boolean true if valid and unique, false if ID is invalid or already in use.
-     */
-    private function isValidYubikeyId(int $id, string $yubikeyId): bool
-    {
-        $count = 0;
-
-        $sql = "SELECT COUNT(*) FROM `user` WHERE " .
-                "(`yubikeyId` = :yubikeyId OR " .
-                "`yubikeyId2` = :yubikeyId OR " .
-                "`yubikeyId3` = :yubikeyId) ";
-
-        if ($id > 0) $sql .= " AND `id` != :id";
-
-        $statement = $this->database->preparedStatement($sql);
-        $statement->bindParam(':yubikeyId', $yubikeyId, \PDO::PARAM_STR);
-
-        if ($id > 0) $statement->bindParam(':id', $id, \PDO::PARAM_INT);
-
-        $statement->execute();
-        $count = $statement->fetch(\PDO::FETCH_NUM);
-        $count = (int) \reset($count);
-
-        return $count === 0 ? true : false;
     }
 }
