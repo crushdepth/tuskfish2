@@ -71,6 +71,11 @@ class WebAuthnCredential
             return false;
         }
 
+        // Validate signature counter is non-negative
+        if ($signCount < 0) {
+            return false;
+        }
+
         $credentialId = $this->trimString($credentialId);
         $publicKey = $this->trimString($publicKey);
         $transports = $this->trimString($transports);
@@ -83,6 +88,18 @@ class WebAuthnCredential
         }
 
         if (!$this->validateCredentialId($credentialId) || !$this->validatePublicKey($publicKey)) {
+            return false;
+        }
+
+        // Validate AAGUID format
+        if (!$this->validateAaguid($aaguid)) {
+            return false;
+        }
+
+        // Prevent duplicate credential registration
+        $existing = $this->getByCredentialId($credentialId);
+        if ($existing) {
+            \error_log("SECURITY WARNING: Attempt to register duplicate credential ID");
             return false;
         }
 
@@ -177,21 +194,32 @@ class WebAuthnCredential
         $currentSignCount = (int)$credential['signCount'];
 
         // Sign count must increment (clone detection).
+        // Use atomic UPDATE with WHERE clause to prevent race conditions
         if ($newSignCount <= $currentSignCount && $currentSignCount !== 0) {
             \error_log("SECURITY ALERT: Sign count mismatch for credential {$credentialId}. Expected > {$currentSignCount}, got {$newSignCount}");
             return false;
         }
 
+        // Atomic update: only update if signCount hasn't changed (prevents TOCTOU race)
         $sql = "UPDATE `webauthn_credentials`
-                SET `signCount` = :signCount, `lastUsed` = :lastUsed
-                WHERE `credentialId` = :credentialId";
+                SET `signCount` = :newSignCount, `lastUsed` = :lastUsed
+                WHERE `credentialId` = :credentialId AND `signCount` = :currentSignCount";
 
         $statement = $this->database->preparedStatement($sql);
-        $statement->bindValue(':signCount', $newSignCount, \PDO::PARAM_INT);
+        $statement->bindValue(':newSignCount', $newSignCount, \PDO::PARAM_INT);
         $statement->bindValue(':lastUsed', \time(), \PDO::PARAM_INT);
         $statement->bindValue(':credentialId', $credentialId, \PDO::PARAM_STR);
+        $statement->bindValue(':currentSignCount', $currentSignCount, \PDO::PARAM_INT);
 
-        return $this->database->executeTransaction($statement);
+        $result = $this->database->executeTransaction($statement);
+
+        // If update affected 0 rows, race condition occurred or credential was modified
+        if (!$result) {
+            \error_log("SECURITY ALERT: Sign count update race condition detected for credential {$credentialId}");
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -250,8 +278,18 @@ class WebAuthnCredential
             return false;
         }
 
-        // Base64 characters: A-Z, a-z, 0-9, +, /, =
-        return (bool)\preg_match('/^[A-Za-z0-9+\/=]+$/', $credentialId);
+        // Maximum length check (DoS protection) - 1KB base64 = ~768 bytes raw
+        if (\strlen($credentialId) > 1024) {
+            return false;
+        }
+
+        // Validate base64 characters: A-Z, a-z, 0-9, +, /, =
+        if (!\preg_match('/^[A-Za-z0-9+\/=]+$/', $credentialId)) {
+            return false;
+        }
+
+        // Verify it's actually valid base64 by attempting strict decode
+        return \base64_decode($credentialId, true) !== false;
     }
 
     /**
@@ -266,12 +304,67 @@ class WebAuthnCredential
             return false;
         }
 
-        // Base64 characters: A-Z, a-z, 0-9, +, /, =
-        return (bool)\preg_match('/^[A-Za-z0-9+\/=]+$/', $publicKey);
+        // Maximum length check (DoS protection) - 8KB base64 = ~6KB raw
+        if (\strlen($publicKey) > 8192) {
+            return false;
+        }
+
+        // Validate base64 characters: A-Z, a-z, 0-9, +, /, =
+        if (!\preg_match('/^[A-Za-z0-9+\/=]+$/', $publicKey)) {
+            return false;
+        }
+
+        // Verify it's actually valid base64 by attempting strict decode
+        return \base64_decode($publicKey, true) !== false;
+    }
+
+    /**
+     * Validate transports array.
+     *
+     * @param   array $transports Array of transport strings.
+     * @return  bool True if valid, false otherwise.
+     */
+    private function validateTransports(array $transports): bool
+    {
+        // Prevent oversized arrays (DoS protection)
+        if (\count($transports) > 10) {
+            return false;
+        }
+
+        // Valid WebAuthn transport values
+        $validTransports = ['usb', 'nfc', 'ble', 'hybrid', 'internal'];
+
+        foreach ($transports as $transport) {
+            if (!\is_string($transport) || !\in_array($transport, $validTransports, true)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Validate AAGUID format.
+     *
+     * @param   string $aaguid AAGUID hex string.
+     * @return  bool True if valid, false otherwise.
+     */
+    private function validateAaguid(string $aaguid): bool
+    {
+        // Empty is valid (for 'none' attestation)
+        if ($aaguid === '') {
+            return true;
+        }
+
+        // Must be exactly 32 hex characters (16 bytes)
+        return \preg_match('/^[0-9a-f]{32}$/i', $aaguid) === 1;
     }
 
     /**
      * Generate WebAuthn registration options.
+     *
+     * IMPORTANT: Calling code MUST validate that $userId matches the authenticated session user.
+     * This method provides defensive validation but relies on upstream authorization.
      *
      * @param   int $userId User ID.
      * @param   string $userEmail User email.
@@ -279,6 +372,11 @@ class WebAuthnCredential
      */
     public function generateRegistrationOptions(int $userId, string $userEmail): object
     {
+        // Defensive validation (upstream MUST also validate authorization)
+        if ($userId < 1) {
+            throw new \RuntimeException('Invalid user ID');
+        }
+
         // Get existing credentials to exclude
         $existingCredentials = $this->getByUserId($userId);
 
@@ -290,14 +388,28 @@ class WebAuthnCredential
         $excludeIds = \array_column($existingCredentials, 'credentialId');
 
         // Decode base64 credential IDs back to binary for WebAuthn library
-        $excludeIdsBinary = \array_map(function($id) {
-            return \base64_decode($id);
-        }, $excludeIds);
+        // Use strict mode and filter out any invalid entries
+        $excludeIdsBinary = \array_filter(\array_map(function($id) {
+            $decoded = \base64_decode($id, true);
+            if ($decoded === false) {
+                \error_log("SECURITY WARNING: Invalid base64 credential ID in database: " . \substr($id, 0, 20));
+            }
+            return $decoded;
+        }, $excludeIds), function($value) {
+            return $value !== false;
+        });
 
         // Create WebAuthn service
+        // Use configured domain from TFISH_URL (not user-controlled headers)
+        $rpId = \parse_url(TFISH_URL, PHP_URL_HOST);
+
+        if (!$rpId) {
+            throw new \RuntimeException(TFISH_WEBAUTHN_ERROR_INVALID_TFISH_URL);
+        }
+
         $service = new \Tfish\WebAuthnService(
             $this->preference->siteName(),
-            $_SERVER['SERVER_NAME']
+            $rpId
         );
 
         // Generate options
@@ -313,6 +425,9 @@ class WebAuthnCredential
     /**
      * Verify WebAuthn registration response.
      *
+     * IMPORTANT: Calling code MUST validate that $userId matches the authenticated session user.
+     * This method provides defensive validation but relies on upstream authorization.
+     *
      * @param   string $clientDataJSON Client data from browser.
      * @param   string $attestationObject Attestation object from browser.
      * @param   string $credentialName User-provided name for credential.
@@ -326,6 +441,11 @@ class WebAuthnCredential
         int $userId
     ): bool
     {
+        // Defensive validation (upstream MUST also validate authorization)
+        if ($userId < 1) {
+            throw new \RuntimeException('Invalid user ID');
+        }
+
         $challengeModel = new WebAuthnChallenge();
         $challenge = $challengeModel->getRegistration();
 
@@ -333,23 +453,70 @@ class WebAuthnCredential
             throw new \RuntimeException("No challenge found in session");
         }
 
+        // Use configured domain from TFISH_URL (not user-controlled headers)
+        $rpId = \parse_url(TFISH_URL, PHP_URL_HOST);
+
+        if (!$rpId) {
+            throw new \RuntimeException(TFISH_WEBAUTHN_ERROR_INVALID_TFISH_URL);
+        }
+
         $service = new \Tfish\WebAuthnService(
             $this->preference->siteName(),
-            $_SERVER['SERVER_NAME']
+            $rpId
         );
 
         $data = $service->verifyRegistration($clientDataJSON, $attestationObject, $challenge);
 
+        // Validate library response data types (defense-in-depth)
+        if (!isset($data->credentialId) || !\is_string($data->credentialId)) {
+            throw new \RuntimeException(TFISH_WEBAUTHN_ERROR_INVALID_CREDENTIAL_ID);
+        }
+
+        if (!isset($data->credentialPublicKey) || !\is_string($data->credentialPublicKey)) {
+            throw new \RuntimeException(TFISH_WEBAUTHN_ERROR_INVALID_PUBLIC_KEY);
+        }
+
+        // Signature counter can be int, numeric string, null, or undefined (all treated as 0)
+        if (isset($data->signatureCounter) && !\is_int($data->signatureCounter) && !\is_numeric($data->signatureCounter)) {
+            throw new \RuntimeException(TFISH_WEBAUTHN_ERROR_INVALID_SIGNATURE_COUNTER);
+        }
+
+        // Validate transports is array or null
+        if (isset($data->transports) && $data->transports !== null && !\is_array($data->transports)) {
+            throw new \RuntimeException(TFISH_WEBAUTHN_ERROR_INVALID_TRANSPORTS);
+        }
+
+        // Validate transports array contents
+        if (isset($data->transports) && $data->transports !== null && !$this->validateTransports($data->transports)) {
+            throw new \RuntimeException(TFISH_WEBAUTHN_ERROR_INVALID_TRANSPORTS);
+        }
+
+        // Validate AAGUID is string or null
+        if (isset($data->AAGUID) && $data->AAGUID !== null && !\is_string($data->AAGUID)) {
+            throw new \RuntimeException(TFISH_WEBAUTHN_ERROR_INVALID_AAGUID);
+        }
+
         // Store credential
         // AAGUID may be null in 'none' attestation mode or for some authenticators
         $aaguid = isset($data->AAGUID) && $data->AAGUID !== null ? \bin2hex($data->AAGUID) : '';
+
+        // Validate AAGUID format
+        if (!$this->validateAaguid($aaguid)) {
+            throw new \RuntimeException(TFISH_WEBAUTHN_ERROR_INVALID_AAGUID);
+        }
+
+        // Encode transports to JSON with error checking
+        $transportsJson = \json_encode($data->transports ?? []);
+        if ($transportsJson === false) {
+            throw new \RuntimeException(TFISH_WEBAUTHN_ERROR_INVALID_TRANSPORTS);
+        }
 
         $result = $this->store(
             $userId,
             \base64_encode($data->credentialId),
             \base64_encode($data->credentialPublicKey),
             (int)$data->signatureCounter,
-            \json_encode($data->transports ?? []),
+            $transportsJson,
             $aaguid,
             $credentialName
         );

@@ -603,12 +603,32 @@ class Session
         $credentialIds = \array_column($credentials, 'credentialId');
 
         // Decode base64 credential IDs to binary for WebAuthn library
-        $credentialIdsBinary = \array_map(function($id) {
-            return \base64_decode($id);
-        }, $credentialIds);
+        // Use strict mode and filter out any invalid entries
+        $credentialIdsBinary = \array_filter(\array_map(function($id) {
+            $decoded = \base64_decode($id, true);
+            if ($decoded === false) {
+                \error_log("SECURITY WARNING: Invalid base64 credential ID in database: " . \substr($id, 0, 20));
+            }
+            return $decoded;
+        }, $credentialIds), function($value) {
+            return $value !== false;
+        });
+
+        // If all credentials were corrupted, fail gracefully
+        if (empty($credentialIdsBinary)) {
+            \error_log("SECURITY ALERT: All credentials corrupted for user authentication attempt");
+            return null;
+        }
 
         // Generate authentication options
-        $service = new \Tfish\WebAuthnService($this->preference->siteName(), $_SERVER['SERVER_NAME']);
+        // Use configured domain from TFISH_URL (not user-controlled headers)
+        $rpId = \parse_url(TFISH_URL, PHP_URL_HOST);
+
+        if (!$rpId) {
+            throw new \RuntimeException(TFISH_WEBAUTHN_ERROR_INVALID_TFISH_URL);
+        }
+
+        $service = new \Tfish\WebAuthnService($this->preference->siteName(), $rpId);
         $options = $service->getAuthenticationOptions($credentialIdsBinary);
 
         // Store authentication challenge
@@ -691,7 +711,14 @@ class Session
         }
 
         // Verify the assertion
-        $service = new \Tfish\WebAuthnService($this->preference->siteName(), $_SERVER['SERVER_NAME']);
+        // Use configured domain from TFISH_URL (not user-controlled headers)
+        $rpId = \parse_url(TFISH_URL, PHP_URL_HOST);
+
+        if (!$rpId) {
+            throw new \RuntimeException(TFISH_WEBAUTHN_ERROR_INVALID_TFISH_URL);
+        }
+
+        $service = new \Tfish\WebAuthnService($this->preference->siteName(), $rpId);
 
         $verified = $service->verifyAuthentication(
             $clientDataJSON,
