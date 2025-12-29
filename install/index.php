@@ -19,8 +19,8 @@ declare(strict_types=1);
 // Include installation language files
 include_once "./english.php";
 
-// Check PHP version 8.3+
-if (PHP_VERSION_ID < 80300) {
+// Check PHP version 8.4+
+if (PHP_VERSION_ID < 80400) {
     echo TFISH_PHP_VERSION_TOO_LOW;
     exit;
 }
