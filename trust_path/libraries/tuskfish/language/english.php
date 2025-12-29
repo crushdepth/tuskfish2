@@ -333,6 +333,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
         . " failed.");
 
 // WebAuthn
+\define("TFISH_TWO_FACTOR_AUTH", "Two factor authentication");
 \define("TFISH_WEBAUTHN_PAGE_TITLE", "Passkeys and Security Keys");
 \define("TFISH_WEBAUTHN_TWO_FACTOR_REQUIRED", "Two-Factor Authentication Required");
 \define("TFISH_WEBAUTHN_AUTHENTICATE_PROMPT", "Please authenticate with your passkey or security key.");

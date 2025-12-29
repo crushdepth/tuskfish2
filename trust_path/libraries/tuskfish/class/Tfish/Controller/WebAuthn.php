@@ -89,15 +89,23 @@ class WebAuthn
     {
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             \http_response_code(405);
+            \header('Content-Type: application/json');
             echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_METHOD_NOT_ALLOWED]);
             exit;
         }
 
-        $token = $_POST['token'] ?? '';
-        $this->validateToken($token);
+        // Validate CSRF token - return JSON error for API endpoint
+        $token = $this->trimString($_POST['token'] ?? '');
+        if (empty($_SESSION['token']) || !\hash_equals($_SESSION['token'], $token)) {
+            \http_response_code(403);
+            \header('Content-Type: application/json');
+            echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_NOT_AUTHENTICATED]);
+            exit;
+        }
 
         if (!$this->session->isLoggedIn()) {
             \http_response_code(401);
+            \header('Content-Type: application/json');
             echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_NOT_AUTHENTICATED]);
             exit;
         }
@@ -108,6 +116,7 @@ class WebAuthn
 
             if (!$userId || !$userEmail) {
                 \http_response_code(401);
+                \header('Content-Type: application/json');
                 echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_SESSION_UNAVAILABLE]);
                 exit;
             }
@@ -120,6 +129,7 @@ class WebAuthn
         } catch (\Exception $e) {
             \error_log("WebAuthn registration options error: " . $e->getMessage());
             \http_response_code(500);
+            \header('Content-Type: application/json');
             echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_PROCESSING_REQUEST]);
         }
 
@@ -141,8 +151,13 @@ class WebAuthn
             exit;
         }
 
-        $token = $_POST['token'] ?? '';
-        $this->validateToken($token);
+        // Validate CSRF token - return JSON error for API endpoint
+        $token = $this->trimString($_POST['token'] ?? '');
+        if (empty($_SESSION['token']) || !\hash_equals($_SESSION['token'], $token)) {
+            \http_response_code(403);
+            echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_NOT_AUTHENTICATED]);
+            exit;
+        }
 
         if (!$this->session->isLoggedIn()) {
             \http_response_code(401);

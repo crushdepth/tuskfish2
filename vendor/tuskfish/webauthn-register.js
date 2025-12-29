@@ -24,6 +24,12 @@ document.addEventListener('DOMContentLoaded', function() {
           body: 'token=' + encodeURIComponent(token)
         });
 
+        // If session expired, server redirected to login - redirect the whole page
+        if (optionsResponse.redirected && optionsResponse.url.includes('/login/')) {
+          window.location.href = optionsResponse.url;
+          return;
+        }
+
         if (!optionsResponse.ok) {
           throw new Error('Failed to get registration options');
         }

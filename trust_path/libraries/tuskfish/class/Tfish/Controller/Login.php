@@ -111,8 +111,13 @@ class Login
             exit;
         }
 
-        $token = $_POST['token'] ?? '';
-        $this->validateToken($token);
+        // Validate CSRF token - return JSON error for API endpoint
+        $token = $this->trimString($_POST['token'] ?? '');
+        if (empty($_SESSION['token']) || !\hash_equals($_SESSION['token'], $token)) {
+            \http_response_code(403);
+            echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_AUTHENTICATION_FAILED]);
+            exit;
+        }
 
         try {
             $options = $this->viewModel->getWebAuthnAuthenticationOptions();
@@ -150,8 +155,13 @@ class Login
             exit;
         }
 
-        $token = $_POST['token'] ?? '';
-        $this->validateToken($token);
+        // Validate CSRF token - return JSON error for API endpoint
+        $token = $this->trimString($_POST['token'] ?? '');
+        if (empty($_SESSION['token']) || !\hash_equals($_SESSION['token'], $token)) {
+            \http_response_code(403);
+            echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_AUTHENTICATION_FAILED]);
+            exit;
+        }
 
         $clientDataJSON = $_POST['clientDataJSON'] ?? '';
         $authenticatorData = $_POST['authenticatorData'] ?? '';
