@@ -56,7 +56,7 @@ class WebAuthnLogin
             return 'none';
         }
 
-        // Check for WebAuthn credentials.
+        // Check for WebAuthn credentials first (preferred).
         $sql = "SELECT COUNT(*) as count FROM `webauthn_credentials` WHERE `userId` = :userId";
         $statement = $this->database->preparedStatement($sql);
         $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);

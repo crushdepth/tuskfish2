@@ -107,6 +107,7 @@ class Login
     {
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             \http_response_code(405);
+            \header('Content-Type: application/json');
             echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_METHOD_NOT_ALLOWED]);
             exit;
         }
@@ -115,6 +116,7 @@ class Login
         $token = $this->trimString($_POST['token'] ?? '');
         if (empty($_SESSION['token']) || !\hash_equals($_SESSION['token'], $token)) {
             \http_response_code(403);
+            \header('Content-Type: application/json');
             echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_AUTHENTICATION_FAILED]);
             exit;
         }
@@ -124,6 +126,7 @@ class Login
 
             if ($options === null) {
                 \http_response_code(400);
+                \header('Content-Type: application/json');
                 echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_NO_PENDING_LOGIN]);
                 exit;
             }
@@ -134,6 +137,7 @@ class Login
         } catch (\Exception $e) {
             \error_log("WebAuthn authentication options error: " . $e->getMessage());
             \http_response_code(500);
+            \header('Content-Type: application/json');
             echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_PROCESSING_REQUEST]);
         }
 
@@ -151,6 +155,7 @@ class Login
     {
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             \http_response_code(405);
+            \header('Content-Type: application/json');
             echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_METHOD_NOT_ALLOWED]);
             exit;
         }
@@ -159,6 +164,7 @@ class Login
         $token = $this->trimString($_POST['token'] ?? '');
         if (empty($_SESSION['token']) || !\hash_equals($_SESSION['token'], $token)) {
             \http_response_code(403);
+            \header('Content-Type: application/json');
             echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_AUTHENTICATION_FAILED]);
             exit;
         }
@@ -170,6 +176,7 @@ class Login
 
         if (empty($clientDataJSON) || empty($authenticatorData) || empty($signature) || empty($credentialId)) {
             \http_response_code(400);
+            \header('Content-Type: application/json');
             echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_MISSING_PARAMETERS]);
             exit;
         }
@@ -187,14 +194,17 @@ class Login
                 $redirect = $next ?: TFISH_ADMIN_URL;
 
                 \http_response_code(200);
+                \header('Content-Type: application/json');
                 echo \json_encode(['success' => true, 'redirect' => $redirect]);
             } else {
                 \http_response_code(401);
+                \header('Content-Type: application/json');
                 echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_AUTHENTICATION_FAILED]);
             }
         } catch (\Exception $e) {
             \error_log("WebAuthn authentication verification error: " . $e->getMessage());
             \http_response_code(500);
+            \header('Content-Type: application/json');
             echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_PROCESSING_REQUEST]);
         }
 

@@ -63,15 +63,20 @@ class WebAuthn
      */
     public function display(): array
     {
-        // Load user's existing credentials
-        if ($this->session->isLoggedIn()) {
-            $userId = $this->session->userId();
-
-            if ($userId) {
-                $credentials = $this->viewModel->getCredentials($userId);
-                $this->viewModel->setCredentials($credentials);
-            }
+        if (!$this->session->isLoggedIn()) {
+            \header('Location: ' . TFISH_URL . 'login/', true, 303);
+            exit;
         }
+
+        $userId = $this->session->userId();
+
+        if (!$userId) {
+            \header('Location: ' . TFISH_URL . 'login/', true, 303);
+            exit;
+        }
+
+        $credentials = $this->viewModel->getCredentials($userId);
+        $this->viewModel->setCredentials($credentials);
 
         $this->viewModel->displayRegister();
 
@@ -147,6 +152,7 @@ class WebAuthn
     {
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             \http_response_code(405);
+            \header('Content-Type: application/json');
             echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_METHOD_NOT_ALLOWED]);
             exit;
         }
@@ -155,12 +161,14 @@ class WebAuthn
         $token = $this->trimString($_POST['token'] ?? '');
         if (empty($_SESSION['token']) || !\hash_equals($_SESSION['token'], $token)) {
             \http_response_code(403);
+            \header('Content-Type: application/json');
             echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_NOT_AUTHENTICATED]);
             exit;
         }
 
         if (!$this->session->isLoggedIn()) {
             \http_response_code(401);
+            \header('Content-Type: application/json');
             echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_NOT_AUTHENTICATED]);
             exit;
         }
@@ -171,6 +179,7 @@ class WebAuthn
 
         if (empty($clientDataJSON) || empty($attestationObject)) {
             \http_response_code(400);
+            \header('Content-Type: application/json');
             echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_MISSING_PARAMETERS]);
             exit;
         }
@@ -180,6 +189,7 @@ class WebAuthn
 
             if (!$userId) {
                 \http_response_code(401);
+                \header('Content-Type: application/json');
                 echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_SESSION_UNAVAILABLE]);
                 exit;
             }
@@ -193,14 +203,17 @@ class WebAuthn
 
             if ($result) {
                 \http_response_code(200);
+                \header('Content-Type: application/json');
                 echo \json_encode(['success' => true]);
             } else {
                 \http_response_code(400);
+                \header('Content-Type: application/json');
                 echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_VERIFICATION_FAILED]);
             }
         } catch (\Exception $e) {
             \error_log("WebAuthn registration verification error: " . $e->getMessage());
             \http_response_code(500);
+            \header('Content-Type: application/json');
             echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_PROCESSING_REQUEST]);
         }
 
@@ -214,18 +227,19 @@ class WebAuthn
      */
     public function revoke(): array
     {
-        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
-            $this->viewModel->displayRegister();
-            return [];
-        }
-
-        $token = $_POST['token'] ?? '';
-        $this->validateToken($token);
-
+        // Check authentication first (defense-in-depth)
         if (!$this->session->isLoggedIn()) {
             \header('Location: ' . TFISH_URL . 'login/', true, 303);
             exit;
         }
+
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            \header('Location: ' . TFISH_URL . 'register/', true, 303);
+            exit;
+        }
+
+        $token = $this->trimString($_POST['token'] ?? '');
+        $this->validateToken($token);
 
         $id = (int) ($_POST['id'] ?? 0);
         $userId = $this->session->userId();
