@@ -24,7 +24,7 @@ include 'language/english.php';
 $routingTable['/fishstat/'] = new \Tfish\Route(
     '\\Tfish\\FishStat\\Model\\Listing',
     '\\Tfish\\FishStat\\ViewModel\\Listing',
-    '\\Tfish\\View\\Listing',
+    '\\Tfish\\View\\Single',
     '\\Tfish\\FishStat\\Controller\\Listing',
     0);
 

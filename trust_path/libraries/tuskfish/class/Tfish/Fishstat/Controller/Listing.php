@@ -33,6 +33,7 @@ class Listing
 {
     use \Tfish\Traits\ValidateString;
 
+    private object $model;
     private object $viewModel;
 
     /**
@@ -43,6 +44,7 @@ class Listing
      */
     public function __construct(object $model, object $viewModel)
     {
+        $this->model = $model;
         $this->viewModel = $viewModel;
     }
 
@@ -55,41 +57,17 @@ class Listing
      */
     public function display(): array
     {
-        $cacheParams = ['page' => 'home'];
+        $cacheParams = ['page' => 'fishstat'];
 
         // Flag to display 'logout' link instead of 'login' for members.
         if (!empty($_SESSION['id'])) {
             $cacheParams['loggedIn'] = '1';
         }
 
-        $start = (int) ($_GET['start'] ?? 0);
-
-        $this->viewModel->setStart($start);
-        if (!empty($start)) $cacheParams['start'] = $start;
-
-        $tag = (int) ($_GET['tag'] ?? 0);
-
-        $this->viewModel->setTag($tag);
-        if (!empty($tag)) $cacheParams['tag'] = $tag;
-
-        $type = $this->trimString($_GET['type'] ?? '');
-
-        $this->viewModel->setType($type);
-        if (!empty($type)) $cacheParams['type'] = $this->viewModel->type();
-
-        $this->viewModel->setSort('date');
-        $this->viewModel->setOrder('DESC');
-        $this->viewModel->setSecondarySort('submissionTime');
-        $this->viewModel->setSecondaryOrder('DESC');
-
-        $id = (int) ($_GET['id'] ?? 0);
-
         if (!empty($id)) {
-            $this->viewModel->setId($id);
-            $cacheParams['id'] = $id;
-            $this->viewModel->displayObject();
+            $this->viewModel->displayChart();
         } else {
-            $this->viewModel->displayList();
+            $this->viewModel->displayGlobal();
         }
 
         return $cacheParams;
