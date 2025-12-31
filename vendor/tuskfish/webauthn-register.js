@@ -65,21 +65,27 @@ document.addEventListener('DOMContentLoaded', function() {
       try {
         statusDiv.innerHTML = '<div class="alert alert-info">Requesting registration options...</div>';
 
-        // Get registration options from server
+        // Get registration options from server with timeout
+        const optionsController = new AbortController();
+        const optionsTimeoutId = setTimeout(() => optionsController.abort(), 30000); // 30 second timeout
+
         const optionsResponse = await fetch(TFISH_URL + 'register/?action=registerOptions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: 'token=' + encodeURIComponent(token)
+          body: 'token=' + encodeURIComponent(token),
+          signal: optionsController.signal
         });
 
-        // If session expired, server redirected to login - validate and redirect
+        clearTimeout(optionsTimeoutId);
+
+        // If session expired, server redirected to login
         if (optionsResponse.redirected) {
-          if (isValidLoginRedirect(optionsResponse.url)) {
-            window.location.href = optionsResponse.url;
-            return;
-          } else {
-            throw new Error('Invalid redirect received from server');
-          }
+          // Don't use server-provided redirect URL - use our known-safe login URL
+          // This prevents open redirect vulnerabilities
+          // Ensure TFISH_URL has trailing slash for proper URL construction
+          const baseUrl = TFISH_URL.endsWith('/') ? TFISH_URL : TFISH_URL + '/';
+          window.location.href = baseUrl + 'login/';
+          return;
         }
 
         if (!optionsResponse.ok) {
@@ -125,7 +131,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         statusDiv.innerHTML = '<div class="alert alert-info">Verifying credential...</div>';
 
-        // Send credential to server for verification (include credential ID for consistency with authentication flow)
+        // Send credential to server for verification with timeout
+        const verifyController = new AbortController();
+        const verifyTimeoutId = setTimeout(() => verifyController.abort(), 30000); // 30 second timeout
+
         const verifyResponse = await fetch(TFISH_URL + 'register/?action=registerVerify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -135,8 +144,11 @@ document.addEventListener('DOMContentLoaded', function() {
             credentialId: arrayBufferToBase64(credential.rawId),
             clientDataJSON: arrayBufferToBase64(credential.response.clientDataJSON),
             attestationObject: arrayBufferToBase64(credential.response.attestationObject)
-          })
+          }),
+          signal: verifyController.signal
         });
+
+        clearTimeout(verifyTimeoutId);
 
         if (!verifyResponse.ok) {
           throw new Error('Credential verification failed (server error)');
@@ -145,11 +157,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const verifyResult = await verifyResponse.json();
 
         if (!verifyResult || verifyResult.success !== true) {
-          throw new Error(verifyResult?.error || 'Credential verification failed');
+          // Don't throw server-provided error messages - prevent information disclosure
+          throw new Error('Credential verification failed');
         }
 
         statusDiv.innerHTML = '<div class="alert alert-success"><strong>Success!</strong> Credential registered. Reloading...</div>';
-        setTimeout(() => window.location.href = TFISH_URL + 'register/', 1000);
+        // Ensure TFISH_URL has trailing slash for proper URL construction
+        const baseUrl = TFISH_URL.endsWith('/') ? TFISH_URL : TFISH_URL + '/';
+        setTimeout(() => window.location.href = baseUrl + 'register/', 1000);
 
       } catch (error) {
         // Sanitize error message - only show safe, pre-defined messages
@@ -161,6 +176,8 @@ document.addEventListener('DOMContentLoaded', function() {
           safeMessage = 'Registration was cancelled or timed out.';
         } else if (error.name === 'InvalidStateError') {
           safeMessage = 'This authenticator is already registered.';
+        } else if (error.name === 'AbortError') {
+          safeMessage = 'Request timed out. Please try again.';
         } else if (error.message && typeof error.message === 'string') {
           // CRITICAL: Use exact string matching to prevent info disclosure
           // Only our own pre-defined error messages are allowed
@@ -170,7 +187,6 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'Invalid security token. Please reload the page.':
             case 'Registration already in progress. Please wait.':
             case 'Please wait a moment before trying again.':
-            case 'Invalid redirect received from server':
             case 'Failed to get registration options (server error)':
             case 'Invalid registration options received from server':
             case 'Failed to decode server response':
@@ -257,31 +273,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // But exclude control characters, spaces, and special chars that might indicate injection
     const tokenPattern = /^[a-zA-Z0-9+/=_\-]+$/;
     return tokenPattern.test(token);
-  }
-
-  function isValidLoginRedirect(url) {
-    if (typeof url !== 'string' || !url) {
-      return false;
-    }
-
-    try {
-      const redirectUrl = new URL(url);
-      const baseUrl = new URL(TFISH_URL);
-
-      // Must be same origin (protocol + host + port)
-      if (redirectUrl.origin !== baseUrl.origin) {
-        return false;
-      }
-
-      // Must end with /login/ (exact match, not just includes)
-      if (!redirectUrl.pathname.endsWith('/login/')) {
-        return false;
-      }
-
-      return true;
-    } catch (e) {
-      return false;
-    }
   }
 
   function validateRegistrationOptions(options) {
@@ -400,6 +391,14 @@ document.addEventListener('DOMContentLoaded', function() {
       throw new Error('Invalid base64 input');
     }
 
+    // Maximum length to prevent memory exhaustion
+    // WebAuthn credentials are typically < 1KB, extreme cases < 50KB
+    // Allow 100KB with safety buffer (100x typical size, 2x worst case)
+    const MAX_BASE64_LENGTH = 140000; // ~100KB when decoded
+    if (base64.length > MAX_BASE64_LENGTH) {
+      throw new Error('Base64 input too large');
+    }
+
     try {
       // Convert base64url to base64
       let standardBase64 = base64.replace(/-/g, '+').replace(/_/g, '/');
@@ -423,6 +422,14 @@ document.addEventListener('DOMContentLoaded', function() {
   function arrayBufferToBase64(buffer) {
     if (!buffer || !(buffer instanceof ArrayBuffer)) {
       throw new Error('Invalid ArrayBuffer input');
+    }
+
+    // Maximum size to prevent memory exhaustion
+    // WebAuthn credentials are typically < 1KB, extreme cases < 50KB
+    // Allow 100KB with safety buffer (100x typical size, 2x worst case)
+    const MAX_BUFFER_SIZE = 102400; // 100KB
+    if (buffer.byteLength > MAX_BUFFER_SIZE) {
+      throw new Error('ArrayBuffer too large');
     }
 
     try {

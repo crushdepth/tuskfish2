@@ -31,7 +31,6 @@ declare(strict_types=1);
 \header('X-Content-Type-Options: nosniff');
 \header("X-Frame-Options: DENY"); // Fallback for old browsers that don't support frame-ancestors.
 \header("Referrer-Policy: strict-origin-when-cross-origin");
-\header("Access-Control-Allow-Origin: *");
 \header("Cross-Origin-Opener-Policy: same-origin");
 \header("Cross-Origin-Resource-Policy: same-site");
 
