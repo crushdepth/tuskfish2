@@ -40,6 +40,9 @@ class Listing
     private $preference;
     private $session;
 
+    // Static database generated from FAO's latest fisheries and aquaculture statistics.
+    private $fishStatDb;
+
     /**
      * Constructor.
      *
@@ -56,6 +59,7 @@ class Listing
         $this->database = $database;
         $this->preference = $preference;
         $this->session = $session;
+        $this->connect();
     }
 
     /** Actions. */
@@ -63,4 +67,17 @@ class Listing
 
     /** Queries **/
 
+    public function connect(): bool
+    {
+        $this->fishStatDb = new \Pdo('sqlite:' . TFISH_DATABASE_PATH . 'track.db');
+
+        if ($this->fishStatDb) {
+            $this->fishStatDb->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $this->fishStatDb->setAttribute(\PDO::ATTR_TIMEOUT, 5);
+
+            return true;
+        }
+
+        return false;
+    }
 }
