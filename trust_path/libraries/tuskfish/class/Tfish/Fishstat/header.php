@@ -21,16 +21,14 @@ namespace Tfish\FishStat;
 include 'language/english.php';
 
 // Addtional routes for User module.
-$routingTable[
-    '/fishstat/'] = new \Tfish\Route(
+$routingTable['/fishstat/'] = new \Tfish\Route(
     '\\Tfish\\FishStat\\Model\\Listing',
     '\\Tfish\\FishStat\\ViewModel\\Listing',
     '\\Tfish\\View\\Listing',
     '\\Tfish\\FishStat\\Controller\\Listing',
     0);
 
-$routingTable[
-    '/admin/fishstat/'] = new \Tfish\Route(
+$routingTable['/admin/fishstat/'] = new \Tfish\Route(
     '\\Tfish\\FishStat\\Model\\Admin',
     '\\Tfish\\FishStat\\ViewModel\\Admin',
     '\\Tfish\\FishStat\\Listing',
