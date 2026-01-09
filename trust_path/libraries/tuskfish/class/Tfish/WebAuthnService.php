@@ -19,6 +19,12 @@ namespace Tfish;
  *
  * Isolates third-party dependency and adds Tuskfish-specific configuration.
  *
+ * SECURITY REQUIREMENTS FOR CALLERS:
+ * 1. Challenge Management: Store challenges in session with expiration, use only once
+ * 2. Signature Counter: Always store and pass previous counter to detect credential cloning
+ * 3. Rate Limiting: Implement rate limiting on authentication attempts
+ * 4. Session Security: Associate challenges and credentials with authenticated sessions
+ *
  * @copyright   Simon Wilkinson 2013+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
@@ -45,7 +51,7 @@ class WebAuthnService
     public function __construct(string $rpName, string $rpId)
     {
         // Validate RP name (displayed to users during authentication)
-        if (empty($rpName) || \strlen($rpName) > 255) {
+        if (empty($rpName) || \mb_strlen($rpName, 'UTF-8') > 255) {
             throw new \RuntimeException('Invalid RP name');
         }
 
@@ -66,9 +72,14 @@ class WebAuthnService
             throw new \RuntimeException('RP ID must match configured domain');
         }
 
-        // Require HTTPS except for localhost development
+        // Require HTTPS except for localhost/loopback development
         // Use configured URL scheme, not user-controlled headers
-        $isLocalhost = $configuredDomain === 'localhost' || \str_ends_with($configuredDomain, '.localhost');
+        // WebAuthn spec allows: localhost, *.localhost, and loopback IPs (127.0.0.0/8, ::1)
+        $isLocalhost = $configuredDomain === 'localhost'
+            || \str_ends_with($configuredDomain, '.localhost')
+            || $configuredDomain === '[::1]'  // IPv6 loopback
+            || $configuredDomain === '::1'    // IPv6 loopback without brackets
+            || \preg_match('/^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $configuredDomain);  // IPv4 127.0.0.0/8
 
         if (!$isLocalhost && $configuredScheme !== 'https') {
             throw new \RuntimeException('WebAuthn requires HTTPS in production');
@@ -107,6 +118,13 @@ class WebAuthnService
             throw new \RuntimeException('Too many credentials to exclude');
         }
 
+        // Validate array contains only binary strings
+        foreach ($excludeCredentialIds as $credId) {
+            if (!\is_string($credId) || \strlen($credId) > 1024) {
+                throw new \RuntimeException('Invalid exclude credential ID format');
+            }
+        }
+
         // Generic configuration for all authenticator types.
         $options = $this->webAuthn->getCreateArgs(
             (string)$userId,                    // userId
@@ -130,9 +148,9 @@ class WebAuthnService
     /**
      * Verify registration response.
      *
-     * @param   string $clientDataJSON Client data JSON from browser.
-     * @param   string $attestationObject Attestation object from browser.
-     * @param   string $challenge Expected challenge (base64).
+     * @param   string $clientDataJSON Client data JSON from browser (base64url).
+     * @param   string $attestationObject Attestation object from browser (base64url).
+     * @param   string $challenge Expected challenge (binary string from getChallenge()).
      * @return  object Registration data with credentialId, publicKey, signCount, etc.
      */
     public function verifyRegistration(string $clientDataJSON, string $attestationObject, string $challenge): object
@@ -207,13 +225,14 @@ class WebAuthnService
     /**
      * Verify authentication response.
      *
-     * @param   string $clientDataJSON Client data JSON from browser.
-     * @param   string $authenticatorData Authenticator data from browser.
-     * @param   string $signature Signature from browser.
-     * @param   string $credentialPublicKey Base64-encoded public key.
-     * @param   string $challenge Expected challenge (base64).
-     * @param   int|null $prevSignatureCount Previous signature count.
-     * @return  bool True on success, false on failure.
+     * @param   string $clientDataJSON Client data JSON from browser (base64url).
+     * @param   string $authenticatorData Authenticator data from browser (base64url).
+     * @param   string $signature Signature from browser (base64url).
+     * @param   string $credentialPublicKey Base64-encoded public key from database.
+     * @param   string $challenge Expected challenge (binary string from getChallenge()).
+     * @param   int|null $prevSignatureCount Previous signature count for clone detection.
+     * @return  bool True on success.
+     * @throws  \RuntimeException On validation failure (invalid data, signature mismatch, cloned credential, etc.).
      */
     public function verifyAuthentication(
         string $clientDataJSON,
@@ -235,13 +254,13 @@ class WebAuthnService
             throw new \RuntimeException('Challenge or key exceeds maximum size');
         }
 
-        // Decode base64-encoded data from browser with strict validation
-        $clientDataDecoded = \base64_decode($clientDataJSON, true);
-        $authenticatorDataDecoded = \base64_decode($authenticatorData, true);
-        $signatureDecoded = \base64_decode($signature, true);
-
-        if ($clientDataDecoded === false || $authenticatorDataDecoded === false || $signatureDecoded === false) {
-            throw new \RuntimeException('Invalid base64 encoding in authentication data');
+        // Decode base64url-encoded data from browser (WebAuthn spec requires base64url)
+        try {
+            $clientDataDecoded = \lbuchs\WebAuthn\Binary\ByteBuffer::fromBase64Url($clientDataJSON)->getBinaryString();
+            $authenticatorDataDecoded = \lbuchs\WebAuthn\Binary\ByteBuffer::fromBase64Url($authenticatorData)->getBinaryString();
+            $signatureDecoded = \lbuchs\WebAuthn\Binary\ByteBuffer::fromBase64Url($signature)->getBinaryString();
+        } catch (\Exception $e) {
+            throw new \RuntimeException('Invalid base64url encoding in authentication data');
         }
 
         // Decode public key from database (stored as base64-encoded PEM string)
@@ -255,7 +274,10 @@ class WebAuthnService
         try {
             $challengeBuffer = new \lbuchs\WebAuthn\Binary\ByteBuffer($challenge);
 
-            return $this->webAuthn->processGet(
+            // IMPORTANT: The underlying library checks signature counter when $prevSignatureCount
+            // is provided. If the counter doesn't increment, it indicates credential cloning
+            // and will throw an exception. Always store and pass the previous counter value.
+            $result = $this->webAuthn->processGet(
                 $clientDataDecoded,
                 $authenticatorDataDecoded,
                 $signatureDecoded,
@@ -265,6 +287,10 @@ class WebAuthnService
                 false,  // requireUserVerification: false (generic support)
                 true    // requireUserPresent: true
             );
+
+            // After successful verification, update the stored signature counter with
+            // getSignatureCounter() to detect cloning on subsequent authentications
+            return $result;
         } catch (\Exception $e) {
             // Log detailed error internally, throw generic error to client
             \error_log('WebAuthn authentication verification error: ' . $e->getMessage());
@@ -273,9 +299,16 @@ class WebAuthnService
     }
 
     /**
-     * Get current challenge as base64 string.
+     * Get current challenge as binary string.
      *
-     * @return  string Base64-encoded challenge.
+     * IMPORTANT: Store this challenge in the user's session and validate it is:
+     * 1. Used only once (delete after verification to prevent replay attacks)
+     * 2. Recently generated (enforce expiration, e.g., 60 seconds)
+     * 3. Associated with the correct user session
+     *
+     * Failure to properly manage challenge lifecycle enables replay attacks.
+     *
+     * @return  string Binary challenge string (pass directly to verify methods).
      */
     public function getChallenge(): string
     {
@@ -285,7 +318,11 @@ class WebAuthnService
     /**
      * Get signature counter from last verification.
      *
-     * @return  int Signature counter.
+     * IMPORTANT: Store this counter value in the database after successful authentication.
+     * Pass it as $prevSignatureCount in subsequent verifyAuthentication() calls to detect
+     * cloned credentials. If the counter doesn't increment, the credential may be cloned.
+     *
+     * @return  int Signature counter from the authenticator.
      */
     public function getSignatureCounter(): int
     {
