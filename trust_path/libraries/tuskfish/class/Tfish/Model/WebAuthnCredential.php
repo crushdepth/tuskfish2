@@ -136,14 +136,8 @@ class WebAuthnCredential
         $statement = $this->database->preparedStatement($sql);
         $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
         $statement->execute();
-
-        $credentials = [];
-
-        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            $credentials[] = $row;
-        }
-
-        return $credentials;
+        
+        return $statement->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     /**
