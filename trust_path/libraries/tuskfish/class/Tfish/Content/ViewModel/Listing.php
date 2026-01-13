@@ -276,6 +276,10 @@ class Listing implements \Tfish\Interface\Listable
      */
     public function limit(): int
     {
+        if (!empty($this->content) && \in_array($this->content->type(), ['TfCollection', 'TfTag'], true)) {
+            return $this->preference->collectionPagination();
+        }
+        
         return $this->preference->userPagination();
     }
 
