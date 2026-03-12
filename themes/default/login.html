@@ -77,6 +77,34 @@
 </div> <!-- /.container -->
 
 <script>
+/**
+ * Validates that a URL is safe for redirect (prevents open redirect attacks)
+ * Only allows relative URLs or same-origin URLs
+ */
+function isSafeRedirect(url) {
+  if (!url) return false;
+
+  try {
+    // Allow relative URLs (start with /)
+    if (url.startsWith('/')) {
+      // Prevent protocol-relative URLs (//evil.com)
+      if (url.startsWith('//')) {
+        return false;
+      }
+      return true;
+    }
+
+    // For absolute URLs, check they're same origin
+    const urlObj = new URL(url);
+    const currentOrigin = window.location.origin;
+
+    return urlObj.origin === currentOrigin;
+  } catch (e) {
+    // Invalid URL
+    return false;
+  }
+}
+
 // Intercept login form submission to detect WebAuthn requirement
 document.querySelector('form').addEventListener('submit', async function(e) {
   e.preventDefault();
@@ -145,8 +173,13 @@ document.querySelector('form').addEventListener('submit', async function(e) {
         const verifyData = await verifyResponse.json();
 
         if (verifyData.success) {
-          statusDiv.innerHTML = '<div class="alert alert-success">Authentication successful! Redirecting...</div>';
-          window.location.href = verifyData.redirect;
+          // Validate redirect URL before following it
+          if (isSafeRedirect(verifyData.redirect)) {
+            statusDiv.innerHTML = '<div class="alert alert-success">Authentication successful! Redirecting...</div>';
+            window.location.href = verifyData.redirect;
+          } else {
+            throw new Error('Unsafe redirect detected');
+          }
         } else {
           throw new Error(verifyData.error || 'Authentication failed');
         }

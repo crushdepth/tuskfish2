@@ -169,20 +169,26 @@ class Content
      */
     public function bytesToHumanReadable(): string
     {
-        $bytes = (int) $this->fileSize;
+        $bytes = (float) $this->fileSize;
 
-        if ($bytes < ONE_KILOBYTE) {
-            return $bytes . ' bytes';
+        if ($bytes < 1) {
+            return '0 bytes';
         }
-        if ($bytes < ONE_MEGABYTE) {
-            return \round($bytes / ONE_KILOBYTE, 2) . ' KB';
+
+        $units = ['bytes', 'KB', 'MB', 'GB', 'TB'];
+        $factor = 0;
+
+        while ($bytes >= 1024 && $factor < count($units) - 1) {
+            $bytes /= 1024;
+            $factor++;
         }
-        if ($bytes < ONE_GIGABYTE) {
-            return \round($bytes / ONE_MEGABYTE, 2) . ' MB';
+
+        if ($factor === 0) {
+            return $bytes == 1 ? '1 byte' : $bytes . ' bytes';
         }
-        return \round($bytes / ONE_GIGABYTE, 2) . ' GB';
+
+        return round($bytes, 2) . ' ' . $units[$factor];
     }
-
 
     /**
      * Convert the site base URL to the TFISH_LINK constant and vice versa.
