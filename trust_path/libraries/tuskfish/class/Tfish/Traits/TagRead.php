@@ -94,10 +94,9 @@ trait TagRead
      *
      * @param   int $id ID of content object.
      * @param   string $module Name of module associated with this object.
-     * @param   string $table Name of DB table associated with this object.
      * @return  array Tag IDs and titles as key-value pairs.
      */
-    public function getTagsForObject(int $id, string $module, string $table): array
+    public function getTagsForObject(int $id, string $module): array
     {
         if ($id < 1) {
             return [];
@@ -109,17 +108,10 @@ trait TagRead
             throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
         }
 
-
-        $table = $this->trimString($table); // Alphanumeric characters only.
-
-        if (!$this->isAlnum($table)) {
-            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUM);
-        }
-
         // Look up tags associated with this content object in the taglinks table.
         $sql = "SELECT DISTINCT `tag`.`id`, `tag`.`title` "
             . "FROM `taglink` "
-            . "INNER JOIN `{$table}` AS `tag` ON `taglink`.`tagId` = `tag`.`id` "
+            . "INNER JOIN `content` AS `tag` ON `taglink`.`tagId` = `tag`.`id` "
             . "WHERE `taglink`.`contentId` = :id "
                 . "AND `taglink`.`module` = :module ";
             //  . "AND `tag`.`onlineStatus` = 1";

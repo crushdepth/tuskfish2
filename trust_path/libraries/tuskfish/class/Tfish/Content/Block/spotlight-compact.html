@@ -3,7 +3,7 @@
 <?php if (!empty($content)): ?>
 <!-- div class="container">-->
   <?php if (!empty($content->title())): ?>
-    <h3><a href="<?php echo TFISH_URL . '?id=' . xss($content->id()); ?>"><?php echo xss($this->title()); ?></a></h3>
+    <h2><a href="<?php echo TFISH_URL . '?id=' . xss($content->id()); ?>"><?php echo xss($this->title()); ?></a></h2>
   <?php endif; ?>
 
   <?php if ($content->image()): ?>
@@ -13,7 +13,7 @@
       <img class="image img-fluid" src="<?php echo $content->cachedImage(500); ?>"
         <?php if ($content->caption()): ?>
           title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>"/></a>
-        <figcaption><em><?php echo xss($content->caption()); ?></em></figcaption>
+        <figcaption class="mb-4"><em><?php echo xss($content->caption()); ?></em></figcaption>
         <?php else: ?>
           alt="" /></a>
         <?php endif; ?>
