@@ -16,6 +16,9 @@
 // Enable strict type declaration.
 declare(strict_types=1);
 
+// Enable display of errors (only in installer).
+\ini_set('display_errors', '1');
+
 // Include installation language files
 include_once "./english.php";
 
