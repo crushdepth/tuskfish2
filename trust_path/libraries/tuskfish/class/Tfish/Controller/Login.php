@@ -191,7 +191,7 @@ class Login
 
             if ($verified) {
                 $next = $this->viewModel->nextUrl();
-                $redirect = $next ?: TFISH_ADMIN_URL;
+                $redirect = $next ? TFISH_LINK . $next : TFISH_ADMIN_URL;
 
                 \http_response_code(200);
                 \header('Content-Type: application/json');

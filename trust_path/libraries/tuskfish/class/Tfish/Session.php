@@ -181,6 +181,18 @@ class Session
      */
     public function setNextUrl(string $path = '')
     {
+        $parsed = \parse_url($path);
+
+        if (empty($path) || !\is_array($parsed) || isset($parsed['scheme']) || isset($parsed['host'])) {
+            $path = '';
+        } else {
+            $path = '/' . \ltrim($parsed['path'] ?? '', '/');
+
+            if (isset($parsed['query'])) {
+                $path .= '?' . $parsed['query'];
+            }
+        }
+
         $_SESSION['nextUrl'] = $path;
     }
 
