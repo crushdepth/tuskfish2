@@ -33,6 +33,7 @@ declare(strict_types=1);
 \header("Referrer-Policy: strict-origin-when-cross-origin");
 \header("Cross-Origin-Opener-Policy: same-origin");
 \header("Cross-Origin-Resource-Policy: same-site");
+\header("Permissions-Policy: camera=(), microphone=(), payment=(), geolocation=()");
 
 // Lock charset to UTF-8.
 \header('Content-Type: text/html; charset=utf-8');
