@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tfish\Traits;
 
 /**
@@ -37,7 +39,7 @@ trait ValidateToken
      * @param string $token A form token to validate against the user's session.
      * @return boolean True if token is valid.
      */
-    public function validateToken(string $token)
+    public function validateToken(string $token): bool
     {
         $cleanToken = $this->trimString($token);
 
