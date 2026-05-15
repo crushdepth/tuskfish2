@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace Tests;
+
 /**
  * \Tests\ValidateTokenTest class file.
  *
@@ -24,10 +28,12 @@
  */
 
 use PHPUnit\Framework\TestCase;
+use Tfish\Traits\ValidateString;
 use Tfish\Traits\ValidateToken;
 
 class ValidateTokenTest extends TestCase
 {
+    use ValidateString;
     use ValidateToken;
 
     public function testValidateTokenWithValidToken(): void
