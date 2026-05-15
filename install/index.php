@@ -400,7 +400,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $missingList = '';
 
     // Check PHP version 7.2+
-    if (PHP_VERSION_ID < 80300) {
+    if (PHP_VERSION_ID < 80400) {
         $missingList = '<li><i class="fas fa-times text-danger"></i> ' . TFISH_PHP_VERSION_TOO_LOW . '</li>';
     } else {
         $presentList = '<li><i class="fas fa-check text-success"></i> ' . TFISH_PHP_VERSION_OK . '</li>';
