@@ -780,7 +780,7 @@ class Preference
         if (!\array_key_exists($value, $timezones)) {
             throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
-        $this->serverTimezone = $value;
+        $this->siteTimezone = $value;
     }
 
     /**

@@ -136,7 +136,6 @@ class Database
             return $this->_create($dbName . '.db');
         } else {
             throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
-            exit;
         }
     }
 
@@ -196,12 +195,10 @@ class Database
 
                 if (!$this->isAlnumUnderscore($key)) {
                     throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
-                    exit;
                 }
 
                 if (!\in_array($value, $typeWhitelist, true)) {
                     throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE,);
-                    exit;
                 }
 
                 $cleanColumns[$key] = $value;
@@ -209,7 +206,6 @@ class Database
             }
         } else {
             throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY_OR_EMPTY);
-            exit;
         }
 
         if (isset($primaryKey)) {
@@ -222,7 +218,6 @@ class Database
 
             if (!isset($cleanPrimaryKey)) {
                 throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
-                exit;
             }
         }
 
@@ -868,7 +863,6 @@ class Database
                 $cleanColumn = $column;
             } else {
                 throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
-                exit;
             }
         } else {
             $cleanColumn = "*";
@@ -906,7 +900,6 @@ class Database
                 $pdoPlaceholders = $this->renderPdo($criteria);
             } else {
                 throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY);
-                exit;
             }
 
             if (!empty($criteria->item) && !empty($criteria->tag)) {
@@ -989,7 +982,6 @@ class Database
                 $pdoPlaceholders = $this->renderPdo($criteria);
             } else {
                 throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY);
-                exit;
             }
 
             if (!empty($criteria->item) && !empty($criteria->tag)) {
@@ -1207,7 +1199,6 @@ class Database
                 $pdoPlaceholders = $this->renderPdo($criteria);
             } else {
                 throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY);
-                exit;
             }
         }
 
