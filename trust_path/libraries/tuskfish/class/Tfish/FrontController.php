@@ -215,9 +215,13 @@ class FrontController
 
         while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
             $className = $row['type'];
-            if (!\class_exists($className)) { continue; }
+
+            if (!\class_exists($className) || !\is_a($className, \Tfish\Interface\Block::class, true)) {
+                continue;
+            }
 
             $obj = new $className($row, $this->database, $this->criteriaFactory);
+
             $blocks[$row['id']] = $obj;
 
             // Group.
