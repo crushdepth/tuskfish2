@@ -795,18 +795,28 @@ class Session
     private function notifyAdminLogin(string $email)
     {
         $siteName = $this->preference->siteName() ? $this->preference->siteName() : TUSKFISH_CMS;
+        $siteName = \preg_replace('/[\x00-\x1F\x7F<>]/', '', $siteName);
+
+        if (!$siteName) {
+            $siteName = TUSKFISH_CMS;
+        }
+
         $siteEmail = $this->preference->siteEmail();
 
         $to = $siteEmail;
         $subject = TFISH_LOGIN_NOTED;
         $headers = [
-            'From' => $siteName . '<' . $siteEmail . '>',
+            'From' => $siteName . ' <' . $siteEmail . '>',
             'X-Mailer' => 'PHP/' . phpversion(),
             'Content-type' => 'text/plain; charset=utf-8'
         ];
         $message = TFISH_LOGIN_NOTED_MESSAGE . xss($email) . '.';
 
-        @mail($to, $subject, $message, $headers);
+        $mailSent = @mail($to, $subject, $message, $headers);
+
+        if (!$mailSent) {
+            \error_log("SECURITY WARNING: Failed to send admin login notification to " . \preg_replace('/[\x00-\x1F\x7F]/', '', $siteEmail));
+        }
     }
 
     /**
