@@ -60,7 +60,7 @@ class Database
     final public function __clone(): void {}
 
     /** Always close the connection on termination. **/
-    public function __destruct(): void
+    public function __destruct()
     {
         $this->close();
     }
