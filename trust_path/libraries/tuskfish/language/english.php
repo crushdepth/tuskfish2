@@ -127,6 +127,17 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_PREFERENCE_MAPS_API_KEY", "Google Maps API key");
 \define("TFISH_PREFERENCE_ADMIN_THEME", "Admin theme");
 \define("TFISH_PREFERENCE_DEFAULT_THEME", "Default theme");
+\define("TFISH_PREFERENCE_MAIL_SETTINGS", "Email (SMTP)");
+\define("TFISH_PREFERENCE_SMTP_HOST", "SMTP host");
+\define("TFISH_PREFERENCE_SMTP_PORT", "SMTP port");
+\define("TFISH_PREFERENCE_SMTP_ENCRYPTION", "SMTP encryption");
+\define("TFISH_PREFERENCE_SMTP_USER", "SMTP username");
+\define("TFISH_PREFERENCE_SMTP_PASSWORD", "SMTP password");
+\define("TFISH_PREFERENCE_SMTP_CLEAR_PASSWORD", "Clear stored password");
+\define("TFISH_PREFERENCE_SMTP_PASSWORD_PLACEHOLDER", "Leave blank to keep current password");
+\define("TFISH_PREFERENCE_SEND_TEST_EMAIL", "Send test email");
+\define("TFISH_PREFERENCE_TEST_EMAIL_SENT", "Test email sent successfully.");
+\define("TFISH_PREFERENCE_TEST_EMAIL_FAILED", "Test email failed: ");
 
 // Search.
 \define("TFISH_SEARCH", "Search");

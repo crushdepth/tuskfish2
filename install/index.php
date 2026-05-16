@@ -254,7 +254,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ['title' => 'cacheLife', 'value' => '86400'],
             ['title' => 'mapsApiKey', 'value' => ''],
             ['title' => 'adminTheme', 'value' => 'admin'],
-            ['title' => 'defaultTheme', 'value' => 'yeti']
+            ['title' => 'defaultTheme', 'value' => 'yeti'],
+            ['title' => 'smtpHost', 'value' => ''],
+            ['title' => 'smtpPort', 'value' => '587'],
+            ['title' => 'smtpEncryption', 'value' => 'tls'],
+            ['title' => 'smtpUser', 'value' => ''],
+            ['title' => 'smtpPassword', 'value' => '']
         ];
 
         foreach ($preferenceData as $preference) {
