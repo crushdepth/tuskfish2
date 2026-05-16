@@ -118,11 +118,11 @@
               <td class="text-center text-nowrap">
                 <?php if ($row['onlineStatus']): ?>
                   <a class="text-success" hx-post="<?php echo TFISH_ADMIN_URL . 'blocks/'; ?>?action=toggle" target="closest td"
-                    hx-vals='{"id": "<?php echo xss($row['id']); ?>", "status": "1"}' hx-swap="outerHTML">
+                    hx-vals='{"id": "<?php echo xss($row['id']); ?>", "status": "1", "token": "<?php echo xss($_SESSION['token']); ?>"}' hx-swap="outerHTML">
                     <i class="icon-check"></i></a>
                 <?php else: ?>
                   <a class="text-danger" hx-post="<?php echo TFISH_ADMIN_URL . 'blocks/'; ?>?action=toggle" target="closest td"
-                    hx-vals='{"id": "<?php echo xss($row['id']); ?>", "status": "0"}' hx-swap="outerHTML">
+                    hx-vals='{"id": "<?php echo xss($row['id']); ?>", "status": "0", "token": "<?php echo xss($_SESSION['token']); ?>"}' hx-swap="outerHTML">
                     <i class="icon-xmark"></i></a>
                 <?php endif; ?>
               </td>
