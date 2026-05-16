@@ -804,7 +804,7 @@ class Session
         } catch (\Exception $e) {
             \error_log("SECURITY WARNING: Failed to send admin login notification to "
                 . \preg_replace('/[\x00-\x1F\x7F]/', '', $siteEmail)
-                . ': ' . $e->getMessage());
+                . ': ' . \preg_replace('/[\x00-\x1F\x7F]/', '', $e->getMessage()));
         }
     }
 
