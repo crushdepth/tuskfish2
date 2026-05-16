@@ -1,0 +1,84 @@
+<?php declare(strict_types=1); ?>
+
+<?php $preference = $viewModel->preference(); ?>
+
+<!-- Container -->
+<div class="container">
+
+<div class="row">
+  <div class="col">
+    <h1 class="page-title"><?php echo TFISH_PREFERENCE_MAIL_SETTINGS; ?></h1>
+  </div>
+</div>
+
+<form action="<?php echo TFISH_EMAIL_URL; ?>" method="post" accept-charset="UTF-8">
+
+  <div class="row">
+
+    <!-- SMTP host -->
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <label for="smtpHost" class="form-label"><strong><?php echo TFISH_PREFERENCE_SMTP_HOST; ?></strong></label>
+      <input type="text" class="form-control" name="preference[smtpHost]" id="smtpHost" <?php if (!empty($preference->smtpHost())) { echo 'value="' . xss($preference->smtpHost()) . '"'; } ?>>
+    </div>
+
+    <!-- SMTP port -->
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <label for="smtpPort" class="form-label"><strong><?php echo TFISH_PREFERENCE_SMTP_PORT; ?></strong></label>
+      <input type="number" min="1" max="65535" class="form-control" name="preference[smtpPort]" id="smtpPort" value="<?php echo xss($preference->smtpPort()); ?>">
+    </div>
+
+    <!-- SMTP encryption -->
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <label for="smtpEncryption" class="form-label"><strong><?php echo TFISH_PREFERENCE_SMTP_ENCRYPTION; ?></strong></label>
+      <select class="form-select" name="preference[smtpEncryption]" id="smtpEncryption">
+        <?php
+          foreach ($preference->listSmtpEncryptionModes() as $key => $value) {
+            if ($preference->smtpEncryption() === $key) {
+              echo '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>';
+            } else {
+              echo '<option value="' . xss($key) . '">' . xss($value) . '</option>';
+            }
+            unset($key, $value);
+          }
+        ?>
+      </select>
+    </div>
+
+    <!-- SMTP username -->
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <label for="smtpUser" class="form-label"><strong><?php echo TFISH_PREFERENCE_SMTP_USER; ?></strong></label>
+      <input type="text" class="form-control" name="preference[smtpUser]" id="smtpUser" <?php if (!empty($preference->smtpUser())) { echo 'value="' . xss($preference->smtpUser()) . '"'; } ?>>
+    </div>
+
+    <!-- SMTP password -->
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <label for="smtpPassword" class="form-label"><strong><?php echo TFISH_PREFERENCE_SMTP_PASSWORD; ?></strong></label>
+      <input type="password" class="form-control" name="preference[smtpPassword]" id="smtpPassword" placeholder="<?php echo TFISH_PREFERENCE_SMTP_PASSWORD_PLACEHOLDER; ?>" autocomplete="new-password">
+    </div>
+
+    <!-- Clear SMTP password -->
+    <div class="col-md-6 col-lg-4 mb-3 text-start">
+      <p><strong><?php echo TFISH_PREFERENCE_SMTP_CLEAR_PASSWORD; ?></strong></p>
+      <div class="form-check form-switch d-inline-flex align-items-center gap-2 m-0">
+        <input id="clearSmtpPassword" class="form-check-input" type="checkbox" role="switch" name="preference[clearSmtpPassword]" value="1">
+        <label class="form-check-label m-0" for="clearSmtpPassword" data-off="<?php echo TFISH_NO; ?>" data-on="<?php echo TFISH_YES; ?>"></label>
+      </div>
+    </div>
+
+    <!-- Send test email button -->
+    <div class="col-12 mb-3 text-start">
+      <button name="action" value="testEmail" type="submit" class="btn btn-info"><?php echo TFISH_PREFERENCE_SEND_TEST_EMAIL; ?></button>
+    </div>
+
+    <!-- Update / cancel buttons -->
+    <div class="col-12 text-start">
+      <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
+      <button name="action" value="update" type="submit" class="btn btn-warning"><?php echo TFISH_UPDATE; ?></button>
+      <button name="action" value="cancel" type="submit" class="btn btn-danger" formnovalidate><?php echo TFISH_CANCEL; ?></button>
+    </div>
+
+  </div>
+
+</form>
+
+</div>
