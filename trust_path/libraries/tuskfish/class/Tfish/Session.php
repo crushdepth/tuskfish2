@@ -619,7 +619,7 @@ class Session
         $credentialIdsBinary = \array_filter(\array_map(function($id) {
             $decoded = \base64_decode($id, true);
             if ($decoded === false) {
-                \error_log("SECURITY WARNING: Invalid base64 credential ID in database: " . \substr($id, 0, 20));
+                \error_log("SECURITY WARNING: Invalid base64 credential ID in database: " . \preg_replace('/[\x00-\x1F\x7F]/', '', \substr($id, 0, 20)));
             }
             return $decoded;
         }, $credentialIds), function($value) {
@@ -749,7 +749,7 @@ class Session
 
             if (!$updated) {
                 // Clone detected or update failed
-                \error_log("SECURITY ALERT: WebAuthn signature counter validation failed for credential {$credentialId}");
+                \error_log("SECURITY ALERT: WebAuthn signature counter validation failed for credential " . \preg_replace('/[\x00-\x1F\x7F]/', '', $credentialId));
 
                 // Increment login error counter
                 if ((int) $user['loginErrors'] < 15) {

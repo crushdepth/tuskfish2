@@ -132,7 +132,7 @@ class WebAuthn
             \header('Content-Type: application/json');
             echo \json_encode($options);
         } catch (\Exception $e) {
-            \error_log("WebAuthn registration options error: " . $e->getMessage());
+            \error_log("WebAuthn registration options error: " . $this->sanitiseLogField($e->getMessage()));
             \http_response_code(500);
             \header('Content-Type: application/json');
             echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_PROCESSING_REQUEST]);
@@ -211,7 +211,7 @@ class WebAuthn
                 echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_VERIFICATION_FAILED]);
             }
         } catch (\Exception $e) {
-            \error_log("WebAuthn registration verification error: " . $e->getMessage());
+            \error_log("WebAuthn registration verification error: " . $this->sanitiseLogField($e->getMessage()));
             \http_response_code(500);
             \header('Content-Type: application/json');
             echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_PROCESSING_REQUEST]);
