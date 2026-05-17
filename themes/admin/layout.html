@@ -94,12 +94,14 @@
                   <li><a class="dropdown-item" href="<?php echo TFISH_PREFERENCE_URL; ?>"><?php echo TFISH_PREFERENCES; ?></a></li>
                   <li><a class="dropdown-item" href="<?php echo TFISH_URL . 'admin/blocks/'; ?>"><?php echo TFISH_ADMIN_BLOCKS; ?></a></li>
                   <li><a class="dropdown-item" href="<?php echo TFISH_ADMIN_USER_URL; ?>"><?php echo TFISH_USERS; ?></a></li>
-                  <li><a class="dropdown-item" href="<?php echo TFISH_EMAIL_URL; ?>"><?php echo TFISH_PREFERENCE_MAIL_SETTINGS; ?></a></li>
                   <?php endif; ?>
                   <li><a class="dropdown-item" href="<?php echo TFISH_PASSWORD_URL; ?>"><?php echo TFISH_PASSWORD; ?></a></li>
                   <li><a class="dropdown-item" href="<?php echo TFISH_WEBAUTHN_URL; ?>"><?php echo TFISH_TWO_FACTOR_AUTH; ?></a></li>
-                  <li><a class="dropdown-item" href="<?php echo TFISH_URL . 'flush/'; ?>"><?php echo TFISH_FLUSH_CACHE; ?></a></li>
+                  <?php if ($session->isAdmin()): ?>
+                  <li><a class="dropdown-item" href="<?php echo TFISH_EMAIL_URL; ?>"><?php echo TFISH_PREFERENCE_MAIL_SETTINGS; ?></a></li>
                   <li><a class="dropdown-item" href="<?php echo TFISH_URL . 'sitemap/'; ?>"><?php echo TFISH_UPDATE_SITEMAP; ?></a></li>
+                  <li><a class="dropdown-item" href="<?php echo TFISH_URL . 'flush/'; ?>"><?php echo TFISH_FLUSH_CACHE; ?></a></li>
+                  <?php endif; ?>
                 </ul>
               </li>
               <?php endif; ?>
