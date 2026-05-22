@@ -61,6 +61,12 @@ return [
         '\\Tfish\\View\\Listing',
         '\\Tfish\\Content\\Controller\\Search',
         2),
+    '/email/' => new Route(
+        '\\Tfish\\Model\\Email',
+        '\\Tfish\\ViewModel\\Email',
+        '\\Tfish\\View\\Single',
+        '\\Tfish\\Controller\\Email',
+        1),
     '/error/' => new Route(
         '\\Tfish\\Model\\Error',
         '\\Tfish\\ViewModel\\Error',

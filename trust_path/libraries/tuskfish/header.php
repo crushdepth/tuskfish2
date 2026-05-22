@@ -33,6 +33,7 @@ declare(strict_types=1);
 \header("Referrer-Policy: strict-origin-when-cross-origin");
 \header("Cross-Origin-Opener-Policy: same-origin");
 \header("Cross-Origin-Resource-Policy: same-site");
+\header("Permissions-Policy: camera=(), microphone=(), payment=(), geolocation=()");
 
 // Lock charset to UTF-8.
 \header('Content-Type: text/html; charset=utf-8');
@@ -40,7 +41,7 @@ declare(strict_types=1);
 \mb_http_output('UTF-8');
 
 // Set error reporting levels and custom error handler.
-\ini_set('display_errors', '1'); // Needs to be set to 0 for production.
+\ini_set('display_errors', '0'); // Needs to be set to 0 for production.
 \ini_set('log_errors', '1');
 \error_reporting(E_ALL);
 

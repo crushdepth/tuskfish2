@@ -16,6 +16,9 @@
 // Enable strict type declaration.
 declare(strict_types=1);
 
+// Enable display of errors (only in installer).
+\ini_set('display_errors', '1');
+
 // Include installation language files
 include_once "./english.php";
 
@@ -251,7 +254,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ['title' => 'cacheLife', 'value' => '86400'],
             ['title' => 'mapsApiKey', 'value' => ''],
             ['title' => 'adminTheme', 'value' => 'admin'],
-            ['title' => 'defaultTheme', 'value' => 'yeti']
+            ['title' => 'defaultTheme', 'value' => 'yeti'],
+            ['title' => 'smtpHost', 'value' => ''],
+            ['title' => 'smtpPort', 'value' => '587'],
+            ['title' => 'smtpEncryption', 'value' => 'tls'],
+            ['title' => 'smtpUser', 'value' => ''],
+            ['title' => 'smtpPassword', 'value' => '']
         ];
 
         foreach ($preferenceData as $preference) {
@@ -397,7 +405,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $missingList = '';
 
     // Check PHP version 7.2+
-    if (PHP_VERSION_ID < 80300) {
+    if (PHP_VERSION_ID < 80400) {
         $missingList = '<li><i class="fas fa-times text-danger"></i> ' . TFISH_PHP_VERSION_TOO_LOW . '</li>';
     } else {
         $presentList = '<li><i class="fas fa-check text-success"></i> ' . TFISH_PHP_VERSION_OK . '</li>';

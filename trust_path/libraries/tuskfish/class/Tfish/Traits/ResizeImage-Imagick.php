@@ -85,7 +85,7 @@ trait ResizeImage
         // Security check - is the cachedPath actually pointing at the cache directory? Because
         // if it isn't, then we don't want to cooperate by returning anything.
         if (\is_readable($cachedPath)) {
-            return $cachedUrl;
+            return \htmlspecialchars($cachedUrl, ENT_QUOTES, 'UTF-8');
         }
 
         // Get the size. Note that:
@@ -112,7 +112,7 @@ trait ResizeImage
             return false;
         }
 
-        return $cachedUrl;
+        return \htmlspecialchars($cachedUrl, ENT_QUOTES, 'UTF-8');
     }
 
     /**

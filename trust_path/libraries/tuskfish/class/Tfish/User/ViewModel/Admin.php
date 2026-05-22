@@ -51,6 +51,7 @@ class Admin implements \Tfish\Interface\Listable
     private array $contentList = [];
     private int $id = 0;
     private int $onlineStatus = 0;
+    private int $status = 0;
     private string $action = '';
     private string $backUrl = '';
     private string $response = '';
@@ -145,9 +146,22 @@ class Admin implements \Tfish\Interface\Listable
      */
     public function displayToggle(): void
     {
+        $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
+        $this->validateToken($token);
+
         $this->model->toggleOnlineStatus($this->id);
-        $this->template = 'userTable';
-        header('Location: ' . TFISH_ADMIN_USER_URL, true, 303);
+
+        if ($this->status === 1) {
+            $this->status = 0;
+            echo '<a class="text-danger" hx-post="' . TFISH_ADMIN_USER_URL . '?action=toggle"'
+            . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "0", "token": "' . xss($_SESSION['token']) . '"}\' '
+            . 'hx-swap="outerHTML"><i class="icon-xmark"></i></a>';
+        } else {
+            $this->status = 1;
+            echo '<a class="text-success" hx-post="' . TFISH_ADMIN_USER_URL . '?action=toggle"'
+              . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "1", "token": "' . xss($_SESSION['token']) . '"}\' '
+              . 'hx-swap="outerHTML"><i class="icon-check"></i></a>';
+        }
         exit;
     }
 
@@ -226,6 +240,17 @@ class Admin implements \Tfish\Interface\Listable
     public function setId(int $id): void
     {
         $this->id = $id;
+    }
+
+    /**
+     * Set the online status of a user object.
+     *
+     * @param   int $status Online status (0 or 1).
+     * @return void
+     */
+    public function setStatus(int $status): void
+    {
+        $this->status = $status;
     }
 
     /**

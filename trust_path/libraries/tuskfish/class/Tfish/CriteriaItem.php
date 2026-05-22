@@ -37,7 +37,7 @@ class CriteriaItem
     use Traits\ValidateString;
 
     public string $column = '';
-    public $value = '';
+    public string|bool|int|float $value = '';
     public string $operator = "="; // Default value.
 
     /**
@@ -111,13 +111,13 @@ class CriteriaItem
     /**
      * Sets the value of a column to use in a query clause.
      *
-     * @param string|array|bool|int|float $value Value of column.
+     * @param string|bool|int|float $value Value of column.
      */
-    public function setValue(string|array|bool|int|float $value): void
+    public function setValue(string|bool|int|float $value): void
     {
         $cleanValue = match (true) {
             \is_string($value) => $this->trimString($value),
-            \is_int($value), \is_float($value), \is_array($value), \is_bool($value)  => $value,
+            \is_int($value), \is_float($value), \is_bool($value)  => $value,
             default => throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_TYPE),
         };
 

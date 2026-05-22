@@ -140,4 +140,15 @@ trait ValidateString
 
         return '';
     }
+
+    /**
+     * Escape newlines in a string to prevent log injection.
+     *
+     * @param string $value Input string.
+     * @return string String with CR/LF replaced by visible escape sequences.
+     */
+    public function sanitiseLogField(string $value): string
+    {
+        return \str_replace(["\r\n", "\r", "\n"], ['\\r\\n', '\\r', '\\n'], $value);
+    }
 }

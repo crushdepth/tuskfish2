@@ -53,6 +53,7 @@ namespace Tfish\Entity;
  */
 class Preference
 {
+    use \Tfish\Traits\IntegerCheck;
     use \Tfish\Traits\Language;
     use \Tfish\Traits\Timezones;
     use \Tfish\Traits\ValidateString;
@@ -85,6 +86,11 @@ class Preference
     private string $mapsApiKey = ''; // global
     private string $adminTheme = ''; // global
     private string $defaultTheme = ''; // global
+    private string $smtpHost = '';
+    private int $smtpPort = 587;
+    private string $smtpEncryption = 'tls';
+    private string $smtpUser = '';
+    private string $smtpPassword = '';
 
     /**
      * Constructor.
@@ -153,6 +159,11 @@ class Preference
         $this->setMapsApiKey((string) ($input['mapsApiKey'] ?? ''));
         $this->setAdminTheme((string) $input['adminTheme'] ?? 'admin');
         $this->setDefaultTheme((string) ($input['defaultTheme'] ?? 'default'));
+        $this->setSmtpHost((string) ($input['smtpHost'] ?? ''));
+        $this->setSmtpPort((int) ($input['smtpPort'] ?? 587));
+        $this->setSmtpEncryption((string) ($input['smtpEncryption'] ?? 'tls'));
+        $this->setSmtpUser((string) ($input['smtpUser'] ?? ''));
+        $this->setSmtpPassword((string) ($input['smtpPassword'] ?? ''));
     }
 
     /**
@@ -780,7 +791,7 @@ class Preference
         if (!\array_key_exists($value, $timezones)) {
             throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
-        $this->serverTimezone = $value;
+        $this->siteTimezone = $value;
     }
 
     /**
@@ -806,5 +817,76 @@ class Preference
         }
 
         $this->userPagination = $value;
+    }
+
+    /** SMTP mail settings. */
+
+    public function listSmtpEncryptionModes(): array
+    {
+        return [
+            'tls' => 'STARTTLS (port 587)',
+            'ssl' => 'SSL/TLS (port 465)',
+            'none' => 'None (port 25)',
+        ];
+    }
+
+    public function smtpHost(): string
+    {
+        return $this->smtpHost;
+    }
+
+    public function setSmtpHost(string $value): void
+    {
+        $this->smtpHost = $this->trimString($value);
+    }
+
+    public function smtpPort(): int
+    {
+        return $this->smtpPort;
+    }
+
+    public function setSmtpPort(int $value): void
+    {
+        if (!$this->isInt($value, 1, 65535)) {
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
+        }
+
+        $this->smtpPort = $value;
+    }
+
+    public function smtpEncryption(): string
+    {
+        return $this->smtpEncryption;
+    }
+
+    public function setSmtpEncryption(string $value): void
+    {
+        $value = $this->trimString($value);
+
+        if (!\array_key_exists($value, $this->listSmtpEncryptionModes())) {
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
+        }
+
+        $this->smtpEncryption = $value;
+    }
+
+    public function smtpUser(): string
+    {
+        return $this->smtpUser;
+    }
+
+    public function setSmtpUser(string $value): void
+    {
+        $this->smtpUser = $this->trimString($value);
+    }
+
+    public function smtpPassword(): string
+    {
+        return $this->smtpPassword;
+    }
+
+    public function setSmtpPassword(string $value): void
+    {
+        $this->smtpPassword = $this->trimString($value);
     }
 }

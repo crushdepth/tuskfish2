@@ -62,8 +62,8 @@ class Logger
         ): bool
     {
         $errno = $errno ?? TFISH_ERROR_UNSPECIFIED;
-        $error = $error !== '' ? $this->trimString($error) : TFISH_ERROR_UNSPECIFIED;
-        $file  = $file  !== '' ? $this->trimString($file)  : TFISH_ERROR_UNSPECIFIED;
+        $error = $error !== '' ? $this->sanitiseLogField($this->trimString($error)) : TFISH_ERROR_UNSPECIFIED;
+        $file  = $file  !== '' ? $this->sanitiseLogField($this->trimString($file))  : TFISH_ERROR_UNSPECIFIED;
         $line  = $line  ?? TFISH_ERROR_UNSPECIFIED;
 
         $message = \date('Y-m-d, H:i:s') . ": [ERROR][$errno][$error][$file:$line]\n";
@@ -83,13 +83,14 @@ class Logger
     public function throwException(\Throwable $e): void
     {
         $message  = \date('Y-m-d, H:i:s') . ': [EXCEPTION][' . \get_class($e) . '] ';
-        $message .= '[' . $this->trimString($e->getMessage()) . ']';
-        $message .= '[' . $e->getFile() . ':' . $e->getLine() . "]\n";
-        $message .= $e->getTraceAsString() . "\n";
+        $message .= '[' . $this->sanitiseLogField($this->trimString($e->getMessage())) . ']';
+        $message .= '[' . $this->sanitiseLogField($e->getFile()) . ':' . $e->getLine() . "]\n";
+        $message .= $this->sanitiseLogField($e->getTraceAsString()) . "\n";
         \error_log($message, 3, TFISH_ERROR_LOG_PATH);
 
         if (!\headers_sent()) {
             \http_response_code(500);
         }
     }
+
 }

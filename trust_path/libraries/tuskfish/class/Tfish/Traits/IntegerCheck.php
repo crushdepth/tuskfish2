@@ -42,17 +42,16 @@ trait IntegerCheck
             return false;
         }
 
+        if (\is_int($min) && \is_int($max) && $min > $max) {
+            throw new \InvalidArgumentException('min must be <= max');
+        }
+
         if ($min !== null && (!\is_int($min) || $int < $min)) {
             return false;
         }
 
         if ($max !== null && (!\is_int($max) || $int > $max)) {
             return false;
-        }
-
-        // Detect programmer error.
-        if (\is_int($min) && \is_int($max) && $min > $max) {
-            throw new \InvalidArgumentException('min must be <= max');
         }
 
         return true;

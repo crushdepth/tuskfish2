@@ -190,7 +190,7 @@ class WebAuthnCredential
         // Sign count must increment (clone detection).
         // Use atomic UPDATE with WHERE clause to prevent race conditions
         if ($newSignCount <= $currentSignCount && $currentSignCount !== 0) {
-            \error_log("SECURITY ALERT: Sign count mismatch for credential {$credentialId}. Expected > {$currentSignCount}, got {$newSignCount}");
+            \error_log("SECURITY ALERT: Sign count mismatch for credential " . \preg_replace('/[\x00-\x1F\x7F]/', '', $credentialId) . ". Expected > {$currentSignCount}, got {$newSignCount}");
             return false;
         }
 
@@ -209,7 +209,7 @@ class WebAuthnCredential
 
         // If update affected 0 rows, race condition occurred or credential was modified
         if (!$result) {
-            \error_log("SECURITY ALERT: Sign count update race condition detected for credential {$credentialId}");
+            \error_log("SECURITY ALERT: Sign count update race condition detected for credential " . \preg_replace('/[\x00-\x1F\x7F]/', '', $credentialId));
             return false;
         }
 
@@ -386,7 +386,7 @@ class WebAuthnCredential
         $excludeIdsBinary = \array_filter(\array_map(function($id) {
             $decoded = \base64_decode($id, true);
             if ($decoded === false) {
-                \error_log("SECURITY WARNING: Invalid base64 credential ID in database: " . \substr($id, 0, 20));
+                \error_log("SECURITY WARNING: Invalid base64 credential ID in database: " . \preg_replace('/[\x00-\x1F\x7F]/', '', \substr($id, 0, 20)));
             }
             return $decoded;
         }, $excludeIds), function($value) {

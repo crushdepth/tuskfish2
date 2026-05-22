@@ -57,7 +57,7 @@ class Database
     }
 
     /** No cloning permitted. */
-    final public function __clone() {}
+    final public function __clone(): void {}
 
     /** Always close the connection on termination. **/
     public function __destruct()
@@ -66,7 +66,7 @@ class Database
     }
 
     /** No serialisation. */
-    final public function __wakeup() {}
+    final public function __wakeup(): void {}
 
     /**
      * Enclose table and column identifiers in backticks to escape them.
@@ -127,7 +127,7 @@ class Database
      * @param string $dbName Database name.
      * @return string|bool Path to database file on success, false on failure.
      */
-    public function create(string $dbName)
+    public function create(string $dbName): string|false
     {
         // Validate input parameters
         $dbName = $this->trimString($dbName);
@@ -136,12 +136,11 @@ class Database
             return $this->_create($dbName . '.db');
         } else {
             throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
-            exit;
         }
     }
 
     /** @internal */
-    private function _create(string $dbName)
+    private function _create(string $dbName): string|false
     {
         // Generate a random prefix for the database filename to make it unpredictable.
         $prefix = \mt_rand();
@@ -157,9 +156,8 @@ class Database
             $result = $this->fileHandler->appendToFile(TFISH_CONFIGURATION_PATH, $db_constant);
 
             if (!$result) {
-                throw new \RuntimeException(TFISH_ERROR_FAILED_TO_APPEND_FILE);
                 $this->close();
-                return false;
+                throw new \RuntimeException(TFISH_ERROR_FAILED_TO_APPEND_FILE);
             }
 
             return $dbPath;
@@ -180,7 +178,7 @@ class Database
      * @param string|null $primaryKey Name of field to be used as primary key.
      * @return bool True on success, false on failure.
      */
-    public function createTable(string $table, array $columns, string|null $primaryKey = null)
+    public function createTable(string $table, array $columns, string|null $primaryKey = null): bool
     {
         // Initialise
         $cleanPrimaryKey = null;
@@ -197,12 +195,10 @@ class Database
 
                 if (!$this->isAlnumUnderscore($key)) {
                     throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
-                    exit;
                 }
 
                 if (!\in_array($value, $typeWhitelist, true)) {
                     throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE,);
-                    exit;
                 }
 
                 $cleanColumns[$key] = $value;
@@ -210,7 +206,6 @@ class Database
             }
         } else {
             throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY_OR_EMPTY);
-            exit;
         }
 
         if (isset($primaryKey)) {
@@ -223,7 +218,6 @@ class Database
 
             if (!isset($cleanPrimaryKey)) {
                 throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
-                exit;
             }
         }
 
@@ -236,29 +230,31 @@ class Database
     }
 
     /** @internal */
-    private function _createTable(string $table_name, array $columns, string|null $primaryKey = null)
+    private function _createTable(string $table_name, array $columns, string|null $primaryKey = null): bool
     {
-        if (\mb_strlen($table_name, 'UTF-8') > 0 && \is_array($columns)) {
-            $sql = "CREATE TABLE IF NOT EXISTS `" . $table_name . "` (";
+        if (\mb_strlen($table_name, 'UTF-8') === 0 || empty($columns)) {
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY_OR_EMPTY);
+        }
 
-            foreach ($columns as $key => $value) {
-                $sql .= "`" . $key . "` " . $value . "";
-                if (isset($primaryKey) && $primaryKey === $key) {
-                    $sql .= " PRIMARY KEY";
-                }
-                $sql .= ", ";
+        $sql = "CREATE TABLE IF NOT EXISTS `" . $table_name . "` (";
+
+        foreach ($columns as $key => $value) {
+            $sql .= "`" . $key . "` " . $value . "";
+            if (isset($primaryKey) && $primaryKey === $key) {
+                $sql .= " PRIMARY KEY";
             }
+            $sql .= ", ";
+        }
 
-            $sql = \trim($sql, ', ');
-            $sql .= ")";
-            $statement = $this->preparedStatement($sql);
-            $statement->execute();
+        $sql = \trim($sql, ', ');
+        $sql .= ")";
+        $statement = $this->preparedStatement($sql);
+        $statement->execute();
 
-            if ($statement) {
-                return true;
-            } else {
-                throw new \RuntimeException(TFISH_ERROR_NO_STATEMENT);
-            }
+        if ($statement) {
+            return true;
+        } else {
+            throw new \RuntimeException(TFISH_ERROR_NO_STATEMENT);
         }
     }
 
@@ -269,7 +265,7 @@ class Database
      * @param int $id ID of row to be deleted.
      * @return bool True on success false on failure.
      */
-    public function delete(string $table, int $id)
+    public function delete(string $table, int $id): bool
     {
         $cleanTable = $this->validateTableName($table);
         $cleanId = $this->validateId($id);
@@ -278,7 +274,7 @@ class Database
     }
 
     /** @internal */
-    private function _delete(string $table, int $id)
+    private function _delete(string $table, int $id): bool
     {
         $sql = "DELETE FROM " . $this->addBackticks($table) . " WHERE `id` = :id";
         $statement = $this->preparedStatement($sql);
@@ -304,7 +300,7 @@ class Database
      * @param \Tfish\Criteria $criteria Criteria object used to build conditional database query.
      * @return bool True on success, false on failure.
      */
-    public function deleteAll(string $table, Criteria $criteria)
+    public function deleteAll(string $table, Criteria $criteria): bool
     {
         $cleanTable = $this->validateTableName($table);
         $cleanCriteria = $this->validateCriteriaObject($criteria);
@@ -313,7 +309,7 @@ class Database
     }
 
     /** @internal */
-    private function _deleteAll(string $table, Criteria $criteria)
+    private function _deleteAll(string $table, Criteria $criteria): bool
     {
         // Set table.
         $sql = "DELETE FROM " . $this->addBackticks($table) . " ";
@@ -373,7 +369,7 @@ class Database
      * @param string $identifier Name of table or column.
      * @return string Escaped table or column name.
      */
-    public function escapeIdentifier(string $identifier)
+    public function escapeIdentifier(string $identifier): string
     {
         $cleanIdentifier = '';
         $identifier = $this->trimString($identifier);
@@ -395,7 +391,7 @@ class Database
      * @param \PDOStatement $statement Prepared statement.
      * @return bool True on success, false on failure.
      */
-    public function executeTransaction(\PDOStatement $statement)
+    public function executeTransaction(\PDOStatement $statement): bool
     {
         try {
             $this->database->beginTransaction();
@@ -410,17 +406,17 @@ class Database
         return true;
     }
 
-    public function beginTransaction()
+    public function beginTransaction(): void
     {
         $this->database->beginTransaction();
     }
 
-    public function commit()
+    public function commit(): void
     {
         $this->database->commit();
     }
 
-    public function rollback()
+    public function rollback(): void
     {
         $this->database->rollback();
     }
@@ -432,7 +428,7 @@ class Database
      * @param array $keyValues Column names and values to be inserted.
      * @return bool True on success, false on failure.
      */
-    public function insert(string $table, array $keyValues)
+    public function insert(string $table, array $keyValues): bool
     {
         $cleanTable = $this->validateTableName($table);
         $cleanKeys = $this->validateKeys($keyValues);
@@ -441,7 +437,7 @@ class Database
     }
 
     /** @internal */
-    private function _insert(string $table, array $keyValues)
+    private function _insert(string $table, array $keyValues): bool
     {
         $pdoPlaceholders = '';
         $sql = "INSERT INTO " . $this->addBackticks($table) . " (";
@@ -491,7 +487,7 @@ class Database
      * @param string $sql SQL statement.
      * @return \PDOStatement|false \PDOStatement object on success false on failure.
      */
-    public function preparedStatement(string $sql)
+    public function preparedStatement(string $sql): \PDOStatement|false
     {
         return $this->database->prepare($sql);
     }
@@ -509,7 +505,7 @@ class Database
      * @param \Tfish\Criteria $criteria Query composer object containing parameters for building a query.
      * @return string $sql SQL query fragment.
      */
-    private function renderSql(Criteria $criteria)
+    private function renderSql(Criteria $criteria): string
     {
         $sql = '';
         $count = \count($criteria->item);
@@ -542,7 +538,7 @@ class Database
      * @param \Tfish\Criteria $criteria Query composer object containing parameters for building a query.
      * @return array $pdoPlaceholders Array of \PDO placeholders used for building SQL query.
      */
-    private function renderPdo(Criteria $criteria)
+    private function renderPdo(Criteria $criteria): array
     {
         $pdoPlaceholders = [];
         $count = \count($criteria->item);
@@ -560,7 +556,7 @@ class Database
      * @param \PDOStatement $statement \PDO statement object.
      * @param array $pdoPlaceholders Array of \PDO placeholders for columns.
      */
-    private function bindPdo(\PDOStatement $statement, array $pdoPlaceholders)
+    private function bindPdo(\PDOStatement $statement, array $pdoPlaceholders): void
     {
         if (!empty($pdoPlaceholders)) {
             foreach ($pdoPlaceholders as $placeholder => $value) {
@@ -576,7 +572,7 @@ class Database
      * @param string $condition Must be either "AND" or "OR".
      * @return string Validated AND/OR condition.
      */
-    private function renderAndOr(string $condition)
+    private function renderAndOr(string $condition): string
     {
         $cleanCondition = $this->trimString($condition);
 
@@ -592,7 +588,7 @@ class Database
      *
      * @param \Tfish\Criteria $criteria Query composer object for the query.
      */
-    private function renderSort(Criteria $criteria)
+    private function renderSort(Criteria $criteria): string
     {
         $sql = '';
 
@@ -617,7 +613,7 @@ class Database
      * @param \Tfish\Criteria $criteria Query composer object.
      * @return string SQL statement with limit/offset added.
      */
-    private function renderLimitAndOffset(Criteria $criteria)
+    private function renderLimitAndOffset(Criteria $criteria): string
     {
         $sql = '';
 
@@ -636,7 +632,7 @@ class Database
      * @param \PDOStatement $statement \PDO statement object.
      * @param \Tfish\Criteria $criteria Query composer object.
      */
-    private function bindLimitAndOffset(\PDOStatement $statement, Criteria $criteria)
+    private function bindLimitAndOffset(\PDOStatement $statement, Criteria $criteria): void
     {
         if ($criteria->limit && $criteria->offset) {
             $statement->bindValue(':limit', $criteria->limit, \PDO::PARAM_INT);
@@ -652,7 +648,7 @@ class Database
      * @param \Tfish\Criteria $criteria Query composer object.
      * @return string SQL statement.
      */
-    private function renderGroupBy(Criteria $criteria)
+    private function renderGroupBy(Criteria $criteria): string
     {
         $sql = '';
 
@@ -669,7 +665,7 @@ class Database
      * @param string $operator
      * @return string Validated operator.
      */
-    private function renderOperator(string $operator)
+    private function renderOperator(string $operator): string
     {
         $cleanOperator = $this->trimString($operator);
         $permittedOperators = ['=', '==', '<', '<=', '>', '>=', '!=', '<>', 'LIKE'];
@@ -692,7 +688,7 @@ class Database
      * @param \Tfish\Criteria $criteria Query composer object containing parameters for building a query.
      * @return string $sql SQL query fragment.
      */
-    private function renderTagSql(Criteria $criteria)
+    private function renderTagSql(Criteria $criteria): string
     {
         $sql = '';
         $count = \count($criteria->tag);
@@ -724,7 +720,7 @@ class Database
      * @param \Tfish\Criteria $criteria Query composer object containing parameters for building a query.
      * @return array $tagPlaceholders Array of \PDO placeholders used for building SQL query.
      */
-    private function renderTagPdo(Criteria $criteria)
+    private function renderTagPdo(Criteria $criteria): array
     {
         $tagPlaceholders = [];
 
@@ -741,7 +737,7 @@ class Database
      * @param \PDOStatement $statement \PDO statement object.
      * @param array $tagPlaceholders Array of \PDO placeholders for tags.
      */
-    private function bindTagPdo(\PDOStatement $statement, array $tagPlaceholders)
+    private function bindTagPdo(\PDOStatement $statement, array $tagPlaceholders): void
     {
         foreach ($tagPlaceholders as $tag_placeholder => $value) {
             $statement->bindValue($tag_placeholder, $value, \PDO::PARAM_INT);
@@ -759,7 +755,7 @@ class Database
      * @param array|null $columns Names of database columns to be selected.
      * @return \PDOStatement \PDOStatement object on success \PDOException on failure.
      */
-    public function select(string $table, Criteria|null $criteria = null, array|null $columns = null)
+    public function select(string $table, Criteria|null $criteria = null, array|null $columns = null): \PDOStatement
     {
         $cleanTable = $this->validateTableName($table);
         $cleanCriteria = isset($criteria) ? $this->validateCriteriaObject($criteria) : null;
@@ -769,7 +765,7 @@ class Database
     }
 
     /** @internal */
-    private function _select(string $table, array $columns, Criteria|null $criteria = null)
+    private function _select(string $table, array $columns, Criteria|null $criteria = null): \PDOStatement
     {
         // Specify operation.
         $sql = "SELECT ";
@@ -853,9 +849,9 @@ class Database
      * @param string $table Name of table.
      * @param \Tfish\Criteria|null $criteria Query composer object used to build conditional database query.
      * @param string $column Name of column.
-     * @return int|object Row count on success, \PDOException object on failure.
+     * @return int Row count.
      */
-    public function selectCount(string $table, Criteria|null $criteria = null, string $column = '')
+    public function selectCount(string $table, Criteria|null $criteria = null, string $column = ''): int
     {
         $cleanTable = $this->validateTableName($table);
         $cleanCriteria = isset($criteria) ? $this->validateCriteriaObject($criteria) : null;
@@ -867,7 +863,6 @@ class Database
                 $cleanColumn = $column;
             } else {
                 throw new \InvalidArgumentException(TFISH_ERROR_NOT_ALNUMUNDER);
-                exit;
             }
         } else {
             $cleanColumn = "*";
@@ -877,7 +872,7 @@ class Database
     }
 
     /** @internal */
-    private function _selectCount(string $table, ?Criteria $criteria, string $column)
+    private function _selectCount(string $table, ?Criteria $criteria, string $column): int
     {
         // Specify operation and column
         $sql = "SELECT COUNT(";
@@ -905,7 +900,6 @@ class Database
                 $pdoPlaceholders = $this->renderPdo($criteria);
             } else {
                 throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY);
-                exit;
             }
 
             if (!empty($criteria->item) && !empty($criteria->tag)) {
@@ -949,7 +943,7 @@ class Database
      * @param \Tfish\Criteria|null $criteria Query composer object used to build conditional database query.
      * @return \PDOStatement \PDOStatement on success, \PDOException on failure.
      */
-    public function selectDistinct(string $table, array $columns, Criteria|null $criteria = null)
+    public function selectDistinct(string $table, array $columns, Criteria|null $criteria = null): \PDOStatement
     {
         // Validate the tablename (alphanumeric characters only).
         $cleanTable = $this->validateTableName($table);
@@ -960,7 +954,7 @@ class Database
     }
 
     /** @internal */
-    private function _selectDistinct(string $table, array $columns, ?Criteria $criteria = null)
+    private function _selectDistinct(string $table, array $columns, ?Criteria $criteria = null): \PDOStatement
     {
         // Specify operation
         $sql = "SELECT DISTINCT ";
@@ -988,7 +982,6 @@ class Database
                 $pdoPlaceholders = $this->renderPdo($criteria);
             } else {
                 throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY);
-                exit;
             }
 
             if (!empty($criteria->item) && !empty($criteria->tag)) {
@@ -1039,7 +1032,7 @@ class Database
      * @param string $column Name of column to update.
      * @return bool True on success, false on failure.
      */
-    public function toggleBoolean(int $id, string $table, string $column)
+    public function toggleBoolean(int $id, string $table, string $column): bool
     {
         $cleanId = $this->validateId($id);
         $cleanTable = $this->validateTableName($table);
@@ -1050,7 +1043,7 @@ class Database
     }
 
     /** @internal */
-    private function _toggleBoolean(int $id, string $table, string $column)
+    private function _toggleBoolean(int $id, string $table, string $column): bool
     {
         $sql = "UPDATE " . $this->addBackticks($table) . " SET " . $this->addBackticks($column)
                 . " = CASE WHEN " . $this->addBackticks($column)
@@ -1061,6 +1054,8 @@ class Database
 
         if ($statement) {
             $statement->bindValue(":id", $id, \PDO::PARAM_INT);
+        } else {
+            return false;
         }
 
         return $this->executeTransaction($statement);
@@ -1077,7 +1072,7 @@ class Database
      * @param string $column Name of column.
      * @return bool True on success false on failure.
      */
-    public function updateCounter(int $id, string $table, string $column)
+    public function updateCounter(int $id, string $table, string $column): bool
     {
         $cleanId = $this->validateId($id);
         $cleanTable = $this->validateTableName($table);
@@ -1088,7 +1083,7 @@ class Database
     }
 
     /** @internal */
-    private function _updateCounter(int $id, string $table, string $column)
+    private function _updateCounter(int $id, string $table, string $column): bool
     {
         $sql = "UPDATE " . $this->addBackticks($table) . " SET " . $this->addBackticks($column)
                 . " = " . $this->addBackticks($column) . " + 1 WHERE `id` = :id";
@@ -1098,6 +1093,8 @@ class Database
 
         if ($statement) {
             $statement->bindValue(":id", $id, \PDO::PARAM_INT);
+        } else {
+            return false;
         }
 
         return $this->executeTransaction($statement);
@@ -1111,7 +1108,7 @@ class Database
      * @param array $keyValues Array of column names and values to update.
      * @return bool True on success, false on failure.
      */
-    public function update(string $table, int $id, array $keyValues)
+    public function update(string $table, int $id, array $keyValues): bool
     {
         $cleanTable = $this->validateTableName($table);
         $cleanId = $this->validateId($id);
@@ -1121,7 +1118,7 @@ class Database
     }
 
     /** @internal */
-    private function _update(string $table, int $id, array $keyValues)
+    private function _update(string $table, int $id, array $keyValues): bool
     {
         // Prepare the statement
         $sql = "UPDATE " . $this->addBackticks($table) . " SET ";
@@ -1162,7 +1159,7 @@ class Database
      * @param array $keyValues Array of column names and values to update.
      * @param \Tfish\Criteria|null $criteria Query composer object used to build conditional database query.
      */
-    public function updateAll(string $table, array $keyValues, Criteria|null $criteria = null)
+    public function updateAll(string $table, array $keyValues, Criteria|null $criteria = null): bool
     {
         $cleanTable = $this->validateTableName($table);
         $cleanKeys = $this->validateKeys($keyValues);
@@ -1177,7 +1174,7 @@ class Database
     }
 
     /** @internal */
-    private function _updateAll(string $table, array $keyValues, ?Criteria $criteria = null)
+    private function _updateAll(string $table, array $keyValues, ?Criteria $criteria = null): bool
     {
         // Set table.
         $sql = "UPDATE " . $this->addBackticks($table) . " SET ";
@@ -1202,7 +1199,6 @@ class Database
                 $pdoPlaceholders = $this->renderPdo($criteria);
             } else {
                 throw new \InvalidArgumentException(TFISH_ERROR_NOT_ARRAY);
-                exit;
             }
         }
 
@@ -1253,7 +1249,7 @@ class Database
      * @param string $table Name of table.
      * @return string $sql SQL query fragment.
      */
-    private function _renderTagJoin(string $table)
+    private function _renderTagJoin(string $table): string
     {
         $sql = "INNER JOIN `taglink` ON `t1`.`id` = `taglink`.`contentId` ";
 
@@ -1266,7 +1262,7 @@ class Database
      * @param \Tfish\Criteria $criteria Query composer object.
      * @return \Tfish\Criteria Validated Criteria object.
      */
-    public function validateCriteriaObject(Criteria $criteria)
+    public function validateCriteriaObject(Criteria $criteria): Criteria
     {
         if ($criteria->item) {
             if (!\is_array($criteria->item)) {
@@ -1346,7 +1342,7 @@ class Database
      * @param array $columns Array of unescaped column names.
      * @return array Array of valid, escaped column names
      */
-    public function validateColumns(array $columns)
+    public function validateColumns(array $columns): array
     {
         $cleanColumns = [];
 
@@ -1375,7 +1371,7 @@ class Database
      * @param int $id Input ID to be tested.
      * @return int $id Validated ID.
      */
-    public function validateId(int $id)
+    public function validateId(int $id): int
     {
         $cleanId = (int) $id;
         if ($this->isInt($cleanId, 1)) {
@@ -1394,7 +1390,7 @@ class Database
      * @param array $keyValues Array of unescaped keys.
      * @return array Array of valid and escaped keys.
      */
-    public function validateKeys(array $keyValues)
+    public function validateKeys(array $keyValues): array
     {
         $cleanKeys = [];
 
@@ -1423,7 +1419,7 @@ class Database
      * @param string $tableName Table name to be checked.
      * @return string Valid and escaped table name.
      */
-    public function validateTableName(string $tableName)
+    public function validateTableName(string $tableName): string
     {
         $tableName = $this->escapeIdentifier($tableName);
 

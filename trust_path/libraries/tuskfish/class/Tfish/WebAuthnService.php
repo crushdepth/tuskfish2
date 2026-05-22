@@ -183,7 +183,7 @@ class WebAuthnService
             return $data;
         } catch (\Exception $e) {
             // Log detailed error internally, throw generic error to client
-            \error_log('WebAuthn registration verification error: ' . $e->getMessage());
+            \error_log('WebAuthn registration verification error: ' . $this->sanitiseLogField($e->getMessage()));
             throw new \RuntimeException('Invalid credential data');
         }
     }
@@ -293,7 +293,7 @@ class WebAuthnService
             return $result;
         } catch (\Exception $e) {
             // Log detailed error internally, throw generic error to client
-            \error_log('WebAuthn authentication verification error: ' . $e->getMessage());
+            \error_log('WebAuthn authentication verification error: ' . $this->sanitiseLogField($e->getMessage()));
             throw new \RuntimeException('Authentication verification failed');
         }
     }

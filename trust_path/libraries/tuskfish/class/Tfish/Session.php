@@ -181,6 +181,18 @@ class Session
      */
     public function setNextUrl(string $path = '')
     {
+        $parsed = \parse_url($path);
+
+        if (empty($path) || !\is_array($parsed) || isset($parsed['scheme']) || isset($parsed['host'])) {
+            $path = '';
+        } else {
+            $path = '/' . \ltrim($parsed['path'] ?? '', '/');
+
+            if (isset($parsed['query'])) {
+                $path .= '?' . $parsed['query'];
+            }
+        }
+
         $_SESSION['nextUrl'] = $path;
     }
 
@@ -607,7 +619,7 @@ class Session
         $credentialIdsBinary = \array_filter(\array_map(function($id) {
             $decoded = \base64_decode($id, true);
             if ($decoded === false) {
-                \error_log("SECURITY WARNING: Invalid base64 credential ID in database: " . \substr($id, 0, 20));
+                \error_log("SECURITY WARNING: Invalid base64 credential ID in database: " . \preg_replace('/[\x00-\x1F\x7F]/', '', \substr($id, 0, 20)));
             }
             return $decoded;
         }, $credentialIds), function($value) {
@@ -737,7 +749,7 @@ class Session
 
             if (!$updated) {
                 // Clone detected or update failed
-                \error_log("SECURITY ALERT: WebAuthn signature counter validation failed for credential {$credentialId}");
+                \error_log("SECURITY ALERT: WebAuthn signature counter validation failed for credential " . \preg_replace('/[\x00-\x1F\x7F]/', '', $credentialId));
 
                 // Increment login error counter
                 if ((int) $user['loginErrors'] < 15) {
@@ -782,19 +794,18 @@ class Session
 
     private function notifyAdminLogin(string $email)
     {
-        $siteName = $this->preference->siteName() ? $this->preference->siteName() : TUSKFISH_CMS;
         $siteEmail = $this->preference->siteEmail();
-
-        $to = $siteEmail;
         $subject = TFISH_LOGIN_NOTED;
-        $headers = [
-            'From' => $siteName . '<' . $siteEmail . '>',
-            'X-Mailer' => 'PHP/' . phpversion(),
-            'Content-type' => 'text/plain; charset=utf-8'
-        ];
         $message = TFISH_LOGIN_NOTED_MESSAGE . xss($email) . '.';
 
-        @mail($to, $subject, $message, $headers);
+        try {
+            $mail = new \Tfish\Mail($this->preference);
+            $mail->send($siteEmail, $subject, $message);
+        } catch (\Exception $e) {
+            \error_log("SECURITY WARNING: Failed to send admin login notification to "
+                . \preg_replace('/[\x00-\x1F\x7F]/', '', $siteEmail)
+                . ': ' . \preg_replace('/[\x00-\x1F\x7F]/', '', $e->getMessage()));
+        }
     }
 
     /**
@@ -882,10 +893,8 @@ class Session
         $domain = \strncasecmp($host, 'www.', 4) === 0 ? \substr($host, 4) : $host;
 
         // If true the cookie will only be sent over secure connections.
-        // Note: If using NGINX as reverse proxy or Cloudflare tunnel to terminate SSL, you should lock this to
-        // true (use the commented out line as an alternative).
-        $secure = isset($_SERVER['HTTPS']);
-        // $secure = true;
+        $secure = isset($_SERVER['HTTPS'])
+            || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && \strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https');
 
         // If true PHP will *attempt* to send the httponly flag when setting the session cookie.
         $http_only = true;

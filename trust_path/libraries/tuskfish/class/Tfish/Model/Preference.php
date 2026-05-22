@@ -70,7 +70,15 @@ class Preference
             return false;
         }
 
-        $this->preference->load($_POST['preference']);
+        $input = $_POST['preference'];
+
+        $input['smtpHost'] = $this->preference->smtpHost();
+        $input['smtpPort'] = $this->preference->smtpPort();
+        $input['smtpEncryption'] = $this->preference->smtpEncryption();
+        $input['smtpUser'] = $this->preference->smtpUser();
+        $input['smtpPassword'] = $this->preference->smtpPassword();
+
+        $this->preference->load($input);
 
         $result = $this->writePreferences();
 
@@ -90,23 +98,44 @@ class Preference
     private function writePreferences(): bool
     {
         $keyValues = $this->preference->getPreferencesAsArray();
+        $existingKeys = $this->existingPreferenceKeys();
 
         foreach ($keyValues as $key => $value) {
-            $sql = "UPDATE `preference` SET `value` = :value WHERE `title` = :title";
+            if (\in_array($key, $existingKeys, true)) {
+                $sql = "UPDATE `preference` SET `value` = :value WHERE `title` = :title";
+            } else {
+                $sql = "INSERT INTO `preference` (`title`, `value`) VALUES (:title, :value)";
+            }
+
             $statement = $this->database->preparedStatement($sql);
             $statement->bindValue(':title', $key, $this->database->setType($key));
             $statement->bindValue(':value', $value, $this->database->setType($value));
-
-            unset($sql, $key, $value);
 
             $result = $this->database->executeTransaction($statement);
 
             if (!$result) {
                 throw new \RuntimeException(TFISH_ERROR_INSERTION_FAILED);
             }
+
+            unset($sql, $key, $value, $statement);
         }
 
         return true;
+    }
+
+    private function existingPreferenceKeys(): array
+    {
+        $sql = "SELECT `title` FROM `preference`";
+        $statement = $this->database->preparedStatement($sql);
+        $statement->execute();
+
+        $keys = [];
+
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            $keys[] = $row['title'];
+        }
+
+        return $keys;
     }
 
     /**
