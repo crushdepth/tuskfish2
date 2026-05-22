@@ -40,6 +40,7 @@ if (!\defined("TFISH_ROOT_PATH")) die("TFISH_ERROR_ROOT_PATH_NOT_DEFINED");
 \define("TFISH_ADMIN_USERS_URL", TFISH_ADMIN_URL . 'users/');
 \define("TFISH_PREFERENCE_URL",  TFISH_URL . "preference/");
 \define("TFISH_PREFERENCE_EDIT_URL", TFISH_URL . "preference/edit/");
+\define("TFISH_EMAIL_URL", TFISH_URL . "email/");
 \define("TFISH_PASSWORD_URL", TFISH_URL . "password/");
 \define("TFISH_WEBAUTHN_URL", TFISH_URL . "register/");
 \define("TFISH_CACHE_URL", TFISH_URL . "cache/");

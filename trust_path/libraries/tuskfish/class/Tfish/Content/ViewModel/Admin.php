@@ -154,17 +154,20 @@ class Admin implements \Tfish\Interface\Listable
      */
     public function displayToggle(): void
     {
+        $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
+        $this->validateToken($token);
+
         $this->model->toggleOnlineStatus($this->id);
 
         if ($this->status === 1) {
             $this->status = 0;
             echo '<a class="text-danger" hx-post="' . TFISH_ADMIN_URL . '?action=toggle"'
-            . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "0"}\' '
+            . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "0", "token": "' . xss($_SESSION['token']) . '"}\' '
             . 'hx-swap="outerHTML"><i class="icon-xmark"></i></a>';
         } else {
             $this->status = 1;
             echo '<a class="text-success" hx-post="' . TFISH_ADMIN_URL . '?action=toggle"'
-              . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "1"}\' '
+              . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "1", "token": "' . xss($_SESSION['token']) . '"}\' '
               . 'hx-swap="outerHTML"><i class="icon-check"></i></a>';
         }
         exit; // Prevents proceeding to full page reload.
@@ -175,17 +178,20 @@ class Admin implements \Tfish\Interface\Listable
      */
     public function displayInFeedToggle(): string
     {
+        $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
+        $this->validateToken($token);
+
         $this->model->toggleInFeedStatus($this->id);
 
         if ($this->inFeed === 1) {
             $this->inFeed = 0;
             echo '<a class="text-danger" hx-post="' . TFISH_ADMIN_URL . '?action=toggleInFeed"'
-            . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "inFeed": "0"}\' '
+            . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "inFeed": "0", "token": "' . xss($_SESSION['token']) . '"}\' '
             . 'hx-swap="outerHTML"><i class="icon-xmark"></i></a>';
         } else {
             $this->inFeed = 1;
             echo '<a class="text-success" hx-post="' . TFISH_ADMIN_URL . '?action=toggleInFeed"'
-              . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "inFeed": "1"}\' '
+              . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "inFeed": "1", "token": "' . xss($_SESSION['token']) . '"}\' '
               . 'hx-swap="outerHTML"><i class="icon-check"></i></a>';
         }
         exit; // Prevents proceeding to full page reload.

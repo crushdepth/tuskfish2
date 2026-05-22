@@ -199,17 +199,20 @@ class BlockAdmin implements \Tfish\Interface\Listable
      */
     public function displayToggle(): string
     {
+        $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
+        $this->validateToken($token);
+
         $this->model->toggleOnlineStatus($this->id);
 
         if ($this->status === 1) {
             $this->status = 0;
             echo '<a class="text-danger" hx-post="' . TFISH_ADMIN_URL . 'blocks/?action=toggle"'
-            . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "0"}\' '
+            . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "0", "token": "' . xss($_SESSION['token']) . '"}\' '
             . 'hx-swap="outerHTML"><i class="icon-xmark"></i></a>';
         } else {
             $this->status = 1;
             echo '<a class="text-success" hx-post="' . TFISH_ADMIN_URL . 'blocks/?action=toggle"'
-              . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "1"}\' '
+              . ' target="closest td" hx-vals=\'{"id": "' . $this->id . '", "status": "1", "token": "' . xss($_SESSION['token']) . '"}\' '
               . 'hx-swap="outerHTML"><i class="icon-check"></i></a>';
         }
         exit; // Prevents proceeding to full page reload.
@@ -222,6 +225,9 @@ class BlockAdmin implements \Tfish\Interface\Listable
      */
     public function displayWeights(): void
     {
+        $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
+        $this->validateToken($token);
+
         $weights = $_POST['weights'] ?? [];
         $this->template = 'response';
         $this->backUrl = TFISH_ADMIN_URL . 'blocks/';
@@ -229,6 +235,8 @@ class BlockAdmin implements \Tfish\Interface\Listable
         if (empty($weights)) {
             $this->pageTitle = 'No changes';
             $this->response = 'No weights were altered.';
+
+            return;
         }
 
         if ($this->model->updateWeights($weights)) {

@@ -423,7 +423,7 @@ class ContentEdit
         $externalMedia = $this->trimString($form['externalMedia'] ?? '');
 
         if (!empty($externalMedia) && !$this->isUrl($externalMedia)) {
-            (TFISH_ERROR_NOT_URL);
+            throw new \InvalidArgumentException(TFISH_ERROR_NOT_URL);
         }
 
         $clean['externalMedia'] = $externalMedia;

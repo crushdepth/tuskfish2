@@ -35,7 +35,7 @@ trait HtmlPurifier
      *
      * @return \HtmlPurifier
      */
-    public function getHtmlPurifier()
+    public function getHtmlPurifier(): \HTMLPurifier
     {
         static $purifier = null;
 
@@ -65,7 +65,7 @@ trait HtmlPurifier
      * @param array $configOptions HTMLPurifier configuration options (see HTMLPurifier documentation).
      * @return object HTMLPurifier configuration object.
      */
-    private function configureHTMLPurifier(array $configOptions)
+    private function configureHTMLPurifier(array $configOptions): \HTMLPurifier_Config
     {
         // Set default configuration options.
         $config = \HTMLPurifier_Config::createDefault();

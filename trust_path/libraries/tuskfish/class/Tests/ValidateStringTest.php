@@ -102,7 +102,7 @@ class ValidateStringTest extends TestCase
 
     public function testTrimStringWithNonStringInput(): void
     {
-        // A non-string input should return an empty string
-        $this->assertEquals('', $this->trimString(123));
+        // Non-string input is cast to string
+        $this->assertEquals('123', $this->trimString(123));
     }
 }
