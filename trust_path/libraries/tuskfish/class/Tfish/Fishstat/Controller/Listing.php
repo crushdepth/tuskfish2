@@ -4,72 +4,66 @@ declare(strict_types=1);
 
 namespace Tfish\FishStat\Controller;
 
-/**
- * \Tfish\FishStat\Controller\Listing class file.
- *
- * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
- * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
- * @author      Simon Wilkinson <simon@isengard.biz>
- * @version     Release: 2.0
- * @since       2.0
- * @package     content
- */
-
-/**
- * Controller for displaying FishStat charts.
- *
- * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
- * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
- * @author      Simon Wilkinson <simon@isengard.biz>
- * @version     Release: 2.0
- * @since       2.0
- * @package     content
- * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
- * @var         object $model Classname of the model used to display this page (unused).
- * @var         object $viewModel Classname of the viewModel used to display this page.
- */
-
 class Listing
 {
     use \Tfish\Traits\ValidateString;
 
     private object $model;
     private object $viewModel;
+    private \Tfish\Logger $logger;
 
-    /**
-     * Constructor.
-     *
-     * @param   object $model Instance of a model class (unused).
-     * @param   object $viewModel Instance of a viewModel class.
-     */
-    public function __construct(object $model, object $viewModel)
+    public function __construct(object $model, object $viewModel, \Tfish\Logger $logger)
     {
         $this->model = $model;
         $this->viewModel = $viewModel;
+        $this->logger = $logger;
     }
 
-    /* Actions. */
-
-    /**
-     * Display a list of content objects.
-     *
-     * @return  array Cache parameters used to locate cached copies of a given page view.
-     */
     public function display(): array
     {
         $cacheParams = ['page' => 'fishstat'];
 
-        // Flag to display 'logout' link instead of 'login' for members.
         if (!empty($_SESSION['id'])) {
             $cacheParams['loggedIn'] = '1';
         }
 
-        if (!empty($id)) {
-            $this->viewModel->displayChart();
-        } else {
-            $this->viewModel->displayGlobal();
-        }
+        $this->model->loadCountryList();
+        $this->viewModel->displayGlobal();
 
         return $cacheParams;
+    }
+
+    public function countries(): array
+    {
+        \header('Content-Type: application/json; charset=utf-8');
+
+        try {
+            $this->model->loadCountryList();
+            echo \json_encode($this->model->countries(), JSON_THROW_ON_ERROR);
+        } catch (\Throwable $e) {
+            $this->logger->logError((int) $e->getCode(), $e->getMessage(), $e->getFile(), (int) $e->getLine());
+            \http_response_code(500);
+            echo \json_encode(['error' => 'Failed to load country list']);
+        }
+
+        exit;
+    }
+
+    public function chartdata(): array
+    {
+        \header('Content-Type: application/json; charset=utf-8');
+
+        try {
+            $country = $this->trimString($_GET['country'] ?? '');
+            $species = $this->trimString($_GET['species'] ?? '');
+            $this->model->loadChartDataForCountry($country, $species);
+            echo \json_encode($this->model->chartData(), JSON_THROW_ON_ERROR);
+        } catch (\Throwable $e) {
+            $this->logger->logError((int) $e->getCode(), $e->getMessage(), $e->getFile(), (int) $e->getLine());
+            \http_response_code(500);
+            echo \json_encode(['error' => 'Failed to load chart data']);
+        }
+
+        exit;
     }
 }
