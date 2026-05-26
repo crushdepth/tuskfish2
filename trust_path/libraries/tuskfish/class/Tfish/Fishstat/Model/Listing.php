@@ -95,6 +95,22 @@ class Listing
         $aquacultureStmt->execute($aquacultureParams);
         $aquacultureRows = $aquacultureStmt->fetchAll(\PDO::FETCH_ASSOC);
 
+        $valueParams = [':measure' => 'V_USD_1000'];
+
+        if ($speciesCode !== '') {
+            $valueParams[':species'] = $speciesCode;
+        }
+
+        $valueStmt = $this->fishStatDb->prepare(
+            "SELECT period, CAST(SUM(value) AS INTEGER) AS usd_thousands
+             FROM aquaculture_production
+             WHERE measure = :measure{$speciesClause}
+             GROUP BY period
+             ORDER BY period"
+        );
+        $valueStmt->execute($valueParams);
+        $valueRows = $valueStmt->fetchAll(\PDO::FETCH_ASSOC);
+
         $captureByYear = [];
         foreach ($captureRows as $row) {
             $captureByYear[(int)$row['period']] = (int)$row['tonnes'];
@@ -103,6 +119,11 @@ class Listing
         $aquacultureByYear = [];
         foreach ($aquacultureRows as $row) {
             $aquacultureByYear[(int)$row['period']] = (int)$row['tonnes'];
+        }
+
+        $valueByYear = [];
+        foreach ($valueRows as $row) {
+            $valueByYear[(int)$row['period']] = (int)$row['usd_thousands'];
         }
 
         $allYears = \array_unique(\array_merge(
@@ -114,17 +135,20 @@ class Listing
         $labels = [];
         $capture = [];
         $aquaculture = [];
+        $aquacultureValue = [];
 
         foreach ($allYears as $year) {
             $labels[] = $year;
             $capture[] = $captureByYear[$year] ?? 0;
             $aquaculture[] = $aquacultureByYear[$year] ?? 0;
+            $aquacultureValue[] = $valueByYear[$year] ?? 0;
         }
 
         return [
             'labels' => $labels,
             'capture' => $capture,
             'aquaculture' => $aquaculture,
+            'aquaculture_value' => $aquacultureValue,
             'country' => '',
             'species' => $speciesCode,
         ];
@@ -168,6 +192,25 @@ class Listing
         $aquacultureStmt->execute($aquacultureParams);
         $aquacultureRows = $aquacultureStmt->fetchAll(\PDO::FETCH_ASSOC);
 
+        $valueParams = [':measure' => 'V_USD_1000', ':country' => $countryName];
+        $valueSpecies = '';
+
+        if ($speciesCode !== '') {
+            $valueSpecies = ' AND ap.species_code = :species';
+            $valueParams[':species'] = $speciesCode;
+        }
+
+        $valueStmt = $this->fishStatDb->prepare(
+            "SELECT ap.period, CAST(SUM(ap.value) AS INTEGER) AS usd_thousands
+             FROM aquaculture_production ap
+             JOIN countries c ON ap.country_code = c.un_code
+             WHERE ap.measure = :measure AND c.name_en = :country{$valueSpecies}
+             GROUP BY ap.period
+             ORDER BY ap.period"
+        );
+        $valueStmt->execute($valueParams);
+        $valueRows = $valueStmt->fetchAll(\PDO::FETCH_ASSOC);
+
         $captureByYear = [];
         foreach ($captureRows as $row) {
             $captureByYear[(int)$row['period']] = (int)$row['tonnes'];
@@ -176,6 +219,11 @@ class Listing
         $aquacultureByYear = [];
         foreach ($aquacultureRows as $row) {
             $aquacultureByYear[(int)$row['period']] = (int)$row['tonnes'];
+        }
+
+        $valueByYear = [];
+        foreach ($valueRows as $row) {
+            $valueByYear[(int)$row['period']] = (int)$row['usd_thousands'];
         }
 
         $allYears = \array_unique(\array_merge(
@@ -187,17 +235,20 @@ class Listing
         $labels = [];
         $capture = [];
         $aquaculture = [];
+        $aquacultureValue = [];
 
         foreach ($allYears as $year) {
             $labels[] = $year;
             $capture[] = $captureByYear[$year] ?? 0;
             $aquaculture[] = $aquacultureByYear[$year] ?? 0;
+            $aquacultureValue[] = $valueByYear[$year] ?? 0;
         }
 
         return [
             'labels' => $labels,
             'capture' => $capture,
             'aquaculture' => $aquaculture,
+            'aquaculture_value' => $aquacultureValue,
             'country' => $countryName,
             'species' => $speciesCode,
         ];
