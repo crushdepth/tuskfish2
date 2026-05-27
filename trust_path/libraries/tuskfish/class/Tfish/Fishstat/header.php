@@ -37,4 +37,3 @@ $routingTable['/admin/fishstat/'] = new \Tfish\Route(
 
 // Fishstat file path constants.
 \define("TFISH_ADMIN_FISHSTAT_URL", TFISH_ADMIN_URL . 'fishstat/');
-\define("TFISH_FISHSTAT_DB", '');
