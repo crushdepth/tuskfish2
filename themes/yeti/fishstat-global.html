@@ -87,9 +87,15 @@
 
             <!-- Chart -->
             <div class="chart-header">
-                <h2 class="chart-title" id="chartTitle">
-                    Global Fisheries &amp; Aquaculture Production
-                </h2>
+                <div class="chart-header-row">
+                    <h2 class="chart-title" id="chartTitle">
+                        Global Fisheries &amp; Aquaculture Production
+                    </h2>
+                    <a href="#" class="btn-csv" id="downloadProductionCsv" title="Download chart data as CSV">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8m0 0L5 7m3 3l3-3M3 12h10"/></svg>
+                        CSV
+                    </a>
+                </div>
                 <p class="chart-subtitle" id="chartSubtitle">
                     Millions of tonnes (live weight), 1950–2024
                 </p>
@@ -110,9 +116,15 @@
 
             <!-- Value Chart -->
             <div class="chart-header">
-                <h2 class="chart-title" id="valueChartTitle">
-                    Global Aquaculture Production Value
-                </h2>
+                <div class="chart-header-row">
+                    <h2 class="chart-title" id="valueChartTitle">
+                        Global Aquaculture Production Value
+                    </h2>
+                    <a href="#" class="btn-csv" id="downloadValueCsv" title="Download chart data as CSV">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8m0 0L5 7m3 3l3-3M3 12h10"/></svg>
+                        CSV
+                    </a>
+                </div>
                 <p class="chart-subtitle" id="valueChartSubtitle">
                     USD (thousands), 1984–2024
                 </p>
@@ -852,6 +864,65 @@
                 valueCanvas.style.height = '';
                 valueChart.resize();
             }
+        });
+
+        // CSV download
+        function csvFilename(prefix) {
+            var parts = [prefix];
+            if (currentCountry) parts.push(currentCountry.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''));
+            else parts.push('global');
+            if (currentSpeciesName) parts.push(currentSpeciesName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''));
+            return parts.join('-') + '.csv';
+        }
+
+        function downloadCsv(filename, csvContent) {
+            var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        document.getElementById('downloadProductionCsv').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (!currentData || !currentData.labels || !currentData.labels.length) return;
+
+            var headers = ['Year'];
+            if (showCapture) headers.push('"Capture (tonnes)"');
+            if (showAquaculture) headers.push('"Aquaculture (tonnes)"');
+
+            var rows = [headers.join(',')];
+            for (var i = 0; i < currentData.labels.length; i++) {
+                var row = [currentData.labels[i]];
+                if (showCapture) row.push(currentData.capture[i]);
+                if (showAquaculture) row.push(currentData.aquaculture[i]);
+                rows.push(row.join(','));
+            }
+
+            downloadCsv(csvFilename('fishstat-production'), rows.join('\n'));
+        });
+
+        document.getElementById('downloadValueCsv').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (!currentData || !currentData.labels || !currentData.labels.length) return;
+
+            var vals = currentData.aquaculture_value || [];
+            var firstIdx = vals.findIndex(function(v) { return v > 0; });
+            if (firstIdx < 0) return;
+            var lastIdx = vals.length - 1;
+            while (lastIdx > firstIdx && vals[lastIdx] === 0) lastIdx--;
+
+            var rows = ['Year,"Aquaculture Value (USD thousands)"'];
+            for (var i = firstIdx; i <= lastIdx; i++) {
+                rows.push(currentData.labels[i] + ',' + vals[i]);
+            }
+
+            downloadCsv(csvFilename('fishstat-value'), rows.join('\n'));
         });
 
         // Init
