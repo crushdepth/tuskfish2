@@ -368,3 +368,38 @@
 .active-country-badge .badge-x:hover {
     opacity: 1;
 }
+
+/* Chart header row */
+.chart-header-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+/* CSV download button */
+.btn-csv {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #4a90d9;
+    text-decoration: none;
+    border: 1px solid #d0d5dd;
+    border-radius: 5px;
+    background: #f9fafb;
+    white-space: nowrap;
+    transition: all 0.15s;
+}
+.btn-csv:hover {
+    color: #143278;
+    border-color: #4a90d9;
+    background: #e8f0fe;
+}
+.btn-csv svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
