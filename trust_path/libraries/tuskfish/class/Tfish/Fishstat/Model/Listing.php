@@ -65,15 +65,48 @@ class Listing
     {
         if (!$this->fishStatDb) return [];
 
-        $speciesClause = '';
-        $captureParams = [':measure' => 'Q_tlw'];
-        $aquacultureParams = [':measure' => 'Q_tlw'];
-
-        if ($speciesCode !== '') {
-            $speciesClause = ' AND species_code = :species';
-            $captureParams[':species'] = $speciesCode;
-            $aquacultureParams[':species'] = $speciesCode;
+        if ($speciesCode === '') {
+            return $this->getGlobalSummary();
         }
+
+        return $this->getGlobalProductionBySpecies($speciesCode);
+    }
+
+    private function getGlobalSummary(): array
+    {
+        $stmt = $this->fishStatDb->prepare(
+            "SELECT period, capture_tonnes, aquaculture_tonnes, aquaculture_value_usd
+             FROM global_production_summary
+             ORDER BY period"
+        );
+        $stmt->execute();
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $labels = [];
+        $capture = [];
+        $aquaculture = [];
+        $aquacultureValue = [];
+
+        foreach ($rows as $row) {
+            $labels[] = (int)$row['period'];
+            $capture[] = (int)$row['capture_tonnes'];
+            $aquaculture[] = (int)$row['aquaculture_tonnes'];
+            $aquacultureValue[] = (int)$row['aquaculture_value_usd'];
+        }
+
+        return [
+            'labels' => $labels,
+            'capture' => $capture,
+            'aquaculture' => $aquaculture,
+            'aquaculture_value' => $aquacultureValue,
+            'country' => '',
+            'species' => '',
+        ];
+    }
+
+    private function getGlobalProductionBySpecies(string $speciesCode): array
+    {
+        $speciesClause = ' AND species_code = :species';
 
         $captureStmt = $this->fishStatDb->prepare(
             "SELECT period, CAST(SUM(value) AS INTEGER) AS tonnes
@@ -82,34 +115,20 @@ class Listing
              GROUP BY period
              ORDER BY period"
         );
-        $captureStmt->execute($captureParams);
+        $captureStmt->execute([':measure' => 'Q_tlw', ':species' => $speciesCode]);
         $captureRows = $captureStmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        $aquacultureStmt = $this->fishStatDb->prepare(
-            "SELECT period, CAST(SUM(value) AS INTEGER) AS tonnes
+        $aquaStmt = $this->fishStatDb->prepare(
+            "SELECT period,
+                    CAST(SUM(CASE WHEN measure = :measure_qty THEN value ELSE 0 END) AS INTEGER) AS tonnes,
+                    CAST(SUM(CASE WHEN measure = :measure_val THEN value ELSE 0 END) AS INTEGER) AS usd_thousands
              FROM aquaculture_production
-             WHERE measure = :measure{$speciesClause}
+             WHERE measure IN (:measure_qty, :measure_val){$speciesClause}
              GROUP BY period
              ORDER BY period"
         );
-        $aquacultureStmt->execute($aquacultureParams);
-        $aquacultureRows = $aquacultureStmt->fetchAll(\PDO::FETCH_ASSOC);
-
-        $valueParams = [':measure' => 'V_USD_1000'];
-
-        if ($speciesCode !== '') {
-            $valueParams[':species'] = $speciesCode;
-        }
-
-        $valueStmt = $this->fishStatDb->prepare(
-            "SELECT period, CAST(SUM(value) AS INTEGER) AS usd_thousands
-             FROM aquaculture_production
-             WHERE measure = :measure{$speciesClause}
-             GROUP BY period
-             ORDER BY period"
-        );
-        $valueStmt->execute($valueParams);
-        $valueRows = $valueStmt->fetchAll(\PDO::FETCH_ASSOC);
+        $aquaStmt->execute([':measure_qty' => 'Q_tlw', ':measure_val' => 'V_USD_1000', ':species' => $speciesCode]);
+        $aquaRows = $aquaStmt->fetchAll(\PDO::FETCH_ASSOC);
 
         $captureByYear = [];
         foreach ($captureRows as $row) {
@@ -117,12 +136,9 @@ class Listing
         }
 
         $aquacultureByYear = [];
-        foreach ($aquacultureRows as $row) {
-            $aquacultureByYear[(int)$row['period']] = (int)$row['tonnes'];
-        }
-
         $valueByYear = [];
-        foreach ($valueRows as $row) {
+        foreach ($aquaRows as $row) {
+            $aquacultureByYear[(int)$row['period']] = (int)$row['tonnes'];
             $valueByYear[(int)$row['period']] = (int)$row['usd_thousands'];
         }
 
@@ -158,58 +174,47 @@ class Listing
     {
         if (!$this->fishStatDb) return [];
 
-        $captureParams = [':measure' => 'Q_tlw', ':country' => $countryName];
-        $aquacultureParams = [':measure' => 'Q_tlw', ':country' => $countryName];
+        $codeStmt = $this->fishStatDb->prepare(
+            "SELECT un_code FROM countries WHERE name_en = :name LIMIT 1"
+        );
+        $codeStmt->execute([':name' => $countryName]);
+        $countryCode = $codeStmt->fetchColumn();
+
+        if ($countryCode === false) return [];
+
+        $captureParams = [':measure' => 'Q_tlw', ':country_code' => $countryCode];
+        $aquaParams = [':measure_qty' => 'Q_tlw', ':measure_val' => 'V_USD_1000', ':country_code' => $countryCode];
         $captureSpecies = '';
-        $aquacultureSpecies = '';
+        $aquaSpecies = '';
 
         if ($speciesCode !== '') {
-            $captureSpecies = ' AND cp.species_code = :species';
-            $aquacultureSpecies = ' AND ap.species_code = :species';
+            $captureSpecies = ' AND species_code = :species';
+            $aquaSpecies = ' AND species_code = :species';
             $captureParams[':species'] = $speciesCode;
-            $aquacultureParams[':species'] = $speciesCode;
+            $aquaParams[':species'] = $speciesCode;
         }
 
         $captureStmt = $this->fishStatDb->prepare(
-            "SELECT cp.period, CAST(SUM(cp.value) AS INTEGER) AS tonnes
-             FROM capture_production cp
-             JOIN countries c ON cp.country_code = c.un_code
-             WHERE cp.measure = :measure AND c.name_en = :country{$captureSpecies}
-             GROUP BY cp.period
-             ORDER BY cp.period"
+            "SELECT period, CAST(SUM(value) AS INTEGER) AS tonnes
+             FROM capture_production
+             WHERE measure = :measure AND country_code = :country_code{$captureSpecies}
+             GROUP BY period
+             ORDER BY period"
         );
         $captureStmt->execute($captureParams);
         $captureRows = $captureStmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        $aquacultureStmt = $this->fishStatDb->prepare(
-            "SELECT ap.period, CAST(SUM(ap.value) AS INTEGER) AS tonnes
-             FROM aquaculture_production ap
-             JOIN countries c ON ap.country_code = c.un_code
-             WHERE ap.measure = :measure AND c.name_en = :country{$aquacultureSpecies}
-             GROUP BY ap.period
-             ORDER BY ap.period"
+        $aquaStmt = $this->fishStatDb->prepare(
+            "SELECT period,
+                    CAST(SUM(CASE WHEN measure = :measure_qty THEN value ELSE 0 END) AS INTEGER) AS tonnes,
+                    CAST(SUM(CASE WHEN measure = :measure_val THEN value ELSE 0 END) AS INTEGER) AS usd_thousands
+             FROM aquaculture_production
+             WHERE measure IN (:measure_qty, :measure_val) AND country_code = :country_code{$aquaSpecies}
+             GROUP BY period
+             ORDER BY period"
         );
-        $aquacultureStmt->execute($aquacultureParams);
-        $aquacultureRows = $aquacultureStmt->fetchAll(\PDO::FETCH_ASSOC);
-
-        $valueParams = [':measure' => 'V_USD_1000', ':country' => $countryName];
-        $valueSpecies = '';
-
-        if ($speciesCode !== '') {
-            $valueSpecies = ' AND ap.species_code = :species';
-            $valueParams[':species'] = $speciesCode;
-        }
-
-        $valueStmt = $this->fishStatDb->prepare(
-            "SELECT ap.period, CAST(SUM(ap.value) AS INTEGER) AS usd_thousands
-             FROM aquaculture_production ap
-             JOIN countries c ON ap.country_code = c.un_code
-             WHERE ap.measure = :measure AND c.name_en = :country{$valueSpecies}
-             GROUP BY ap.period
-             ORDER BY ap.period"
-        );
-        $valueStmt->execute($valueParams);
-        $valueRows = $valueStmt->fetchAll(\PDO::FETCH_ASSOC);
+        $aquaStmt->execute($aquaParams);
+        $aquaRows = $aquaStmt->fetchAll(\PDO::FETCH_ASSOC);
 
         $captureByYear = [];
         foreach ($captureRows as $row) {
@@ -217,12 +222,9 @@ class Listing
         }
 
         $aquacultureByYear = [];
-        foreach ($aquacultureRows as $row) {
-            $aquacultureByYear[(int)$row['period']] = (int)$row['tonnes'];
-        }
-
         $valueByYear = [];
-        foreach ($valueRows as $row) {
+        foreach ($aquaRows as $row) {
+            $aquacultureByYear[(int)$row['period']] = (int)$row['tonnes'];
             $valueByYear[(int)$row['period']] = (int)$row['usd_thousands'];
         }
 
