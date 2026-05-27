@@ -35,5 +35,6 @@ $routingTable['/admin/fishstat/'] = new \Tfish\Route(
     '\\Tfish\\FishStat\\Controller\\Admin',
     1);
 
-// User file path constants.
+// Fishstat file path constants.
 \define("TFISH_ADMIN_FISHSTAT_URL", TFISH_ADMIN_URL . 'fishstat/');
+\define("TFISH_FISHSTAT_DB", '');
