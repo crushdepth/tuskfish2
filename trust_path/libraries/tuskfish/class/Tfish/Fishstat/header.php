@@ -28,12 +28,3 @@ $routingTable['/fishstat/'] = new \Tfish\Route(
     '\\Tfish\\FishStat\\Controller\\Listing',
     0);
 
-$routingTable['/admin/fishstat/'] = new \Tfish\Route(
-    '\\Tfish\\FishStat\\Model\\Admin',
-    '\\Tfish\\FishStat\\ViewModel\\Admin',
-    '\\Tfish\\FishStat\\Listing',
-    '\\Tfish\\FishStat\\Controller\\Admin',
-    1);
-
-// Fishstat file path constants.
-\define("TFISH_ADMIN_FISHSTAT_URL", TFISH_ADMIN_URL . 'fishstat/');
