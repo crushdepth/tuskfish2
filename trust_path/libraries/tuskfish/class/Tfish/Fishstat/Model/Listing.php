@@ -282,7 +282,7 @@ class Listing
         $speciesCode = $this->trimString($speciesCode);
 
         if ($speciesCode !== '') {
-            if (!\preg_match('/^[A-Za-z0-9]{3}$/', $speciesCode)) {
+            if (!\preg_match('/^[A-Z]{3}$/', $speciesCode)) {
                 $speciesCode = '';
             } else {
                 $checkStmt = $this->fishStatDb->prepare(
