@@ -42,7 +42,7 @@ class Listing
 
     public function connect(): bool
     {
-        $dbPath = TFISH_DATABASE_PATH . 'aquaculture-fisheries.db';
+        $dbPath = TFISH_DATABASE_PATH . TFISH_FISHSTAT_DB;
 
         if (!\is_file($dbPath)) {
             $this->logger->logError(0, 'FishStat database not found: ' . $dbPath, __FILE__, __LINE__);
