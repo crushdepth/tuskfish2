@@ -1,822 +1,867 @@
 <?php declare(strict_types=1); ?>
 
-<link href="<?php echo TFISH_THEMES_URL . 'yeti/fishstat.css'; ?>" rel="stylesheet">
+<link
+    href="<?php echo TFISH_THEMES_URL . $viewModel->theme() . '/fishstat.css'; ?>"
+    rel="stylesheet"
+/>
 
 <!-- Container -->
 <div class="container">
-
-<div class="row">
-  <div class="col">
-    <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
-  </div>
-</div>
-
-<div class="fishstat-container">
-  <div class="chart-card">
-
-    <!-- Member country flags -->
-    <div class="member-flags">
-      <div class="member-flags-label">Member States</div>
-      <div class="flag-row" id="memberFlags">
-      </div>
-    </div>
-
-    <!-- Controls -->
-    <div class="fishstat-controls">
-      <div class="control-group control-group-narrow">
-        <label for="countrySearch">Filter by state</label>
-        <div class="country-search-wrap">
-          <input type="text" id="countrySearch" placeholder="Type to search states..." autocomplete="off">
-          <div class="country-dropdown" id="countryDropdown"></div>
+    <div class="row">
+        <div class="col">
+            <h1 class="page-title">
+                <?php echo xss($viewModel->pageTitle()); ?>
+            </h1>
         </div>
-      </div>
-      <div class="control-group control-group-narrow">
-        <label for="speciesSearch">Filter by species</label>
-        <div class="species-search-wrap">
-          <input type="text" id="speciesSearch" placeholder="Type common or scientific name..." autocomplete="off">
-          <div class="species-dropdown" id="speciesDropdown"></div>
+    </div>
+
+    <div class="fishstat-container">
+        <div class="chart-card">
+            <!-- Member country flags -->
+            <div class="member-flags">
+                <div class="member-flags-label">Member States</div>
+                <div class="flag-row" id="memberFlags"></div>
+            </div>
+
+            <!-- Controls -->
+            <div class="fishstat-controls">
+                <div class="control-group control-group-narrow">
+                    <label for="countrySearch">Filter by state</label>
+                    <div class="country-search-wrap">
+                        <input
+                            type="text"
+                            id="countrySearch"
+                            placeholder="Type to search states..."
+                            autocomplete="off"
+                        />
+                        <div
+                            class="country-dropdown"
+                            id="countryDropdown"
+                        ></div>
+                    </div>
+                </div>
+                <div class="control-group control-group-narrow">
+                    <label for="speciesSearch">Filter by species</label>
+                    <div class="species-search-wrap">
+                        <input
+                            type="text"
+                            id="speciesSearch"
+                            placeholder="Type common or scientific name..."
+                            autocomplete="off"
+                        />
+                        <div
+                            class="species-dropdown"
+                            id="speciesDropdown"
+                        ></div>
+                    </div>
+                </div>
+                <div class="control-group control-group-narrow">
+                    <label>Show data</label>
+                    <div class="toggle-row">
+                        <div class="toggle-wrap">
+                            <input type="checkbox" id="captureToggle" checked />
+                            <span>Capture fisheries</span>
+                        </div>
+                        <div class="toggle-wrap">
+                            <input
+                                type="checkbox"
+                                id="aquacultureToggle"
+                                checked
+                            />
+                            <span>Aquaculture</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="fishstat-actions">
+                <button class="btn-clear" id="resetBtn">Global view</button>
+                <span class="active-country-badge" id="activeBadge">
+                    <span id="badgeText"></span>
+                    <span class="badge-x" id="badgeClear">&times;</span>
+                </span>
+                <span class="active-species-badge" id="activeSpeciesBadge">
+                    <span id="speciesBadgeText"></span>
+                    <span class="badge-x" id="speciesBadgeClear">&times;</span>
+                </span>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-header">
+                <h2 class="chart-title" id="chartTitle">
+                    Global Fisheries &amp; Aquaculture Production
+                </h2>
+                <p class="chart-subtitle" id="chartSubtitle">
+                    Millions of tonnes (live weight), 1950–2024
+                </p>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="productionChart"></canvas>
+                <div class="chart-loading" id="chartLoading">
+                    <div class="spinner"></div>
+                    <span style="color: #666; font-size: 0.85rem"
+                        >Loading...</span
+                    >
+                </div>
+            </div>
+            <p class="chart-source">
+                Data source: FAO Fisheries and Aquaculture Statistics
+                (FishStatJ), 2026.1.0. Licensed under CC BY-NC-SA 3.0 IGO.
+            </p>
+
+            <!-- Value Chart -->
+            <div class="chart-header">
+                <h2 class="chart-title" id="valueChartTitle">
+                    Global Aquaculture Production Value
+                </h2>
+                <p class="chart-subtitle" id="valueChartSubtitle">
+                    USD (thousands), 1984–2024
+                </p>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="valueChart"></canvas>
+                <div class="chart-loading" id="valueChartLoading">
+                    <div class="spinner"></div>
+                    <span style="color: #666; font-size: 0.85rem"
+                        >Loading...</span
+                    >
+                </div>
+            </div>
+            <p class="chart-source">
+                Data source: FAO Fisheries and Aquaculture Statistics
+                (FishStatJ), 2026.1.0. Licensed under CC BY-NC-SA 3.0 IGO.<br />
+                Note: Value data is available for aquaculture only. Capture
+                fisheries value data is not published by FAO in this dataset.
+            </p>
         </div>
-      </div>
-      <div class="toggle-wrap">
-        <input type="checkbox" id="captureToggle" checked>
-        <span>Show capture fisheries</span>
-      </div>
-      <div class="toggle-wrap">
-        <input type="checkbox" id="aquacultureToggle" checked>
-        <span>Show aquaculture</span>
-      </div>
-    </div>
-    <div class="fishstat-actions">
-      <button class="btn-clear" id="resetBtn">Global view</button>
-      <span class="active-country-badge" id="activeBadge">
-        <span id="badgeText"></span>
-        <span class="badge-x" id="badgeClear">&times;</span>
-      </span>
-      <span class="active-species-badge" id="activeSpeciesBadge">
-        <span id="speciesBadgeText"></span>
-        <span class="badge-x" id="speciesBadgeClear">&times;</span>
-      </span>
     </div>
 
-    <!-- Chart -->
-    <div class="chart-header">
-      <h2 class="chart-title" id="chartTitle">Global Fisheries &amp; Aquaculture Production</h2>
-      <p class="chart-subtitle" id="chartSubtitle">Millions of tonnes (live weight), 1950–2024</p>
-    </div>
-    <div class="chart-wrap">
-      <canvas id="productionChart"></canvas>
-      <div class="chart-loading" id="chartLoading">
-        <div class="spinner"></div>
-        <span style="color:#666;font-size:0.85rem">Loading...</span>
-      </div>
-    </div>
-    <p class="chart-source">Data source: FAO Fisheries and Aquaculture Statistics (FishStatJ), 2026.1.0. Licensed under CC BY-NC-SA 3.0 IGO.</p>
-
-    <!-- Value Chart -->
-    <div class="chart-header">
-      <h2 class="chart-title" id="valueChartTitle">Global Aquaculture Production Value</h2>
-      <p class="chart-subtitle" id="valueChartSubtitle">USD (thousands), 1984–2024</p>
-    </div>
-    <div class="chart-wrap">
-      <canvas id="valueChart"></canvas>
-      <div class="chart-loading" id="valueChartLoading">
-        <div class="spinner"></div>
-        <span style="color:#666;font-size:0.85rem">Loading...</span>
-      </div>
-    </div>
-    <p class="chart-source">Data source: FAO Fisheries and Aquaculture Statistics (FishStatJ), 2026.1.0. Licensed under CC BY-NC-SA 3.0 IGO.<br>
-    Note: Value data is available for aquaculture only. Capture fisheries value data is not published by FAO in this dataset.</p>
-
-  </div>
-</div>
-
-<!-- /.container -->
+    <!-- /.container -->
 </div>
 
 <script src="<?php echo TFISH_VENDOR_URL; ?>chartjs/chart.umd.min.js"></script>
 <script>
-(function() {
-    'use strict';
+    (function() {
+        'use strict';
 
-    const FISHSTAT_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/fishstat/'); ?>;
-    const initialData = <?php echo $viewModel->chartDataJson(); ?>;
-    const countryList = <?php echo $viewModel->countryListJson(); ?>;
-    let speciesList = [];
+        const FISHSTAT_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/fishstat/'); ?>;
+        const initialData = <?php echo $viewModel->chartDataJson(); ?>;
+        const countryList = <?php echo $viewModel->countryListJson(); ?>;
+        let speciesList = [];
 
-    const memberCountries = [
-        { name: 'Australia', iso2: 'AU' },
-        { name: 'Bangladesh', iso2: 'BD' },
-        { name: 'Cambodia', iso2: 'KH' },
-        { name: 'China', iso2: 'CN' },
-        { name: 'China, Hong Kong SAR', iso2: 'HK' },
-        { name: 'Democratic People\'s Republic of Korea', iso2: 'KP' },
-        { name: 'India', iso2: 'IN' },
-        { name: 'Indonesia', iso2: 'ID' },
-        { name: 'Iran (Islamic Republic of)', iso2: 'IR' },
-        { name: 'Lao People\'s Democratic Republic', iso2: 'LA' },
-        { name: 'Malaysia', iso2: 'MY' },
-        { name: 'Maldives', iso2: 'MV' },
-        { name: 'Myanmar', iso2: 'MM' },
-        { name: 'Nepal', iso2: 'NP' },
-        { name: 'Pakistan', iso2: 'PK' },
-        { name: 'Philippines', iso2: 'PH' },
-        { name: 'Kingdom of Saudi Arabia', iso2: 'SA', dbName: 'Saudi Arabia' },
-        { name: 'Sri Lanka', iso2: 'LK' },
-        { name: 'Thailand', iso2: 'TH' },
-        { name: 'Viet Nam', iso2: 'VN' }
-    ];
+        const memberCountries = [
+            { name: 'Australia', iso2: 'AU' },
+            { name: 'Bangladesh', iso2: 'BD' },
+            { name: 'Cambodia', iso2: 'KH' },
+            { name: 'China', iso2: 'CN' },
+            { name: 'China, Hong Kong SAR', iso2: 'HK' },
+            { name: 'Democratic People\'s Republic of Korea', iso2: 'KP' },
+            { name: 'India', iso2: 'IN' },
+            { name: 'Indonesia', iso2: 'ID' },
+            { name: 'Iran (Islamic Republic of)', iso2: 'IR' },
+            { name: 'Lao People\'s Democratic Republic', iso2: 'LA' },
+            { name: 'Malaysia', iso2: 'MY' },
+            { name: 'Maldives', iso2: 'MV' },
+            { name: 'Myanmar', iso2: 'MM' },
+            { name: 'Nepal', iso2: 'NP' },
+            { name: 'Pakistan', iso2: 'PK' },
+            { name: 'Philippines', iso2: 'PH' },
+            { name: 'Kingdom of Saudi Arabia', iso2: 'SA', dbName: 'Saudi Arabia' },
+            { name: 'Sri Lanka', iso2: 'LK' },
+            { name: 'Thailand', iso2: 'TH' },
+            { name: 'Viet Nam', iso2: 'VN' }
+        ];
 
-    // Inline flag SVGs (simplified)
-    const flagSvgs = {
-        AU: '<svg viewBox="0 0 36 24"><rect fill="#00008B" width="36" height="24"/><g fill="#fff"><polygon points="0,0 7,4 0,8" /><polygon points="0,0 9,4 18,0 18,8 9,4 0,8" opacity=".6"/><circle cx="26" cy="10" r="2.5"/><circle cx="30" cy="5" r="1.5"/><circle cx="33" cy="9" r="1.5"/><circle cx="30" cy="14" r="1.5"/><circle cx="31" cy="18" r="1"/></g><g fill="#CC0000"><polygon points="0,3 7,4 0,5"/><polygon points="8,0 9,4 10,0"/><polygon points="8,8 9,4 10,8"/></g></svg>',
-        BD: '<svg viewBox="0 0 36 24"><rect fill="#006a4e" width="36" height="24"/><circle cx="16" cy="12" r="7" fill="#f42a41"/></svg>',
-        KH: '<svg viewBox="0 0 36 24"><rect fill="#032ea1" width="36" height="24"/><rect fill="#e00025" y="6" width="36" height="12"/><rect fill="#fff" x="12" y="8" width="12" height="6" rx="1"/></svg>',
-        CN: '<svg viewBox="0 0 36 24"><rect fill="#de2910" width="36" height="24"/><g fill="#ffde00"><polygon points="5,3 6.2,6.7 3,4.8 7,4.8 3.8,6.7"/><polygon points="10,1 10.5,2.5 9,1.7 11,1.7 9.5,2.5"/><polygon points="12,3 12.5,4.5 11,3.7 13,3.7 11.5,4.5"/><polygon points="12,6 12.5,7.5 11,6.7 13,6.7 11.5,7.5"/><polygon points="10,8 10.5,9.5 9,8.7 11,8.7 9.5,9.5"/></g></svg>',
-        HK: '<svg viewBox="0 0 36 24"><rect fill="#de2110" width="36" height="24"/><g fill="#fff" opacity="0.9"><circle cx="18" cy="12" r="5"/></g><g fill="#de2110"><circle cx="18" cy="12" r="3.5"/></g><g fill="#fff"><circle cx="18" cy="9" r="1.2"/><circle cx="15.5" cy="11" r="1.2"/><circle cx="16.5" cy="14" r="1.2"/><circle cx="19.5" cy="14" r="1.2"/><circle cx="20.5" cy="11" r="1.2"/></g></svg>',
-        KP: '<svg viewBox="0 0 36 24"><rect fill="#024fa2" width="36" height="24"/><rect fill="#fff" y="3" width="36" height="18"/><rect fill="#ed1c27" y="4.5" width="36" height="15"/><rect fill="#024fa2" y="19.5" width="36" height="4.5"/><circle cx="11" cy="12" r="5" fill="#fff"/><polygon points="11,7 12.5,10.5 16,10.5 13,13 14.2,16.5 11,14 7.8,16.5 9,13 6,10.5 9.5,10.5" fill="#ed1c27"/></svg>',
-        IN: '<svg viewBox="0 0 36 24"><rect fill="#f93" width="36" height="8"/><rect fill="#fff" y="8" width="36" height="8"/><rect fill="#128807" y="16" width="36" height="8"/><circle cx="18" cy="12" r="3" fill="none" stroke="#000080" stroke-width="0.5"/></svg>',
-        ID: '<svg viewBox="0 0 36 24"><rect fill="#ce1126" width="36" height="12"/><rect fill="#fff" y="12" width="36" height="12"/></svg>',
-        IR: '<svg viewBox="0 0 36 24"><rect fill="#239f40" width="36" height="8"/><rect fill="#fff" y="8" width="36" height="8"/><rect fill="#da0000" y="16" width="36" height="8"/><circle cx="18" cy="12" r="3" fill="#da0000"/></svg>',
-        LA: '<svg viewBox="0 0 36 24"><rect fill="#ce1126" width="36" height="24"/><rect fill="#002868" y="6" width="36" height="12"/><circle cx="18" cy="12" r="4" fill="#fff"/></svg>',
-        MY: '<svg viewBox="0 0 36 24"><g><rect fill="#cc0001" width="36" height="24"/><rect fill="#fff" y="1.7" width="36" height="1.7"/><rect fill="#fff" y="5.1" width="36" height="1.7"/><rect fill="#fff" y="8.6" width="36" height="1.7"/><rect fill="#fff" y="12" width="36" height="1.7"/><rect fill="#fff" y="15.4" width="36" height="1.7"/><rect fill="#fff" y="18.9" width="36" height="1.7"/><rect fill="#fff" y="22.3" width="36" height="1.7"/></g><rect fill="#010066" width="18" height="13.7"/><g fill="#fc0"><circle cx="8" cy="7" r="4"/><circle cx="9.5" cy="7" r="3.2" fill="#010066"/><polygon points="13,4 13.7,6 15.5,6 14,7.2 14.6,9 13,7.8 11.4,9 12,7.2 10.5,6 12.3,6"/></g></svg>',
-        MV: '<svg viewBox="0 0 36 24"><rect fill="#d21034" width="36" height="24"/><rect fill="#007e3a" x="5" y="4" width="26" height="16"/><circle cx="19" cy="12" r="5" fill="#fff"/><circle cx="21" cy="12" r="5" fill="#007e3a"/></svg>',
-        MM: '<svg viewBox="0 0 36 24"><rect fill="#fecb00" width="36" height="8"/><rect fill="#34b233" y="8" width="36" height="8"/><rect fill="#ea2839" y="16" width="36" height="8"/><polygon points="18,4 20.5,10 27,10 21.5,14 23.5,20.5 18,16.5 12.5,20.5 14.5,14 9,10 15.5,10" fill="#fff"/></svg>',
-        NP: '<svg viewBox="0 0 36 24"><rect fill="#fff" width="36" height="24"/><polygon points="3,22 3,2 20,10 3,10 20,22" fill="#ce0000" stroke="#003893" stroke-width="1.5"/></svg>',
-        PK: '<svg viewBox="0 0 36 24"><rect fill="#01411c" width="36" height="24"/><rect fill="#fff" width="9" height="24"/><circle cx="21" cy="12" r="5" fill="#fff"/><circle cx="22.5" cy="12" r="4" fill="#01411c"/><polygon points="24,8 24.7,10 26.5,10 25,11.2 25.5,13 24,11.8 22.5,13 23,11.2 21.5,10 23.3,10" fill="#fff"/></svg>',
-        PH: '<svg viewBox="0 0 36 24"><rect fill="#0038a8" width="36" height="12"/><rect fill="#ce1126" y="12" width="36" height="12"/><polygon points="0,0 16,12 0,24" fill="#fff"/><circle cx="5.5" cy="12" r="2.5" fill="none" stroke="#fcd116" stroke-width="0.8"/></svg>',
-        SA: '<svg viewBox="0 0 36 24"><rect fill="#006c35" width="36" height="24"/><rect fill="#fff" x="8" y="9" width="20" height="3" rx="1"/><rect fill="#fff" x="16" y="15" width="4" height="3" rx="0.5"/></svg>',
-        LK: '<svg viewBox="0 0 36 24"><rect fill="#ffb700" width="36" height="24"/><rect fill="#00534e" x="2" y="2" width="8" height="20"/><rect fill="#ff6600" x="11" y="2" width="8" height="20"/><rect fill="#8b0000" x="20" y="2" width="14" height="20" rx="2"/></svg>',
-        TH: '<svg viewBox="0 0 36 24"><rect fill="#a51931" width="36" height="24"/><rect fill="#fff" y="4" width="36" height="16"/><rect fill="#2d2a4a" y="8" width="36" height="8"/></svg>',
-        VN: '<svg viewBox="0 0 36 24"><rect fill="#da251d" width="36" height="24"/><polygon points="18,5 20,11 26,11 21,14.5 23,20.5 18,17 13,20.5 15,14.5 10,11 16,11" fill="#ff0"/></svg>'
-    };
+        // Inline flag SVGs (simplified)
+        const flagSvgs = {
+            AU: '<svg viewBox="0 0 36 24"><rect fill="#00008B" width="36" height="24"/><g fill="#fff"><polygon points="0,0 7,4 0,8" /><polygon points="0,0 9,4 18,0 18,8 9,4 0,8" opacity=".6"/><circle cx="26" cy="10" r="2.5"/><circle cx="30" cy="5" r="1.5"/><circle cx="33" cy="9" r="1.5"/><circle cx="30" cy="14" r="1.5"/><circle cx="31" cy="18" r="1"/></g><g fill="#CC0000"><polygon points="0,3 7,4 0,5"/><polygon points="8,0 9,4 10,0"/><polygon points="8,8 9,4 10,8"/></g></svg>',
+            BD: '<svg viewBox="0 0 36 24"><rect fill="#006a4e" width="36" height="24"/><circle cx="16" cy="12" r="7" fill="#f42a41"/></svg>',
+            KH: '<svg viewBox="0 0 36 24"><rect fill="#032ea1" width="36" height="24"/><rect fill="#e00025" y="6" width="36" height="12"/><rect fill="#fff" x="12" y="8" width="12" height="6" rx="1"/></svg>',
+            CN: '<svg viewBox="0 0 36 24"><rect fill="#de2910" width="36" height="24"/><g fill="#ffde00"><polygon points="5,3 6.2,6.7 3,4.8 7,4.8 3.8,6.7"/><polygon points="10,1 10.5,2.5 9,1.7 11,1.7 9.5,2.5"/><polygon points="12,3 12.5,4.5 11,3.7 13,3.7 11.5,4.5"/><polygon points="12,6 12.5,7.5 11,6.7 13,6.7 11.5,7.5"/><polygon points="10,8 10.5,9.5 9,8.7 11,8.7 9.5,9.5"/></g></svg>',
+            HK: '<svg viewBox="0 0 36 24"><rect fill="#de2110" width="36" height="24"/><g fill="#fff" opacity="0.9"><circle cx="18" cy="12" r="5"/></g><g fill="#de2110"><circle cx="18" cy="12" r="3.5"/></g><g fill="#fff"><circle cx="18" cy="9" r="1.2"/><circle cx="15.5" cy="11" r="1.2"/><circle cx="16.5" cy="14" r="1.2"/><circle cx="19.5" cy="14" r="1.2"/><circle cx="20.5" cy="11" r="1.2"/></g></svg>',
+            KP: '<svg viewBox="0 0 36 24"><rect fill="#024fa2" width="36" height="24"/><rect fill="#fff" y="3" width="36" height="18"/><rect fill="#ed1c27" y="4.5" width="36" height="15"/><rect fill="#024fa2" y="19.5" width="36" height="4.5"/><circle cx="11" cy="12" r="5" fill="#fff"/><polygon points="11,7 12.5,10.5 16,10.5 13,13 14.2,16.5 11,14 7.8,16.5 9,13 6,10.5 9.5,10.5" fill="#ed1c27"/></svg>',
+            IN: '<svg viewBox="0 0 36 24"><rect fill="#f93" width="36" height="8"/><rect fill="#fff" y="8" width="36" height="8"/><rect fill="#128807" y="16" width="36" height="8"/><circle cx="18" cy="12" r="3" fill="none" stroke="#000080" stroke-width="0.5"/></svg>',
+            ID: '<svg viewBox="0 0 36 24"><rect fill="#ce1126" width="36" height="12"/><rect fill="#fff" y="12" width="36" height="12"/></svg>',
+            IR: '<svg viewBox="0 0 36 24"><rect fill="#239f40" width="36" height="8"/><rect fill="#fff" y="8" width="36" height="8"/><rect fill="#da0000" y="16" width="36" height="8"/><circle cx="18" cy="12" r="3" fill="#da0000"/></svg>',
+            LA: '<svg viewBox="0 0 36 24"><rect fill="#ce1126" width="36" height="24"/><rect fill="#002868" y="6" width="36" height="12"/><circle cx="18" cy="12" r="4" fill="#fff"/></svg>',
+            MY: '<svg viewBox="0 0 36 24"><g><rect fill="#cc0001" width="36" height="24"/><rect fill="#fff" y="1.7" width="36" height="1.7"/><rect fill="#fff" y="5.1" width="36" height="1.7"/><rect fill="#fff" y="8.6" width="36" height="1.7"/><rect fill="#fff" y="12" width="36" height="1.7"/><rect fill="#fff" y="15.4" width="36" height="1.7"/><rect fill="#fff" y="18.9" width="36" height="1.7"/><rect fill="#fff" y="22.3" width="36" height="1.7"/></g><rect fill="#010066" width="18" height="13.7"/><g fill="#fc0"><circle cx="8" cy="7" r="4"/><circle cx="9.5" cy="7" r="3.2" fill="#010066"/><polygon points="13,4 13.7,6 15.5,6 14,7.2 14.6,9 13,7.8 11.4,9 12,7.2 10.5,6 12.3,6"/></g></svg>',
+            MV: '<svg viewBox="0 0 36 24"><rect fill="#d21034" width="36" height="24"/><rect fill="#007e3a" x="5" y="4" width="26" height="16"/><circle cx="19" cy="12" r="5" fill="#fff"/><circle cx="21" cy="12" r="5" fill="#007e3a"/></svg>',
+            MM: '<svg viewBox="0 0 36 24"><rect fill="#fecb00" width="36" height="8"/><rect fill="#34b233" y="8" width="36" height="8"/><rect fill="#ea2839" y="16" width="36" height="8"/><polygon points="18,4 20.5,10 27,10 21.5,14 23.5,20.5 18,16.5 12.5,20.5 14.5,14 9,10 15.5,10" fill="#fff"/></svg>',
+            NP: '<svg viewBox="0 0 36 24"><rect fill="#fff" width="36" height="24"/><polygon points="3,22 3,2 20,10 3,10 20,22" fill="#ce0000" stroke="#003893" stroke-width="1.5"/></svg>',
+            PK: '<svg viewBox="0 0 36 24"><rect fill="#01411c" width="36" height="24"/><rect fill="#fff" width="9" height="24"/><circle cx="21" cy="12" r="5" fill="#fff"/><circle cx="22.5" cy="12" r="4" fill="#01411c"/><polygon points="24,8 24.7,10 26.5,10 25,11.2 25.5,13 24,11.8 22.5,13 23,11.2 21.5,10 23.3,10" fill="#fff"/></svg>',
+            PH: '<svg viewBox="0 0 36 24"><rect fill="#0038a8" width="36" height="12"/><rect fill="#ce1126" y="12" width="36" height="12"/><polygon points="0,0 16,12 0,24" fill="#fff"/><circle cx="5.5" cy="12" r="2.5" fill="none" stroke="#fcd116" stroke-width="0.8"/></svg>',
+            SA: '<svg viewBox="0 0 36 24"><rect fill="#006c35" width="36" height="24"/><rect fill="#fff" x="8" y="9" width="20" height="3" rx="1"/><rect fill="#fff" x="16" y="15" width="4" height="3" rx="0.5"/></svg>',
+            LK: '<svg viewBox="0 0 36 24"><rect fill="#ffb700" width="36" height="24"/><rect fill="#00534e" x="2" y="2" width="8" height="20"/><rect fill="#ff6600" x="11" y="2" width="8" height="20"/><rect fill="#8b0000" x="20" y="2" width="14" height="20" rx="2"/></svg>',
+            TH: '<svg viewBox="0 0 36 24"><rect fill="#a51931" width="36" height="24"/><rect fill="#fff" y="4" width="36" height="16"/><rect fill="#2d2a4a" y="8" width="36" height="8"/></svg>',
+            VN: '<svg viewBox="0 0 36 24"><rect fill="#da251d" width="36" height="24"/><polygon points="18,5 20,11 26,11 21,14.5 23,20.5 18,17 13,20.5 15,14.5 10,11 16,11" fill="#ff0"/></svg>'
+        };
 
-    // State
-    let currentCountry = '';
-    let currentSpecies = '';
-    let currentSpeciesName = '';
-    let showCapture = true;
-    let showAquaculture = true;
-    let chart = null;
-    let valueChart = null;
-    let highlightIndex = -1;
-    let speciesHighlightIndex = -1;
-    let currentData = initialData;
+        // State
+        let currentCountry = '';
+        let currentSpecies = '';
+        let currentSpeciesName = '';
+        let showCapture = true;
+        let showAquaculture = true;
+        let chart = null;
+        let valueChart = null;
+        let highlightIndex = -1;
+        let speciesHighlightIndex = -1;
+        let currentData = initialData;
 
-    // Elements
-    const canvas = document.getElementById('productionChart');
-    const searchInput = document.getElementById('countrySearch');
-    const dropdown = document.getElementById('countryDropdown');
-    const captureToggle = document.getElementById('captureToggle');
-    const aquacultureToggle = document.getElementById('aquacultureToggle');
-    const resetBtn = document.getElementById('resetBtn');
-    const chartTitle = document.getElementById('chartTitle');
-    const chartSubtitle = document.getElementById('chartSubtitle');
-    const loading = document.getElementById('chartLoading');
-    const activeBadge = document.getElementById('activeBadge');
-    const badgeText = document.getElementById('badgeText');
-    const badgeClear = document.getElementById('badgeClear');
-    const flagContainer = document.getElementById('memberFlags');
-    const speciesInput = document.getElementById('speciesSearch');
-    const speciesDropdown = document.getElementById('speciesDropdown');
-    const activeSpeciesBadge = document.getElementById('activeSpeciesBadge');
-    const speciesBadgeText = document.getElementById('speciesBadgeText');
-    const speciesBadgeClear = document.getElementById('speciesBadgeClear');
-    const valueCanvas = document.getElementById('valueChart');
-    const valueChartTitle = document.getElementById('valueChartTitle');
-    const valueChartSubtitle = document.getElementById('valueChartSubtitle');
-    const valueLoading = document.getElementById('valueChartLoading');
+        // Elements
+        const canvas = document.getElementById('productionChart');
+        const searchInput = document.getElementById('countrySearch');
+        const dropdown = document.getElementById('countryDropdown');
+        const captureToggle = document.getElementById('captureToggle');
+        const aquacultureToggle = document.getElementById('aquacultureToggle');
+        const resetBtn = document.getElementById('resetBtn');
+        const chartTitle = document.getElementById('chartTitle');
+        const chartSubtitle = document.getElementById('chartSubtitle');
+        const loading = document.getElementById('chartLoading');
+        const activeBadge = document.getElementById('activeBadge');
+        const badgeText = document.getElementById('badgeText');
+        const badgeClear = document.getElementById('badgeClear');
+        const flagContainer = document.getElementById('memberFlags');
+        const speciesInput = document.getElementById('speciesSearch');
+        const speciesDropdown = document.getElementById('speciesDropdown');
+        const activeSpeciesBadge = document.getElementById('activeSpeciesBadge');
+        const speciesBadgeText = document.getElementById('speciesBadgeText');
+        const speciesBadgeClear = document.getElementById('speciesBadgeClear');
+        const valueCanvas = document.getElementById('valueChart');
+        const valueChartTitle = document.getElementById('valueChartTitle');
+        const valueChartSubtitle = document.getElementById('valueChartSubtitle');
+        const valueLoading = document.getElementById('valueChartLoading');
 
-    function pickUnit(data) {
-        var allValues = [].concat(data.capture || [], data.aquaculture || []);
-        var maxVal = Math.max.apply(null, allValues.concat([0]));
+        function pickUnit(data) {
+            var allValues = [].concat(data.capture || [], data.aquaculture || []);
+            var maxVal = Math.max.apply(null, allValues.concat([0]));
 
-        if (maxVal >= 1e6) return { divisor: 1e6, label: 'Million tonnes (live weight)', suffix: 'M', decimals: 2 };
-        if (maxVal >= 1e4) return { divisor: 1e3, label: 'Thousand tonnes (live weight)', suffix: 'K', decimals: 1 };
-        return { divisor: 1, label: 'Tonnes (live weight)', suffix: '', decimals: 0 };
-    }
+            if (maxVal >= 1e6) return { divisor: 1e6, label: 'Million tonnes (live weight)', suffix: 'M', decimals: 2 };
+            if (maxVal >= 1e4) return { divisor: 1e3, label: 'Thousand tonnes (live weight)', suffix: 'K', decimals: 1 };
+            return { divisor: 1, label: 'Tonnes (live weight)', suffix: '', decimals: 0 };
+        }
 
-    function scaleValues(arr, divisor) {
-        return arr.map(function(v) { return v / divisor; });
-    }
+        function scaleValues(arr, divisor) {
+            return arr.map(function(v) { return v / divisor; });
+        }
 
-    function buildChart(data) {
-        if (!data.labels || !data.labels.length) {
-            chartSubtitle.textContent = 'No data available for this selection';
+        function buildChart(data) {
+            if (!data.labels || !data.labels.length) {
+                chartSubtitle.textContent = 'No data available for this selection';
+                if (chart) {
+                    chart.data.labels = [];
+                    chart.data.datasets = [];
+                    chart.update('none');
+                }
+                return;
+            }
+
+            var unit = pickUnit(data);
+            var datasets = [];
+            var stacked = showCapture && showAquaculture;
+
+            if (showCapture) {
+                datasets.push({
+                    label: 'Capture Fisheries',
+                    data: scaleValues(data.capture, unit.divisor),
+                    backgroundColor: 'rgba(20, 50, 120, 0.85)',
+                    borderColor: 'rgba(20, 50, 120, 1)',
+                    borderWidth: 1.5,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 0,
+                    pointHitRadius: 8,
+                    order: 1
+                });
+            }
+
+            if (showAquaculture) {
+                datasets.push({
+                    label: 'Aquaculture',
+                    data: scaleValues(data.aquaculture, unit.divisor),
+                    backgroundColor: 'rgba(140, 215, 70, 0.85)',
+                    borderColor: 'rgba(100, 180, 40, 1)',
+                    borderWidth: 1.5,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 0,
+                    pointHitRadius: 8,
+                    order: 2
+                });
+            }
+
+            chartSubtitle.textContent = unit.label + ', ' + data.labels[0] + '–' + data.labels[data.labels.length - 1];
+
             if (chart) {
-                chart.data.labels = [];
-                chart.data.datasets = [];
+                chart.data.labels = data.labels;
+                chart.data.datasets = datasets;
+                chart.options.scales.y.stacked = stacked;
+                chart.options.scales.x.stacked = stacked;
+                chart.options.scales.y.title.text = unit.label;
+                chart.options.scales.y.ticks.callback = function(v) {
+                    return unit.suffix ? v + unit.suffix : v.toLocaleString();
+                };
+                chart.options.plugins.tooltip.callbacks.label = function(ctx) {
+                    return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(unit.decimals) + unit.suffix + ' tonnes';
+                };
+                chart.options.plugins.tooltip.callbacks.footer = function(items) {
+                    if (items.length < 2) return '';
+                    var total = items.reduce(function(s, i) { return s + i.parsed.y; }, 0);
+                    return 'Total: ' + total.toFixed(unit.decimals) + unit.suffix + ' tonnes';
+                };
                 chart.update('none');
+                return;
             }
-            return;
-        }
 
-        var unit = pickUnit(data);
-        var datasets = [];
-        var stacked = showCapture && showAquaculture;
-
-        if (showCapture) {
-            datasets.push({
-                label: 'Capture Fisheries',
-                data: scaleValues(data.capture, unit.divisor),
-                backgroundColor: 'rgba(20, 50, 120, 0.85)',
-                borderColor: 'rgba(20, 50, 120, 1)',
-                borderWidth: 1.5,
-                fill: true,
-                tension: 0.3,
-                pointRadius: 0,
-                pointHitRadius: 8,
-                order: 1
-            });
-        }
-
-        if (showAquaculture) {
-            datasets.push({
-                label: 'Aquaculture',
-                data: scaleValues(data.aquaculture, unit.divisor),
-                backgroundColor: 'rgba(140, 215, 70, 0.85)',
-                borderColor: 'rgba(100, 180, 40, 1)',
-                borderWidth: 1.5,
-                fill: true,
-                tension: 0.3,
-                pointRadius: 0,
-                pointHitRadius: 8,
-                order: 2
-            });
-        }
-
-        chartSubtitle.textContent = unit.label + ', ' + data.labels[0] + '–' + data.labels[data.labels.length - 1];
-
-        if (chart) {
-            chart.data.labels = data.labels;
-            chart.data.datasets = datasets;
-            chart.options.scales.y.stacked = stacked;
-            chart.options.scales.x.stacked = stacked;
-            chart.options.scales.y.title.text = unit.label;
-            chart.options.scales.y.ticks.callback = function(v) {
-                return unit.suffix ? v + unit.suffix : v.toLocaleString();
-            };
-            chart.options.plugins.tooltip.callbacks.label = function(ctx) {
-                return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(unit.decimals) + unit.suffix + ' tonnes';
-            };
-            chart.options.plugins.tooltip.callbacks.footer = function(items) {
-                if (items.length < 2) return '';
-                var total = items.reduce(function(s, i) { return s + i.parsed.y; }, 0);
-                return 'Total: ' + total.toFixed(unit.decimals) + unit.suffix + ' tonnes';
-            };
-            chart.update('none');
-            return;
-        }
-
-        chart = new Chart(canvas.getContext('2d'), {
-            type: 'line',
-            data: { labels: data.labels, datasets: datasets },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                aspectRatio: 2.2,
-                interaction: { mode: 'index', intersect: false },
-                scales: {
-                    x: {
-                        stacked: stacked,
-                        grid: { display: false },
-                        ticks: { maxTicksLimit: 15, font: { size: 12 } }
-                    },
-                    y: {
-                        stacked: stacked,
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: unit.label,
-                            font: { size: 13 }
+            chart = new Chart(canvas.getContext('2d'), {
+                type: 'line',
+                data: { labels: data.labels, datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2.2,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        x: {
+                            stacked: stacked,
+                            grid: { display: false },
+                            ticks: { maxTicksLimit: 15, font: { size: 12 } }
                         },
-                        ticks: {
-                            font: { size: 12 },
-                            callback: function(v) {
-                                return unit.suffix ? v + unit.suffix : v.toLocaleString();
-                            }
-                        },
-                        grid: { color: 'rgba(0,0,0,0.06)' }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            usePointStyle: true,
-                            pointStyle: 'rect',
-                            padding: 20,
-                            font: { size: 13 }
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(ctx) {
-                                return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(unit.decimals) + unit.suffix + ' tonnes';
+                        y: {
+                            stacked: stacked,
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: unit.label,
+                                font: { size: 13 }
                             },
-                            footer: function(items) {
-                                if (items.length < 2) return '';
-                                var total = items.reduce(function(s, i) { return s + i.parsed.y; }, 0);
-                                return 'Total: ' + total.toFixed(unit.decimals) + unit.suffix + ' tonnes';
+                            ticks: {
+                                font: { size: 12 },
+                                callback: function(v) {
+                                    return unit.suffix ? v + unit.suffix : v.toLocaleString();
+                                }
+                            },
+                            grid: { color: 'rgba(0,0,0,0.06)' }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                pointStyle: 'rect',
+                                padding: 20,
+                                font: { size: 13 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) {
+                                    return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(unit.decimals) + unit.suffix + ' tonnes';
+                                },
+                                footer: function(items) {
+                                    if (items.length < 2) return '';
+                                    var total = items.reduce(function(s, i) { return s + i.parsed.y; }, 0);
+                                    return 'Total: ' + total.toFixed(unit.decimals) + unit.suffix + ' tonnes';
+                                }
                             }
                         }
                     }
                 }
-            }
-        });
-    }
-
-    function pickValueUnit(data) {
-        var vals = data.aquaculture_value || [];
-        var maxVal = Math.max.apply(null, vals.concat([0]));
-
-        if (maxVal >= 1e6) return { divisor: 1e6, label: 'Billion USD', suffix: 'B', decimals: 1 };
-        if (maxVal >= 1e3) return { divisor: 1e3, label: 'Million USD', suffix: 'M', decimals: 1 };
-        return { divisor: 1, label: 'Thousand USD', suffix: 'K', decimals: 0 };
-    }
-
-    function buildValueChart(data) {
-        var vals = data.aquaculture_value || [];
-        var hasData = vals.some(function(v) { return v > 0; });
-
-        if (!data.labels || !data.labels.length || !hasData) {
-            valueChartSubtitle.textContent = 'No value data available for this selection';
-            if (valueChart) {
-                valueChart.data.labels = [];
-                valueChart.data.datasets = [];
-                valueChart.update('none');
-            }
-            return;
-        }
-
-        var firstIdx = vals.findIndex(function(v) { return v > 0; });
-        var lastIdx = vals.length - 1;
-        while (lastIdx > firstIdx && vals[lastIdx] === 0) lastIdx--;
-
-        var valueLabels = data.labels.slice(firstIdx, lastIdx + 1);
-        var valueData = vals.slice(firstIdx, lastIdx + 1);
-
-        var unit = pickValueUnit({ aquaculture_value: valueData });
-        var scaledData = valueData.map(function(v) { return v / unit.divisor; });
-
-        valueChartSubtitle.textContent = unit.label + ', ' + valueLabels[0] + '–' + valueLabels[valueLabels.length - 1];
-
-        var datasets = [{
-            label: 'Aquaculture Value',
-            data: scaledData,
-            backgroundColor: 'rgba(55, 150, 160, 0.75)',
-            borderColor: 'rgba(40, 120, 130, 1)',
-            borderWidth: 1.5,
-            fill: true,
-            tension: 0.3,
-            pointRadius: 0,
-            pointHitRadius: 8
-        }];
-
-        if (valueChart) {
-            valueChart.data.labels = valueLabels;
-            valueChart.data.datasets = datasets;
-            valueChart.options.scales.y.title.text = unit.label;
-            valueChart.options.scales.y.ticks.callback = function(v) {
-                return unit.suffix ? '$' + v + unit.suffix : '$' + v.toLocaleString();
-            };
-            valueChart.options.plugins.tooltip.callbacks.label = function(ctx) {
-                return ctx.dataset.label + ': $' + ctx.parsed.y.toFixed(unit.decimals) + unit.suffix;
-            };
-            valueChart.update('none');
-            return;
-        }
-
-        valueChart = new Chart(valueCanvas.getContext('2d'), {
-            type: 'line',
-            data: { labels: valueLabels, datasets: datasets },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                aspectRatio: 2.2,
-                interaction: { mode: 'index', intersect: false },
-                scales: {
-                    x: {
-                        grid: { display: false },
-                        ticks: { maxTicksLimit: 15, font: { size: 12 } }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: unit.label,
-                            font: { size: 13 }
-                        },
-                        ticks: {
-                            font: { size: 12 },
-                            callback: function(v) {
-                                return unit.suffix ? '$' + v + unit.suffix : '$' + v.toLocaleString();
-                            }
-                        },
-                        grid: { color: 'rgba(0,0,0,0.06)' }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            usePointStyle: true,
-                            pointStyle: 'rect',
-                            padding: 20,
-                            font: { size: 13 }
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(ctx) {
-                                return ctx.dataset.label + ': $' + ctx.parsed.y.toFixed(unit.decimals) + unit.suffix;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    function updateValueTitle() {
-        var base = currentCountry
-            ? currentCountry + ' — Aquaculture Production Value'
-            : 'Global Aquaculture Production Value';
-
-        if (currentSpeciesName) {
-            base += ' — ' + currentSpeciesName;
-        }
-
-        valueChartTitle.textContent = base;
-    }
-
-    function updateTitle() {
-        var base = currentCountry
-            ? currentCountry + ' — Fisheries & Aquaculture Production'
-            : 'Global Fisheries & Aquaculture Production';
-
-        if (currentSpeciesName) {
-            base += ' — ' + currentSpeciesName;
-        }
-
-        chartTitle.textContent = base;
-        updateValueTitle();
-    }
-
-    function setActiveCountry(name) {
-        currentCountry = name;
-        updateTitle();
-        searchInput.value = '';
-        closeDropdown();
-
-        if (name) {
-            activeBadge.classList.add('visible');
-            badgeText.textContent = name;
-        } else {
-            activeBadge.classList.remove('visible');
-        }
-
-        document.querySelectorAll('.flag-btn').forEach(function(btn) {
-            var dbName = btn.dataset.dbname || btn.dataset.country;
-            btn.classList.toggle('active', dbName === name);
-        });
-    }
-
-    function showLoading() { loading.classList.add('active'); valueLoading.classList.add('active'); }
-    function hideLoading() { loading.classList.remove('active'); valueLoading.classList.remove('active'); }
-
-    function fetchChartData(country, species) {
-        showLoading();
-        var c = country !== undefined ? country : currentCountry;
-        var s = species !== undefined ? species : currentSpecies;
-        var url = FISHSTAT_URL + '?action=chartdata&country=' + encodeURIComponent(c || '')
-            + '&species=' + encodeURIComponent(s || '');
-
-        fetch(url)
-            .then(function(r) {
-                if (!r.ok) throw new Error('HTTP ' + r.status);
-                return r.json();
-            })
-            .then(function(data) {
-                if (data.error) throw new Error(data.error);
-                currentData = data;
-                setActiveCountry(data.country || '');
-                setActiveSpecies(data.species || '');
-                buildChart(data);
-                buildValueChart(data);
-                hideLoading();
-            })
-            .catch(function(err) {
-                console.warn('FishStat: failed to load chart data', err);
-                chartSubtitle.textContent = 'Failed to load data — please try again';
-                hideLoading();
             });
-    }
-
-    // Country autocomplete
-    function renderDropdown(matches) {
-        var query = searchInput.value.trim().toLowerCase();
-        dropdown.innerHTML = '';
-
-        if (!matches.length) {
-            dropdown.innerHTML = '<div class="country-option" style="color:#999;cursor:default">No matches</div>';
-            dropdown.classList.add('open');
-            return;
         }
 
-        matches.forEach(function(name, idx) {
-            var div = document.createElement('div');
-            div.className = 'country-option';
-            div.dataset.index = idx;
+        function pickValueUnit(data) {
+            var vals = data.aquaculture_value || [];
+            var maxVal = Math.max.apply(null, vals.concat([0]));
 
-            if (query) {
-                var lower = name.toLowerCase();
-                var pos = lower.indexOf(query);
-                if (pos >= 0) {
-                    div.innerHTML = escapeHtml(name.substring(0, pos))
-                        + '<mark>' + escapeHtml(name.substring(pos, pos + query.length)) + '</mark>'
-                        + escapeHtml(name.substring(pos + query.length));
+            if (maxVal >= 1e6) return { divisor: 1e6, label: 'Billion USD', suffix: 'B', decimals: 1 };
+            if (maxVal >= 1e3) return { divisor: 1e3, label: 'Million USD', suffix: 'M', decimals: 1 };
+            return { divisor: 1, label: 'Thousand USD', suffix: 'K', decimals: 0 };
+        }
+
+        function buildValueChart(data) {
+            var vals = data.aquaculture_value || [];
+            var hasData = vals.some(function(v) { return v > 0; });
+
+            if (!data.labels || !data.labels.length || !hasData) {
+                valueChartSubtitle.textContent = 'No value data available for this selection';
+                if (valueChart) {
+                    valueChart.data.labels = [];
+                    valueChart.data.datasets = [];
+                    valueChart.update('none');
+                }
+                return;
+            }
+
+            var firstIdx = vals.findIndex(function(v) { return v > 0; });
+            var lastIdx = vals.length - 1;
+            while (lastIdx > firstIdx && vals[lastIdx] === 0) lastIdx--;
+
+            var valueLabels = data.labels.slice(firstIdx, lastIdx + 1);
+            var valueData = vals.slice(firstIdx, lastIdx + 1);
+
+            var unit = pickValueUnit({ aquaculture_value: valueData });
+            var scaledData = valueData.map(function(v) { return v / unit.divisor; });
+
+            valueChartSubtitle.textContent = unit.label + ', ' + valueLabels[0] + '–' + valueLabels[valueLabels.length - 1];
+
+            var datasets = [{
+                label: 'Aquaculture Value',
+                data: scaledData,
+                backgroundColor: 'rgba(55, 150, 160, 0.75)',
+                borderColor: 'rgba(40, 120, 130, 1)',
+                borderWidth: 1.5,
+                fill: true,
+                tension: 0.3,
+                pointRadius: 0,
+                pointHitRadius: 8
+            }];
+
+            if (valueChart) {
+                valueChart.data.labels = valueLabels;
+                valueChart.data.datasets = datasets;
+                valueChart.options.scales.y.title.text = unit.label;
+                valueChart.options.scales.y.ticks.callback = function(v) {
+                    return unit.suffix ? '$' + v + unit.suffix : '$' + v.toLocaleString();
+                };
+                valueChart.options.plugins.tooltip.callbacks.label = function(ctx) {
+                    return ctx.dataset.label + ': $' + ctx.parsed.y.toFixed(unit.decimals) + unit.suffix;
+                };
+                valueChart.update('none');
+                return;
+            }
+
+            valueChart = new Chart(valueCanvas.getContext('2d'), {
+                type: 'line',
+                data: { labels: valueLabels, datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2.2,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { maxTicksLimit: 15, font: { size: 12 } }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: unit.label,
+                                font: { size: 13 }
+                            },
+                            ticks: {
+                                font: { size: 12 },
+                                callback: function(v) {
+                                    return unit.suffix ? '$' + v + unit.suffix : '$' + v.toLocaleString();
+                                }
+                            },
+                            grid: { color: 'rgba(0,0,0,0.06)' }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                pointStyle: 'rect',
+                                padding: 20,
+                                font: { size: 13 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) {
+                                    return ctx.dataset.label + ': $' + ctx.parsed.y.toFixed(unit.decimals) + unit.suffix;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateValueTitle() {
+            var base = currentCountry
+                ? currentCountry + ' — Aquaculture Production Value'
+                : 'Global Aquaculture Production Value';
+
+            if (currentSpeciesName) {
+                base += ' — ' + currentSpeciesName;
+            }
+
+            valueChartTitle.textContent = base;
+        }
+
+        function updateTitle() {
+            var base = currentCountry
+                ? currentCountry + ' — Fisheries & Aquaculture Production'
+                : 'Global Fisheries & Aquaculture Production';
+
+            if (currentSpeciesName) {
+                base += ' — ' + currentSpeciesName;
+            }
+
+            chartTitle.textContent = base;
+            updateValueTitle();
+        }
+
+        function setActiveCountry(name) {
+            currentCountry = name;
+            updateTitle();
+            searchInput.value = '';
+            closeDropdown();
+
+            if (name) {
+                activeBadge.classList.add('visible');
+                badgeText.textContent = name;
+            } else {
+                activeBadge.classList.remove('visible');
+            }
+
+            document.querySelectorAll('.flag-btn').forEach(function(btn) {
+                var dbName = btn.dataset.dbname || btn.dataset.country;
+                btn.classList.toggle('active', dbName === name);
+            });
+        }
+
+        function showLoading() { loading.classList.add('active'); valueLoading.classList.add('active'); }
+        function hideLoading() { loading.classList.remove('active'); valueLoading.classList.remove('active'); }
+
+        function fetchChartData(country, species) {
+            showLoading();
+            var c = country !== undefined ? country : currentCountry;
+            var s = species !== undefined ? species : currentSpecies;
+            var url = FISHSTAT_URL + '?action=chartdata&country=' + encodeURIComponent(c || '')
+                + '&species=' + encodeURIComponent(s || '');
+
+            fetch(url)
+                .then(function(r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .then(function(data) {
+                    if (data.error) throw new Error(data.error);
+                    currentData = data;
+                    setActiveCountry(data.country || '');
+                    setActiveSpecies(data.species || '');
+                    buildChart(data);
+                    buildValueChart(data);
+                    hideLoading();
+                })
+                .catch(function(err) {
+                    console.warn('FishStat: failed to load chart data', err);
+                    chartSubtitle.textContent = 'Failed to load data — please try again';
+                    hideLoading();
+                });
+        }
+
+        // Country autocomplete
+        function renderDropdown(matches) {
+            var query = searchInput.value.trim().toLowerCase();
+            dropdown.innerHTML = '';
+
+            if (!matches.length) {
+                dropdown.innerHTML = '<div class="country-option" style="color:#999;cursor:default">No matches</div>';
+                dropdown.classList.add('open');
+                return;
+            }
+
+            matches.forEach(function(name, idx) {
+                var div = document.createElement('div');
+                div.className = 'country-option';
+                div.dataset.index = idx;
+
+                if (query) {
+                    var lower = name.toLowerCase();
+                    var pos = lower.indexOf(query);
+                    if (pos >= 0) {
+                        div.innerHTML = escapeHtml(name.substring(0, pos))
+                            + '<mark>' + escapeHtml(name.substring(pos, pos + query.length)) + '</mark>'
+                            + escapeHtml(name.substring(pos + query.length));
+                    } else {
+                        div.textContent = name;
+                    }
                 } else {
                     div.textContent = name;
                 }
-            } else {
-                div.textContent = name;
-            }
 
-            div.addEventListener('mousedown', function(e) {
-                e.preventDefault();
-                fetchChartData(name);
-            });
-            dropdown.appendChild(div);
-        });
-
-        dropdown.classList.add('open');
-        highlightIndex = -1;
-    }
-
-    function escapeHtml(str) {
-        var d = document.createElement('div');
-        d.textContent = str;
-        return d.innerHTML;
-    }
-
-    function closeDropdown() {
-        dropdown.classList.remove('open');
-        highlightIndex = -1;
-    }
-
-    function setActiveSpecies(code) {
-        currentSpecies = code;
-        speciesInput.value = '';
-        closeSpeciesDropdown();
-
-        if (code) {
-            var match = speciesList.find(function(sp) { return sp.c === code; });
-            currentSpeciesName = match ? match.n : code;
-            activeSpeciesBadge.classList.add('visible');
-            speciesBadgeText.textContent = currentSpeciesName;
-        } else {
-            currentSpeciesName = '';
-            activeSpeciesBadge.classList.remove('visible');
-        }
-
-        updateTitle();
-    }
-
-    // Species autocomplete
-    function closeSpeciesDropdown() {
-        speciesDropdown.classList.remove('open');
-        speciesHighlightIndex = -1;
-    }
-
-    function getFilteredSpecies() {
-        var q = speciesInput.value.trim().toLowerCase();
-        if (!q || q.length < 2) return [];
-        return speciesList.filter(function(sp) {
-            return sp.n.toLowerCase().indexOf(q) !== -1
-                || sp.s.toLowerCase().indexOf(q) !== -1;
-        }).slice(0, 20);
-    }
-
-    function highlightMatch(text, query) {
-        var lower = text.toLowerCase();
-        var pos = lower.indexOf(query);
-        if (pos < 0) return escapeHtml(text);
-        return escapeHtml(text.substring(0, pos))
-            + '<mark>' + escapeHtml(text.substring(pos, pos + query.length)) + '</mark>'
-            + escapeHtml(text.substring(pos + query.length));
-    }
-
-    function renderSpeciesDropdown(matches) {
-        var query = speciesInput.value.trim().toLowerCase();
-        speciesDropdown.innerHTML = '';
-
-        if (speciesInput.value.trim().length < 2) {
-            speciesDropdown.classList.remove('open');
-            return;
-        }
-
-        if (!matches.length) {
-            speciesDropdown.innerHTML = '<div class="species-option" style="color:#999;cursor:default">No matches</div>';
-            speciesDropdown.classList.add('open');
-            return;
-        }
-
-        matches.forEach(function(sp, idx) {
-            var div = document.createElement('div');
-            div.className = 'species-option';
-            div.dataset.index = idx;
-
-            var html = highlightMatch(sp.n, query);
-            if (sp.s) {
-                html += ' <span class="sci-name">(' + highlightMatch(sp.s, query) + ')</span>';
-            }
-            div.innerHTML = html;
-
-            div.addEventListener('mousedown', function(e) {
-                e.preventDefault();
-                fetchChartData(undefined, sp.c);
-            });
-            speciesDropdown.appendChild(div);
-        });
-
-        speciesDropdown.classList.add('open');
-        speciesHighlightIndex = -1;
-    }
-
-    speciesInput.addEventListener('input', function() {
-        renderSpeciesDropdown(getFilteredSpecies());
-    });
-
-    speciesInput.addEventListener('focus', function() {
-        if (speciesInput.value.trim().length >= 2) {
-            renderSpeciesDropdown(getFilteredSpecies());
-        }
-    });
-
-    speciesInput.addEventListener('blur', function() {
-        setTimeout(closeSpeciesDropdown, 150);
-    });
-
-    speciesInput.addEventListener('keydown', function(e) {
-        var items = speciesDropdown.querySelectorAll('.species-option[data-index]');
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            speciesHighlightIndex = Math.min(speciesHighlightIndex + 1, items.length - 1);
-            updateSpeciesHighlight(items);
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            speciesHighlightIndex = Math.max(speciesHighlightIndex - 1, 0);
-            updateSpeciesHighlight(items);
-        } else if (e.key === 'Enter' && speciesHighlightIndex >= 0) {
-            e.preventDefault();
-            var matches = getFilteredSpecies();
-            if (matches[speciesHighlightIndex]) {
-                fetchChartData(undefined, matches[speciesHighlightIndex].c);
-            }
-        } else if (e.key === 'Escape') {
-            closeSpeciesDropdown();
-            speciesInput.blur();
-        }
-    });
-
-    function updateSpeciesHighlight(items) {
-        items.forEach(function(el, i) {
-            el.classList.toggle('highlighted', i === speciesHighlightIndex);
-        });
-        if (items[speciesHighlightIndex]) {
-            items[speciesHighlightIndex].scrollIntoView({ block: 'nearest' });
-        }
-    }
-
-    speciesBadgeClear.addEventListener('click', function() {
-        fetchChartData(undefined, '');
-    });
-
-    function getFilteredCountries() {
-        var q = searchInput.value.trim().toLowerCase();
-        if (!q) return countryList.slice(0, 20);
-        return countryList.filter(function(c) {
-            return c.toLowerCase().indexOf(q) !== -1;
-        });
-    }
-
-    searchInput.addEventListener('input', function() {
-        renderDropdown(getFilteredCountries());
-    });
-
-    searchInput.addEventListener('focus', function() {
-        renderDropdown(getFilteredCountries());
-    });
-
-    searchInput.addEventListener('blur', function() {
-        setTimeout(closeDropdown, 150);
-    });
-
-    searchInput.addEventListener('keydown', function(e) {
-        var items = dropdown.querySelectorAll('.country-option[data-index]');
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            highlightIndex = Math.min(highlightIndex + 1, items.length - 1);
-            updateHighlight(items);
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            highlightIndex = Math.max(highlightIndex - 1, 0);
-            updateHighlight(items);
-        } else if (e.key === 'Enter' && highlightIndex >= 0 && items[highlightIndex]) {
-            e.preventDefault();
-            var matches = getFilteredCountries();
-            if (matches[highlightIndex]) {
-                fetchChartData(matches[highlightIndex]);
-            }
-        } else if (e.key === 'Escape') {
-            closeDropdown();
-            searchInput.blur();
-        }
-    });
-
-    function updateHighlight(items) {
-        items.forEach(function(el, i) {
-            el.classList.toggle('highlighted', i === highlightIndex);
-        });
-        if (items[highlightIndex]) {
-            items[highlightIndex].scrollIntoView({ block: 'nearest' });
-        }
-    }
-
-    // Dataset toggles — at least one must remain checked
-    function updateToggleState() {
-        captureToggle.disabled = showCapture && !showAquaculture;
-        aquacultureToggle.disabled = showAquaculture && !showCapture;
-    }
-
-    captureToggle.addEventListener('change', function() {
-        showCapture = this.checked;
-        updateToggleState();
-        buildChart(currentData);
-    });
-
-    aquacultureToggle.addEventListener('change', function() {
-        showAquaculture = this.checked;
-        updateToggleState();
-        buildChart(currentData);
-    });
-
-    // Reset
-    resetBtn.addEventListener('click', function() {
-        fetchChartData('', '');
-    });
-
-    badgeClear.addEventListener('click', function() {
-        fetchChartData('', undefined);
-    });
-
-    // Member flags
-    function buildFlags() {
-        memberCountries.forEach(function(mc) {
-            var btn = document.createElement('button');
-            btn.className = 'flag-btn';
-            btn.type = 'button';
-            btn.dataset.country = mc.name;
-            if (mc.dbName) btn.dataset.dbname = mc.dbName;
-            btn.innerHTML = (flagSvgs[mc.iso2] || '') + '<span class="flag-tooltip">' + escapeHtml(mc.name) + '</span>';
-
-            btn.addEventListener('click', function() {
-                var name = mc.dbName || mc.name;
-                if (currentCountry === name) {
-                    fetchChartData('');
-                } else {
+                div.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
                     fetchChartData(name);
-                }
+                });
+                dropdown.appendChild(div);
             });
 
-            flagContainer.appendChild(btn);
+            dropdown.classList.add('open');
+            highlightIndex = -1;
+        }
+
+        function escapeHtml(str) {
+            var d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        function closeDropdown() {
+            dropdown.classList.remove('open');
+            highlightIndex = -1;
+        }
+
+        function setActiveSpecies(code) {
+            currentSpecies = code;
+            speciesInput.value = '';
+            closeSpeciesDropdown();
+
+            if (code) {
+                var match = speciesList.find(function(sp) { return sp.c === code; });
+                currentSpeciesName = match ? match.n : code;
+                activeSpeciesBadge.classList.add('visible');
+                speciesBadgeText.textContent = currentSpeciesName;
+            } else {
+                currentSpeciesName = '';
+                activeSpeciesBadge.classList.remove('visible');
+            }
+
+            updateTitle();
+        }
+
+        // Species autocomplete
+        function closeSpeciesDropdown() {
+            speciesDropdown.classList.remove('open');
+            speciesHighlightIndex = -1;
+        }
+
+        function getFilteredSpecies() {
+            var q = speciesInput.value.trim().toLowerCase();
+            if (!q || q.length < 2) return [];
+            return speciesList.filter(function(sp) {
+                return sp.n.toLowerCase().indexOf(q) !== -1
+                    || sp.s.toLowerCase().indexOf(q) !== -1;
+            }).slice(0, 20);
+        }
+
+        function highlightMatch(text, query) {
+            var lower = text.toLowerCase();
+            var pos = lower.indexOf(query);
+            if (pos < 0) return escapeHtml(text);
+            return escapeHtml(text.substring(0, pos))
+                + '<mark>' + escapeHtml(text.substring(pos, pos + query.length)) + '</mark>'
+                + escapeHtml(text.substring(pos + query.length));
+        }
+
+        function renderSpeciesDropdown(matches) {
+            var query = speciesInput.value.trim().toLowerCase();
+            speciesDropdown.innerHTML = '';
+
+            if (speciesInput.value.trim().length < 2) {
+                speciesDropdown.classList.remove('open');
+                return;
+            }
+
+            if (!matches.length) {
+                speciesDropdown.innerHTML = '<div class="species-option" style="color:#999;cursor:default">No matches</div>';
+                speciesDropdown.classList.add('open');
+                return;
+            }
+
+            matches.forEach(function(sp, idx) {
+                var div = document.createElement('div');
+                div.className = 'species-option';
+                div.dataset.index = idx;
+
+                var html = highlightMatch(sp.n, query);
+                if (sp.s) {
+                    html += ' <span class="sci-name">(' + highlightMatch(sp.s, query) + ')</span>';
+                }
+                div.innerHTML = html;
+
+                div.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    fetchChartData(undefined, sp.c);
+                });
+                speciesDropdown.appendChild(div);
+            });
+
+            speciesDropdown.classList.add('open');
+            speciesHighlightIndex = -1;
+        }
+
+        speciesInput.addEventListener('input', function() {
+            renderSpeciesDropdown(getFilteredSpecies());
         });
-    }
 
-    // Chart.js shrinks correctly but won't expand because the canvas's
-    // inline pixel dimensions prevent the container from growing.
-    // Clear them on window resize so the container can recalculate.
-    window.addEventListener('resize', function() {
-        if (chart) {
-            canvas.style.width = '';
-            canvas.style.height = '';
-            chart.resize();
+        speciesInput.addEventListener('focus', function() {
+            if (speciesInput.value.trim().length >= 2) {
+                renderSpeciesDropdown(getFilteredSpecies());
+            }
+        });
+
+        speciesInput.addEventListener('blur', function() {
+            setTimeout(closeSpeciesDropdown, 150);
+        });
+
+        speciesInput.addEventListener('keydown', function(e) {
+            var items = speciesDropdown.querySelectorAll('.species-option[data-index]');
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                speciesHighlightIndex = Math.min(speciesHighlightIndex + 1, items.length - 1);
+                updateSpeciesHighlight(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                speciesHighlightIndex = Math.max(speciesHighlightIndex - 1, 0);
+                updateSpeciesHighlight(items);
+            } else if (e.key === 'Enter' && speciesHighlightIndex >= 0) {
+                e.preventDefault();
+                var matches = getFilteredSpecies();
+                if (matches[speciesHighlightIndex]) {
+                    fetchChartData(undefined, matches[speciesHighlightIndex].c);
+                }
+            } else if (e.key === 'Escape') {
+                closeSpeciesDropdown();
+                speciesInput.blur();
+            }
+        });
+
+        function updateSpeciesHighlight(items) {
+            items.forEach(function(el, i) {
+                el.classList.toggle('highlighted', i === speciesHighlightIndex);
+            });
+            if (items[speciesHighlightIndex]) {
+                items[speciesHighlightIndex].scrollIntoView({ block: 'nearest' });
+            }
         }
-        if (valueChart) {
-            valueCanvas.style.width = '';
-            valueCanvas.style.height = '';
-            valueChart.resize();
+
+        speciesBadgeClear.addEventListener('click', function() {
+            fetchChartData(undefined, '');
+        });
+
+        function getFilteredCountries() {
+            var q = searchInput.value.trim().toLowerCase();
+            if (!q) return countryList.slice(0, 20);
+            return countryList.filter(function(c) {
+                return c.toLowerCase().indexOf(q) !== -1;
+            });
         }
-    });
 
-    // Init
-    buildFlags();
-    buildChart(initialData);
-    buildValueChart(initialData);
+        searchInput.addEventListener('input', function() {
+            renderDropdown(getFilteredCountries());
+        });
 
-    fetch(<?php echo \json_encode(\rtrim(TFISH_VENDOR_URL, '/') . '/chartjs/species.json'); ?>)
-        .then(function(r) { return r.json(); })
-        .then(function(data) { speciesList = data; })
-        .catch(function(err) { console.warn('FishStat: failed to load species list', err); });
-})();
+        searchInput.addEventListener('focus', function() {
+            renderDropdown(getFilteredCountries());
+        });
+
+        searchInput.addEventListener('blur', function() {
+            setTimeout(closeDropdown, 150);
+        });
+
+        searchInput.addEventListener('keydown', function(e) {
+            var items = dropdown.querySelectorAll('.country-option[data-index]');
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                highlightIndex = Math.min(highlightIndex + 1, items.length - 1);
+                updateHighlight(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                highlightIndex = Math.max(highlightIndex - 1, 0);
+                updateHighlight(items);
+            } else if (e.key === 'Enter' && highlightIndex >= 0 && items[highlightIndex]) {
+                e.preventDefault();
+                var matches = getFilteredCountries();
+                if (matches[highlightIndex]) {
+                    fetchChartData(matches[highlightIndex]);
+                }
+            } else if (e.key === 'Escape') {
+                closeDropdown();
+                searchInput.blur();
+            }
+        });
+
+        function updateHighlight(items) {
+            items.forEach(function(el, i) {
+                el.classList.toggle('highlighted', i === highlightIndex);
+            });
+            if (items[highlightIndex]) {
+                items[highlightIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        // Dataset toggles — at least one must remain checked
+        function updateToggleState() {
+            captureToggle.disabled = showCapture && !showAquaculture;
+            aquacultureToggle.disabled = showAquaculture && !showCapture;
+        }
+
+        captureToggle.addEventListener('change', function() {
+            showCapture = this.checked;
+            updateToggleState();
+            buildChart(currentData);
+        });
+
+        aquacultureToggle.addEventListener('change', function() {
+            showAquaculture = this.checked;
+            updateToggleState();
+            buildChart(currentData);
+        });
+
+        // Reset
+        resetBtn.addEventListener('click', function() {
+            fetchChartData('', '');
+        });
+
+        badgeClear.addEventListener('click', function() {
+            fetchChartData('', undefined);
+        });
+
+        // Member flags
+        function buildFlags() {
+            memberCountries.forEach(function(mc) {
+                var btn = document.createElement('button');
+                btn.className = 'flag-btn';
+                btn.type = 'button';
+                btn.dataset.country = mc.name;
+                if (mc.dbName) btn.dataset.dbname = mc.dbName;
+                btn.innerHTML = (flagSvgs[mc.iso2] || '') + '<span class="flag-tooltip">' + escapeHtml(mc.name) + '</span>';
+
+                btn.addEventListener('click', function() {
+                    var name = mc.dbName || mc.name;
+                    if (currentCountry === name) {
+                        fetchChartData('');
+                    } else {
+                        fetchChartData(name);
+                    }
+                });
+
+                flagContainer.appendChild(btn);
+            });
+        }
+
+        // Chart.js shrinks correctly but won't expand because the canvas's
+        // inline pixel dimensions prevent the container from growing.
+        // Clear them on window resize so the container can recalculate.
+        window.addEventListener('resize', function() {
+            if (chart) {
+                canvas.style.width = '';
+                canvas.style.height = '';
+                chart.resize();
+            }
+            if (valueChart) {
+                valueCanvas.style.width = '';
+                valueCanvas.style.height = '';
+                valueChart.resize();
+            }
+        });
+
+        // Init
+        buildFlags();
+        buildChart(initialData);
+        buildValueChart(initialData);
+
+        fetch(<?php echo \json_encode(\rtrim(TFISH_VENDOR_URL, '/') . '/chartjs/species.json'); ?>)
+            .then(function(r) { return r.json(); })
+            .then(function(data) { speciesList = data; })
+            .catch(function(err) { console.warn('FishStat: failed to load species list', err); });
+    })();
 </script>

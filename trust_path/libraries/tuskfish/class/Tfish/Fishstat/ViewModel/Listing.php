@@ -12,17 +12,19 @@ class Listing implements \Tfish\Interface\Viewable
     private object $model;
     private \Tfish\Entity\Preference $preference;
 
-    public function __construct(object $model, \Tfish\Entity\Preference $preference)
-    {
+    public function __construct(
+        object $model,
+        \Tfish\Entity\Preference $preference,
+    ) {
         $this->model = $model;
         $this->preference = $preference;
         $this->theme = $preference->defaultTheme();
-        $this->pageTitle = "FishStat";
+        $this->pageTitle = "Global Fisheries and Aquaculture Statistics";
     }
 
     public function displayGlobal(): void
     {
-        $this->template = 'fishstat-global';
+        $this->template = "fishstat-global";
         $this->model->displayGlobal();
     }
 
@@ -37,5 +39,4 @@ class Listing implements \Tfish\Interface\Viewable
     {
         return \json_encode($this->model->countries(), JSON_THROW_ON_ERROR);
     }
-
 }
