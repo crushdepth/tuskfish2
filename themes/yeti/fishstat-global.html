@@ -506,10 +506,16 @@
             valueChartTitle.textContent = base;
         }
 
+        function productionLabel() {
+            if (showCapture && showAquaculture) return 'Fisheries & Aquaculture Production';
+            if (showCapture) return 'Capture Fisheries Production';
+            return 'Aquaculture Production';
+        }
+
         function updateTitle() {
             var base = currentCountry
-                ? currentCountry + ' — Fisheries & Aquaculture Production'
-                : 'Global Fisheries & Aquaculture Production';
+                ? currentCountry + ' — ' + productionLabel()
+                : 'Global ' + productionLabel();
 
             if (currentSpeciesName) {
                 base += ' — ' + currentSpeciesName;
@@ -809,12 +815,14 @@
         captureToggle.addEventListener('change', function() {
             showCapture = this.checked;
             updateToggleState();
+            updateTitle();
             buildChart(currentData);
         });
 
         aquacultureToggle.addEventListener('change', function() {
             showAquaculture = this.checked;
             updateToggleState();
+            updateTitle();
             buildChart(currentData);
         });
 
@@ -888,6 +896,9 @@
             URL.revokeObjectURL(url);
         }
 
+        var csvLicense = '\n\n"Source: FAO Fisheries and Aquaculture Statistics (FishStatJ), 2026.1.0"'
+            + '\n"License: CC BY-NC-SA 3.0 IGO (https://creativecommons.org/licenses/by-nc-sa/3.0/igo/)"';
+
         document.getElementById('downloadProductionCsv').addEventListener('click', function(e) {
             e.preventDefault();
             if (!currentData || !currentData.labels || !currentData.labels.length) return;
@@ -904,7 +915,7 @@
                 rows.push(row.join(','));
             }
 
-            downloadCsv(csvFilename('fishstat-production'), rows.join('\n'));
+            downloadCsv(csvFilename('fishstat-production'), rows.join('\n') + csvLicense);
         });
 
         document.getElementById('downloadValueCsv').addEventListener('click', function(e) {
@@ -922,7 +933,7 @@
                 rows.push(currentData.labels[i] + ',' + vals[i]);
             }
 
-            downloadCsv(csvFilename('fishstat-value'), rows.join('\n'));
+            downloadCsv(csvFilename('fishstat-value'), rows.join('\n') + csvLicense);
         });
 
         // Init
