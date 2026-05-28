@@ -386,7 +386,7 @@
             var vals = data.aquaculture_value || [];
             var maxVal = Math.max.apply(null, vals.concat([0]));
 
-            if (maxVal >= 1e6) return { divisor: 1e6, label: 'Billion USD', suffix: 'B', decimals: 1 };
+            if (maxVal >= 1e6) return { divisor: 1e6, label: 'Billion USD', suffix: 'B', decimals: 2 };
             if (maxVal >= 1e3) return { divisor: 1e3, label: 'Million USD', suffix: 'M', decimals: 1 };
             return { divisor: 1, label: 'Thousand USD', suffix: 'K', decimals: 0 };
         }
