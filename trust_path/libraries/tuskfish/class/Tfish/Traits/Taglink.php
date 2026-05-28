@@ -104,18 +104,30 @@ trait TagLink
             return false;
         }
 
-        foreach ($tags as $tag) {
-            $taglink = [];
-            $taglink['tagId'] = (int) $tag;
-            $taglink['contentType'] = $contentType;
-            $taglink['contentId'] = $contentId;
-            $taglink['module'] = $module;
+        if (empty($tags)) {
+            return true;
+        }
 
-            if (!$this->database->insert('taglink', $taglink)) {
-                return false;
+        $sql = "INSERT INTO `taglink` (`tagId`, `contentType`, `contentId`, `module`) "
+             . "VALUES (:tagId, :contentType, :contentId, :module)";
+
+        $statement = $this->database->preparedStatement($sql);
+
+        $this->database->beginTransaction();
+
+        try {
+            foreach ($tags as $tag) {
+                $statement->bindValue(':tagId', (int) $tag, \PDO::PARAM_INT);
+                $statement->bindValue(':contentType', $contentType, \PDO::PARAM_STR);
+                $statement->bindValue(':contentId', $contentId, \PDO::PARAM_INT);
+                $statement->bindValue(':module', $module, \PDO::PARAM_STR);
+                $statement->execute();
             }
 
-            unset($tag, $taglink);
+            $this->database->commit();
+        } catch (\PDOException $e) {
+            $this->database->rollback();
+            return false;
         }
 
         return true;
