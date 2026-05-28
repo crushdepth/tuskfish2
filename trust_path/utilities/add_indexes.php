@@ -43,6 +43,7 @@ $indexes = [
     "CREATE INDEX IF NOT EXISTS idx_taglink_module_contentid ON taglink(module, contentId)",
     "CREATE INDEX IF NOT EXISTS idx_blockroute_route ON blockRoute(route)",
     "CREATE INDEX IF NOT EXISTS idx_blockroute_blockid ON blockRoute(blockId)",
+    "CREATE INDEX IF NOT EXISTS idx_content_stream ON content(onlineStatus, date DESC, submissionTime DESC) WHERE type != 'TfTag'",
 ];
 
 echo "Tuskfish database migration: adding indexes and enabling WAL mode.\n\n";

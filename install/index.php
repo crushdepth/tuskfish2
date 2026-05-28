@@ -223,6 +223,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $database->preparedStatement(
             "CREATE INDEX idx_content_expireson ON content(expiresOn)"
         )->execute();
+        $database->preparedStatement(
+            "CREATE INDEX idx_content_stream ON content(onlineStatus, date DESC, submissionTime DESC) WHERE type != 'TfTag'"
+        )->execute();
 
         $sql = "CREATE TABLE IF NOT EXISTS `taglink` (
             `id` INTEGER PRIMARY KEY,
