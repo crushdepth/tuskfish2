@@ -1,0 +1,817 @@
+<?php declare(strict_types=1); ?>
+
+<link
+    href="<?php echo TFISH_THEMES_URL . $viewModel->theme() . '/fishstat.css'; ?>"
+    rel="stylesheet"
+/>
+
+<!-- Container -->
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="page-title">
+                <?php echo xss($viewModel->pageTitle()); ?>
+            </h1>
+        </div>
+    </div>
+
+    <div class="fishstat-container">
+        <div class="chart-card">
+            <!-- Member country flags -->
+            <div class="member-flags">
+                <div class="member-flags-label">Member States</div>
+                <div class="flag-row" id="memberFlags"></div>
+            </div>
+
+            <!-- Controls -->
+            <div class="fishstat-controls">
+                <div class="control-group control-group-narrow">
+                    <label for="countrySearch">Filter by state</label>
+                    <div class="country-search-wrap">
+                        <input
+                            type="text"
+                            id="countrySearch"
+                            placeholder="Type to search states..."
+                            autocomplete="off"
+                        />
+                        <div class="country-dropdown" id="countryDropdown"></div>
+                    </div>
+                </div>
+                <div class="control-group control-group-narrow">
+                    <label for="yearSelect">Filter by year</label>
+                    <select id="yearSelect" class="year-select"></select>
+                </div>
+            </div>
+            <div class="fishstat-actions">
+                <button class="btn-clear" id="resetBtn">Global view</button>
+                <span class="active-country-badge" id="activeBadge">
+                    <span id="badgeText"></span>
+                    <span class="badge-x" id="badgeClear">&times;</span>
+                </span>
+            </div>
+
+            <!-- Top species by volume -->
+            <div class="chart-header">
+                <div class="chart-header-row">
+                    <h2 class="chart-title" id="volumeTitle">
+                        Top Aquaculture Species by Volume
+                    </h2>
+                    <a href="#" class="btn-csv" id="downloadVolumeCsv" title="Download chart data as CSV">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8m0 0L5 7m3 3l3-3M3 12h10"/></svg>
+                        CSV
+                    </a>
+                </div>
+                <p class="chart-subtitle" id="volumeSubtitle"></p>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="volumeChart"></canvas>
+                <div class="chart-loading" id="volumeLoading">
+                    <div class="spinner"></div>
+                    <span style="color: #666; font-size: 0.85rem">Loading...</span>
+                </div>
+            </div>
+            <p class="chart-source">
+                Data © FAO 2026. <a href="https://www.fao.org/fishery/fishstat/collections/en">FishStat Statistical Collections (v2026.1.0)</a>.
+                Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
+                Species contributing at least 0.3% of the year&rsquo;s total are charted individually; smaller species are grouped as &ldquo;Other species&rdquo;. The CSV download contains the full, unaggregated data.
+            </p>
+
+            <!-- Top species by value -->
+            <div class="chart-header">
+                <div class="chart-header-row">
+                    <h2 class="chart-title" id="valueTitle">
+                        Top Aquaculture Species by Value
+                    </h2>
+                    <a href="#" class="btn-csv" id="downloadValueCsv" title="Download chart data as CSV">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8m0 0L5 7m3 3l3-3M3 12h10"/></svg>
+                        CSV
+                    </a>
+                </div>
+                <p class="chart-subtitle" id="valueSubtitle"></p>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="valueChart"></canvas>
+                <div class="chart-loading" id="valueLoading">
+                    <div class="spinner"></div>
+                    <span style="color: #666; font-size: 0.85rem">Loading...</span>
+                </div>
+            </div>
+            <p class="chart-source">
+                Data © FAO 2026. <a href="https://www.fao.org/fishery/fishstat/collections/en">FishStat Statistical Collections (v2026.1.0)</a>.
+                Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
+                Species contributing at least 0.3% of the year&rsquo;s total are charted individually; smaller species are grouped as &ldquo;Other species&rdquo;. The CSV download contains the full, unaggregated data.
+            </p>
+
+            <!-- Production volume by environment -->
+            <div class="chart-header">
+                <div class="chart-header-row">
+                    <h2 class="chart-title" id="environmentTitle">
+                        Aquaculture Production Volume by Environment
+                    </h2>
+                    <a href="#" class="btn-csv" id="downloadEnvironmentCsv" title="Download chart data as CSV">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8m0 0L5 7m3 3l3-3M3 12h10"/></svg>
+                        CSV
+                    </a>
+                </div>
+                <p class="chart-subtitle" id="environmentSubtitle"></p>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="environmentChart"></canvas>
+                <div class="chart-loading" id="environmentLoading">
+                    <div class="spinner"></div>
+                    <span style="color: #666; font-size: 0.85rem">Loading...</span>
+                </div>
+            </div>
+            <p class="chart-source">
+                Data © FAO 2026. <a href="https://www.fao.org/fishery/fishstat/collections/en">FishStat Statistical Collections (v2026.1.0)</a>.
+                Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
+                Environment time series covers aquaculture only.
+            </p>
+        </div>
+    </div>
+
+    <!-- /.container -->
+</div>
+
+<script src="<?php echo TFISH_VENDOR_URL; ?>chartjs/chart.umd.min.js"></script>
+<script>
+    (function() {
+        'use strict';
+
+        const SPECIES_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/species/'); ?>;
+        const initialData = <?php echo $viewModel->speciesDataJson(); ?>;
+        const countryList = <?php echo $viewModel->countryListJson(); ?>;
+
+        const memberCountries = [
+            { name: 'Australia', iso2: 'AU' },
+            { name: 'Bangladesh', iso2: 'BD' },
+            { name: 'Cambodia', iso2: 'KH' },
+            { name: 'China', iso2: 'CN' },
+            { name: 'China, Hong Kong SAR', iso2: 'HK' },
+            { name: 'Democratic People\'s Republic of Korea', iso2: 'KP' },
+            { name: 'India', iso2: 'IN' },
+            { name: 'Indonesia', iso2: 'ID' },
+            { name: 'Iran (Islamic Republic of)', iso2: 'IR' },
+            { name: 'Lao People\'s Democratic Republic', iso2: 'LA' },
+            { name: 'Malaysia', iso2: 'MY' },
+            { name: 'Maldives', iso2: 'MV' },
+            { name: 'Myanmar', iso2: 'MM' },
+            { name: 'Nepal', iso2: 'NP' },
+            { name: 'Pakistan', iso2: 'PK' },
+            { name: 'Philippines', iso2: 'PH' },
+            { name: 'Kingdom of Saudi Arabia', iso2: 'SA', dbName: 'Saudi Arabia' },
+            { name: 'Sri Lanka', iso2: 'LK' },
+            { name: 'Thailand', iso2: 'TH' },
+            { name: 'Viet Nam', iso2: 'VN' }
+        ];
+
+        // Inline flag SVGs (simplified)
+        const flagSvgs = {
+            AU: '<svg viewBox="0 0 36 24"><rect fill="#00008B" width="36" height="24"/><g fill="#fff"><polygon points="0,0 7,4 0,8" /><polygon points="0,0 9,4 18,0 18,8 9,4 0,8" opacity=".6"/><circle cx="26" cy="10" r="2.5"/><circle cx="30" cy="5" r="1.5"/><circle cx="33" cy="9" r="1.5"/><circle cx="30" cy="14" r="1.5"/><circle cx="31" cy="18" r="1"/></g><g fill="#CC0000"><polygon points="0,3 7,4 0,5"/><polygon points="8,0 9,4 10,0"/><polygon points="8,8 9,4 10,8"/></g></svg>',
+            BD: '<svg viewBox="0 0 36 24"><rect fill="#006a4e" width="36" height="24"/><circle cx="16" cy="12" r="7" fill="#f42a41"/></svg>',
+            KH: '<svg viewBox="0 0 36 24"><rect fill="#032ea1" width="36" height="24"/><rect fill="#e00025" y="6" width="36" height="12"/><rect fill="#fff" x="12" y="8" width="12" height="6" rx="1"/></svg>',
+            CN: '<svg viewBox="0 0 36 24"><rect fill="#de2910" width="36" height="24"/><g fill="#ffde00"><polygon points="5,3 6.2,6.7 3,4.8 7,4.8 3.8,6.7"/><polygon points="10,1 10.5,2.5 9,1.7 11,1.7 9.5,2.5"/><polygon points="12,3 12.5,4.5 11,3.7 13,3.7 11.5,4.5"/><polygon points="12,6 12.5,7.5 11,6.7 13,6.7 11.5,7.5"/><polygon points="10,8 10.5,9.5 9,8.7 11,8.7 9.5,9.5"/></g></svg>',
+            HK: '<svg viewBox="0 0 36 24"><rect fill="#de2110" width="36" height="24"/><g fill="#fff" opacity="0.9"><circle cx="18" cy="12" r="5"/></g><g fill="#de2110"><circle cx="18" cy="12" r="3.5"/></g><g fill="#fff"><circle cx="18" cy="9" r="1.2"/><circle cx="15.5" cy="11" r="1.2"/><circle cx="16.5" cy="14" r="1.2"/><circle cx="19.5" cy="14" r="1.2"/><circle cx="20.5" cy="11" r="1.2"/></g></svg>',
+            KP: '<svg viewBox="0 0 36 24"><rect fill="#024fa2" width="36" height="24"/><rect fill="#fff" y="3" width="36" height="18"/><rect fill="#ed1c27" y="4.5" width="36" height="15"/><rect fill="#024fa2" y="19.5" width="36" height="4.5"/><circle cx="11" cy="12" r="5" fill="#fff"/><polygon points="11,7 12.5,10.5 16,10.5 13,13 14.2,16.5 11,14 7.8,16.5 9,13 6,10.5 9.5,10.5" fill="#ed1c27"/></svg>',
+            IN: '<svg viewBox="0 0 36 24"><rect fill="#f93" width="36" height="8"/><rect fill="#fff" y="8" width="36" height="8"/><rect fill="#128807" y="16" width="36" height="8"/><circle cx="18" cy="12" r="3" fill="none" stroke="#000080" stroke-width="0.5"/></svg>',
+            ID: '<svg viewBox="0 0 36 24"><rect fill="#ce1126" width="36" height="12"/><rect fill="#fff" y="12" width="36" height="12"/></svg>',
+            IR: '<svg viewBox="0 0 36 24"><rect fill="#239f40" width="36" height="8"/><rect fill="#fff" y="8" width="36" height="8"/><rect fill="#da0000" y="16" width="36" height="8"/><circle cx="18" cy="12" r="3" fill="#da0000"/></svg>',
+            LA: '<svg viewBox="0 0 36 24"><rect fill="#ce1126" width="36" height="24"/><rect fill="#002868" y="6" width="36" height="12"/><circle cx="18" cy="12" r="4" fill="#fff"/></svg>',
+            MY: '<svg viewBox="0 0 36 24"><g><rect fill="#cc0001" width="36" height="24"/><rect fill="#fff" y="1.7" width="36" height="1.7"/><rect fill="#fff" y="5.1" width="36" height="1.7"/><rect fill="#fff" y="8.6" width="36" height="1.7"/><rect fill="#fff" y="12" width="36" height="1.7"/><rect fill="#fff" y="15.4" width="36" height="1.7"/><rect fill="#fff" y="18.9" width="36" height="1.7"/><rect fill="#fff" y="22.3" width="36" height="1.7"/></g><rect fill="#010066" width="18" height="13.7"/><g fill="#fc0"><circle cx="8" cy="7" r="4"/><circle cx="9.5" cy="7" r="3.2" fill="#010066"/><polygon points="13,4 13.7,6 15.5,6 14,7.2 14.6,9 13,7.8 11.4,9 12,7.2 10.5,6 12.3,6"/></g></svg>',
+            MV: '<svg viewBox="0 0 36 24"><rect fill="#d21034" width="36" height="24"/><rect fill="#007e3a" x="5" y="4" width="26" height="16"/><circle cx="19" cy="12" r="5" fill="#fff"/><circle cx="21" cy="12" r="5" fill="#007e3a"/></svg>',
+            MM: '<svg viewBox="0 0 36 24"><rect fill="#fecb00" width="36" height="8"/><rect fill="#34b233" y="8" width="36" height="8"/><rect fill="#ea2839" y="16" width="36" height="8"/><polygon points="18,4 20.5,10 27,10 21.5,14 23.5,20.5 18,16.5 12.5,20.5 14.5,14 9,10 15.5,10" fill="#fff"/></svg>',
+            NP: '<svg viewBox="0 0 36 24"><rect fill="#fff" width="36" height="24"/><polygon points="3,22 3,2 20,10 3,10 20,22" fill="#ce0000" stroke="#003893" stroke-width="1.5"/></svg>',
+            PK: '<svg viewBox="0 0 36 24"><rect fill="#01411c" width="36" height="24"/><rect fill="#fff" width="9" height="24"/><circle cx="21" cy="12" r="5" fill="#fff"/><circle cx="22.5" cy="12" r="4" fill="#01411c"/><polygon points="24,8 24.7,10 26.5,10 25,11.2 25.5,13 24,11.8 22.5,13 23,11.2 21.5,10 23.3,10" fill="#fff"/></svg>',
+            PH: '<svg viewBox="0 0 36 24"><rect fill="#0038a8" width="36" height="12"/><rect fill="#ce1126" y="12" width="36" height="12"/><polygon points="0,0 16,12 0,24" fill="#fff"/><circle cx="5.5" cy="12" r="2.5" fill="none" stroke="#fcd116" stroke-width="0.8"/></svg>',
+            SA: '<svg viewBox="0 0 36 24"><rect fill="#006c35" width="36" height="24"/><rect fill="#fff" x="8" y="9" width="20" height="3" rx="1"/><rect fill="#fff" x="16" y="15" width="4" height="3" rx="0.5"/></svg>',
+            LK: '<svg viewBox="0 0 36 24"><rect fill="#ffb700" width="36" height="24"/><rect fill="#00534e" x="2" y="2" width="8" height="20"/><rect fill="#ff6600" x="11" y="2" width="8" height="20"/><rect fill="#8b0000" x="20" y="2" width="14" height="20" rx="2"/></svg>',
+            TH: '<svg viewBox="0 0 36 24"><rect fill="#a51931" width="36" height="24"/><rect fill="#fff" y="4" width="36" height="16"/><rect fill="#2d2a4a" y="8" width="36" height="8"/></svg>',
+            VN: '<svg viewBox="0 0 36 24"><rect fill="#da251d" width="36" height="24"/><polygon points="18,5 20,11 26,11 21,14.5 23,20.5 18,17 13,20.5 15,14.5 10,11 16,11" fill="#ff0"/></svg>'
+        };
+
+        // State
+        let currentCountry = initialData.country || '';
+        let currentYear = initialData.year || 0;
+        let currentData = initialData;
+        let volumeChart = null;
+        let valueChart = null;
+        let environmentChart = null;
+        let highlightIndex = -1;
+
+        // Elements
+        const searchInput = document.getElementById('countrySearch');
+        const dropdown = document.getElementById('countryDropdown');
+        const yearSelect = document.getElementById('yearSelect');
+        const resetBtn = document.getElementById('resetBtn');
+        const activeBadge = document.getElementById('activeBadge');
+        const badgeText = document.getElementById('badgeText');
+        const badgeClear = document.getElementById('badgeClear');
+        const flagContainer = document.getElementById('memberFlags');
+
+        const volumeCanvas = document.getElementById('volumeChart');
+        const volumeTitle = document.getElementById('volumeTitle');
+        const volumeSubtitle = document.getElementById('volumeSubtitle');
+        const volumeLoading = document.getElementById('volumeLoading');
+        const valueCanvas = document.getElementById('valueChart');
+        const valueTitle = document.getElementById('valueTitle');
+        const valueSubtitle = document.getElementById('valueSubtitle');
+        const valueLoading = document.getElementById('valueLoading');
+        const environmentCanvas = document.getElementById('environmentChart');
+        const environmentTitle = document.getElementById('environmentTitle');
+        const environmentSubtitle = document.getElementById('environmentSubtitle');
+        const environmentLoading = document.getElementById('environmentLoading');
+
+        const OTHER_LABEL = 'Other species';
+        const BAR_COLOR = 'rgba(20, 50, 120, 0.85)';
+        const BAR_BORDER = 'rgba(20, 50, 120, 1)';
+        const VALUE_COLOR = 'rgba(55, 150, 160, 0.8)';
+        const VALUE_BORDER = 'rgba(40, 120, 130, 1)';
+        const OTHER_COLOR = 'rgba(150, 150, 150, 0.7)';
+        const OTHER_BORDER = 'rgba(120, 120, 120, 1)';
+
+        // Species contributing at least this share (%) of the year's total are charted
+        // individually; smaller species are grouped into a single "Other species" bar.
+        // Lower this value to name more species (and shrink "Other").
+        const SHARE_THRESHOLD = 0.3;
+        // Always chart at least this many species, even if the threshold would exclude them.
+        const MIN_BARS = 8;
+
+        function escapeHtml(str) {
+            var d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        function tonnesUnit(max) {
+            if (max >= 1e6) return { divisor: 1e6, suffix: 'M', label: 'Million tonnes (live weight)', decimals: 2 };
+            if (max >= 1e3) return { divisor: 1e3, suffix: 'K', label: 'Thousand tonnes (live weight)', decimals: 1 };
+            return { divisor: 1, suffix: '', label: 'Tonnes (live weight)', decimals: 0 };
+        }
+
+        function usdUnit(max) {
+            if (max >= 1e9) return { divisor: 1e9, suffix: 'B', label: 'Billion USD', decimals: 2 };
+            if (max >= 1e6) return { divisor: 1e6, suffix: 'M', label: 'Million USD', decimals: 1 };
+            if (max >= 1e3) return { divisor: 1e3, suffix: 'K', label: 'Thousand USD', decimals: 1 };
+            return { divisor: 1, suffix: '', label: 'USD', decimals: 0 };
+        }
+
+        // Split a full ranked species list into individually-named bars (those at or above
+        // SHARE_THRESHOLD of the total) plus an aggregated "Other species" remainder.
+        function splitByShare(values) {
+            var total = values.reduce(function(s, v) { return s + v; }, 0);
+            var cut = total * SHARE_THRESHOLD / 100;
+            var named = [];
+            var other = 0;
+
+            for (var i = 0; i < values.length; i++) {
+                if (values[i] >= cut) {
+                    named.push(i);
+                } else {
+                    other += values[i];
+                }
+            }
+
+            // Guard: never render an (almost) empty chart — keep at least MIN_BARS species.
+            if (named.length < MIN_BARS && values.length > named.length) {
+                var keep = Math.min(MIN_BARS, values.length);
+                named = [];
+                other = 0;
+                for (var j = 0; j < values.length; j++) {
+                    if (j < keep) named.push(j);
+                    else other += values[j];
+                }
+            }
+
+            return { named: named, other: other, total: total };
+        }
+
+        // Generic horizontal bar chart (top species). kind: 'tonnes' | 'usd'.
+        function buildBarChart(existing, canvas, subtitleEl, chartData, kind, fillColor, borderColor) {
+            var fullLabels = chartData.labels || [];
+            var fullValues = chartData.values || [];
+
+            if (!fullLabels.length) {
+                subtitleEl.textContent = 'No data available for this selection';
+                if (existing) {
+                    existing.data.labels = [];
+                    existing.data.datasets = [];
+                    existing.update('none');
+                }
+                if (canvas.parentElement) canvas.parentElement.style.height = '';
+                return existing;
+            }
+
+            var fullSci = chartData.scientific || [];
+            var split = splitByShare(fullValues);
+            var labels = split.named.map(function(i) { return fullLabels[i]; });
+            var values = split.named.map(function(i) { return fullValues[i]; });
+            var sciList = split.named.map(function(i) { return fullSci[i] || ''; });
+
+            if (split.other > 0) {
+                labels.push(OTHER_LABEL);
+                values.push(Math.round(split.other));
+                sciList.push('');
+            }
+
+            var max = Math.max.apply(null, values.concat([0]));
+            var unit = kind === 'usd' ? usdUnit(max) : tonnesUnit(max);
+            var scaled = values.map(function(v) { return v / unit.divisor; });
+
+            var bgColors = labels.map(function(l) { return l === OTHER_LABEL ? OTHER_COLOR : fillColor; });
+            var bdColors = labels.map(function(l) { return l === OTHER_LABEL ? OTHER_BORDER : borderColor; });
+
+            // Grand total across every species (reference figure), in the chart's own unit.
+            var totalUnit = kind === 'usd' ? usdUnit(split.total) : tonnesUnit(split.total);
+            var totalNum = (split.total / totalUnit.divisor).toFixed(totalUnit.decimals) + totalUnit.suffix;
+            var totalStr = kind === 'usd' ? '$' + totalNum : totalNum + ' tonnes';
+
+            var note = '';
+            if (split.other > 0 && split.total > 0) {
+                var pct = 100 * split.other / split.total;
+                note = ' · ' + split.named.length + ' of ' + fullLabels.length + ' species shown (others: '
+                    + (pct < 1 ? pct.toFixed(1) : Math.round(pct)) + '%)';
+            }
+            subtitleEl.textContent = unit.label + ', ' + currentYear + ' · Total: ' + totalStr + note;
+
+            // Size the chart to the number of bars so they stay readable at any count.
+            if (canvas.parentElement) {
+                canvas.parentElement.style.height = Math.max(labels.length * 26 + 70, 220) + 'px';
+            }
+
+            function tickFmt(v) {
+                if (kind === 'usd') return unit.suffix ? '$' + v + unit.suffix : '$' + v.toLocaleString();
+                return unit.suffix ? v + unit.suffix : v.toLocaleString();
+            }
+
+            function tipFmt(v) {
+                if (kind === 'usd') return '$' + v.toFixed(unit.decimals) + unit.suffix;
+                return v.toFixed(unit.decimals) + unit.suffix + ' tonnes';
+            }
+
+            // Figure plus its share of the grand total, e.g. "12.30M tonnes (9% of total)".
+            function tipLabel(ctx) {
+                var base = tipFmt(ctx.parsed.x);
+                if (split.total > 0) {
+                    var pct = 100 * values[ctx.dataIndex] / split.total;
+                    base += ' (' + pct.toFixed(1) + '% of total)';
+                }
+                return base;
+            }
+
+            // Scientific name shown under the common name in the tooltip (omitted when absent
+            // or identical to the displayed label, e.g. the aggregated "Other species" bar).
+            function sciTitle(items) {
+                if (!items.length) return '';
+                var i = items[0].dataIndex;
+                var sci = sciList[i];
+                return sci && sci !== labels[i] ? sci : '';
+            }
+
+            var datasets = [{
+                label: kind === 'usd' ? 'Value' : 'Volume',
+                data: scaled,
+                backgroundColor: bgColors,
+                borderColor: bdColors,
+                borderWidth: 1,
+                borderRadius: 3
+            }];
+
+            if (existing) {
+                existing.data.labels = labels;
+                existing.data.datasets = datasets;
+                existing.options.scales.x.title.text = unit.label;
+                existing.options.scales.x.ticks.callback = tickFmt;
+                existing.options.plugins.tooltip.callbacks.label = tipLabel;
+                existing.options.plugins.tooltip.callbacks.afterTitle = sciTitle;
+                existing.resize();
+                existing.update('none');
+                return existing;
+            }
+
+            return new Chart(canvas.getContext('2d'), {
+                type: 'bar',
+                data: { labels: labels, datasets: datasets },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: { display: true, text: unit.label, font: { size: 13 } },
+                            ticks: { font: { size: 12 }, callback: tickFmt },
+                            grid: { color: 'rgba(0,0,0,0.06)' }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: { font: { size: 12 } }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                afterTitle: sciTitle,
+                                label: tipLabel
+                            },
+                            titleFont: { style: 'normal' },
+                            bodySpacing: 4
+                        }
+                    }
+                }
+            });
+        }
+
+        function buildEnvironmentChart(data) {
+            var labels = data.labels || [];
+            var fresh = data.freshwater || [];
+            var brack = data.brackishwater || [];
+            var marine = data.marine || [];
+
+            var hasData = fresh.concat(brack, marine).some(function(v) { return v > 0; });
+
+            if (!labels.length || !hasData) {
+                environmentSubtitle.textContent = 'No data available for this selection';
+                if (environmentChart) {
+                    environmentChart.data.labels = [];
+                    environmentChart.data.datasets = [];
+                    environmentChart.update('none');
+                }
+                return;
+            }
+
+            var allValues = fresh.concat(brack, marine);
+            var maxStack = 0;
+            for (var i = 0; i < labels.length; i++) {
+                var stack = (fresh[i] || 0) + (brack[i] || 0) + (marine[i] || 0);
+                if (stack > maxStack) maxStack = stack;
+            }
+            var unit = tonnesUnit(maxStack);
+
+            function scale(arr) { return arr.map(function(v) { return v / unit.divisor; }); }
+
+            environmentSubtitle.textContent = unit.label + ', ' + labels[0] + '–' + labels[labels.length - 1];
+
+            function tickFmt(v) { return unit.suffix ? v + unit.suffix : v.toLocaleString(); }
+            function tipFmt(ctx) { return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(unit.decimals) + unit.suffix + ' tonnes'; }
+            function footFmt(items) {
+                var total = items.reduce(function(s, it) { return s + it.parsed.y; }, 0);
+                return 'Total: ' + total.toFixed(unit.decimals) + unit.suffix + ' tonnes';
+            }
+
+            var datasets = [
+                { label: 'Freshwater', data: scale(fresh), backgroundColor: 'rgba(74, 144, 217, 0.7)', borderColor: 'rgba(40, 100, 170, 1)', borderWidth: 1.5, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8 },
+                { label: 'Brackishwater', data: scale(brack), backgroundColor: 'rgba(140, 200, 120, 0.7)', borderColor: 'rgba(90, 150, 70, 1)', borderWidth: 1.5, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8 },
+                { label: 'Marine', data: scale(marine), backgroundColor: 'rgba(40, 70, 130, 0.7)', borderColor: 'rgba(25, 45, 90, 1)', borderWidth: 1.5, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8 }
+            ];
+
+            if (environmentChart) {
+                environmentChart.data.labels = labels;
+                environmentChart.data.datasets = datasets;
+                environmentChart.options.scales.y.title.text = unit.label;
+                environmentChart.options.scales.y.ticks.callback = tickFmt;
+                environmentChart.options.plugins.tooltip.callbacks.label = tipFmt;
+                environmentChart.options.plugins.tooltip.callbacks.footer = footFmt;
+                environmentChart.update('none');
+                return;
+            }
+
+            environmentChart = new Chart(environmentCanvas.getContext('2d'), {
+                type: 'line',
+                data: { labels: labels, datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2.2,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        x: { stacked: true, grid: { display: false }, ticks: { maxTicksLimit: 15, font: { size: 12 } } },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            title: { display: true, text: unit.label, font: { size: 13 } },
+                            ticks: { font: { size: 12 }, callback: tickFmt },
+                            grid: { color: 'rgba(0,0,0,0.06)' }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'rect', padding: 20, font: { size: 13 } } },
+                        tooltip: { callbacks: { label: tipFmt, footer: footFmt } }
+                    }
+                }
+            });
+        }
+
+        function regionLabel() {
+            return currentCountry ? currentCountry : 'Global';
+        }
+
+        function updateTitles() {
+            volumeTitle.textContent = regionLabel() + ' — Top Aquaculture Species by Volume';
+            valueTitle.textContent = regionLabel() + ' — Top Aquaculture Species by Value';
+            environmentTitle.textContent = regionLabel() + ' — Aquaculture Production Volume by Environment';
+        }
+
+        function renderAll(data) {
+            updateTitles();
+            volumeChart = buildBarChart(volumeChart, volumeCanvas, volumeSubtitle, data.volume || {}, 'tonnes', BAR_COLOR, BAR_BORDER);
+            valueChart = buildBarChart(valueChart, valueCanvas, valueSubtitle, data.value || {}, 'usd', VALUE_COLOR, VALUE_BORDER);
+            buildEnvironmentChart(data.environment || {});
+        }
+
+        function populateYears(years, selected) {
+            yearSelect.innerHTML = '';
+            (years || []).forEach(function(y) {
+                var opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = y;
+                if (y === selected) opt.selected = true;
+                yearSelect.appendChild(opt);
+            });
+        }
+
+        function showLoading() {
+            volumeLoading.classList.add('active');
+            valueLoading.classList.add('active');
+            environmentLoading.classList.add('active');
+        }
+        function hideLoading() {
+            volumeLoading.classList.remove('active');
+            valueLoading.classList.remove('active');
+            environmentLoading.classList.remove('active');
+        }
+
+        function setActiveCountry(name) {
+            currentCountry = name;
+            searchInput.value = '';
+            closeDropdown();
+
+            if (name) {
+                activeBadge.classList.add('visible');
+                badgeText.textContent = name;
+            } else {
+                activeBadge.classList.remove('visible');
+            }
+
+            document.querySelectorAll('.flag-btn').forEach(function(btn) {
+                var dbName = btn.dataset.dbname || btn.dataset.country;
+                btn.classList.toggle('active', dbName === name);
+            });
+        }
+
+        function fetchData(country, year) {
+            showLoading();
+            var c = country !== undefined ? country : currentCountry;
+            var y = year !== undefined ? year : currentYear;
+            var url = SPECIES_URL + '?action=speciesdata&country=' + encodeURIComponent(c || '')
+                + '&year=' + encodeURIComponent(y || '');
+
+            fetch(url)
+                .then(function(r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .then(function(data) {
+                    if (data.error) throw new Error(data.error);
+                    currentData = data;
+                    currentYear = data.year;
+                    setActiveCountry(data.country || '');
+                    populateYears(data.years, data.year);
+                    renderAll(data);
+                    hideLoading();
+                })
+                .catch(function(err) {
+                    console.warn('FishStat: failed to load species data', err);
+                    volumeSubtitle.textContent = 'Failed to load data — please try again';
+                    hideLoading();
+                });
+        }
+
+        // Year filter
+        yearSelect.addEventListener('change', function() {
+            fetchData(undefined, parseInt(this.value, 10));
+        });
+
+        // Country autocomplete
+        function getFilteredCountries() {
+            var q = searchInput.value.trim().toLowerCase();
+            if (!q) return countryList.slice(0, 20);
+            return countryList.filter(function(c) {
+                return c.toLowerCase().indexOf(q) !== -1;
+            });
+        }
+
+        function renderDropdown(matches) {
+            var query = searchInput.value.trim().toLowerCase();
+            dropdown.innerHTML = '';
+
+            if (!matches.length) {
+                dropdown.innerHTML = '<div class="country-option" style="color:#999;cursor:default">No matches</div>';
+                dropdown.classList.add('open');
+                return;
+            }
+
+            matches.forEach(function(name, idx) {
+                var div = document.createElement('div');
+                div.className = 'country-option';
+                div.dataset.index = idx;
+
+                if (query) {
+                    var lower = name.toLowerCase();
+                    var pos = lower.indexOf(query);
+                    if (pos >= 0) {
+                        div.innerHTML = escapeHtml(name.substring(0, pos))
+                            + '<mark>' + escapeHtml(name.substring(pos, pos + query.length)) + '</mark>'
+                            + escapeHtml(name.substring(pos + query.length));
+                    } else {
+                        div.textContent = name;
+                    }
+                } else {
+                    div.textContent = name;
+                }
+
+                div.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    fetchData(name);
+                });
+                dropdown.appendChild(div);
+            });
+
+            dropdown.classList.add('open');
+            highlightIndex = -1;
+        }
+
+        function closeDropdown() {
+            dropdown.classList.remove('open');
+            highlightIndex = -1;
+        }
+
+        function updateHighlight(items) {
+            items.forEach(function(el, i) {
+                el.classList.toggle('highlighted', i === highlightIndex);
+            });
+            if (items[highlightIndex]) {
+                items[highlightIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        searchInput.addEventListener('input', function() {
+            renderDropdown(getFilteredCountries());
+        });
+
+        searchInput.addEventListener('focus', function() {
+            renderDropdown(getFilteredCountries());
+        });
+
+        searchInput.addEventListener('blur', function() {
+            setTimeout(closeDropdown, 150);
+        });
+
+        searchInput.addEventListener('keydown', function(e) {
+            var items = dropdown.querySelectorAll('.country-option[data-index]');
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                highlightIndex = Math.min(highlightIndex + 1, items.length - 1);
+                updateHighlight(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                highlightIndex = Math.max(highlightIndex - 1, 0);
+                updateHighlight(items);
+            } else if (e.key === 'Enter' && highlightIndex >= 0 && items[highlightIndex]) {
+                e.preventDefault();
+                var matches = getFilteredCountries();
+                if (matches[highlightIndex]) {
+                    fetchData(matches[highlightIndex]);
+                }
+            } else if (e.key === 'Escape') {
+                closeDropdown();
+                searchInput.blur();
+            }
+        });
+
+        resetBtn.addEventListener('click', function() {
+            fetchData('');
+        });
+
+        badgeClear.addEventListener('click', function() {
+            fetchData('');
+        });
+
+        // Member flags
+        function buildFlags() {
+            memberCountries.forEach(function(mc) {
+                var btn = document.createElement('button');
+                btn.className = 'flag-btn';
+                btn.type = 'button';
+                btn.dataset.country = mc.name;
+                if (mc.dbName) btn.dataset.dbname = mc.dbName;
+                btn.innerHTML = (flagSvgs[mc.iso2] || '') + '<span class="flag-tooltip">' + escapeHtml(mc.name) + '</span>';
+
+                btn.addEventListener('click', function() {
+                    var name = mc.dbName || mc.name;
+                    if (currentCountry === name) {
+                        fetchData('');
+                    } else {
+                        fetchData(name);
+                    }
+                });
+
+                flagContainer.appendChild(btn);
+            });
+        }
+
+        // Canvas resize fix (see global page).
+        window.addEventListener('resize', function() {
+            [[volumeChart, volumeCanvas], [valueChart, valueCanvas], [environmentChart, environmentCanvas]].forEach(function(pair) {
+                if (pair[0]) {
+                    pair[1].style.width = '';
+                    pair[1].style.height = '';
+                    pair[0].resize();
+                }
+            });
+        });
+
+        // CSV download
+        function slug(str) {
+            return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        }
+
+        function csvFilename(prefix) {
+            var parts = [prefix, currentCountry ? slug(currentCountry) : 'global'];
+            if (currentYear) parts.push(String(currentYear));
+            return parts.join('-') + '.csv';
+        }
+
+        function downloadCsv(filename, csvContent) {
+            var blob = new Blob(['﻿', csvContent], { type: 'text/csv;charset=utf-8;' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function csvCell(str) {
+            return '"' + String(str).replace(/"/g, '""') + '"';
+        }
+
+        var csvLicense = '\n\n"Source: FAO Fisheries and Aquaculture Statistics (FishStatJ), 2026.1.0"'
+            + '\n"License: CC BY-NC-SA 3.0 IGO (https://creativecommons.org/licenses/by-nc-sa/3.0/igo/)"';
+
+        function speciesCsvRows(chartData, unitHeader) {
+            var labels = chartData.labels || [];
+            var sci = chartData.scientific || [];
+            var values = chartData.values || [];
+            if (!labels.length) return null;
+
+            // Full, unaggregated ranking — every species, no "Other" bucket.
+            var rows = ['Species,"Scientific name",' + unitHeader];
+            for (var i = 0; i < labels.length; i++) {
+                rows.push(csvCell(labels[i]) + ',' + csvCell(sci[i] || '') + ',' + values[i]);
+            }
+            return rows.join('\n');
+        }
+
+        document.getElementById('downloadVolumeCsv').addEventListener('click', function(e) {
+            e.preventDefault();
+            var body = speciesCsvRows(currentData.volume || {}, '"Volume (tonnes)"');
+            if (!body) return;
+            downloadCsv(csvFilename('fishstat-species-volume'), body + csvLicense);
+        });
+
+        document.getElementById('downloadValueCsv').addEventListener('click', function(e) {
+            e.preventDefault();
+            var body = speciesCsvRows(currentData.value || {}, '"Value (USD)"');
+            if (!body) return;
+            downloadCsv(csvFilename('fishstat-species-value'), body + csvLicense);
+        });
+
+        document.getElementById('downloadEnvironmentCsv').addEventListener('click', function(e) {
+            e.preventDefault();
+            var env = currentData.environment || {};
+            var labels = env.labels || [];
+            if (!labels.length) return;
+
+            var rows = ['Year,"Freshwater (tonnes)","Brackishwater (tonnes)","Marine (tonnes)"'];
+            for (var i = 0; i < labels.length; i++) {
+                rows.push([
+                    labels[i],
+                    (env.freshwater || [])[i] || 0,
+                    (env.brackishwater || [])[i] || 0,
+                    (env.marine || [])[i] || 0
+                ].join(','));
+            }
+            downloadCsv(csvFilename('fishstat-environment'), rows.join('\n') + csvLicense);
+        });
+
+        // Init
+        buildFlags();
+        setActiveCountry(currentCountry);
+        populateYears(initialData.years, currentYear);
+        renderAll(initialData);
+    })();
+</script>

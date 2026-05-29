@@ -7,12 +7,12 @@ namespace Tfish\FishStat\Model;
 class Listing
 {
     use \Tfish\Traits\ValidateString;
+    use \Tfish\FishStat\Traits\FishStatDatabase;
 
     private $database;
     private $preference;
     private $session;
     private \Tfish\Logger $logger;
-    private ?\PDO $fishStatDb = null;
 
     private array $chartData = [];
     private array $countryList = [];
@@ -38,27 +38,6 @@ class Listing
     public function chartData(): array
     {
         return $this->chartData;
-    }
-
-    public function connect(): bool
-    {
-        $dbPath = TFISH_DATABASE_PATH . TFISH_FISHSTAT_DB;
-
-        if (!\is_file($dbPath)) {
-            $this->logger->logError(0, 'FishStat database not found: ' . $dbPath, __FILE__, __LINE__);
-            return false;
-        }
-
-        try {
-            $this->fishStatDb = new \PDO('sqlite:' . $dbPath);
-            $this->fishStatDb->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-            $this->fishStatDb->setAttribute(\PDO::ATTR_TIMEOUT, 5);
-        } catch (\PDOException $e) {
-            $this->logger->logError((int) $e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
-            return false;
-        }
-
-        return true;
     }
 
     public function getGlobalProductionData(string $speciesCode = ''): array
@@ -174,13 +153,9 @@ class Listing
     {
         if (!$this->fishStatDb) return [];
 
-        $codeStmt = $this->fishStatDb->prepare(
-            "SELECT un_code FROM countries WHERE name_en = :name LIMIT 1"
-        );
-        $codeStmt->execute([':name' => $countryName]);
-        $countryCode = $codeStmt->fetchColumn();
+        $countryCode = $this->countryCode($countryName);
 
-        if ($countryCode === false) return [];
+        if ($countryCode === null) return [];
 
         $captureParams = [':measure' => 'Q_tlw', ':country_code' => $countryCode];
         $aquaParams = [':measure_qty' => 'Q_tlw', ':measure_val' => 'V_USD_1000', ':country_code' => $countryCode];
@@ -254,24 +229,6 @@ class Listing
             'country' => $countryName,
             'species' => $speciesCode,
         ];
-    }
-
-    public function getCountryList(): array
-    {
-        if (!$this->fishStatDb) return [];
-
-        $stmt = $this->fishStatDb->prepare(
-            "SELECT DISTINCT c.name_en
-             FROM countries c
-             WHERE EXISTS (
-                 SELECT 1 FROM aquaculture_production ap
-                 WHERE ap.country_code = c.un_code AND ap.measure = :measure
-             )
-             ORDER BY c.name_en"
-        );
-        $stmt->execute([':measure' => 'Q_tlw']);
-
-        return \array_column($stmt->fetchAll(\PDO::FETCH_ASSOC), 'name_en');
     }
 
     public function loadChartDataForCountry(string $countryName, string $speciesCode = ''): void

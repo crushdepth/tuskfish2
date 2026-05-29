@@ -28,3 +28,10 @@ $routingTable['/fishstat/'] = new \Tfish\Route(
     '\\Tfish\\FishStat\\Controller\\Listing',
     0);
 
+$routingTable['/species/'] = new \Tfish\Route(
+    '\\Tfish\\FishStat\\Model\\Species',
+    '\\Tfish\\FishStat\\ViewModel\\Species',
+    '\\Tfish\\View\\Single',
+    '\\Tfish\\FishStat\\Controller\\Species',
+    0);
+
