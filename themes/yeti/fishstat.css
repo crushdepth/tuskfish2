@@ -419,3 +419,31 @@
     border-color: #4a90d9;
     box-shadow: 0 0 0 3px rgba(74,144,217,0.12);
 }
+
+/* Major-group donut overview (top of /species/) */
+.donut-section {
+    margin-bottom: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #e8e8e8;
+}
+.donut-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+.donut-wrap {
+    flex: 1 1 260px;
+    min-width: 240px;
+    text-align: center;
+}
+.donut-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #444;
+    margin: 0 0 0.5rem 0;
+}
+.donut-canvas-wrap {
+    position: relative;
+    height: 260px;
+}
