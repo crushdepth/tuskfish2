@@ -50,7 +50,7 @@
                     <h2 class="chart-title" id="landingTitle">Top Aquaculture Species Worldwide</h2>
                     <p class="chart-subtitle" id="landingSubtitle"></p>
                 </div>
-                <p class="landing-cta">Type a species name in the &ldquo;Filter by species&rdquo; box above &mdash; or pick one below &mdash; to see which countries produce the most of it.</p>
+                <p class="landing-cta">Type a species name in the &ldquo;Filter by species&rdquo; box above &mdash; or pick one below &mdash; to see which states produce the most of it.</p>
                 <div class="chart-wrap">
                     <canvas id="landingChart"></canvas>
                     <div class="chart-loading" id="landingLoading">
@@ -60,13 +60,13 @@
                 </div>
                 <p class="landing-hint">Looking for a different species? Type <strong>any</strong> name in the Filter by Species box above to look it up.</p>
                 <p class="chart-source">
-                    The biggest aquaculture species worldwide by live-weight volume. Click a bar, or use the search box, to see its top producing countries.<br>
+                    The biggest aquaculture species worldwide by live-weight volume. Click a bar, or use the search box, to see its top producing states.<br>
                     Data © FAO 2026. <a href="https://www.fao.org/fishery/fishstat/collections/en">FishStat Statistical Collections (v2026.1.0)</a>.
                     Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
                 </p>
             </div>
 
-            <!-- Species view: top producing countries for the selected species -->
+            <!-- Species view: top producing states for the selected species -->
             <div id="speciesSection" style="display: none">
                 <!-- Production by region (overview) -->
                 <div class="donut-section">
@@ -93,11 +93,11 @@
                     </p>
                 </div>
 
-                <!-- Top producing countries by volume -->
+                <!-- Top producing states by volume -->
                 <div class="chart-header">
                     <div class="chart-header-row">
                         <h2 class="chart-title" id="volumeTitle">
-                            Top Producing Countries by Volume
+                            Top Producing States by Volume
                         </h2>
                         <a href="#" class="btn-csv" id="downloadVolumeCsv" title="Download chart data as CSV">
                             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8m0 0L5 7m3 3l3-3M3 12h10"/></svg>
@@ -114,16 +114,16 @@
                     </div>
                 </div>
                 <p class="chart-source">
-                    Only states large enough to show a visible bar are charted individually; smaller producers are grouped as &ldquo;Other countries&rdquo;. The CSV download contains the full, unaggregated data for every producer.<br>
+                    Only states large enough to show a visible bar are charted individually; smaller producers are grouped as &ldquo;Other states&rdquo;. The CSV download contains the full, unaggregated data for every producer.<br>
                     Data © FAO 2026. <a href="https://www.fao.org/fishery/fishstat/collections/en">FishStat Statistical Collections (v2026.1.0)</a>.
                     Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
                 </p>
 
-                <!-- Top producing countries by value -->
+                <!-- Top producing states by value -->
                 <div class="chart-header">
                     <div class="chart-header-row">
                         <h2 class="chart-title" id="valueTitle">
-                            Top Producing Countries by Value
+                            Top Producing States by Value
                         </h2>
                         <a href="#" class="btn-csv" id="downloadValueCsv" title="Download chart data as CSV">
                             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8m0 0L5 7m3 3l3-3M3 12h10"/></svg>
@@ -140,7 +140,7 @@
                     </div>
                 </div>
                 <p class="chart-source">
-                    Only states large enough to show a visible bar are charted individually; smaller producers are grouped as &ldquo;Other countries&rdquo;. The CSV download contains the full, unaggregated data for every producer.<br>
+                    Only states large enough to show a visible bar are charted individually; smaller producers are grouped as &ldquo;Other states&rdquo;. The CSV download contains the full, unaggregated data for every producer.<br>
                     Data © FAO 2026. <a href="https://www.fao.org/fishery/fishstat/collections/en">FishStat Statistical Collections (v2026.1.0)</a>.
                     Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
                 </p>
@@ -197,7 +197,7 @@
         const valueSubtitle = document.getElementById('valueSubtitle');
         const valueLoading = document.getElementById('valueLoading');
 
-        const OTHER_LABEL = 'Other countries';
+        const OTHER_LABEL = 'Other states';
         const BAR_COLOR = 'rgba(20, 50, 120, 0.85)';
         const BAR_BORDER = 'rgba(20, 50, 120, 1)';
         const VALUE_COLOR = 'rgba(55, 150, 160, 0.8)';
@@ -216,11 +216,11 @@
             'Other': 'rgba(150, 150, 150, 0.75)'
         };
 
-        // A country is charted individually only when it is BOTH a meaningful share of the year's
+        // A state is charted individually only when it is BOTH a meaningful share of the year's
         // total AND tall enough to actually see — a minimum fraction of the largest bar. Production
-        // is often dominated by one country (e.g. China at 95%+), which leaves everyone else as
+        // is often dominated by one state (e.g. China at 95%+), which leaves everyone else as
         // zero-width bars with misleading "0 tonnes / 0.0%" tooltips. Those are rolled into a single
-        // "Other countries" bar instead. The CSV download still lists every producer individually.
+        // "Other states" bar instead. The CSV download still lists every producer individually.
         const SHARE_THRESHOLD = 0.5;   // % of the year's total
         const MIN_VISIBLE = 2;         // % of the largest bar — below this a bar is too short to read
         const MAX_BARS = 25;           // hard cap so a long tail never floods the chart
@@ -492,8 +492,8 @@
             if (data.mode === 'species') {
                 var prefix = data.speciesName + (currentYear ? ', ' + currentYear : '');
                 regionTitle.textContent = prefix + ' — Production by Region';
-                volumeTitle.textContent = prefix + ' — Top Producing Countries by Volume';
-                valueTitle.textContent = prefix + ' — Top Producing Countries by Value';
+                volumeTitle.textContent = prefix + ' — Top Producing States by Volume';
+                valueTitle.textContent = prefix + ' — Top Producing States by Value';
             } else {
                 landingTitle.textContent = 'Top Aquaculture Species Worldwide'
                     + (currentYear ? ', ' + currentYear : '') + ' (by volume)';
@@ -641,8 +641,8 @@
             var values = chartData.values || [];
             if (!labels.length) return null;
 
-            // Full, unaggregated ranking — every country, no "Other" bucket.
-            var rows = ['Country,' + unitHeader];
+            // Full, unaggregated ranking — every state, no "Other" bucket.
+            var rows = ['State,' + unitHeader];
             for (var i = 0; i < labels.length; i++) {
                 rows.push(FS.csvCell(labels[i]) + ',' + values[i]);
             }
