@@ -48,14 +48,20 @@ class Producers
      */
     public function display(): array
     {
-        $cacheParams = ['page' => 'producers'];
+        $species = $this->trimString($_GET['species'] ?? '');
+        $year = (int) ($_GET['year'] ?? 0);
+        $country = $this->trimString($_GET['country'] ?? '');
 
-        if (!empty($_SESSION['id'])) {
+        // Parameterised (dashboard/deep-link) views are rendered fresh: country names are not safe
+        // cache-key values, so caching them risks collisions. The bare page stays cached.
+        $cacheParams = ($species !== '' || $year !== 0 || $country !== '') ? [] : ['page' => 'producers'];
+
+        if (!empty($_SESSION['id']) && !empty($cacheParams)) {
             $cacheParams['loggedIn'] = '1';
         }
 
         $this->model->loadSpeciesList();
-        $this->viewModel->displayProducers();
+        $this->viewModel->displayProducers($species, $year, $country);
 
         return $cacheParams;
     }

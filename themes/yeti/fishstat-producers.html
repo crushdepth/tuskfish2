@@ -16,6 +16,7 @@
     </div>
 
     <div class="fishstat-container">
+        <?php include TFISH_THEMES_PATH . $viewModel->theme() . '/fishstat-nav.html'; ?>
         <div class="chart-card">
             <!-- Controls -->
             <div class="fishstat-controls">
@@ -93,6 +94,9 @@
                     </p>
                 </div>
 
+                <!-- Persisted dashboard country: its rank for this species (or a no-record note) -->
+                <p class="country-callout" id="countryCallout" style="display: none"></p>
+
                 <!-- Top producing states by volume -->
                 <div class="chart-header">
                     <div class="chart-header-row">
@@ -164,6 +168,10 @@
         const PRODUCERS_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/producers/'); ?>;
         const initialData = <?php echo $viewModel->producersDataJson(); ?>;
         const speciesList = <?php echo $viewModel->speciesListJson(); ?>;
+        // Persisted dashboard country (carried from the country-keyed pages). Not a filter here:
+        // used only to highlight that country in the producing-states ranking, or note that it has
+        // no recorded production of the selected species.
+        const persistentCountry = <?php echo $viewModel->dashboardCountryJson(); ?>;
 
         // State
         let currentYear = initialData.year || 0;
@@ -196,6 +204,7 @@
         const valueTitle = document.getElementById('valueTitle');
         const valueSubtitle = document.getElementById('valueSubtitle');
         const valueLoading = document.getElementById('valueLoading');
+        const countryCallout = document.getElementById('countryCallout');
 
         const OTHER_LABEL = 'Other states';
         const BAR_COLOR = 'rgba(20, 50, 120, 0.85)';
@@ -204,6 +213,9 @@
         const VALUE_BORDER = 'rgba(40, 120, 130, 1)';
         const OTHER_COLOR = 'rgba(150, 150, 150, 0.7)';
         const OTHER_BORDER = 'rgba(120, 120, 120, 1)';
+        // Amber, to make the persisted dashboard country's bar pop against the blue/teal ranking.
+        const HIGHLIGHT_COLOR = 'rgba(230, 160, 30, 0.9)';
+        const HIGHLIGHT_BORDER = 'rgba(190, 130, 20, 1)';
 
         // Fixed colour per region, so the same region is the same colour in both donuts — that
         // consistency is what makes the volume-vs-value reshuffle readable.
@@ -500,6 +512,63 @@
             }
         }
 
+        // 1 -> "1st", 2 -> "2nd", 11 -> "11th", etc.
+        function ordinal(n) {
+            var s = ['th', 'st', 'nd', 'rd'], v = n % 100;
+            return n + (s[(v - 20) % 10] || s[v] || s[0]);
+        }
+
+        // Recolour the persisted country's bar (if it is charted individually). Returns true when a
+        // matching bar was found, so the callout can say "highlighted below" vs "grouped under Other".
+        function highlightCountry(chart, name) {
+            if (!chart || !name || !chart.data || !chart.data.datasets[0]) return false;
+            var idx = (chart.data.labels || []).indexOf(name);
+            if (idx < 0) return false;
+            var ds = chart.data.datasets[0];
+            if (Array.isArray(ds.backgroundColor)) {
+                ds.backgroundColor[idx] = HIGHLIGHT_COLOR;
+                ds.borderColor[idx] = HIGHLIGHT_BORDER;
+                chart.update('none');
+            }
+            return true;
+        }
+
+        // Show where the persisted dashboard country ranks for this species, computed from the FULL
+        // (pre-split) volume ranking — which arrives sorted descending, so the index is the rank.
+        // Three cases: charted individually, folded into "Other countries", or no record at all.
+        function renderCountryCallout(data, shownInChart) {
+            if (!persistentCountry) { countryCallout.style.display = 'none'; return; }
+
+            var vol = data.volume || {};
+            var labels = vol.labels || [];
+            var values = vol.values || [];
+            var idx = labels.indexOf(persistentCountry);
+            var year = data.year || '';
+            var name = FS.escapeHtml(persistentCountry);
+            var html;
+
+            if (idx < 0) {
+                html = '<strong>' + name + '</strong> has no recorded production of '
+                    + FS.escapeHtml(data.speciesName || 'this species')
+                    + (year ? ' in ' + year : '') + '.';
+            } else {
+                var total = values.reduce(function(s, v) { return s + v; }, 0);
+                var v = values[idx];
+                var u = FS.tonnesUnit(v);
+                var amount = (v / u.divisor).toFixed(u.decimals) + u.suffix + ' tonnes';
+                var pct = total > 0 ? 100 * v / total : 0;
+                var pctStr = pct < 0.1 ? '<0.1%' : pct.toFixed(1) + '%';
+                var place = '<strong>' + name + '</strong> ranks <strong>' + ordinal(idx + 1)
+                    + '</strong> of ' + labels.length + ' producers — ' + amount + ' (' + pctStr + ')';
+                html = shownInChart
+                    ? place + ', highlighted below.'
+                    : place + ', grouped under &ldquo;Other countries&rdquo; in the chart below.';
+            }
+
+            countryCallout.innerHTML = html;
+            countryCallout.style.display = '';
+        }
+
         function renderAll(data) {
             updateTitles(data);
 
@@ -511,9 +580,13 @@
                 regionValueChart = buildDonutChart(regionValueChart, regionValueCanvas, (data.regions || {}).value || {}, 'usd');
                 volumeChart = buildBarChart(volumeChart, volumeCanvas, volumeSubtitle, data.volume || {}, 'tonnes', BAR_COLOR, BAR_BORDER, { split: true });
                 valueChart = buildBarChart(valueChart, valueCanvas, valueSubtitle, data.value || {}, 'usd', VALUE_COLOR, VALUE_BORDER, { split: true });
+                var shown = highlightCountry(volumeChart, persistentCountry);
+                highlightCountry(valueChart, persistentCountry);
+                renderCountryCallout(data, shown);
             } else {
                 speciesSection.style.display = 'none';
                 landingSection.style.display = '';
+                countryCallout.style.display = 'none';
                 landingChart = buildBarChart(landingChart, landingCanvas, landingSubtitle, data.topSpecies || {}, 'tonnes', BAR_COLOR, BAR_BORDER, { split: false, onSelect: selectSpecies });
             }
         }
@@ -545,7 +618,15 @@
             var qs = [];
             if (species) qs.push('species=' + encodeURIComponent(species));
             if (year) qs.push('year=' + encodeURIComponent(year));
+            // Preserve the dashboard country so a refresh/bookmark keeps the highlight.
+            if (persistentCountry) qs.push('country=' + encodeURIComponent(persistentCountry));
             return PRODUCERS_URL + (qs.length ? '?' + qs.join('&') : '');
+        }
+
+        // Carry the current species/year (and dashboard country) across the section nav. This page
+        // owns its own browser history (see syncHistory), so we only update the sibling tiles here.
+        function updateNav() {
+            FS.syncNav({ species: (currentData && currentData.species) || '', year: currentYear, country: persistentCountry });
         }
 
         // Record the loaded view in browser history so the Back button moves between views
@@ -583,6 +664,7 @@
                     populateYears(data.years, data.year);
                     renderAll(data);
                     syncHistory(data, histMode || 'push');
+                    updateNav();
                     hideLoading();
                 })
                 .catch(function(err) {
@@ -668,6 +750,7 @@
         filter.setActiveSpecies(initialData.species || '');
         populateYears(initialData.years, currentYear);
         renderAll(initialData);
+        updateNav();
         // Seed the first history entry so Back/forward has a state to restore.
         syncHistory(initialData, 'replace');
     })();

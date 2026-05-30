@@ -48,14 +48,19 @@ class Species
      */
     public function display(): array
     {
-        $cacheParams = ['page' => 'species'];
+        $country = $this->trimString($_GET['country'] ?? '');
+        $year = (int) ($_GET['year'] ?? 0);
 
-        if (!empty($_SESSION['id'])) {
+        // Parameterised (dashboard) views are rendered fresh: country names are not safe cache-key
+        // values, so caching them risks collisions. The bare page stays cached.
+        $cacheParams = ($country !== '' || $year !== 0) ? [] : ['page' => 'species'];
+
+        if (!empty($_SESSION['id']) && !empty($cacheParams)) {
             $cacheParams['loggedIn'] = '1';
         }
 
         $this->model->loadCountryList();
-        $this->viewModel->displaySpecies();
+        $this->viewModel->displaySpecies($country, $year);
 
         return $cacheParams;
     }

@@ -48,14 +48,18 @@ class Environment
      */
     public function display(): array
     {
-        $cacheParams = ['page' => 'environment'];
+        $country = $this->trimString($_GET['country'] ?? '');
 
-        if (!empty($_SESSION['id'])) {
+        // Parameterised (dashboard) views are rendered fresh: country names are not safe cache-key
+        // values, so caching them risks collisions. The bare page stays cached.
+        $cacheParams = $country !== '' ? [] : ['page' => 'environment'];
+
+        if (!empty($_SESSION['id']) && !empty($cacheParams)) {
             $cacheParams['loggedIn'] = '1';
         }
 
         $this->model->loadCountryList();
-        $this->viewModel->displayEnvironment();
+        $this->viewModel->displayEnvironment($country);
 
         return $cacheParams;
     }

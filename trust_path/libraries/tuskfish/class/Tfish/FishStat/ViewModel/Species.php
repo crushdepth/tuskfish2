@@ -48,10 +48,18 @@ class Species implements \Tfish\Interface\Viewable
     /**
      * Render the species profile template.
      */
-    public function displaySpecies(): void
+    public function displaySpecies(string $country = '', int $year = 0): void
     {
         $this->template = "fishstat-species";
-        $this->model->displaySpecies();
+        $this->model->loadSpeciesData($country, $year);
+    }
+
+    /**
+     * Section key for the shared FishStat navigation (marks the active tile).
+     */
+    public function pageKey(): string
+    {
+        return 'species';
     }
 
     /**

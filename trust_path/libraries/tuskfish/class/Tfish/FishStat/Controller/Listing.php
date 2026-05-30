@@ -21,14 +21,19 @@ class Listing
 
     public function display(): array
     {
-        $cacheParams = ['page' => 'fishstat'];
+        $country = $this->trimString($_GET['country'] ?? '');
+        $species = $this->trimString($_GET['species'] ?? '');
 
-        if (!empty($_SESSION['id'])) {
+        // Parameterised (dashboard) views are rendered fresh: country names are not safe cache-key
+        // values, so caching them risks collisions. The bare page stays cached.
+        $cacheParams = ($country !== '' || $species !== '') ? [] : ['page' => 'fishstat'];
+
+        if (!empty($_SESSION['id']) && !empty($cacheParams)) {
             $cacheParams['loggedIn'] = '1';
         }
 
         $this->model->loadCountryList();
-        $this->viewModel->displayGlobal();
+        $this->viewModel->displayGlobal($country, $species);
 
         return $cacheParams;
     }

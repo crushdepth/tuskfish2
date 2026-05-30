@@ -16,6 +16,7 @@
     </div>
 
     <div class="fishstat-container">
+        <?php include TFISH_THEMES_PATH . $viewModel->theme() . '/fishstat-nav.html'; ?>
         <div class="chart-card">
             <!-- Member country flags -->
             <div class="member-flags">
@@ -260,6 +261,7 @@
                     currentData = data;
                     filter.setActiveCountry(data.country || '');
                     renderAll(data);
+                    updateNav();
                     hideLoading();
                 })
                 .catch(function(err) {
@@ -316,9 +318,16 @@
             FS.downloadCsv(csvFilename('fishstat-environment-value'), body + FS.csvLicense);
         });
 
+        // Carry the active state across the section nav, and keep this page's own URL in sync so
+        // a refresh or bookmark restores the same view. (Environment has no year dimension.)
+        function updateNav() {
+            FS.syncNav({ country: filter ? filter.current() : '' }, { page: 'environment' });
+        }
+
         // Init
         filter = FS.initCountryFilter({ countryList: countryList, onSelect: fetchData });
         filter.setActiveCountry(initialData.country || '');
         renderAll(initialData);
+        updateNav();
     })();
 </script>

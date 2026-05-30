@@ -34,6 +34,7 @@ class Producers implements \Tfish\Interface\Viewable
 
     private object $model;
     private \Tfish\Entity\Preference $preference;
+    private string $dashboardCountry = '';
 
     public function __construct(
         object $model,
@@ -48,10 +49,36 @@ class Producers implements \Tfish\Interface\Viewable
     /**
      * Render the producers template.
      */
-    public function displayProducers(): void
+    public function displayProducers(string $species = '', int $year = 0, string $country = ''): void
     {
         $this->template = "fishstat-producers";
-        $this->model->displayProducers();
+        $this->dashboardCountry = $country;
+        $this->model->loadProducersData($species, $year);
+    }
+
+    /**
+     * Section key for the shared FishStat navigation (marks the active tile).
+     */
+    public function pageKey(): string
+    {
+        return 'producers';
+    }
+
+    /**
+     * Persisted dashboard country as JSON, for the producers-page country highlight.
+     *
+     * This page ranks countries for a chosen species, so the country is not a filter here; it is
+     * carried only to highlight that country in the ranking (or note it has no recorded
+     * production). Unvalidated on the server — matched client-side against the ranking labels.
+     *
+     * @return  string JSON-encoded country name, or '""'.
+     */
+    public function dashboardCountryJson(): string
+    {
+        return \json_encode(
+            $this->dashboardCountry,
+            JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+        );
     }
 
     /**

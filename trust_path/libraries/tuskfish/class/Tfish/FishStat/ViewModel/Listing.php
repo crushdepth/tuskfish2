@@ -22,10 +22,18 @@ class Listing implements \Tfish\Interface\Viewable
         $this->pageTitle = "Global Fisheries and Aquaculture Statistics";
     }
 
-    public function displayGlobal(): void
+    public function displayGlobal(string $country = '', string $species = ''): void
     {
         $this->template = "fishstat-global";
-        $this->model->displayGlobal();
+        $this->model->loadChartDataForCountry($country, $species);
+    }
+
+    /**
+     * Section key for the shared FishStat navigation (marks the active tile).
+     */
+    public function pageKey(): string
+    {
+        return 'overview';
     }
 
     public function displayChart(): void {}
