@@ -30,7 +30,7 @@ require_once TFISH_PATH . "header.php";
 
 // Module headers provide additional path, language constants, blocks, and routing table info.
 require_once TFISH_CLASS_PATH . "Tfish/User/header.php";
-require_once TFISH_CLASS_PATH . "Tfish/FishStat/header.php";
+require_once TFISH_CLASS_PATH . "Tfish/Stats/header.php";
 
 // Extract the route and action from the request.
 // Note: If using an NGINX reverse proxy in front of Apache/Tuskfish to terminate SSL, use the
