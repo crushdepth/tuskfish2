@@ -48,10 +48,18 @@ class Environment implements \Tfish\Interface\Viewable
     /**
      * Render the environment template.
      */
-    public function displayEnvironment(): void
+    public function displayEnvironment(string $country = ''): void
     {
         $this->template = "fishstat-environment";
-        $this->model->displayEnvironment();
+        $this->model->loadEnvironmentData($country);
+    }
+
+    /**
+     * Section key for the shared FishStat navigation (marks the active tile).
+     */
+    public function pageKey(): string
+    {
+        return 'environment';
     }
 
     /**

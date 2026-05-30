@@ -16,6 +16,7 @@
     </div>
 
     <div class="fishstat-container">
+        <?php include TFISH_THEMES_PATH . $viewModel->theme() . '/fishstat-nav.html'; ?>
         <div class="chart-card">
             <!-- Member state flags -->
             <div class="member-flags">
@@ -523,6 +524,7 @@
                     setActiveSpecies(data.species || '');
                     buildChart(data);
                     buildValueChart(data);
+                    updateNav();
                     hideLoading();
                 })
                 .catch(function(err) {
@@ -871,14 +873,28 @@
             FS.downloadCsv(csvFilename('fishstat-value'), rows.join('\n') + FS.csvLicense);
         });
 
+        // Carry the active state/species across the section nav, and keep this page's own URL in
+        // sync so a refresh or bookmark restores the same view.
+        function updateNav() {
+            FS.syncNav({ country: currentCountry, species: currentSpecies }, { page: 'overview' });
+        }
+
         // Init
         buildFlags();
         buildChart(initialData);
         buildValueChart(initialData);
+        setActiveCountry(initialData.country || '');
+        setActiveSpecies(initialData.species || '');
+        updateNav();
 
         fetch(<?php echo \json_encode(\rtrim(TFISH_VENDOR_URL, '/') . '/chartjs/species.json'); ?>)
             .then(function(r) { return r.json(); })
-            .then(function(data) { speciesList = data; })
+            .then(function(data) {
+                speciesList = data;
+                // The list arrives after init; refresh the badge so a deep-linked species shows
+                // its name rather than the bare code.
+                if (currentSpecies) setActiveSpecies(currentSpecies);
+            })
             .catch(function(err) { console.warn('FishStat: failed to load species list', err); });
     })();
 </script>

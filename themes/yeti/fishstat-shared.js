@@ -106,6 +106,53 @@
         URL.revokeObjectURL(url);
     };
 
+    // Which selection dimensions each FishStat section understands. The shared nav (FS.syncNav)
+    // carries only the dimensions a target page can act on: country to the country-keyed pages,
+    // year to the year-keyed pages, species to the species-keyed pages. A dimension a page can't
+    // use is simply dropped from that tile's link.
+    FS.NAV_PARAMS = {
+        overview: ['country', 'species'],
+        species: ['country', 'year'],
+        producers: ['species', 'year'],
+        environment: ['country', 'year']
+    };
+
+    function navQuery(keys, state) {
+        var parts = [];
+        keys.forEach(function(k) {
+            var v = state[k];
+            if (v) parts.push(k + '=' + encodeURIComponent(v));
+        });
+        return parts.length ? '?' + parts.join('&') : '';
+    }
+
+    /**
+     * Carry the current dashboard selection across the FishStat section nav.
+     *
+     * Rewrites the query string of every nav tile (rendered by fishstat-nav.html) so that clicking
+     * through to another section keeps the relevant selection, and — when opts.page is given —
+     * updates the current page's own URL in place so a refresh/bookmark restores the same view.
+     * Pages that manage their own browser history (e.g. /producers/) should omit opts.page and let
+     * this only update the sibling tiles.
+     *
+     * @param   {{country?: string, year?: (string|number), species?: string}} state Current selection.
+     * @param   {{page?: string}} [opts] opts.page = this page's key, to also sync its own URL.
+     */
+    FS.syncNav = function(state, opts) {
+        state = state || {};
+
+        document.querySelectorAll('a[data-nav]').forEach(function(a) {
+            var key = a.getAttribute('data-nav');
+            var base = a.getAttribute('data-base') || a.getAttribute('href').split('?')[0];
+            a.setAttribute('href', base + navQuery(FS.NAV_PARAMS[key] || [], state));
+        });
+
+        if (opts && opts.page && FS.NAV_PARAMS[opts.page]) {
+            var url = window.location.pathname + navQuery(FS.NAV_PARAMS[opts.page], state);
+            window.history.replaceState(window.history.state, '', url);
+        }
+    };
+
     /**
      * Wire up the member-state filter: search box + autocomplete dropdown + flag row + reset
      * button + active-country badge. The component owns the "current country" state.
