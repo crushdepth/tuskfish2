@@ -1,11 +1,13 @@
 -- global_species_summary
 --
 -- Pre-aggregated global aquaculture production by species and year, holding both the volume
--- (tonnes) and value (USD) totals in one row per (period, species_code). It exists purely to
--- accelerate the unfiltered "global" view of the species ranking charts on the /species/ page:
--- aggregating aquaculture_production live runs two GROUP BY scans of the ~2.5k-row (measure,
--- period) slice and recovers the year list with a ~97k-row DISTINCT scan, whereas reading this
--- table is a small indexed lookup per year.
+-- (tonnes) and value (USD) totals in one row per (period, species_code). It accelerates the
+-- unfiltered "global" view of the species ranking charts on the /species/ page: aggregating
+-- aquaculture_production live runs two GROUP BY scans of the ~2.5k-row (measure, period) slice and
+-- recovers the year list with a ~97k-row DISTINCT scan, whereas reading this table is a small
+-- indexed lookup per year. The /producers/ page also reads it — for its landing menu (biggest
+-- species worldwide), its year list, and, via idx_gss_species_code (created at the foot of this
+-- script), its species filter.
 --
 -- Only species_code is stored; the English / scientific names used as chart labels are joined
 -- from the species table at read time, so label corrections take effect without a rebuild and
@@ -46,3 +48,9 @@ SELECT period,
 FROM aquaculture_production
 WHERE measure IN ('Q_tlw', 'V_USD_1000')
 GROUP BY period, species_code;
+
+-- Covering index for the /producers/ species filter, which needs the distinct set of species that
+-- report production. The primary key is (period, species_code), so a DISTINCT over species_code
+-- alone would full-scan the table and sort; this species_code-first index lets that resolve as a
+-- covering-index scan instead (~16ms -> ~5ms on getSpeciesList()).
+CREATE INDEX idx_gss_species_code ON global_species_summary(species_code);
