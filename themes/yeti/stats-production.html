@@ -1,0 +1,757 @@
+<?php declare(strict_types=1); ?>
+
+<link
+    href="<?php echo TFISH_THEMES_URL . $viewModel->theme() . '/stats.css'; ?>"
+    rel="stylesheet"
+/>
+
+<!-- Container -->
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="page-title">
+                <?php echo xss($viewModel->pageTitle()); ?>
+            </h1>
+        </div>
+    </div>
+
+    <div class="stats-container">
+        <?php include TFISH_THEMES_PATH . $viewModel->theme() . '/stats-nav.html'; ?>
+        <div class="chart-card">
+            <!-- Controls -->
+            <div class="stats-controls">
+                <div class="control-group control-group-narrow">
+                    <label for="speciesSearch">Filter by species</label>
+                    <div class="species-search-wrap">
+                        <input
+                            type="text"
+                            id="speciesSearch"
+                            placeholder="Type a species name..."
+                            autocomplete="off"
+                        />
+                        <div class="species-dropdown" id="speciesDropdown"></div>
+                    </div>
+                </div>
+                <div class="control-group control-group-narrow">
+                    <label for="yearSelect">Filter by year</label>
+                    <select id="yearSelect" class="year-select"></select>
+                </div>
+            </div>
+            <div class="stats-actions">
+                <button class="btn-clear" id="resetBtn">Clear</button>
+                <span class="active-species-badge" id="activeSpeciesBadge">
+                    <span id="speciesBadgeText"></span>
+                    <span class="badge-x" id="speciesBadgeClear">&times;</span>
+                </span>
+            </div>
+
+            <!-- Landing menu: biggest species worldwide (the way in) -->
+            <div id="landingSection">
+                <div class="chart-header">
+                    <h2 class="chart-title" id="landingTitle">Top Aquaculture Species Worldwide</h2>
+                    <p class="chart-subtitle" id="landingSubtitle"></p>
+                </div>
+                <p class="landing-cta">Type a species name in the &ldquo;Filter by species&rdquo; box above &mdash; or pick one below &mdash; to see which states produce the most of it.</p>
+                <div class="chart-wrap">
+                    <canvas id="landingChart"></canvas>
+                    <div class="chart-loading" id="landingLoading">
+                        <div class="spinner"></div>
+                        <span style="color: #666; font-size: 0.85rem">Loading...</span>
+                    </div>
+                </div>
+                <p class="landing-hint">Looking for a different species? Type <strong>any</strong> name in the Filter by Species box above to look it up.</p>
+                <p class="chart-source">
+                    The biggest aquaculture species worldwide by live-weight volume. Click a bar, or use the search box, to see its top producing states.<br>
+                    Data © FAO 2026. <a href="https://www.fao.org/fishery/stats/collections/en">Stats Statistical Collections (v2026.1.0)</a>.
+                    Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
+                </p>
+            </div>
+
+            <!-- Species view: top producing states for the selected species -->
+            <div id="speciesSection" style="display: none">
+                <!-- Production by region (overview) -->
+                <div class="donut-section">
+                    <h2 class="chart-title" id="regionTitle">Production by Region</h2>
+                    <p class="chart-subtitle" id="regionSubtitle"></p>
+                    <div class="donut-row">
+                        <div class="donut-wrap">
+                            <h3 class="donut-title">By volume</h3>
+                            <div class="donut-canvas-wrap">
+                                <canvas id="regionVolumeChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="donut-wrap">
+                            <h3 class="donut-title">By value</h3>
+                            <div class="donut-canvas-wrap">
+                                <canvas id="regionValueChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="chart-source">
+                        Regions are FAO continental groupings (Asia, Americas, Europe, Africa, Oceania).<br>
+                        Data © FAO 2026. <a href="https://www.fao.org/fishery/stats/collections/en">Stats Statistical Collections (v2026.1.0)</a>.
+                        Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
+                    </p>
+                </div>
+
+                <!-- Persisted dashboard country: its rank for this species (or a no-record note) -->
+                <p class="country-callout" id="countryCallout" style="display: none"></p>
+
+                <!-- Top producing states by volume -->
+                <div class="chart-header">
+                    <div class="chart-header-row">
+                        <h2 class="chart-title" id="volumeTitle">
+                            Top Producing States by Volume
+                        </h2>
+                        <a href="#" class="btn-csv" id="downloadVolumeCsv" title="Download chart data as CSV">
+                            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8m0 0L5 7m3 3l3-3M3 12h10"/></svg>
+                            CSV
+                        </a>
+                    </div>
+                    <p class="chart-subtitle" id="volumeSubtitle"></p>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="volumeChart"></canvas>
+                    <div class="chart-loading" id="volumeLoading">
+                        <div class="spinner"></div>
+                        <span style="color: #666; font-size: 0.85rem">Loading...</span>
+                    </div>
+                </div>
+                <p class="chart-source">
+                    Only states contributing enough to show a visible bar are charted individually. The CSV download contains the full, unaggregated data for every producer.<br>
+                    Data © FAO 2026. <a href="https://www.fao.org/fishery/stats/collections/en">Stats Statistical Collections (v2026.1.0)</a>.
+                    Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
+                </p>
+
+                <!-- Top producing states by value -->
+                <div class="chart-header">
+                    <div class="chart-header-row">
+                        <h2 class="chart-title" id="valueTitle">
+                            Top Producing States by Value
+                        </h2>
+                        <a href="#" class="btn-csv" id="downloadValueCsv" title="Download chart data as CSV">
+                            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8m0 0L5 7m3 3l3-3M3 12h10"/></svg>
+                            CSV
+                        </a>
+                    </div>
+                    <p class="chart-subtitle" id="valueSubtitle"></p>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="valueChart"></canvas>
+                    <div class="chart-loading" id="valueLoading">
+                        <div class="spinner"></div>
+                        <span style="color: #666; font-size: 0.85rem">Loading...</span>
+                    </div>
+                </div>
+                <p class="chart-source">
+                    Only states large enough to show a visible bar are charted individually. The CSV download contains the full, unaggregated data for every producer.<br>
+                    Data © FAO 2026. <a href="https://www.fao.org/fishery/stats/collections/en">Stats Statistical Collections (v2026.1.0)</a>.
+                    Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- /.container -->
+</div>
+
+<script src="<?php echo TFISH_VENDOR_URL; ?>chartjs/chart.umd.min.js"></script>
+<script src="<?php echo TFISH_THEMES_URL . $viewModel->theme(); ?>/stats-shared.js"></script>
+<script>
+    (function() {
+        'use strict';
+
+        var FS = window.Stats;
+        var tonnesUnit = FS.tonnesUnit;
+        var usdUnit = FS.usdUnit;
+
+        const PRODUCTION_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/production/'); ?>;
+        const initialData = <?php echo $viewModel->productionDataJson(); ?>;
+        const speciesList = <?php echo $viewModel->speciesListJson(); ?>;
+        // Persisted dashboard country (carried from the country-keyed pages). Not a filter here:
+        // used only to highlight that country in the producing-states ranking, or note that it has
+        // no recorded production of the selected species.
+        const persistentCountry = <?php echo $viewModel->dashboardCountryJson(); ?>;
+
+        // State
+        let currentYear = initialData.year || 0;
+        let currentData = initialData;
+        let landingChart = null;
+        let volumeChart = null;
+        let valueChart = null;
+        let regionVolumeChart = null;
+        let regionValueChart = null;
+        let filter = null;
+
+        // Elements
+        const yearSelect = document.getElementById('yearSelect');
+        const resetBtn = document.getElementById('resetBtn');
+        const landingSection = document.getElementById('landingSection');
+        const speciesSection = document.getElementById('speciesSection');
+        const landingCanvas = document.getElementById('landingChart');
+        const landingTitle = document.getElementById('landingTitle');
+        const landingSubtitle = document.getElementById('landingSubtitle');
+        const landingLoading = document.getElementById('landingLoading');
+        const regionTitle = document.getElementById('regionTitle');
+        const regionSubtitle = document.getElementById('regionSubtitle');
+        const regionVolumeCanvas = document.getElementById('regionVolumeChart');
+        const regionValueCanvas = document.getElementById('regionValueChart');
+        const volumeCanvas = document.getElementById('volumeChart');
+        const volumeTitle = document.getElementById('volumeTitle');
+        const volumeSubtitle = document.getElementById('volumeSubtitle');
+        const volumeLoading = document.getElementById('volumeLoading');
+        const valueCanvas = document.getElementById('valueChart');
+        const valueTitle = document.getElementById('valueTitle');
+        const valueSubtitle = document.getElementById('valueSubtitle');
+        const valueLoading = document.getElementById('valueLoading');
+        const countryCallout = document.getElementById('countryCallout');
+
+        const OTHER_LABEL = 'Other states';
+        const BAR_COLOR = 'rgba(20, 50, 120, 0.85)';
+        const BAR_BORDER = 'rgba(20, 50, 120, 1)';
+        const VALUE_COLOR = 'rgba(55, 150, 160, 0.8)';
+        const VALUE_BORDER = 'rgba(40, 120, 130, 1)';
+        const OTHER_COLOR = 'rgba(150, 150, 150, 0.7)';
+        const OTHER_BORDER = 'rgba(120, 120, 120, 1)';
+        // Amber, to make the persisted dashboard country's bar pop against the blue/teal ranking.
+        const HIGHLIGHT_COLOR = 'rgba(230, 160, 30, 0.9)';
+        const HIGHLIGHT_BORDER = 'rgba(190, 130, 20, 1)';
+
+        // Fixed colour per region, so the same region is the same colour in both donuts — that
+        // consistency is what makes the volume-vs-value reshuffle readable.
+        const REGION_COLORS = {
+            'Asia': 'rgba(20, 50, 120, 0.85)',
+            'Americas': 'rgba(200, 90, 40, 0.85)',
+            'Europe': 'rgba(55, 150, 160, 0.85)',
+            'Africa': 'rgba(60, 140, 60, 0.85)',
+            'Oceania': 'rgba(150, 100, 180, 0.85)',
+            'Other': 'rgba(150, 150, 150, 0.75)'
+        };
+
+        // A state is charted individually only when it is BOTH a meaningful share of the year's
+        // total AND tall enough to actually see — a minimum fraction of the largest bar. Production
+        // is often dominated by one state (e.g. China at 95%+), which leaves everyone else as
+        // zero-width bars with misleading "0 tonnes / 0.0%" tooltips. Those are rolled into a single
+        // "Other states" bar instead. The CSV download still lists every producer individually.
+        const SHARE_THRESHOLD = 0.5;   // % of the year's total
+        const MIN_VISIBLE = 2;         // % of the largest bar — below this a bar is too short to read
+        const MAX_BARS = 25;           // hard cap so a long tail never floods the chart
+
+        // Split a full ranked (descending) list into individually-named bars plus an aggregated
+        // remainder. Values arrive sorted, so the largest is always kept.
+        function splitByShare(values) {
+            var total = values.reduce(function(s, v) { return s + v; }, 0);
+            var max = Math.max.apply(null, values.concat([0]));
+            var shareCut = total * SHARE_THRESHOLD / 100;
+            var visibleCut = max * MIN_VISIBLE / 100;
+            var named = [];
+            var other = 0;
+
+            for (var i = 0; i < values.length; i++) {
+                if (named.length < MAX_BARS && values[i] >= shareCut && values[i] >= visibleCut) {
+                    named.push(i);
+                } else {
+                    other += values[i];
+                }
+            }
+
+            // Guard the pathological empty case (e.g. a lone producer): always keep the top bar.
+            if (!named.length && values.length) {
+                named.push(0);
+                other -= values[0];
+            }
+
+            return { named: named, other: other, total: total };
+        }
+
+        // Generic horizontal bar chart. kind: 'tonnes' | 'usd'. opts.split === false charts every
+        // row individually (no "Other" bucket) — used by the landing menu. opts.onSelect, when
+        // given, makes the bars clickable: clicking maps the bar back to its code (carried in
+        // chartData.codes) and calls onSelect(code). Codes are stashed on the chart so the click
+        // handler reads the current row set even after the chart is re-rendered in place.
+        function buildBarChart(existing, canvas, subtitleEl, chartData, kind, fillColor, borderColor, opts) {
+            opts = opts || {};
+            var noSplit = opts.split === false;
+            var fullLabels = chartData.labels || [];
+            var fullValues = chartData.values || [];
+            var fullCodes = chartData.codes || [];
+
+            if (!fullLabels.length) {
+                subtitleEl.textContent = 'No data available for this selection';
+                if (existing) {
+                    existing.data.labels = [];
+                    existing.data.datasets = [];
+                    existing._fsCodes = [];
+                    existing.update('none');
+                }
+                if (canvas.parentElement) canvas.parentElement.style.height = '';
+                return existing;
+            }
+
+            var fullSci = chartData.scientific || [];
+            var split = noSplit
+                ? { named: fullValues.map(function(_, i) { return i; }), other: 0,
+                    total: fullValues.reduce(function(s, v) { return s + v; }, 0) }
+                : splitByShare(fullValues);
+            var labels = split.named.map(function(i) { return fullLabels[i]; });
+            var values = split.named.map(function(i) { return fullValues[i]; });
+            var sciList = split.named.map(function(i) { return fullSci[i] || ''; });
+            var codes = split.named.map(function(i) { return fullCodes[i] || ''; });
+
+            if (split.other > 0) {
+                labels.push(OTHER_LABEL);
+                values.push(Math.round(split.other));
+                sciList.push('');
+                codes.push('');
+            }
+
+            var max = Math.max.apply(null, values.concat([0]));
+            var unit = kind === 'usd' ? usdUnit(max) : tonnesUnit(max);
+            var scaled = values.map(function(v) { return v / unit.divisor; });
+
+            var bgColors = labels.map(function(l) { return l === OTHER_LABEL ? OTHER_COLOR : fillColor; });
+            var bdColors = labels.map(function(l) { return l === OTHER_LABEL ? OTHER_BORDER : borderColor; });
+
+            // Grand total across every row (reference figure), in the chart's own unit.
+            var totalUnit = kind === 'usd' ? usdUnit(split.total) : tonnesUnit(split.total);
+            var totalNum = (split.total / totalUnit.divisor).toFixed(totalUnit.decimals) + totalUnit.suffix;
+            var totalStr = kind === 'usd' ? '$' + totalNum : totalNum + ' tonnes';
+
+            if (noSplit) {
+                subtitleEl.textContent = unit.label;
+            } else {
+                var note = '';
+                if (split.other > 0 && split.total > 0) {
+                    var pct = 100 * split.other / split.total;
+                    note = ' · ' + split.named.length + ' of ' + fullLabels.length + ' shown (others: '
+                        + (pct < 1 ? pct.toFixed(1) : Math.round(pct)) + '%)';
+                }
+                subtitleEl.textContent = unit.label + ' · Total: ' + totalStr + note;
+            }
+
+            // Size the chart to the number of bars so they stay readable at any count.
+            if (canvas.parentElement) {
+                canvas.parentElement.style.height = Math.max(labels.length * 26 + 70, 220) + 'px';
+            }
+
+            function tickFmt(v) {
+                if (kind === 'usd') return unit.suffix ? '$' + v + unit.suffix : '$' + v.toLocaleString();
+                return unit.suffix ? v + unit.suffix : v.toLocaleString();
+            }
+
+            // Format a raw figure with a unit suited to its OWN magnitude, so a small producer reads
+            // "16 tonnes" rather than "0.00M tonnes" (the axis keeps one shared unit). On the landing
+            // menu (noSplit) the total is only the top species shown, so the share would mislead —
+            // omit it there. Sub-0.1% shares show "<0.1%" instead of rounding to a bare "0.0%".
+            function tipLabel(ctx) {
+                var raw = values[ctx.dataIndex];
+                var u = kind === 'usd' ? usdUnit(raw) : tonnesUnit(raw);
+                var num = (raw / u.divisor).toFixed(u.decimals) + u.suffix;
+                var base = kind === 'usd' ? '$' + num : num + ' tonnes';
+                if (!noSplit && split.total > 0) {
+                    var pct = 100 * raw / split.total;
+                    base += pct < 0.1 ? ' (<0.1% of total)' : ' (' + pct.toFixed(1) + '% of total)';
+                }
+                return base;
+            }
+
+            // Scientific name shown under the label in the tooltip (omitted when absent or identical
+            // to the displayed label, e.g. an aggregated bar).
+            function sciTitle(items) {
+                if (!items.length) return '';
+                var i = items[0].dataIndex;
+                var sci = sciList[i];
+                return sci && sci !== labels[i] ? sci : '';
+            }
+
+            var datasets = [{
+                label: kind === 'usd' ? 'Value' : 'Volume',
+                data: scaled,
+                backgroundColor: bgColors,
+                borderColor: bdColors,
+                borderWidth: 1,
+                borderRadius: 3
+            }];
+
+            if (existing) {
+                existing.data.labels = labels;
+                existing.data.datasets = datasets;
+                existing._fsCodes = codes;
+                existing.options.scales.x.title.text = unit.label;
+                existing.options.scales.x.ticks.callback = tickFmt;
+                existing.options.plugins.tooltip.callbacks.label = tipLabel;
+                existing.options.plugins.tooltip.callbacks.afterTitle = sciTitle;
+                existing.resize();
+                existing.update('none');
+                return existing;
+            }
+
+            var options = {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: { display: true, text: unit.label, font: { size: 13 } },
+                        ticks: { font: { size: 12 }, callback: tickFmt },
+                        grid: { color: 'rgba(0,0,0,0.06)' }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { font: { size: 12 } }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            afterTitle: sciTitle,
+                            label: tipLabel
+                        },
+                        titleFont: { style: 'normal' },
+                        bodySpacing: 4
+                    }
+                }
+            };
+
+            // Clickable bars (landing menu): resolve the clicked bar to a species code and select it.
+            if (opts.onSelect) {
+                options.onClick = function(evt, els, chart) {
+                    if (!els.length) return;
+                    var clicked = (chart._fsCodes || [])[els[0].index];
+                    if (clicked) opts.onSelect(clicked);
+                };
+                options.onHover = function(evt, els, chart) {
+                    var clickable = els.length && (chart._fsCodes || [])[els[0].index];
+                    if (evt.native && evt.native.target) {
+                        evt.native.target.style.cursor = clickable ? 'pointer' : 'default';
+                    }
+                };
+            }
+
+            var chart = new Chart(canvas.getContext('2d'), {
+                type: 'bar',
+                data: { labels: labels, datasets: datasets },
+                options: options
+            });
+            chart._fsCodes = codes;
+            return chart;
+        }
+
+        // Compact region donut. kind: 'tonnes' | 'usd'. Empty buckets are dropped so the ring
+        // isn't cluttered with 0% slices; colours come from the fixed REGION_COLORS map.
+        function buildDonutChart(existing, canvas, chartData, kind) {
+            var allLabels = chartData.labels || [];
+            var allValues = chartData.values || [];
+            var labels = [], values = [], colors = [];
+
+            for (var i = 0; i < allLabels.length; i++) {
+                if (allValues[i] > 0) {
+                    labels.push(allLabels[i]);
+                    values.push(allValues[i]);
+                    colors.push(REGION_COLORS[allLabels[i]] || REGION_COLORS['Other']);
+                }
+            }
+
+            if (!values.length) {
+                if (existing) {
+                    existing.data.labels = [];
+                    existing.data.datasets = [];
+                    existing.update('none');
+                }
+                return existing;
+            }
+
+            var total = values.reduce(function(s, v) { return s + v; }, 0);
+            var max = Math.max.apply(null, values);
+            var unit = kind === 'usd' ? usdUnit(max) : tonnesUnit(max);
+
+            function tipLabel(ctx) {
+                var v = ctx.parsed;
+                var pct = total > 0 ? (100 * v / total) : 0;
+                var num = (v / unit.divisor).toFixed(unit.decimals) + unit.suffix;
+                var amount = kind === 'usd' ? '$' + num : num + ' tonnes';
+                return ctx.label + ': ' + amount + ' (' + pct.toFixed(1) + '%)';
+            }
+
+            var datasets = [{ data: values, backgroundColor: colors, borderColor: '#fff', borderWidth: 2 }];
+
+            if (existing) {
+                existing.data.labels = labels;
+                existing.data.datasets = datasets;
+                existing.options.plugins.tooltip.callbacks.label = tipLabel;
+                existing.update('none');
+                return existing;
+            }
+
+            return new Chart(canvas.getContext('2d'), {
+                type: 'doughnut',
+                data: { labels: labels, datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '58%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 12, boxWidth: 14 } },
+                        tooltip: { callbacks: { label: tipLabel } }
+                    }
+                }
+            });
+        }
+
+        function updateTitles(data) {
+            if (data.mode === 'species') {
+                var prefix = data.speciesName + (currentYear ? ', ' + currentYear : '');
+                regionTitle.textContent = prefix + ' — Production by Region';
+                volumeTitle.textContent = prefix + ' — Top Producing States by Volume';
+                valueTitle.textContent = prefix + ' — Top Producing States by Value';
+            } else {
+                landingTitle.textContent = 'Top Aquaculture Species Worldwide'
+                    + (currentYear ? ', ' + currentYear : '') + ' (by volume)';
+            }
+        }
+
+        // 1 -> "1st", 2 -> "2nd", 11 -> "11th", etc.
+        function ordinal(n) {
+            var s = ['th', 'st', 'nd', 'rd'], v = n % 100;
+            return n + (s[(v - 20) % 10] || s[v] || s[0]);
+        }
+
+        // Recolour the persisted country's bar (if it is charted individually). Returns true when a
+        // matching bar was found, so the callout can say "highlighted below" vs "grouped under Other".
+        function highlightCountry(chart, name) {
+            if (!chart || !name || !chart.data || !chart.data.datasets[0]) return false;
+            var idx = (chart.data.labels || []).indexOf(name);
+            if (idx < 0) return false;
+            var ds = chart.data.datasets[0];
+            if (Array.isArray(ds.backgroundColor)) {
+                ds.backgroundColor[idx] = HIGHLIGHT_COLOR;
+                ds.borderColor[idx] = HIGHLIGHT_BORDER;
+                chart.update('none');
+            }
+            return true;
+        }
+
+        // Show where the persisted dashboard country ranks for this species, computed from the FULL
+        // (pre-split) volume ranking — which arrives sorted descending, so the index is the rank.
+        // Three cases: charted individually, folded into "Other countries", or no record at all.
+        function renderCountryCallout(data, shownInChart) {
+            if (!persistentCountry) { countryCallout.style.display = 'none'; return; }
+
+            var vol = data.volume || {};
+            var labels = vol.labels || [];
+            var values = vol.values || [];
+            var idx = labels.indexOf(persistentCountry);
+            var year = data.year || '';
+            var name = FS.escapeHtml(persistentCountry);
+            var html;
+
+            if (idx < 0) {
+                html = '<strong>' + name + '</strong> has no recorded production of '
+                    + FS.escapeHtml(data.speciesName || 'this species')
+                    + (year ? ' in ' + year : '') + '.';
+            } else {
+                var total = values.reduce(function(s, v) { return s + v; }, 0);
+                var v = values[idx];
+                var u = FS.tonnesUnit(v);
+                var amount = (v / u.divisor).toFixed(u.decimals) + u.suffix + ' tonnes';
+                var pct = total > 0 ? 100 * v / total : 0;
+                var pctStr = pct < 0.1 ? '<0.1%' : pct.toFixed(1) + '%';
+                var place = '<strong>' + name + '</strong> ranks <strong>' + ordinal(idx + 1)
+                    + '</strong> of ' + labels.length + ' production — ' + amount + ' (' + pctStr + ')';
+                html = shownInChart
+                    ? place + ', highlighted below.'
+                    : place + ', grouped under &ldquo;Other countries&rdquo; in the chart below.';
+            }
+
+            countryCallout.innerHTML = html;
+            countryCallout.style.display = '';
+        }
+
+        function renderAll(data) {
+            updateTitles(data);
+
+            if (data.mode === 'species') {
+                landingSection.style.display = 'none';
+                speciesSection.style.display = '';
+                regionSubtitle.textContent = (data.speciesSci ? data.speciesSci + ' · ' : '') + 'Single-year snapshot';
+                regionVolumeChart = buildDonutChart(regionVolumeChart, regionVolumeCanvas, (data.regions || {}).volume || {}, 'tonnes');
+                regionValueChart = buildDonutChart(regionValueChart, regionValueCanvas, (data.regions || {}).value || {}, 'usd');
+                volumeChart = buildBarChart(volumeChart, volumeCanvas, volumeSubtitle, data.volume || {}, 'tonnes', BAR_COLOR, BAR_BORDER, { split: true });
+                valueChart = buildBarChart(valueChart, valueCanvas, valueSubtitle, data.value || {}, 'usd', VALUE_COLOR, VALUE_BORDER, { split: true });
+                var shown = highlightCountry(volumeChart, persistentCountry);
+                highlightCountry(valueChart, persistentCountry);
+                renderCountryCallout(data, shown);
+            } else {
+                speciesSection.style.display = 'none';
+                landingSection.style.display = '';
+                countryCallout.style.display = 'none';
+                landingChart = buildBarChart(landingChart, landingCanvas, landingSubtitle, data.topSpecies || {}, 'tonnes', BAR_COLOR, BAR_BORDER, { split: false, onSelect: selectSpecies });
+            }
+        }
+
+        function populateYears(years, selected) {
+            yearSelect.innerHTML = '';
+            (years || []).forEach(function(y) {
+                var opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = y;
+                if (y === selected) opt.selected = true;
+                yearSelect.appendChild(opt);
+            });
+        }
+
+        function showLoading() {
+            landingLoading.classList.add('active');
+            volumeLoading.classList.add('active');
+            valueLoading.classList.add('active');
+        }
+        function hideLoading() {
+            landingLoading.classList.remove('active');
+            volumeLoading.classList.remove('active');
+            valueLoading.classList.remove('active');
+        }
+
+        // Build the shareable/bookmarkable URL for a given view (used for history entries).
+        function historyUrl(species, year) {
+            var qs = [];
+            if (species) qs.push('species=' + encodeURIComponent(species));
+            if (year) qs.push('year=' + encodeURIComponent(year));
+            // Preserve the dashboard country so a refresh/bookmark keeps the highlight.
+            if (persistentCountry) qs.push('country=' + encodeURIComponent(persistentCountry));
+            return PRODUCTION_URL + (qs.length ? '?' + qs.join('&') : '');
+        }
+
+        // Carry the current species/year (and dashboard country) across the section nav. This page
+        // owns its own browser history (see syncHistory), so we only update the sibling tiles here.
+        function updateNav() {
+            FS.syncNav({ species: (currentData && currentData.species) || '', year: currentYear, country: persistentCountry });
+        }
+
+        // Record the loaded view in browser history so the Back button moves between views
+        // (species → landing) instead of leaving the page. histMode: 'push' adds an entry
+        // (species selection, Clear), 'replace' updates the current entry (year change),
+        // 'none' skips writing (we're already responding to a popstate).
+        function syncHistory(data, histMode) {
+            if (histMode === 'none') return;
+            var state = { species: data.species || '', year: data.year || 0 };
+            var url = historyUrl(state.species, state.year);
+            if (histMode === 'replace') {
+                history.replaceState(state, '', url);
+            } else {
+                history.pushState(state, '', url);
+            }
+        }
+
+        function fetchData(species, year, histMode) {
+            showLoading();
+            var s = species !== undefined ? species : (filter ? filter.current() : '');
+            var y = year !== undefined ? year : currentYear;
+            var url = PRODUCTION_URL + '?action=productiondata&species=' + encodeURIComponent(s || '')
+                + '&year=' + encodeURIComponent(y || '');
+
+            fetch(url)
+                .then(function(r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .then(function(data) {
+                    if (data.error) throw new Error(data.error);
+                    currentData = data;
+                    currentYear = data.year;
+                    filter.setActiveSpecies(data.species || '');
+                    populateYears(data.years, data.year);
+                    renderAll(data);
+                    syncHistory(data, histMode || 'push');
+                    updateNav();
+                    hideLoading();
+                })
+                .catch(function(err) {
+                    console.warn('Stats: failed to load production data', err);
+                    landingSubtitle.textContent = 'Failed to load data — please try again';
+                    volumeSubtitle.textContent = 'Failed to load data — please try again';
+                    hideLoading();
+                });
+        }
+
+        // Select a species (from a clicked landing bar or the search box) and load its production.
+        function selectSpecies(code) {
+            fetchData(code, currentYear);
+        }
+
+        // Year filter — refines the current view, so update the URL in place rather than
+        // adding a history entry (Back should still return to the landing menu, not step
+        // through year tweaks).
+        yearSelect.addEventListener('change', function() {
+            fetchData(undefined, parseInt(this.value, 10), 'replace');
+        });
+
+        // Clear: return to the landing menu (keeps the chosen year).
+        resetBtn.addEventListener('click', function() {
+            selectSpecies('');
+        });
+
+        // Back/forward: re-render the view recorded in history without writing a new entry.
+        window.addEventListener('popstate', function(e) {
+            var st = e.state || {};
+            fetchData(st.species || '', typeof st.year === 'number' && st.year ? st.year : currentYear, 'none');
+        });
+
+        // Canvas resize fix (see global page).
+        window.addEventListener('resize', function() {
+            [[landingChart, landingCanvas], [volumeChart, volumeCanvas], [valueChart, valueCanvas],
+             [regionVolumeChart, regionVolumeCanvas], [regionValueChart, regionValueCanvas]].forEach(function(pair) {
+                if (pair[0]) {
+                    pair[1].style.width = '';
+                    pair[1].style.height = '';
+                    pair[0].resize();
+                }
+            });
+        });
+
+        // CSV download
+        function csvFilename(prefix) {
+            var name = currentData.speciesName ? FS.slug(currentData.speciesName) : 'species';
+            var parts = [prefix, name];
+            if (currentYear) parts.push(String(currentYear));
+            return parts.join('-') + '.csv';
+        }
+
+        function producerCsvRows(chartData, unitHeader) {
+            var labels = chartData.labels || [];
+            var values = chartData.values || [];
+            if (!labels.length) return null;
+
+            // Full, unaggregated ranking — every state, no "Other" bucket.
+            var rows = ['State,' + unitHeader];
+            for (var i = 0; i < labels.length; i++) {
+                rows.push(FS.csvCell(labels[i]) + ',' + values[i]);
+            }
+            return rows.join('\n');
+        }
+
+        document.getElementById('downloadVolumeCsv').addEventListener('click', function(e) {
+            e.preventDefault();
+            var body = producerCsvRows(currentData.volume || {}, '"Volume (tonnes)"');
+            if (!body) return;
+            FS.downloadCsv(csvFilename('stats-production-volume'), body + FS.csvLicense);
+        });
+
+        document.getElementById('downloadValueCsv').addEventListener('click', function(e) {
+            e.preventDefault();
+            var body = producerCsvRows(currentData.value || {}, '"Value (USD)"');
+            if (!body) return;
+            FS.downloadCsv(csvFilename('stats-production-value'), body + FS.csvLicense);
+        });
+
+        // Init
+        filter = FS.initSpeciesFilter({ speciesList: speciesList, onSelect: selectSpecies });
+        filter.setActiveSpecies(initialData.species || '');
+        populateYears(initialData.years, currentYear);
+        renderAll(initialData);
+        updateNav();
+        // Seed the first history entry so Back/forward has a state to restore.
+        syncHistory(initialData, 'replace');
+    })();
+</script>

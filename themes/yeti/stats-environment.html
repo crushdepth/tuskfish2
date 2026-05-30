@@ -1,0 +1,333 @@
+<?php declare(strict_types=1); ?>
+
+<link
+    href="<?php echo TFISH_THEMES_URL . $viewModel->theme() . '/stats.css'; ?>"
+    rel="stylesheet"
+/>
+
+<!-- Container -->
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="page-title">
+                <?php echo xss($viewModel->pageTitle()); ?>
+            </h1>
+        </div>
+    </div>
+
+    <div class="stats-container">
+        <?php include TFISH_THEMES_PATH . $viewModel->theme() . '/stats-nav.html'; ?>
+        <div class="chart-card">
+            <!-- Member country flags -->
+            <div class="member-flags">
+                <div class="member-flags-label">Member States</div>
+                <div class="flag-row" id="memberFlags"></div>
+            </div>
+
+            <!-- Controls -->
+            <div class="stats-controls">
+                <div class="control-group control-group-narrow">
+                    <label for="countrySearch">Filter by state</label>
+                    <div class="country-search-wrap">
+                        <input
+                            type="text"
+                            id="countrySearch"
+                            placeholder="Type to search states..."
+                            autocomplete="off"
+                        />
+                        <div class="country-dropdown" id="countryDropdown"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="stats-actions">
+                <button class="btn-clear" id="resetBtn">Global view</button>
+                <span class="active-country-badge" id="activeBadge">
+                    <span id="badgeText"></span>
+                    <span class="badge-x" id="badgeClear">&times;</span>
+                </span>
+            </div>
+
+            <!-- Production volume by environment -->
+            <div class="chart-header">
+                <div class="chart-header-row">
+                    <h2 class="chart-title" id="environmentTitle">
+                        Aquaculture Production Volume by Environment
+                    </h2>
+                    <a href="#" class="btn-csv" id="downloadEnvironmentCsv" title="Download chart data as CSV">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8m0 0L5 7m3 3l3-3M3 12h10"/></svg>
+                        CSV
+                    </a>
+                </div>
+                <p class="chart-subtitle" id="environmentSubtitle"></p>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="environmentChart"></canvas>
+                <div class="chart-loading" id="environmentLoading">
+                    <div class="spinner"></div>
+                    <span style="color: #666; font-size: 0.85rem">Loading...</span>
+                </div>
+            </div>
+            <p class="chart-source">
+                Data © FAO 2026. <a href="https://www.fao.org/fishery/stats/collections/en">Stats Statistical Collections (v2026.1.0)</a>.
+                Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
+                Environment time series covers aquaculture only.
+            </p>
+
+            <!-- Production value by environment -->
+            <div class="chart-header">
+                <div class="chart-header-row">
+                    <h2 class="chart-title" id="environmentValueTitle">
+                        Aquaculture Production Value by Environment
+                    </h2>
+                    <a href="#" class="btn-csv" id="downloadEnvironmentValueCsv" title="Download chart data as CSV">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8m0 0L5 7m3 3l3-3M3 12h10"/></svg>
+                        CSV
+                    </a>
+                </div>
+                <p class="chart-subtitle" id="environmentValueSubtitle"></p>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="environmentValueChart"></canvas>
+                <div class="chart-loading" id="environmentValueLoading">
+                    <div class="spinner"></div>
+                    <span style="color: #666; font-size: 0.85rem">Loading...</span>
+                </div>
+            </div>
+            <p class="chart-source">
+                Data © FAO 2026. <a href="https://www.fao.org/fishery/stats/collections/en">Stats Statistical Collections (v2026.1.0)</a>.
+                Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
+                Environment time series covers aquaculture only. Value data begins in 1984 and is expressed in nominal US dollars (not adjusted for inflation).
+            </p>
+        </div>
+    </div>
+
+    <!-- /.container -->
+</div>
+
+<script src="<?php echo TFISH_VENDOR_URL; ?>chartjs/chart.umd.min.js"></script>
+<script src="<?php echo TFISH_THEMES_URL . $viewModel->theme(); ?>/stats-shared.js"></script>
+<script>
+    (function() {
+        'use strict';
+
+        var FS = window.Stats;
+        var tonnesUnit = FS.tonnesUnit;
+        var usdUnit = FS.usdUnit;
+
+        const ENVIRONMENT_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/environment/'); ?>;
+        const initialData = <?php echo $viewModel->environmentDataJson(); ?>;
+        const countryList = <?php echo $viewModel->countryListJson(); ?>;
+
+        // State
+        let currentData = initialData;
+        let environmentChart = null;
+        let environmentValueChart = null;
+        let filter = null;
+
+        // Elements
+        const environmentCanvas = document.getElementById('environmentChart');
+        const environmentTitle = document.getElementById('environmentTitle');
+        const environmentSubtitle = document.getElementById('environmentSubtitle');
+        const environmentLoading = document.getElementById('environmentLoading');
+        const environmentValueCanvas = document.getElementById('environmentValueChart');
+        const environmentValueTitle = document.getElementById('environmentValueTitle');
+        const environmentValueSubtitle = document.getElementById('environmentValueSubtitle');
+        const environmentValueLoading = document.getElementById('environmentValueLoading');
+
+        // Stacked-area time series of production by environment. kind: 'tonnes' | 'usd'.
+        function buildEnvironmentChart(existing, canvas, subtitleEl, data, kind) {
+            var labels = data.labels || [];
+            var fresh = data.freshwater || [];
+            var brack = data.brackishwater || [];
+            var marine = data.marine || [];
+
+            var hasData = fresh.concat(brack, marine).some(function(v) { return v > 0; });
+
+            if (!labels.length || !hasData) {
+                subtitleEl.textContent = 'No data available for this selection';
+                if (existing) {
+                    existing.data.labels = [];
+                    existing.data.datasets = [];
+                    existing.update('none');
+                }
+                return existing;
+            }
+
+            var maxStack = 0;
+            for (var i = 0; i < labels.length; i++) {
+                var stack = (fresh[i] || 0) + (brack[i] || 0) + (marine[i] || 0);
+                if (stack > maxStack) maxStack = stack;
+            }
+            var unit = kind === 'usd' ? usdUnit(maxStack) : tonnesUnit(maxStack);
+
+            function scale(arr) { return arr.map(function(v) { return v / unit.divisor; }); }
+
+            subtitleEl.textContent = unit.label + ', ' + labels[0] + '–' + labels[labels.length - 1];
+
+            function tickFmt(v) {
+                if (kind === 'usd') return unit.suffix ? '$' + v + unit.suffix : '$' + v.toLocaleString();
+                return unit.suffix ? v + unit.suffix : v.toLocaleString();
+            }
+            function fmtVal(y) {
+                if (kind === 'usd') return '$' + y.toFixed(unit.decimals) + unit.suffix;
+                return y.toFixed(unit.decimals) + unit.suffix + ' tonnes';
+            }
+            function tipFmt(ctx) { return ctx.dataset.label + ': ' + fmtVal(ctx.parsed.y); }
+            function footFmt(items) {
+                var total = items.reduce(function(s, it) { return s + it.parsed.y; }, 0);
+                return 'Total: ' + fmtVal(total);
+            }
+
+            var datasets = [
+                { label: 'Freshwater', data: scale(fresh), backgroundColor: 'rgba(74, 144, 217, 0.7)', borderColor: 'rgba(40, 100, 170, 1)', borderWidth: 1.5, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8 },
+                { label: 'Brackishwater', data: scale(brack), backgroundColor: 'rgba(140, 200, 120, 0.7)', borderColor: 'rgba(90, 150, 70, 1)', borderWidth: 1.5, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8 },
+                { label: 'Marine', data: scale(marine), backgroundColor: 'rgba(40, 70, 130, 0.7)', borderColor: 'rgba(25, 45, 90, 1)', borderWidth: 1.5, fill: true, tension: 0.3, pointRadius: 0, pointHitRadius: 8 }
+            ];
+
+            if (existing) {
+                existing.data.labels = labels;
+                existing.data.datasets = datasets;
+                existing.options.scales.y.title.text = unit.label;
+                existing.options.scales.y.ticks.callback = tickFmt;
+                existing.options.plugins.tooltip.callbacks.label = tipFmt;
+                existing.options.plugins.tooltip.callbacks.footer = footFmt;
+                existing.update('none');
+                return existing;
+            }
+
+            return new Chart(canvas.getContext('2d'), {
+                type: 'line',
+                data: { labels: labels, datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2.2,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        x: { stacked: true, grid: { display: false }, ticks: { maxTicksLimit: 15, font: { size: 12 } } },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            title: { display: true, text: unit.label, font: { size: 13 } },
+                            ticks: { font: { size: 12 }, callback: tickFmt },
+                            grid: { color: 'rgba(0,0,0,0.06)' }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'rect', padding: 20, font: { size: 13 } } },
+                        tooltip: { callbacks: { label: tipFmt, footer: footFmt } }
+                    }
+                }
+            });
+        }
+
+        function regionLabel() {
+            var c = filter ? filter.current() : '';
+            return c ? c : 'Global';
+        }
+
+        function updateTitles() {
+            environmentTitle.textContent = regionLabel() + ' — Aquaculture Production Volume by Environment';
+            environmentValueTitle.textContent = regionLabel() + ' — Aquaculture Production Value by Environment';
+        }
+
+        function renderAll(data) {
+            updateTitles();
+            environmentChart = buildEnvironmentChart(environmentChart, environmentCanvas, environmentSubtitle, data.environment || {}, 'tonnes');
+            environmentValueChart = buildEnvironmentChart(environmentValueChart, environmentValueCanvas, environmentValueSubtitle, data.environmentValue || {}, 'usd');
+        }
+
+        function showLoading() {
+            environmentLoading.classList.add('active');
+            environmentValueLoading.classList.add('active');
+        }
+        function hideLoading() {
+            environmentLoading.classList.remove('active');
+            environmentValueLoading.classList.remove('active');
+        }
+
+        function fetchData(country) {
+            showLoading();
+            var c = country !== undefined ? country : (filter ? filter.current() : '');
+            var url = ENVIRONMENT_URL + '?action=environmentdata&country=' + encodeURIComponent(c || '');
+
+            fetch(url)
+                .then(function(r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .then(function(data) {
+                    if (data.error) throw new Error(data.error);
+                    currentData = data;
+                    filter.setActiveCountry(data.country || '');
+                    renderAll(data);
+                    updateNav();
+                    hideLoading();
+                })
+                .catch(function(err) {
+                    console.warn('Stats: failed to load environment data', err);
+                    environmentSubtitle.textContent = 'Failed to load data — please try again';
+                    hideLoading();
+                });
+        }
+
+        // Canvas resize fix (see global page).
+        window.addEventListener('resize', function() {
+            [[environmentChart, environmentCanvas], [environmentValueChart, environmentValueCanvas]].forEach(function(pair) {
+                if (pair[0]) {
+                    pair[1].style.width = '';
+                    pair[1].style.height = '';
+                    pair[0].resize();
+                }
+            });
+        });
+
+        // CSV download
+        function csvFilename(prefix) {
+            var c = filter ? filter.current() : '';
+            return [prefix, c ? FS.slug(c) : 'global'].join('-') + '.csv';
+        }
+
+        function environmentCsvRows(env, unitWord) {
+            var labels = env.labels || [];
+            if (!labels.length) return null;
+
+            var rows = ['Year,"Freshwater (' + unitWord + ')","Brackishwater (' + unitWord + ')","Marine (' + unitWord + ')"'];
+            for (var i = 0; i < labels.length; i++) {
+                rows.push([
+                    labels[i],
+                    (env.freshwater || [])[i] || 0,
+                    (env.brackishwater || [])[i] || 0,
+                    (env.marine || [])[i] || 0
+                ].join(','));
+            }
+            return rows.join('\n');
+        }
+
+        document.getElementById('downloadEnvironmentCsv').addEventListener('click', function(e) {
+            e.preventDefault();
+            var body = environmentCsvRows(currentData.environment || {}, 'tonnes');
+            if (!body) return;
+            FS.downloadCsv(csvFilename('stats-environment-volume'), body + FS.csvLicense);
+        });
+
+        document.getElementById('downloadEnvironmentValueCsv').addEventListener('click', function(e) {
+            e.preventDefault();
+            var body = environmentCsvRows(currentData.environmentValue || {}, 'USD');
+            if (!body) return;
+            FS.downloadCsv(csvFilename('stats-environment-value'), body + FS.csvLicense);
+        });
+
+        // Carry the active state across the section nav, and keep this page's own URL in sync so
+        // a refresh or bookmark restores the same view. (Environment has no year dimension.)
+        function updateNav() {
+            FS.syncNav({ country: filter ? filter.current() : '' }, { page: 'environment' });
+        }
+
+        // Init
+        filter = FS.initCountryFilter({ countryList: countryList, onSelect: fetchData });
+        filter.setActiveCountry(initialData.country || '');
+        renderAll(initialData);
+        updateNav();
+    })();
+</script>
