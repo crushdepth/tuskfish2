@@ -50,6 +50,31 @@
                 </span>
             </div>
 
+            <!-- Production mix by major group (overview) -->
+            <div class="donut-section">
+                <h2 class="chart-title" id="groupTitle">Production Mix by Major Group</h2>
+                <p class="chart-subtitle" id="groupSubtitle"></p>
+                <div class="donut-row">
+                    <div class="donut-wrap">
+                        <h3 class="donut-title">By volume</h3>
+                        <div class="donut-canvas-wrap">
+                            <canvas id="groupVolumeChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="donut-wrap">
+                        <h3 class="donut-title">By value</h3>
+                        <div class="donut-canvas-wrap">
+                            <canvas id="groupValueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <p class="chart-source">
+                    Data © FAO 2026. <a href="https://www.fao.org/fishery/fishstat/collections/en">FishStat Statistical Collections (v2026.1.0)</a>.
+                    Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
+                    &ldquo;Other&rdquo; combines aquatic invertebrates, amphibians, reptiles and mammals.
+                </p>
+            </div>
+
             <!-- Top species by volume -->
             <div class="chart-header">
                 <div class="chart-header-row">
@@ -126,6 +151,8 @@
         let currentData = initialData;
         let volumeChart = null;
         let valueChart = null;
+        let groupVolumeChart = null;
+        let groupValueChart = null;
         let filter = null;
 
         // Elements
@@ -138,6 +165,10 @@
         const valueTitle = document.getElementById('valueTitle');
         const valueSubtitle = document.getElementById('valueSubtitle');
         const valueLoading = document.getElementById('valueLoading');
+        const groupTitle = document.getElementById('groupTitle');
+        const groupSubtitle = document.getElementById('groupSubtitle');
+        const groupVolumeCanvas = document.getElementById('groupVolumeChart');
+        const groupValueCanvas = document.getElementById('groupValueChart');
 
         const OTHER_LABEL = 'Other species';
         const BAR_COLOR = 'rgba(20, 50, 120, 0.85)';
@@ -146,6 +177,16 @@
         const VALUE_BORDER = 'rgba(40, 120, 130, 1)';
         const OTHER_COLOR = 'rgba(150, 150, 150, 0.7)';
         const OTHER_BORDER = 'rgba(120, 120, 120, 1)';
+
+        // Fixed colour per major-group bucket, so the same group is the same colour in both
+        // donuts — that consistency is what makes the volume-vs-value reshuffle readable.
+        const GROUP_COLORS = {
+            'Fish': 'rgba(20, 50, 120, 0.85)',
+            'Crustaceans': 'rgba(200, 90, 40, 0.85)',
+            'Molluscs': 'rgba(55, 150, 160, 0.85)',
+            'Plants & seaweed': 'rgba(60, 140, 60, 0.85)',
+            'Other': 'rgba(150, 150, 150, 0.75)'
+        };
 
         // Species contributing at least this share (%) of the year's total are charted
         // individually; smaller species are grouped into a single "Other species" bar.
@@ -230,7 +271,7 @@
                 note = ' · ' + split.named.length + ' of ' + fullLabels.length + ' species shown (others: '
                     + (pct < 1 ? pct.toFixed(1) : Math.round(pct)) + '%)';
             }
-            subtitleEl.textContent = unit.label + ', ' + currentYear + ' · Total: ' + totalStr + note;
+            subtitleEl.textContent = unit.label + ' · Total: ' + totalStr + note;
 
             // Size the chart to the number of bars so they stay readable at any count.
             if (canvas.parentElement) {
@@ -321,18 +362,85 @@
             });
         }
 
+        // Compact major-group donut. kind: 'tonnes' | 'usd'. Empty buckets are dropped so the
+        // ring isn't cluttered with 0% slices; colours come from the fixed GROUP_COLORS map.
+        function buildDonutChart(existing, canvas, chartData, kind) {
+            var allLabels = chartData.labels || [];
+            var allValues = chartData.values || [];
+            var labels = [], values = [], colors = [];
+
+            for (var i = 0; i < allLabels.length; i++) {
+                if (allValues[i] > 0) {
+                    labels.push(allLabels[i]);
+                    values.push(allValues[i]);
+                    colors.push(GROUP_COLORS[allLabels[i]] || GROUP_COLORS['Other']);
+                }
+            }
+
+            if (!values.length) {
+                if (existing) {
+                    existing.data.labels = [];
+                    existing.data.datasets = [];
+                    existing.update('none');
+                }
+                return existing;
+            }
+
+            var total = values.reduce(function(s, v) { return s + v; }, 0);
+            var max = Math.max.apply(null, values);
+            var unit = kind === 'usd' ? usdUnit(max) : tonnesUnit(max);
+
+            function tipLabel(ctx) {
+                var v = ctx.parsed;
+                var pct = total > 0 ? (100 * v / total) : 0;
+                var num = (v / unit.divisor).toFixed(unit.decimals) + unit.suffix;
+                var amount = kind === 'usd' ? '$' + num : num + ' tonnes';
+                return ctx.label + ': ' + amount + ' (' + pct.toFixed(1) + '%)';
+            }
+
+            var datasets = [{ data: values, backgroundColor: colors, borderColor: '#fff', borderWidth: 2 }];
+
+            if (existing) {
+                existing.data.labels = labels;
+                existing.data.datasets = datasets;
+                existing.options.plugins.tooltip.callbacks.label = tipLabel;
+                existing.update('none');
+                return existing;
+            }
+
+            return new Chart(canvas.getContext('2d'), {
+                type: 'doughnut',
+                data: { labels: labels, datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '58%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 12, boxWidth: 14 } },
+                        tooltip: { callbacks: { label: tipLabel } }
+                    }
+                }
+            });
+        }
+
         function regionLabel() {
             var c = filter ? filter.current() : '';
             return c ? c : 'Global';
         }
 
         function updateTitles() {
-            volumeTitle.textContent = regionLabel() + ' — Top Aquaculture Species by Volume';
-            valueTitle.textContent = regionLabel() + ' — Top Aquaculture Species by Value';
+            var prefix = regionLabel() + (currentYear ? ', ' + currentYear : '');
+            groupTitle.textContent = prefix + ' — Production Mix by Major Group';
+            volumeTitle.textContent = prefix + ' — Top Aquaculture Species by Volume';
+            valueTitle.textContent = prefix + ' — Top Aquaculture Species by Value';
         }
 
         function renderAll(data) {
             updateTitles();
+            var groups = data.groups || {};
+            groupSubtitle.textContent = 'Single-year snapshot';
+            groupVolumeChart = buildDonutChart(groupVolumeChart, groupVolumeCanvas, groups.volume || {}, 'tonnes');
+            groupValueChart = buildDonutChart(groupValueChart, groupValueCanvas, groups.value || {}, 'usd');
             volumeChart = buildBarChart(volumeChart, volumeCanvas, volumeSubtitle, data.volume || {}, 'tonnes', BAR_COLOR, BAR_BORDER);
             valueChart = buildBarChart(valueChart, valueCanvas, valueSubtitle, data.value || {}, 'usd', VALUE_COLOR, VALUE_BORDER);
         }
@@ -392,7 +500,8 @@
 
         // Canvas resize fix (see global page).
         window.addEventListener('resize', function() {
-            [[volumeChart, volumeCanvas], [valueChart, valueCanvas]].forEach(function(pair) {
+            [[volumeChart, volumeCanvas], [valueChart, valueCanvas],
+             [groupVolumeChart, groupVolumeCanvas], [groupValueChart, groupValueCanvas]].forEach(function(pair) {
                 if (pair[0]) {
                     pair[1].style.width = '';
                     pair[1].style.height = '';
