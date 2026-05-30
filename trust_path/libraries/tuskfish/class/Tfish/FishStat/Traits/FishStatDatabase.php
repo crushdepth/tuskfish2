@@ -33,6 +33,7 @@ namespace Tfish\FishStat\Traits;
 trait FishStatDatabase
 {
     private ?\PDO $fishStatDb = null;
+    private array $summaryTableExists = [];
 
     /**
      * Open a read-only connection to the FishStat statistical database.
@@ -111,5 +112,164 @@ trait FishStatDatabase
         $stmt->execute([':measure' => 'Q_tlw']);
 
         return \array_column($stmt->fetchAll(\PDO::FETCH_ASSOC), 'name_en');
+    }
+
+    /**
+     * Production by environment, as a yearly time series.
+     *
+     * Used for both the volume (Q_tlw, tonnes) and value (V_USD_1000, US dollars) breakdowns.
+     *
+     * The global (unfiltered) case reads the pre-aggregated global_environment_summary table,
+     * which collapses the ~100k-row live aggregation into a ~225-row lookup. Country-filtered
+     * cases hit aquaculture_production directly (fast via idx_production_country_measure_period
+     * and always current). If the summary table is missing the global case falls back to the
+     * same live aggregation, so the page degrades to slow-but-correct rather than failing.
+     *
+     * @param   ?string $countryCode UN country code, or null for the global total.
+     * @param   string $measure Measure code: 'Q_tlw' (tonnes) or 'V_USD_1000' (value).
+     * @return  array ['labels' => int[], 'freshwater' => int[], 'brackishwater' => int[], 'marine' => int[]].
+     */
+    public function environmentSeries(?string $countryCode, string $measure): array
+    {
+        $rows = ($countryCode === null && $this->hasSummaryTable('global_environment_summary'))
+            ? $this->summaryEnvironmentRows($measure)
+            : $this->liveEnvironmentRows($countryCode, $measure);
+
+        return $this->pivotEnvironmentRows($rows);
+    }
+
+    /**
+     * Rows from the pre-aggregated global summary, already in final units (tonnes / USD).
+     *
+     * @param   string $measure Measure code: 'Q_tlw' (tonnes) or 'V_USD_1000' (value).
+     * @return  array List of ['year' => int, 'env' => string, 'amount' => int].
+     */
+    private function summaryEnvironmentRows(string $measure): array
+    {
+        // Column is chosen from a fixed whitelist, never from user input.
+        $column = $measure === 'V_USD_1000' ? 'value_usd' : 'volume_tonnes';
+
+        $stmt = $this->fishStatDb->query(
+            "SELECT period AS year, environment_code AS env, {$column} AS amount
+             FROM global_environment_summary ORDER BY period"
+        );
+
+        $rows = [];
+
+        foreach ($stmt->fetchAll(\PDO::FETCH_ASSOC) as $row) {
+            $rows[] = ['year' => (int) $row['year'], 'env' => $row['env'], 'amount' => (int) $row['amount']];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Rows aggregated live from aquaculture_production, scaled to final units.
+     *
+     * @param   ?string $countryCode UN country code, or null for the global total.
+     * @param   string $measure Measure code: 'Q_tlw' (tonnes) or 'V_USD_1000' (value).
+     * @return  array List of ['year' => int, 'env' => string, 'amount' => int].
+     */
+    private function liveEnvironmentRows(?string $countryCode, string $measure): array
+    {
+        $multiplier = $measure === 'V_USD_1000' ? 1000 : 1;
+
+        $sql = "SELECT p.period AS year, p.environment_code AS env,
+                       CAST(SUM(p.value) AS INTEGER) AS amount
+                FROM aquaculture_production p
+                WHERE p.measure = :measure";
+
+        $params = [':measure' => $measure];
+
+        if ($countryCode !== null) {
+            $sql .= " AND p.country_code = :country_code";
+            $params[':country_code'] = $countryCode;
+        }
+
+        $sql .= " GROUP BY p.period, p.environment_code ORDER BY p.period";
+
+        $stmt = $this->fishStatDb->prepare($sql);
+        $stmt->execute($params);
+
+        $rows = [];
+
+        foreach ($stmt->fetchAll(\PDO::FETCH_ASSOC) as $row) {
+            $rows[] = [
+                'year' => (int) $row['year'],
+                'env' => $row['env'],
+                'amount' => (int) $row['amount'] * $multiplier,
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Pivot environment rows into per-environment arrays aligned to a shared list of years.
+     *
+     * @param   array $rows List of ['year' => int, 'env' => string, 'amount' => int].
+     * @return  array ['labels' => int[], 'freshwater' => int[], 'brackishwater' => int[], 'marine' => int[]].
+     */
+    private function pivotEnvironmentRows(array $rows): array
+    {
+        $map = ['IN' => 'freshwater', 'BW' => 'brackishwater', 'MA' => 'marine'];
+        $byYear = [];
+
+        foreach ($rows as $row) {
+            $year = $row['year'];
+
+            if (!isset($byYear[$year])) {
+                $byYear[$year] = ['freshwater' => 0, 'brackishwater' => 0, 'marine' => 0];
+            }
+
+            $key = $map[$row['env']] ?? null;
+
+            if ($key !== null) {
+                $byYear[$year][$key] = $row['amount'];
+            }
+        }
+
+        \ksort($byYear);
+
+        $labels = [];
+        $freshwater = [];
+        $brackishwater = [];
+        $marine = [];
+
+        foreach ($byYear as $year => $vals) {
+            $labels[] = $year;
+            $freshwater[] = $vals['freshwater'];
+            $brackishwater[] = $vals['brackishwater'];
+            $marine[] = $vals['marine'];
+        }
+
+        return [
+            'labels' => $labels,
+            'freshwater' => $freshwater,
+            'brackishwater' => $brackishwater,
+            'marine' => $marine,
+        ];
+    }
+
+    /**
+     * Whether a named pre-aggregated summary table is present (memoized per table name).
+     *
+     * Used to decide whether a "global" view can read a derived summary table or must fall back
+     * to live aggregation. The name is bound as a parameter, never interpolated.
+     *
+     * @param   string $tableName Summary table name (e.g. 'global_environment_summary').
+     * @return  bool True if the table exists.
+     */
+    private function hasSummaryTable(string $tableName): bool
+    {
+        if (!\array_key_exists($tableName, $this->summaryTableExists)) {
+            $stmt = $this->fishStatDb->prepare(
+                "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = :name LIMIT 1"
+            );
+            $stmt->execute([':name' => $tableName]);
+            $this->summaryTableExists[$tableName] = $stmt->fetchColumn() !== false;
+        }
+
+        return $this->summaryTableExists[$tableName];
     }
 }
