@@ -42,7 +42,7 @@ class Producers implements \Tfish\Interface\Viewable
         $this->model = $model;
         $this->preference = $preference;
         $this->theme = $preference->defaultTheme();
-        $this->pageTitle = "Aquaculture Production by Country";
+        $this->pageTitle = "Distribution of Aquaculture Production";
     }
 
     /**
