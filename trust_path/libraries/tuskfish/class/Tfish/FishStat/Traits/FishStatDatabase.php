@@ -115,6 +115,46 @@ trait FishStatDatabase
     }
 
     /**
+     * Return the list of species that report aquaculture production, for the species filter.
+     *
+     * Each entry carries the species code (alpha_3_code), English common name and scientific name,
+     * so the front-end autocomplete can match on either name and pass the code back. Ordered by
+     * common name; species with an empty common name sort to the end but remain selectable.
+     *
+     * @return  array List of ['code' => string, 'name' => string, 'sci' => string].
+     */
+    public function getSpeciesList(): array
+    {
+        if (!$this->fishStatDb) return [];
+
+        $stmt = $this->fishStatDb->prepare(
+            "SELECT s.alpha_3_code AS code, s.name_en AS name, s.scientific_name AS sci
+             FROM species s
+             WHERE EXISTS (
+                 SELECT 1 FROM aquaculture_production ap
+                 WHERE ap.species_code = s.alpha_3_code AND ap.measure = :measure
+             )
+             ORDER BY (s.name_en IS NULL OR s.name_en = ''), s.name_en"
+        );
+        $stmt->execute([':measure' => 'Q_tlw']);
+
+        $list = [];
+
+        foreach ($stmt->fetchAll(\PDO::FETCH_ASSOC) as $row) {
+            $name = $this->trimString((string) ($row['name'] ?? ''));
+            $sci = $this->trimString((string) ($row['sci'] ?? ''));
+
+            $list[] = [
+                'code' => (string) $row['code'],
+                'name' => $name !== '' ? $name : ($sci !== '' ? $sci : (string) $row['code']),
+                'sci' => $sci,
+            ];
+        }
+
+        return $list;
+    }
+
+    /**
      * Production by environment, as a yearly time series.
      *
      * Used for both the volume (Q_tlw, tonnes) and value (V_USD_1000, US dollars) breakdowns.
