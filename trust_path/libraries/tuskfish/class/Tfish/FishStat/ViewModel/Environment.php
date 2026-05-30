@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\FishStat\ViewModel;
 
 /**
- * \Tfish\FishStat\ViewModel\Species class file.
+ * \Tfish\FishStat\ViewModel\Environment class file.
  *
  * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -16,7 +16,7 @@ namespace Tfish\FishStat\ViewModel;
  */
 
 /**
- * ViewModel for the aquaculture species profile page (/species/).
+ * ViewModel for the aquaculture production by environment page (/environment/).
  *
  * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -27,7 +27,7 @@ namespace Tfish\FishStat\ViewModel;
  * @uses        trait \Tfish\Traits\ValidateString  Validates UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\Viewable  Provides standard accessors required by the Viewable interface.
  */
-class Species implements \Tfish\Interface\Viewable
+class Environment implements \Tfish\Interface\Viewable
 {
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;
@@ -42,27 +42,27 @@ class Species implements \Tfish\Interface\Viewable
         $this->model = $model;
         $this->preference = $preference;
         $this->theme = $preference->defaultTheme();
-        $this->pageTitle = "Aquaculture Species Volume and Value";
+        $this->pageTitle = "Aquaculture Production by Environment";
     }
 
     /**
-     * Render the species profile template.
+     * Render the environment template.
      */
-    public function displaySpecies(): void
+    public function displayEnvironment(): void
     {
-        $this->template = "fishstat-species";
-        $this->model->displaySpecies();
+        $this->template = "fishstat-environment";
+        $this->model->displayEnvironment();
     }
 
     /**
-     * Combined species/environment payload as JSON for the initial page render.
+     * Production-by-environment payload as JSON for the initial page render.
      *
      * @return  string JSON payload.
      */
-    public function speciesDataJson(): string
+    public function environmentDataJson(): string
     {
         return \json_encode(
-            $this->model->speciesData(),
+            $this->model->environmentData(),
             JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
         );
     }

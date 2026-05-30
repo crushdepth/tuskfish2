@@ -150,61 +150,17 @@
 </div>
 
 <script src="<?php echo TFISH_VENDOR_URL; ?>chartjs/chart.umd.min.js"></script>
+<script src="<?php echo TFISH_THEMES_URL . $viewModel->theme(); ?>/fishstat-shared.js"></script>
 <script>
     (function() {
         'use strict';
+
+        var FS = window.FishStat;
 
         const FISHSTAT_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/fishstat/'); ?>;
         const initialData = <?php echo $viewModel->chartDataJson(); ?>;
         const countryList = <?php echo $viewModel->countryListJson(); ?>;
         let speciesList = [];
-
-        const memberCountries = [
-            { name: 'Australia', iso2: 'AU' },
-            { name: 'Bangladesh', iso2: 'BD' },
-            { name: 'Cambodia', iso2: 'KH' },
-            { name: 'China', iso2: 'CN' },
-            { name: 'China, Hong Kong SAR', iso2: 'HK' },
-            { name: 'Democratic People\'s Republic of Korea', iso2: 'KP' },
-            { name: 'India', iso2: 'IN' },
-            { name: 'Indonesia', iso2: 'ID' },
-            { name: 'Iran (Islamic Republic of)', iso2: 'IR' },
-            { name: 'Lao People\'s Democratic Republic', iso2: 'LA' },
-            { name: 'Malaysia', iso2: 'MY' },
-            { name: 'Maldives', iso2: 'MV' },
-            { name: 'Myanmar', iso2: 'MM' },
-            { name: 'Nepal', iso2: 'NP' },
-            { name: 'Pakistan', iso2: 'PK' },
-            { name: 'Philippines', iso2: 'PH' },
-            { name: 'Kingdom of Saudi Arabia', iso2: 'SA', dbName: 'Saudi Arabia' },
-            { name: 'Sri Lanka', iso2: 'LK' },
-            { name: 'Thailand', iso2: 'TH' },
-            { name: 'Viet Nam', iso2: 'VN' }
-        ];
-
-        // Inline flag SVGs (simplified)
-        const flagSvgs = {
-            AU: '<svg viewBox="0 0 36 24"><rect fill="#00008B" width="36" height="24"/><g fill="#fff"><polygon points="0,0 7,4 0,8" /><polygon points="0,0 9,4 18,0 18,8 9,4 0,8" opacity=".6"/><circle cx="26" cy="10" r="2.5"/><circle cx="30" cy="5" r="1.5"/><circle cx="33" cy="9" r="1.5"/><circle cx="30" cy="14" r="1.5"/><circle cx="31" cy="18" r="1"/></g><g fill="#CC0000"><polygon points="0,3 7,4 0,5"/><polygon points="8,0 9,4 10,0"/><polygon points="8,8 9,4 10,8"/></g></svg>',
-            BD: '<svg viewBox="0 0 36 24"><rect fill="#006a4e" width="36" height="24"/><circle cx="16" cy="12" r="7" fill="#f42a41"/></svg>',
-            KH: '<svg viewBox="0 0 36 24"><rect fill="#032ea1" width="36" height="24"/><rect fill="#e00025" y="6" width="36" height="12"/><rect fill="#fff" x="12" y="8" width="12" height="6" rx="1"/></svg>',
-            CN: '<svg viewBox="0 0 36 24"><rect fill="#de2910" width="36" height="24"/><g fill="#ffde00"><polygon points="5,3 6.2,6.7 3,4.8 7,4.8 3.8,6.7"/><polygon points="10,1 10.5,2.5 9,1.7 11,1.7 9.5,2.5"/><polygon points="12,3 12.5,4.5 11,3.7 13,3.7 11.5,4.5"/><polygon points="12,6 12.5,7.5 11,6.7 13,6.7 11.5,7.5"/><polygon points="10,8 10.5,9.5 9,8.7 11,8.7 9.5,9.5"/></g></svg>',
-            HK: '<svg viewBox="0 0 36 24"><rect fill="#de2110" width="36" height="24"/><g fill="#fff" opacity="0.9"><circle cx="18" cy="12" r="5"/></g><g fill="#de2110"><circle cx="18" cy="12" r="3.5"/></g><g fill="#fff"><circle cx="18" cy="9" r="1.2"/><circle cx="15.5" cy="11" r="1.2"/><circle cx="16.5" cy="14" r="1.2"/><circle cx="19.5" cy="14" r="1.2"/><circle cx="20.5" cy="11" r="1.2"/></g></svg>',
-            KP: '<svg viewBox="0 0 36 24"><rect fill="#024fa2" width="36" height="24"/><rect fill="#fff" y="3" width="36" height="18"/><rect fill="#ed1c27" y="4.5" width="36" height="15"/><rect fill="#024fa2" y="19.5" width="36" height="4.5"/><circle cx="11" cy="12" r="5" fill="#fff"/><polygon points="11,7 12.5,10.5 16,10.5 13,13 14.2,16.5 11,14 7.8,16.5 9,13 6,10.5 9.5,10.5" fill="#ed1c27"/></svg>',
-            IN: '<svg viewBox="0 0 36 24"><rect fill="#f93" width="36" height="8"/><rect fill="#fff" y="8" width="36" height="8"/><rect fill="#128807" y="16" width="36" height="8"/><circle cx="18" cy="12" r="3" fill="none" stroke="#000080" stroke-width="0.5"/></svg>',
-            ID: '<svg viewBox="0 0 36 24"><rect fill="#ce1126" width="36" height="12"/><rect fill="#fff" y="12" width="36" height="12"/></svg>',
-            IR: '<svg viewBox="0 0 36 24"><rect fill="#239f40" width="36" height="8"/><rect fill="#fff" y="8" width="36" height="8"/><rect fill="#da0000" y="16" width="36" height="8"/><circle cx="18" cy="12" r="3" fill="#da0000"/></svg>',
-            LA: '<svg viewBox="0 0 36 24"><rect fill="#ce1126" width="36" height="24"/><rect fill="#002868" y="6" width="36" height="12"/><circle cx="18" cy="12" r="4" fill="#fff"/></svg>',
-            MY: '<svg viewBox="0 0 36 24"><g><rect fill="#cc0001" width="36" height="24"/><rect fill="#fff" y="1.7" width="36" height="1.7"/><rect fill="#fff" y="5.1" width="36" height="1.7"/><rect fill="#fff" y="8.6" width="36" height="1.7"/><rect fill="#fff" y="12" width="36" height="1.7"/><rect fill="#fff" y="15.4" width="36" height="1.7"/><rect fill="#fff" y="18.9" width="36" height="1.7"/><rect fill="#fff" y="22.3" width="36" height="1.7"/></g><rect fill="#010066" width="18" height="13.7"/><g fill="#fc0"><circle cx="8" cy="7" r="4"/><circle cx="9.5" cy="7" r="3.2" fill="#010066"/><polygon points="13,4 13.7,6 15.5,6 14,7.2 14.6,9 13,7.8 11.4,9 12,7.2 10.5,6 12.3,6"/></g></svg>',
-            MV: '<svg viewBox="0 0 36 24"><rect fill="#d21034" width="36" height="24"/><rect fill="#007e3a" x="5" y="4" width="26" height="16"/><circle cx="19" cy="12" r="5" fill="#fff"/><circle cx="21" cy="12" r="5" fill="#007e3a"/></svg>',
-            MM: '<svg viewBox="0 0 36 24"><rect fill="#fecb00" width="36" height="8"/><rect fill="#34b233" y="8" width="36" height="8"/><rect fill="#ea2839" y="16" width="36" height="8"/><polygon points="18,4 20.5,10 27,10 21.5,14 23.5,20.5 18,16.5 12.5,20.5 14.5,14 9,10 15.5,10" fill="#fff"/></svg>',
-            NP: '<svg viewBox="0 0 36 24"><rect fill="#fff" width="36" height="24"/><polygon points="3,22 3,2 20,10 3,10 20,22" fill="#ce0000" stroke="#003893" stroke-width="1.5"/></svg>',
-            PK: '<svg viewBox="0 0 36 24"><rect fill="#01411c" width="36" height="24"/><rect fill="#fff" width="9" height="24"/><circle cx="21" cy="12" r="5" fill="#fff"/><circle cx="22.5" cy="12" r="4" fill="#01411c"/><polygon points="24,8 24.7,10 26.5,10 25,11.2 25.5,13 24,11.8 22.5,13 23,11.2 21.5,10 23.3,10" fill="#fff"/></svg>',
-            PH: '<svg viewBox="0 0 36 24"><rect fill="#0038a8" width="36" height="12"/><rect fill="#ce1126" y="12" width="36" height="12"/><polygon points="0,0 16,12 0,24" fill="#fff"/><circle cx="5.5" cy="12" r="2.5" fill="none" stroke="#fcd116" stroke-width="0.8"/></svg>',
-            SA: '<svg viewBox="0 0 36 24"><rect fill="#006c35" width="36" height="24"/><rect fill="#fff" x="8" y="9" width="20" height="3" rx="1"/><rect fill="#fff" x="16" y="15" width="4" height="3" rx="0.5"/></svg>',
-            LK: '<svg viewBox="0 0 36 24"><rect fill="#ffb700" width="36" height="24"/><rect fill="#00534e" x="2" y="2" width="8" height="20"/><rect fill="#ff6600" x="11" y="2" width="8" height="20"/><rect fill="#8b0000" x="20" y="2" width="14" height="20" rx="2"/></svg>',
-            TH: '<svg viewBox="0 0 36 24"><rect fill="#a51931" width="36" height="24"/><rect fill="#fff" y="4" width="36" height="16"/><rect fill="#2d2a4a" y="8" width="36" height="8"/></svg>',
-            VN: '<svg viewBox="0 0 36 24"><rect fill="#da251d" width="36" height="24"/><polygon points="18,5 20,11 26,11 21,14.5 23,20.5 18,17 13,20.5 15,14.5 10,11 16,11" fill="#ff0"/></svg>'
-        };
 
         // State
         let currentCountry = '';
@@ -596,9 +552,9 @@
                     var lower = name.toLowerCase();
                     var pos = lower.indexOf(query);
                     if (pos >= 0) {
-                        div.innerHTML = escapeHtml(name.substring(0, pos))
-                            + '<mark>' + escapeHtml(name.substring(pos, pos + query.length)) + '</mark>'
-                            + escapeHtml(name.substring(pos + query.length));
+                        div.innerHTML = FS.escapeHtml(name.substring(0, pos))
+                            + '<mark>' + FS.escapeHtml(name.substring(pos, pos + query.length)) + '</mark>'
+                            + FS.escapeHtml(name.substring(pos + query.length));
                     } else {
                         div.textContent = name;
                     }
@@ -615,12 +571,6 @@
 
             dropdown.classList.add('open');
             highlightIndex = -1;
-        }
-
-        function escapeHtml(str) {
-            var d = document.createElement('div');
-            d.textContent = str;
-            return d.innerHTML;
         }
 
         function closeDropdown() {
@@ -664,10 +614,10 @@
         function highlightMatch(text, query) {
             var lower = text.toLowerCase();
             var pos = lower.indexOf(query);
-            if (pos < 0) return escapeHtml(text);
-            return escapeHtml(text.substring(0, pos))
-                + '<mark>' + escapeHtml(text.substring(pos, pos + query.length)) + '</mark>'
-                + escapeHtml(text.substring(pos + query.length));
+            if (pos < 0) return FS.escapeHtml(text);
+            return FS.escapeHtml(text.substring(0, pos))
+                + '<mark>' + FS.escapeHtml(text.substring(pos, pos + query.length)) + '</mark>'
+                + FS.escapeHtml(text.substring(pos + query.length));
         }
 
         function renderSpeciesDropdown(matches) {
@@ -838,13 +788,13 @@
 
         // Member flags
         function buildFlags() {
-            memberCountries.forEach(function(mc) {
+            FS.memberCountries.forEach(function(mc) {
                 var btn = document.createElement('button');
                 btn.className = 'flag-btn';
                 btn.type = 'button';
                 btn.dataset.country = mc.name;
                 if (mc.dbName) btn.dataset.dbname = mc.dbName;
-                btn.innerHTML = (flagSvgs[mc.iso2] || '') + '<span class="flag-tooltip">' + escapeHtml(mc.name) + '</span>';
+                btn.innerHTML = (FS.flagSvgs[mc.iso2] || '') + '<span class="flag-tooltip">' + FS.escapeHtml(mc.name) + '</span>';
 
                 btn.addEventListener('click', function() {
                     var name = mc.dbName || mc.name;
@@ -878,27 +828,11 @@
         // CSV download
         function csvFilename(prefix) {
             var parts = [prefix];
-            if (currentCountry) parts.push(currentCountry.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''));
+            if (currentCountry) parts.push(FS.slug(currentCountry));
             else parts.push('global');
-            if (currentSpeciesName) parts.push(currentSpeciesName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''));
+            if (currentSpeciesName) parts.push(FS.slug(currentSpeciesName));
             return parts.join('-') + '.csv';
         }
-
-        function downloadCsv(filename, csvContent) {
-            var blob = new Blob(['\uFEFF', csvContent], { type: 'text/csv;charset=utf-8;' });
-            var url = URL.createObjectURL(blob);
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.style.display = 'none';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        var csvLicense = '\n\n"Source: FAO Fisheries and Aquaculture Statistics (FishStatJ), 2026.1.0"'
-            + '\n"License: CC BY-NC-SA 3.0 IGO (https://creativecommons.org/licenses/by-nc-sa/3.0/igo/)"';
 
         document.getElementById('downloadProductionCsv').addEventListener('click', function(e) {
             e.preventDefault();
@@ -916,7 +850,7 @@
                 rows.push(row.join(','));
             }
 
-            downloadCsv(csvFilename('fishstat-production'), rows.join('\n') + csvLicense);
+            FS.downloadCsv(csvFilename('fishstat-production'), rows.join('\n') + FS.csvLicense);
         });
 
         document.getElementById('downloadValueCsv').addEventListener('click', function(e) {
@@ -934,7 +868,7 @@
                 rows.push(currentData.labels[i] + ',' + vals[i]);
             }
 
-            downloadCsv(csvFilename('fishstat-value'), rows.join('\n') + csvLicense);
+            FS.downloadCsv(csvFilename('fishstat-value'), rows.join('\n') + FS.csvLicense);
         });
 
         // Init
