@@ -97,6 +97,7 @@
                 </div>
             </div>
             <p class="chart-source">
+                Click any species bar to see its top producing countries.<br>
                 Species contributing at least 0.3% of the year&rsquo;s total are charted individually; smaller species are grouped as &ldquo;Other species&rdquo;. The CSV download contains the full, unaggregated data.<br>
                 Data © FAO 2026. <a href="https://www.fao.org/fishery/fishstat/collections/en">FishStat Statistical Collections (v2026.1.0)</a>.
                 Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
@@ -123,6 +124,7 @@
                 </div>
             </div>
             <p class="chart-source">
+                Click any species bar to see its top producing countries.<br>
                 Species contributing at least 0.3% of the year&rsquo;s total are charted individually; smaller species are grouped as &ldquo;Other species&rdquo;. The CSV download contains the full, unaggregated data.<br>
                 Data © FAO 2026. <a href="https://www.fao.org/fishery/fishstat/collections/en">FishStat Statistical Collections (v2026.1.0)</a>.
                 Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
@@ -144,6 +146,7 @@
         var usdUnit = FS.usdUnit;
 
         const SPECIES_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/species/'); ?>;
+        const PRODUCERS_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/producers/'); ?>;
         const initialData = <?php echo $viewModel->speciesDataJson(); ?>;
         const countryList = <?php echo $viewModel->countryListJson(); ?>;
 
@@ -227,15 +230,17 @@
         }
 
         // Generic horizontal bar chart (top species). kind: 'tonnes' | 'usd'.
-        function buildBarChart(existing, canvas, subtitleEl, chartData, kind, fillColor, borderColor) {
+        function buildBarChart(existing, canvas, subtitleEl, chartData, kind, fillColor, borderColor, onSelect) {
             var fullLabels = chartData.labels || [];
             var fullValues = chartData.values || [];
+            var fullCodes = chartData.codes || [];
 
             if (!fullLabels.length) {
                 subtitleEl.textContent = 'No data available for this selection';
                 if (existing) {
                     existing.data.labels = [];
                     existing.data.datasets = [];
+                    existing._fsCodes = [];
                     existing.update('none');
                 }
                 if (canvas.parentElement) canvas.parentElement.style.height = '';
@@ -247,11 +252,15 @@
             var labels = split.named.map(function(i) { return fullLabels[i]; });
             var values = split.named.map(function(i) { return fullValues[i]; });
             var sciList = split.named.map(function(i) { return fullSci[i] || ''; });
+            // Codes track the displayed bars 1:1; the aggregated "Other species" bar gets '' so it
+            // is not clickable (it has no single species to drill into).
+            var codes = split.named.map(function(i) { return fullCodes[i] || ''; });
 
             if (split.other > 0) {
                 labels.push(OTHER_LABEL);
                 values.push(Math.round(split.other));
                 sciList.push('');
+                codes.push('');
             }
 
             var max = Math.max.apply(null, values.concat([0]));
@@ -324,18 +333,38 @@
                 existing.options.scales.x.ticks.callback = tickFmt;
                 existing.options.plugins.tooltip.callbacks.label = tipLabel;
                 existing.options.plugins.tooltip.callbacks.afterTitle = sciTitle;
+                existing._fsCodes = codes;
                 existing.resize();
                 existing.update('none');
                 return existing;
             }
 
-            return new Chart(canvas.getContext('2d'), {
+            // Clickable bars: resolve the clicked bar to a species code and drill into producers.
+            // Codes are stashed on the chart so the handler reads the current set after any rebuild.
+            var clickHandlers = {};
+            if (onSelect) {
+                clickHandlers.onClick = function(evt, els, chart) {
+                    if (!els.length) return;
+                    var clicked = (chart._fsCodes || [])[els[0].index];
+                    if (clicked) onSelect(clicked);
+                };
+                clickHandlers.onHover = function(evt, els, chart) {
+                    var clickable = els.length && (chart._fsCodes || [])[els[0].index];
+                    if (evt.native && evt.native.target) {
+                        evt.native.target.style.cursor = clickable ? 'pointer' : 'default';
+                    }
+                };
+            }
+
+            var chart = new Chart(canvas.getContext('2d'), {
                 type: 'bar',
                 data: { labels: labels, datasets: datasets },
                 options: {
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
+                    onClick: clickHandlers.onClick,
+                    onHover: clickHandlers.onHover,
                     scales: {
                         x: {
                             beginAtZero: true,
@@ -361,6 +390,8 @@
                     }
                 }
             });
+            chart._fsCodes = codes;
+            return chart;
         }
 
         // Compact major-group donut. kind: 'tonnes' | 'usd'. Empty buckets are dropped so the
@@ -436,14 +467,24 @@
             valueTitle.textContent = prefix + ' — Top Aquaculture Species by Value';
         }
 
+        // Drill a clicked species bar through to the producers (country) ranking for that species,
+        // carrying the current country (highlighted there) and year via the shared dashboard params.
+        function selectSpecies(code) {
+            var qs = ['species=' + encodeURIComponent(code)];
+            if (currentYear) qs.push('year=' + encodeURIComponent(currentYear));
+            var country = filter ? filter.current() : '';
+            if (country) qs.push('country=' + encodeURIComponent(country));
+            window.location.href = PRODUCERS_URL + '?' + qs.join('&');
+        }
+
         function renderAll(data) {
             updateTitles();
             var groups = data.groups || {};
             groupSubtitle.textContent = 'Single-year snapshot';
             groupVolumeChart = buildDonutChart(groupVolumeChart, groupVolumeCanvas, groups.volume || {}, 'tonnes');
             groupValueChart = buildDonutChart(groupValueChart, groupValueCanvas, groups.value || {}, 'usd');
-            volumeChart = buildBarChart(volumeChart, volumeCanvas, volumeSubtitle, data.volume || {}, 'tonnes', BAR_COLOR, BAR_BORDER);
-            valueChart = buildBarChart(valueChart, valueCanvas, valueSubtitle, data.value || {}, 'usd', VALUE_COLOR, VALUE_BORDER);
+            volumeChart = buildBarChart(volumeChart, volumeCanvas, volumeSubtitle, data.volume || {}, 'tonnes', BAR_COLOR, BAR_BORDER, selectSpecies);
+            valueChart = buildBarChart(valueChart, valueCanvas, valueSubtitle, data.value || {}, 'usd', VALUE_COLOR, VALUE_BORDER, selectSpecies);
         }
 
         function populateYears(years, selected) {
