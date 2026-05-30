@@ -158,8 +158,8 @@ class Species
             'country' => $countryName,
             'year' => $year,
             'years' => [],
-            'volume' => ['labels' => [], 'scientific' => [], 'values' => []],
-            'value' => ['labels' => [], 'scientific' => [], 'values' => []],
+            'volume' => ['labels' => [], 'scientific' => [], 'values' => [], 'codes' => []],
+            'value' => ['labels' => [], 'scientific' => [], 'values' => [], 'codes' => []],
             'groups' => [
                 'volume' => ['labels' => [], 'values' => []],
                 'value' => ['labels' => [], 'values' => []],
@@ -319,6 +319,7 @@ class Species
         $labels = [];
         $scientific = [];
         $values = [];
+        $codes = [];
 
         foreach ($rows as $row) {
             $name = $this->trimString((string) ($row['name'] ?? ''));
@@ -326,9 +327,11 @@ class Species
             $labels[] = $name !== '' ? $name : ($sci !== '' ? $sci : $row['code']);
             $scientific[] = $sci;
             $values[] = (int) $row['total'];
+            // Species code carried so the bars can drill through to the producers (country) ranking.
+            $codes[] = $this->trimString((string) ($row['code'] ?? ''));
         }
 
-        return ['labels' => $labels, 'scientific' => $scientific, 'values' => $values];
+        return ['labels' => $labels, 'scientific' => $scientific, 'values' => $values, 'codes' => $codes];
     }
 
     /**
