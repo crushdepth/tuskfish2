@@ -154,21 +154,23 @@
     padding-bottom: 0.75rem;
 }
 
-/* Clear button */
+/* Clear / Global view button — subtle blue emphasis. Blue = the reset/global action,
+   green = active-selection chips (the badges), so the two never blend. */
 .btn-clear {
     padding: 0.35rem 1rem;
-    border: 1px solid #d0d5dd;
+    border: 1px solid #b8cdf0;
     border-radius: 6px;
-    background: #f9fafb;
-    color: #555;
+    background: #eef4fd;
+    color: #143278;
     font-size: 0.85rem;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.15s;
     white-space: nowrap;
 }
 .btn-clear:hover {
-    background: #f0f1f3;
-    border-color: #b0b5bd;
+    background: #dde9fb;
+    border-color: #4a90d9;
 }
 
 /* Member flags */
@@ -343,17 +345,17 @@
     opacity: 1;
 }
 
-/* Active country badge */
+/* Active country badge — green like the species badge (both are active-selection chips) */
 .active-country-badge {
     display: none;
     align-items: center;
     gap: 0.4rem;
     padding: 0.3rem 0.7rem;
-    background: #e8f0fe;
-    border: 1px solid #b0c4e8;
+    background: #e8f7e8;
+    border: 1px solid #a8d8a8;
     border-radius: 16px;
     font-size: 0.85rem;
-    color: #143278;
+    color: #1a6b1a;
 }
 .active-country-badge.visible {
     display: inline-flex;
@@ -418,6 +420,31 @@
 .year-select:focus {
     border-color: #4a90d9;
     box-shadow: 0 0 0 3px rgba(74,144,217,0.12);
+}
+
+/* Landing call-to-action (top of /producers/) */
+.landing-cta {
+    background: #e8f0fe;
+    border: 1px solid #c3d4f3;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    color: #143278;
+    text-align: center;
+}
+
+/* Quiet hint under the landing chart — a dashed style marks it as a gentle reminder,
+   not a repeat of the solid CTA above; the up-arrow points back to the search box. */
+.landing-hint {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #143278;
+    background: #f3f7fe;
+    border: 1px dashed #c3d4f3;
+    border-radius: 8px;
+    padding: 0.55rem 1rem;
+    margin: 0.5rem 0 0.75rem 0;
 }
 
 /* Major-group donut overview (top of /species/) */

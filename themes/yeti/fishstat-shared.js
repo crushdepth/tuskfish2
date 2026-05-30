@@ -277,4 +277,155 @@
         };
     };
 
+    /**
+     * Wire up the species filter: search box + autocomplete dropdown + active-species badge.
+     * The component owns the "current species" state (a species code, '' = no selection). It is
+     * the producers-page counterpart of initCountryFilter, matching on common or scientific name
+     * and handing the selected species code back to the page.
+     *
+     * Expects these element IDs to be present: speciesSearch, speciesDropdown, activeSpeciesBadge,
+     * speciesBadgeText, speciesBadgeClear.
+     *
+     * @param   {Object} opts
+     * @param   {Array<{code:string,name:string,sci:string}>} opts.speciesList Selectable species.
+     * @param   {function(string)} opts.onSelect Called with the chosen species code ('' = landing).
+     * @returns {{ setActiveSpecies: function(string), current: function(): string }}
+     */
+    FS.initSpeciesFilter = function(opts) {
+        var speciesList = opts.speciesList || [];
+        var onSelect = opts.onSelect || function() {};
+
+        var searchInput = document.getElementById('speciesSearch');
+        var dropdown = document.getElementById('speciesDropdown');
+        var activeBadge = document.getElementById('activeSpeciesBadge');
+        var badgeText = document.getElementById('speciesBadgeText');
+        var badgeClear = document.getElementById('speciesBadgeClear');
+
+        // Code -> display name, for the badge.
+        var nameByCode = {};
+        speciesList.forEach(function(s) { nameByCode[s.code] = s.name; });
+
+        var currentCode = '';
+        var highlightIndex = -1;
+
+        function setActiveSpecies(code) {
+            currentCode = code || '';
+            searchInput.value = '';
+            closeDropdown();
+
+            if (currentCode && nameByCode[currentCode]) {
+                activeBadge.classList.add('visible');
+                badgeText.textContent = nameByCode[currentCode];
+            } else {
+                activeBadge.classList.remove('visible');
+            }
+        }
+
+        // Match on common or scientific name; cap the list so a blank/short query stays snappy.
+        function getFiltered() {
+            var q = searchInput.value.trim().toLowerCase();
+            if (!q) return speciesList.slice(0, 20);
+            return speciesList.filter(function(s) {
+                return s.name.toLowerCase().indexOf(q) !== -1
+                    || (s.sci && s.sci.toLowerCase().indexOf(q) !== -1);
+            }).slice(0, 50);
+        }
+
+        function renderDropdown(matches) {
+            var query = searchInput.value.trim().toLowerCase();
+            dropdown.innerHTML = '';
+
+            if (!matches.length) {
+                dropdown.innerHTML = '<div class="species-option" style="color:#999;cursor:default">No matches</div>';
+                dropdown.classList.add('open');
+                return;
+            }
+
+            matches.forEach(function(s, idx) {
+                var div = document.createElement('div');
+                div.className = 'species-option';
+                div.dataset.index = idx;
+
+                var nameHtml;
+                var pos = query ? s.name.toLowerCase().indexOf(query) : -1;
+                if (pos >= 0) {
+                    nameHtml = FS.escapeHtml(s.name.substring(0, pos))
+                        + '<mark>' + FS.escapeHtml(s.name.substring(pos, pos + query.length)) + '</mark>'
+                        + FS.escapeHtml(s.name.substring(pos + query.length));
+                } else {
+                    nameHtml = FS.escapeHtml(s.name);
+                }
+
+                div.innerHTML = nameHtml
+                    + (s.sci ? ' <span class="sci-name">' + FS.escapeHtml(s.sci) + '</span>' : '');
+
+                div.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    onSelect(s.code);
+                });
+                dropdown.appendChild(div);
+            });
+
+            dropdown.classList.add('open');
+            highlightIndex = -1;
+        }
+
+        function closeDropdown() {
+            dropdown.classList.remove('open');
+            highlightIndex = -1;
+        }
+
+        function updateHighlight(items) {
+            items.forEach(function(el, i) {
+                el.classList.toggle('highlighted', i === highlightIndex);
+            });
+            if (items[highlightIndex]) {
+                items[highlightIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        searchInput.addEventListener('input', function() {
+            renderDropdown(getFiltered());
+        });
+
+        searchInput.addEventListener('focus', function() {
+            renderDropdown(getFiltered());
+        });
+
+        searchInput.addEventListener('blur', function() {
+            setTimeout(closeDropdown, 150);
+        });
+
+        searchInput.addEventListener('keydown', function(e) {
+            var items = dropdown.querySelectorAll('.species-option[data-index]');
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                highlightIndex = Math.min(highlightIndex + 1, items.length - 1);
+                updateHighlight(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                highlightIndex = Math.max(highlightIndex - 1, 0);
+                updateHighlight(items);
+            } else if (e.key === 'Enter' && highlightIndex >= 0) {
+                e.preventDefault();
+                var matches = getFiltered();
+                if (matches[highlightIndex]) {
+                    onSelect(matches[highlightIndex].code);
+                }
+            } else if (e.key === 'Escape') {
+                closeDropdown();
+                searchInput.blur();
+            }
+        });
+
+        badgeClear.addEventListener('click', function() {
+            onSelect('');
+        });
+
+        return {
+            setActiveSpecies: setActiveSpecies,
+            current: function() { return currentCode; }
+        };
+    };
+
 })(window.FishStat = window.FishStat || {});
