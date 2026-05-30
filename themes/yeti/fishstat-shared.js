@@ -109,11 +109,12 @@
     // Which selection dimensions each FishStat section understands. The shared nav (FS.syncNav)
     // carries only the dimensions a target page can act on: country to the country-keyed pages,
     // year to the year-keyed pages, species to the species-keyed pages. A dimension a page can't
-    // use is simply dropped from that tile's link.
+    // use is simply dropped from that tile's link. Producers is species-keyed, but it also carries
+    // country: not as a filter, but so the persisted country can be highlighted in the ranking.
     FS.NAV_PARAMS = {
         overview: ['country', 'species'],
         species: ['country', 'year'],
-        producers: ['species', 'year'],
+        producers: ['species', 'year', 'country'],
         environment: ['country', 'year']
     };
 
