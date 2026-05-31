@@ -135,10 +135,12 @@
 }
 .country-search-wrap input {
     width: 100%;
+    box-sizing: border-box;
+    height: 2.5rem;
     padding: 0.5rem 0.75rem;
     border: 1px solid #d0d5dd;
     border-radius: 6px;
-    font-size: 0.95rem;
+    font-size: 1rem;
     outline: none;
     transition: border-color 0.15s;
 }
@@ -470,10 +472,12 @@
 /* Species profile page (/species/) */
 .year-select {
     width: 100%;
+    box-sizing: border-box;
+    height: 2.5rem;
     padding: 0.5rem 0.75rem;
     border: 1px solid #d0d5dd;
     border-radius: 6px;
-    font-size: 0.95rem;
+    font-size: 1rem;
     background: #fff;
     outline: none;
     transition: border-color 0.15s;
