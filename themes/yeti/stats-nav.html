@@ -3,7 +3,7 @@
 /**
  * Shared Stats section navigation (icon tiles).
  *
- * Rendered at the top of every Stats page (/stats/, /species/, /production/, /environment/)
+ * Rendered at the top of every Stats page (/overview/, /species/, /production/, /environment/)
  * so users can move between the four sections. The active tile is determined by the viewModel's
  * pageKey(). The links carry the persisted dashboard selection (country/year/species) as query
  * parameters; on initial render they point at the bare section URL, and stats-shared.js
@@ -15,7 +15,7 @@ $navActive = \method_exists($viewModel, 'pageKey') ? $viewModel->pageKey() : '';
 
 $navItems = [
     'overview' => [
-        'url' => TFISH_URL . 'stats/',
+        'url' => TFISH_URL . 'overview/',
         'label' => 'Overview',
         'svg' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>',
     ],

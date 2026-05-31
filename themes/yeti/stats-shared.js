@@ -87,7 +87,11 @@
     };
 
     FS.csvCell = function(str) {
-        return '"' + String(str).replace(/"/g, '""') + '"';
+        var s = String(str);
+        // Neutralise formula injection: a cell beginning with =, +, -, @, tab or CR is treated as a
+        // formula by Excel/Sheets even inside quotes. Prefix with an apostrophe so it stays literal.
+        if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+        return '"' + s.replace(/"/g, '""') + '"';
     };
 
     FS.csvLicense = '\n\n"Source: FAO Fisheries and Aquaculture Statistics (FishStatJ), 2026.1.0"'

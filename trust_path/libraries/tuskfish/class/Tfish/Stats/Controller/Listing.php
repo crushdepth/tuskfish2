@@ -26,7 +26,7 @@ class Listing
 
         // Parameterised (dashboard) views are rendered fresh: country names are not safe cache-key
         // values, so caching them risks collisions. The bare page stays cached.
-        $cacheParams = ($country !== '' || $species !== '') ? [] : ['page' => 'stats'];
+        $cacheParams = ($country !== '' || $species !== '') ? [] : ['page' => 'overview'];
 
         if (!empty($_SESSION['id']) && !empty($cacheParams)) {
             $cacheParams['loggedIn'] = '1';

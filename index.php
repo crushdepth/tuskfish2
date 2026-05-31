@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Tfish;
 
-$time_start = microtime(true);
+// $time_start = microtime(true);
 
 // Access trust path, DB credentials, configuration and preferences.
 require_once "mainfile.php";
@@ -66,6 +66,6 @@ $router = new Router($routingTable);
 $route = $router->route($relativePath);
 $dice->create("\\Tfish\\FrontController", [$dice, $route, $relativePath]);
 
-$time_end = microtime(true);
+/** $time_end = microtime(true);
 $time = $time_end - $time_start;
-echo "Page execution time: " . round($time * 1000, 1) . " milliseconds";
+echo "Page execution time: " . round($time * 1000, 1) . " milliseconds";**/

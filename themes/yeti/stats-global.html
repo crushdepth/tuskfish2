@@ -158,7 +158,7 @@
 
         var FS = window.Stats;
 
-        const STATS_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/stats/'); ?>;
+        const STATS_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/overview/'); ?>;
         const initialData = <?php echo $viewModel->chartDataJson(); ?>;
         const countryList = <?php echo $viewModel->countryListJson(); ?>;
         let speciesList = [];

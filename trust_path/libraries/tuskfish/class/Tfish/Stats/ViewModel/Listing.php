@@ -40,11 +40,17 @@ class Listing implements \Tfish\Interface\Viewable
 
     public function chartDataJson(): string
     {
-        return \json_encode($this->model->chartData(), JSON_THROW_ON_ERROR);
+        return \json_encode(
+            $this->model->chartData(),
+            JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+        );
     }
 
     public function countryListJson(): string
     {
-        return \json_encode($this->model->countries(), JSON_THROW_ON_ERROR);
+        return \json_encode(
+            $this->model->countries(),
+            JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+        );
     }
 }

@@ -21,7 +21,7 @@ namespace Tfish\Stats;
 include 'language/english.php';
 
 // Addtional routes for User module.
-$routingTable['/stats/'] = new \Tfish\Route(
+$routingTable['/overview/'] = new \Tfish\Route(
     '\\Tfish\\Stats\\Model\\Listing',
     '\\Tfish\\Stats\\ViewModel\\Listing',
     '\\Tfish\\View\\Single',
