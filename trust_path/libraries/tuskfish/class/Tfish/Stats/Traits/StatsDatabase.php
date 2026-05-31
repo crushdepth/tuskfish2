@@ -92,6 +92,36 @@ trait StatsDatabase
     }
 
     /**
+     * Return a human-readable name for a species code (alpha_3_code).
+     *
+     * Prefers the English common name, falling back to the scientific name. Returns an empty string
+     * for an empty/unknown code or a species with no name on record, so callers (e.g. page titles)
+     * never surface the raw three-letter code.
+     *
+     * @param   string $speciesCode Species code (alpha_3_code).
+     * @return  string Common name, scientific name, or '' if none is available.
+     */
+    public function speciesName(string $speciesCode): string
+    {
+        $speciesCode = $this->trimString($speciesCode);
+
+        if ($speciesCode === '' || !$this->statsDb) return '';
+
+        $stmt = $this->statsDb->prepare(
+            "SELECT name_en, scientific_name FROM species WHERE alpha_3_code = :code LIMIT 1"
+        );
+        $stmt->execute([':code' => $speciesCode]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if ($row === false) return '';
+
+        $name = $this->trimString((string) ($row['name_en'] ?? ''));
+        $sci = $this->trimString((string) ($row['scientific_name'] ?? ''));
+
+        return $name !== '' ? $name : $sci;
+    }
+
+    /**
      * Return the list of countries that report aquaculture production.
      *
      * @return  array Alphabetical list of country names (name_en).

@@ -31,6 +31,7 @@ class Species implements \Tfish\Interface\Viewable
 {
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;
+    use \Tfish\Stats\Traits\StatsMetadata;
 
     private object $model;
     private \Tfish\Entity\Preference $preference;
@@ -42,7 +43,8 @@ class Species implements \Tfish\Interface\Viewable
         $this->model = $model;
         $this->preference = $preference;
         $this->theme = $preference->defaultTheme();
-        $this->pageTitle = "Farmed Species";
+        $this->pageTitle = TFISH_STATS_SPECIES_TITLE;
+        $this->description = TFISH_STATS_SPECIES_DESCRIPTION;
     }
 
     /**
@@ -52,6 +54,7 @@ class Species implements \Tfish\Interface\Viewable
     {
         $this->template = "stats-species";
         $this->model->loadSpeciesData($country, $year);
+        $this->buildMetadata([$country, $year]);
     }
 
     /**

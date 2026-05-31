@@ -8,6 +8,7 @@ class Listing implements \Tfish\Interface\Viewable
 {
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;
+    use \Tfish\Stats\Traits\StatsMetadata;
 
     private object $model;
     private \Tfish\Entity\Preference $preference;
@@ -19,13 +20,15 @@ class Listing implements \Tfish\Interface\Viewable
         $this->model = $model;
         $this->preference = $preference;
         $this->theme = $preference->defaultTheme();
-        $this->pageTitle = "Global Fisheries and Aquaculture Statistics";
+        $this->pageTitle = TFISH_STATS_OVERVIEW_TITLE;
+        $this->description = TFISH_STATS_OVERVIEW_DESCRIPTION;
     }
 
     public function displayGlobal(string $country = '', string $species = ''): void
     {
         $this->template = "stats-global";
         $this->model->loadChartDataForCountry($country, $species);
+        $this->buildMetadata([$country, $this->model->speciesName($species)]);
     }
 
     /**

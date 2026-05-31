@@ -31,6 +31,7 @@ class Production implements \Tfish\Interface\Viewable
 {
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;
+    use \Tfish\Stats\Traits\StatsMetadata;
 
     private object $model;
     private \Tfish\Entity\Preference $preference;
@@ -43,7 +44,8 @@ class Production implements \Tfish\Interface\Viewable
         $this->model = $model;
         $this->preference = $preference;
         $this->theme = $preference->defaultTheme();
-        $this->pageTitle = "Where is it Farmed?";
+        $this->pageTitle = TFISH_STATS_PRODUCTION_TITLE;
+        $this->description = TFISH_STATS_PRODUCTION_DESCRIPTION;
     }
 
     /**
@@ -54,6 +56,7 @@ class Production implements \Tfish\Interface\Viewable
         $this->template = "stats-production";
         $this->dashboardCountry = $country;
         $this->model->loadProductionData($species, $year);
+        $this->buildMetadata([$country, $this->model->speciesName($species), $year]);
     }
 
     /**
