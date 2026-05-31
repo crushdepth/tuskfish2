@@ -43,6 +43,10 @@
                     <span id="speciesBadgeText"></span>
                     <span class="badge-x" id="speciesBadgeClear">&times;</span>
                 </span>
+                <span class="active-country-badge" id="activeCountryBadge">
+                    <span id="countryBadgeText"></span>
+                    <span class="badge-x" id="countryBadgeClear">&times;</span>
+                </span>
             </div>
 
             <!-- Landing menu: biggest species worldwide (the way in) -->
@@ -171,7 +175,7 @@
         // Persisted dashboard country (carried from the country-keyed pages). Not a filter here:
         // used only to highlight that country in the producing-states ranking, or note that it has
         // no recorded production of the selected species.
-        const persistentCountry = <?php echo $viewModel->dashboardCountryJson(); ?>;
+        let persistentCountry = <?php echo $viewModel->dashboardCountryJson(); ?>;
 
         // State
         let currentYear = initialData.year || 0;
@@ -205,6 +209,9 @@
         const valueSubtitle = document.getElementById('valueSubtitle');
         const valueLoading = document.getElementById('valueLoading');
         const countryCallout = document.getElementById('countryCallout');
+        const activeCountryBadge = document.getElementById('activeCountryBadge');
+        const countryBadgeText = document.getElementById('countryBadgeText');
+        const countryBadgeClear = document.getElementById('countryBadgeClear');
 
         const OTHER_LABEL = 'Other states';
         const BAR_COLOR = 'rgba(20, 50, 120, 0.85)';
@@ -569,8 +576,29 @@
             countryCallout.style.display = '';
         }
 
+        // Show/hide the green chip for the persisted dashboard country (the highlighted producer).
+        // Visible whenever a country is carried, regardless of landing/species mode.
+        function renderCountryBadge() {
+            if (persistentCountry) {
+                countryBadgeText.textContent = persistentCountry;
+                activeCountryBadge.classList.add('visible');
+            } else {
+                activeCountryBadge.classList.remove('visible');
+            }
+        }
+
+        // Drop the persisted country: re-rendering the current view clears its badge, highlight and
+        // callout together (renderAll reads persistentCountry), then stop carrying it in the nav/URL.
+        function clearCountry() {
+            persistentCountry = '';
+            renderAll(currentData);
+            updateNav();
+            syncHistory(currentData, 'replace');
+        }
+
         function renderAll(data) {
             updateTitles(data);
+            renderCountryBadge();
 
             if (data.mode === 'species') {
                 landingSection.style.display = 'none';
@@ -691,6 +719,9 @@
         resetBtn.addEventListener('click', function() {
             selectSpecies('');
         });
+
+        // The country chip's × clears only the carried dashboard country, not the species selection.
+        countryBadgeClear.addEventListener('click', clearCountry);
 
         // Back/forward: re-render the view recorded in history without writing a new entry.
         window.addEventListener('popstate', function(e) {
