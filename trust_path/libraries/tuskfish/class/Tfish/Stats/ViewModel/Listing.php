@@ -20,6 +20,7 @@ class Listing implements \Tfish\Interface\Viewable
         $this->model = $model;
         $this->preference = $preference;
         $this->theme = $preference->defaultTheme();
+        $this->layout = 'layoutStats';
         $this->pageTitle = TFISH_STATS_OVERVIEW_TITLE;
         $this->description = TFISH_STATS_OVERVIEW_DESCRIPTION;
     }

@@ -43,6 +43,7 @@ class Species implements \Tfish\Interface\Viewable
         $this->model = $model;
         $this->preference = $preference;
         $this->theme = $preference->defaultTheme();
+        $this->layout = 'layoutStats';
         $this->pageTitle = TFISH_STATS_SPECIES_TITLE;
         $this->description = TFISH_STATS_SPECIES_DESCRIPTION;
     }

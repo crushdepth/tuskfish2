@@ -1,10 +1,5 @@
 <?php declare(strict_types=1); ?>
 
-<link
-    href="<?php echo TFISH_THEMES_URL . $viewModel->theme() . '/stats.css'; ?>"
-    rel="stylesheet"
-/>
-
 <!-- Container -->
 <div class="container">
     <div class="row">
@@ -150,10 +145,8 @@
     <!-- /.container -->
 </div>
 
-<script src="<?php echo TFISH_VENDOR_URL; ?>chartjs/chart.umd.min.js"></script>
-<script src="<?php echo TFISH_THEMES_URL . $viewModel->theme(); ?>/stats-shared.js"></script>
 <script>
-    (function() {
+    document.addEventListener('DOMContentLoaded', function() {
         'use strict';
 
         var FS = window.Stats;
@@ -896,5 +889,5 @@
                 if (currentSpecies) setActiveSpecies(currentSpecies);
             })
             .catch(function(err) { console.warn('Stats: failed to load species list', err); });
-    })();
+    });
 </script>
