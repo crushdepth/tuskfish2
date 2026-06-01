@@ -162,8 +162,8 @@
         var tonnesUnit = FS.tonnesUnit;
         var usdUnit = FS.usdUnit;
 
-        const PRODUCTION_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/production/'); ?>;
-        const initialData = <?php echo $viewModel->productionDataJson(); ?>;
+        const SPECIES_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/species/'); ?>;
+        const initialData = <?php echo $viewModel->speciesDataJson(); ?>;
         const speciesList = <?php echo $viewModel->speciesListJson(); ?>;
         // Persisted dashboard country (carried from the country-keyed pages). Not a filter here:
         // used only to highlight that country in the producing-states ranking, or note that it has
@@ -641,7 +641,7 @@
             if (year) qs.push('year=' + encodeURIComponent(year));
             // Preserve the dashboard country so a refresh/bookmark keeps the highlight.
             if (persistentCountry) qs.push('country=' + encodeURIComponent(persistentCountry));
-            return PRODUCTION_URL + (qs.length ? '?' + qs.join('&') : '');
+            return SPECIES_URL + (qs.length ? '?' + qs.join('&') : '');
         }
 
         // Carry the current species/year (and dashboard country) across the section nav. This page
@@ -669,7 +669,7 @@
             showLoading();
             var s = species !== undefined ? species : (filter ? filter.current() : '');
             var y = year !== undefined ? year : currentYear;
-            var url = PRODUCTION_URL + '?action=productiondata&species=' + encodeURIComponent(s || '')
+            var url = SPECIES_URL + '?action=speciesdata&species=' + encodeURIComponent(s || '')
                 + '&year=' + encodeURIComponent(y || '');
 
             fetch(url)
@@ -759,14 +759,14 @@
             e.preventDefault();
             var body = producerCsvRows(currentData.volume || {}, '"Volume (tonnes)"');
             if (!body) return;
-            FS.downloadCsv(csvFilename('stats-production-volume'), body + FS.csvLicense);
+            FS.downloadCsv(csvFilename('stats-species-volume'), body + FS.csvLicense);
         });
 
         document.getElementById('downloadValueCsv').addEventListener('click', function(e) {
             e.preventDefault();
             var body = producerCsvRows(currentData.value || {}, '"Value (USD)"');
             if (!body) return;
-            FS.downloadCsv(csvFilename('stats-production-value'), body + FS.csvLicense);
+            FS.downloadCsv(csvFilename('stats-species-value'), body + FS.csvLicense);
         });
 
         // Init

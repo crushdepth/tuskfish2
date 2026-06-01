@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\Stats\Model;
 
 /**
- * \Tfish\Stats\Model\Production class file.
+ * \Tfish\Stats\Model\Species class file.
  *
  * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -16,9 +16,9 @@ namespace Tfish\Stats\Model;
  */
 
 /**
- * Model for the aquaculture production page (/production/).
+ * Model for the aquaculture country-ranking page (/species/).
  *
- * The mirror of the species page: where /species/ ranks species for a chosen country, this ranks
+ * The mirror of the sibling page: where /production/ ranks species for a chosen country, this ranks
  * countries for a chosen species. Two payload shapes are produced. Before a species is selected
  * the page shows a "landing" menu of the biggest species worldwide (by volume) — a visual picker
  * whose bars double as the way in. Once a species is chosen the payload carries the top producing
@@ -37,7 +37,7 @@ namespace Tfish\Stats\Model;
  * @uses        trait \Tfish\Traits\ValidateString  Validates UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Stats\Traits\StatsDatabase  Connection and species/country lookup helpers.
  */
-class Production
+class Species
 {
     use \Tfish\Traits\ValidateString;
     use \Tfish\Stats\Traits\StatsDatabase;
@@ -47,7 +47,7 @@ class Production
     private $session;
     private \Tfish\Logger $logger;
 
-    private array $productionData = [];
+    private array $speciesData = [];
     private array $speciesList = [];
     private array $yearCache = [];
 
@@ -70,9 +70,9 @@ class Production
     /**
      * Load the default payload: the landing menu for the latest available year.
      */
-    public function displayProduction(): void
+    public function displaySpecies(): void
     {
-        $this->productionData = $this->buildLanding($this->latestYear());
+        $this->speciesData = $this->buildLanding($this->latestYear());
     }
 
     /**
@@ -80,9 +80,9 @@ class Production
      *
      * @return  array Chart payload (landing or species mode).
      */
-    public function productionData(): array
+    public function speciesData(): array
     {
-        return $this->productionData;
+        return $this->speciesData;
     }
 
     /**
@@ -94,10 +94,10 @@ class Production
      * @param   string $speciesCode Species code (alpha_3_code), or '' for the landing menu.
      * @param   int $year Year to display.
      */
-    public function loadProductionData(string $speciesCode, int $year): void
+    public function loadSpeciesData(string $speciesCode, int $year): void
     {
         if (!$this->statsDb) {
-            $this->productionData = $this->emptyLanding($year);
+            $this->speciesData = $this->emptyLanding($year);
             return;
         }
 
@@ -110,7 +110,7 @@ class Production
         $speciesCode = $this->trimString($speciesCode);
         $info = $speciesCode !== '' ? $this->speciesInfo($speciesCode) : null;
 
-        $this->productionData = $info === null
+        $this->speciesData = $info === null
             ? $this->buildLanding($year)
             : $this->buildSpecies($speciesCode, $info, $year);
     }

@@ -118,7 +118,7 @@
     FS.NAV_PARAMS = {
         overview: ['country', 'species'],
         intermediate: ['country', 'year'],
-        production: ['species', 'year', 'country'],
+        species: ['species', 'year', 'country'],
         environment: ['country', 'year']
     };
 

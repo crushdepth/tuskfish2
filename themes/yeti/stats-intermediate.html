@@ -139,7 +139,7 @@
         var usdUnit = FS.usdUnit;
 
         const SPECIES_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/intermediate/'); ?>;
-        const PRODUCTION_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/production/'); ?>;
+        const PRODUCTION_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/species/'); ?>;
         const initialData = <?php echo $viewModel->speciesDataJson(); ?>;
         const countryList = <?php echo $viewModel->countryListJson(); ?>;
 

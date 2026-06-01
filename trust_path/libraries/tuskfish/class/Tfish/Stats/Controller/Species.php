@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\Stats\Controller;
 
 /**
- * \Tfish\Stats\Controller\Production class file.
+ * \Tfish\Stats\Controller\Species class file.
  *
  * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -16,7 +16,7 @@ namespace Tfish\Stats\Controller;
  */
 
 /**
- * Controller for the aquaculture production page (/production/).
+ * Controller for the aquaculture country-ranking page (/species/).
  *
  * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -26,7 +26,7 @@ namespace Tfish\Stats\Controller;
  * @package     Stats
  * @uses        trait \Tfish\Traits\ValidateString  Validates UTF-8 character encoding and string composition.
  */
-class Production
+class Species
 {
     use \Tfish\Traits\ValidateString;
 
@@ -42,7 +42,7 @@ class Production
     }
 
     /**
-     * Render the production page.
+     * Render the species page.
      *
      * @return  array Cache parameters.
      */
@@ -54,36 +54,36 @@ class Production
 
         // Parameterised (dashboard/deep-link) views are rendered fresh: country names are not safe
         // cache-key values, so caching them risks collisions. The bare page stays cached.
-        $cacheParams = ($species !== '' || $year !== 0 || $country !== '') ? [] : ['page' => 'production'];
+        $cacheParams = ($species !== '' || $year !== 0 || $country !== '') ? [] : ['page' => 'species'];
 
         if (!empty($_SESSION['id']) && !empty($cacheParams)) {
             $cacheParams['loggedIn'] = '1';
         }
 
         $this->model->loadSpeciesList();
-        $this->viewModel->displayProduction($species, $year, $country);
+        $this->viewModel->displaySpecies($species, $year, $country);
 
         return $cacheParams;
     }
 
     /**
-     * Return the production payload as JSON (AJAX endpoint).
+     * Return the species page payload as JSON (AJAX endpoint).
      *
      * @return  array Unused; the method emits JSON and exits.
      */
-    public function productiondata(): array
+    public function speciesdata(): array
     {
         \header('Content-Type: application/json; charset=utf-8');
 
         try {
             $species = $this->trimString($_GET['species'] ?? '');
             $year = (int) ($_GET['year'] ?? 0);
-            $this->model->loadProductionData($species, $year);
-            echo \json_encode($this->model->productionData(), JSON_THROW_ON_ERROR);
+            $this->model->loadSpeciesData($species, $year);
+            echo \json_encode($this->model->speciesData(), JSON_THROW_ON_ERROR);
         } catch (\Throwable $e) {
             $this->logger->logError((int) $e->getCode(), $e->getMessage(), $e->getFile(), (int) $e->getLine());
             \http_response_code(500);
-            echo \json_encode(['error' => 'Failed to load production data']);
+            echo \json_encode(['error' => 'Failed to load species data']);
         }
 
         exit;

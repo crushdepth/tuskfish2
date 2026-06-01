@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\Stats\ViewModel;
 
 /**
- * \Tfish\Stats\ViewModel\Production class file.
+ * \Tfish\Stats\ViewModel\Species class file.
  *
  * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -16,7 +16,7 @@ namespace Tfish\Stats\ViewModel;
  */
 
 /**
- * ViewModel for the aquaculture production page (/production/).
+ * ViewModel for the aquaculture country-ranking page (/species/).
  *
  * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -27,7 +27,7 @@ namespace Tfish\Stats\ViewModel;
  * @uses        trait \Tfish\Traits\ValidateString  Validates UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\Viewable  Provides standard accessors required by the Viewable interface.
  */
-class Production implements \Tfish\Interface\Viewable
+class Species implements \Tfish\Interface\Viewable
 {
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;
@@ -45,18 +45,18 @@ class Production implements \Tfish\Interface\Viewable
         $this->preference = $preference;
         $this->theme = $preference->defaultTheme();
         $this->layout = 'layoutStats';
-        $this->pageTitle = TFISH_STATS_PRODUCTION_TITLE;
-        $this->description = TFISH_STATS_PRODUCTION_DESCRIPTION;
+        $this->pageTitle = TFISH_STATS_SPECIES_TITLE;
+        $this->description = TFISH_STATS_SPECIES_DESCRIPTION;
     }
 
     /**
-     * Render the production template.
+     * Render the species template.
      */
-    public function displayProduction(string $species = '', int $year = 0, string $country = ''): void
+    public function displaySpecies(string $species = '', int $year = 0, string $country = ''): void
     {
-        $this->template = "stats-production";
+        $this->template = "stats-species";
         $this->dashboardCountry = $country;
-        $this->model->loadProductionData($species, $year);
+        $this->model->loadSpeciesData($species, $year);
         $this->buildMetadata([$country, $this->model->speciesName($species), $year]);
     }
 
@@ -65,7 +65,7 @@ class Production implements \Tfish\Interface\Viewable
      */
     public function pageKey(): string
     {
-        return 'production';
+        return 'species';
     }
 
     /**
@@ -86,14 +86,14 @@ class Production implements \Tfish\Interface\Viewable
     }
 
     /**
-     * Production payload as JSON for the initial page render.
+     * Species page payload as JSON for the initial page render.
      *
      * @return  string JSON payload.
      */
-    public function productionDataJson(): string
+    public function speciesDataJson(): string
     {
         return \json_encode(
-            $this->model->productionData(),
+            $this->model->speciesData(),
             JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
         );
     }
