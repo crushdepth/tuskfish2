@@ -138,7 +138,7 @@
         var tonnesUnit = FS.tonnesUnit;
         var usdUnit = FS.usdUnit;
 
-        const SPECIES_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/species/'); ?>;
+        const SPECIES_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/intermediate/'); ?>;
         const PRODUCTION_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/production/'); ?>;
         const initialData = <?php echo $viewModel->speciesDataJson(); ?>;
         const countryList = <?php echo $viewModel->countryListJson(); ?>;
@@ -585,7 +585,7 @@
         // Carry the active state/year across the section nav, and keep this page's own URL in
         // sync so a refresh or bookmark restores the same view.
         function updateNav() {
-            FS.syncNav({ country: filter ? filter.current() : '', year: currentYear }, { page: 'species' });
+            FS.syncNav({ country: filter ? filter.current() : '', year: currentYear }, { page: 'intermediate' });
         }
 
         // Init

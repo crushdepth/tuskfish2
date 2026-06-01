@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\Stats\Controller;
 
 /**
- * \Tfish\Stats\Controller\Species class file.
+ * \Tfish\Stats\Controller\Intermediate class file.
  *
  * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -16,7 +16,7 @@ namespace Tfish\Stats\Controller;
  */
 
 /**
- * Controller for the aquaculture species and environment profile page (/species/).
+ * Controller for the aquaculture species and environment profile page (/intermediate/, transitional).
  *
  * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -26,7 +26,7 @@ namespace Tfish\Stats\Controller;
  * @package     Stats
  * @uses        trait \Tfish\Traits\ValidateString  Validates UTF-8 character encoding and string composition.
  */
-class Species
+class Intermediate
 {
     use \Tfish\Traits\ValidateString;
 
@@ -53,7 +53,7 @@ class Species
 
         // Parameterised (dashboard) views are rendered fresh: country names are not safe cache-key
         // values, so caching them risks collisions. The bare page stays cached.
-        $cacheParams = ($country !== '' || $year !== 0) ? [] : ['page' => 'species'];
+        $cacheParams = ($country !== '' || $year !== 0) ? [] : ['page' => 'intermediate'];
 
         if (!empty($_SESSION['id']) && !empty($cacheParams)) {
             $cacheParams['loggedIn'] = '1';

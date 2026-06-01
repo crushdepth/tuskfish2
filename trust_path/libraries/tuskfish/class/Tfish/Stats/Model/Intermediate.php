@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\Stats\Model;
 
 /**
- * \Tfish\Stats\Model\Species class file.
+ * \Tfish\Stats\Model\Intermediate class file.
  *
  * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -16,7 +16,7 @@ namespace Tfish\Stats\Model;
  */
 
 /**
- * Model for the aquaculture species profile page (/species/).
+ * Model for the aquaculture species profile page (/intermediate/, transitional).
  *
  * Produces a combined payload for the global picture or a single member state: the major-group
  * overview (the donut pair), plus the top species by volume and by value.
@@ -30,7 +30,7 @@ namespace Tfish\Stats\Model;
  * @uses        trait \Tfish\Traits\ValidateString  Validates UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Stats\Traits\StatsDatabase  Connection and country lookup helpers.
  */
-class Species
+class Intermediate
 {
     use \Tfish\Traits\ValidateString;
     use \Tfish\Stats\Traits\StatsDatabase;

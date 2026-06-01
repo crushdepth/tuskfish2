@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\Stats\ViewModel;
 
 /**
- * \Tfish\Stats\ViewModel\Species class file.
+ * \Tfish\Stats\ViewModel\Intermediate class file.
  *
  * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -16,7 +16,7 @@ namespace Tfish\Stats\ViewModel;
  */
 
 /**
- * ViewModel for the aquaculture species profile page (/species/).
+ * ViewModel for the aquaculture species profile page (/intermediate/, transitional).
  *
  * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -27,7 +27,7 @@ namespace Tfish\Stats\ViewModel;
  * @uses        trait \Tfish\Traits\ValidateString  Validates UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\Viewable  Provides standard accessors required by the Viewable interface.
  */
-class Species implements \Tfish\Interface\Viewable
+class Intermediate implements \Tfish\Interface\Viewable
 {
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;
@@ -44,8 +44,8 @@ class Species implements \Tfish\Interface\Viewable
         $this->preference = $preference;
         $this->theme = $preference->defaultTheme();
         $this->layout = 'layoutStats';
-        $this->pageTitle = TFISH_STATS_SPECIES_TITLE;
-        $this->description = TFISH_STATS_SPECIES_DESCRIPTION;
+        $this->pageTitle = TFISH_STATS_INTERMEDIATE_TITLE;
+        $this->description = TFISH_STATS_INTERMEDIATE_DESCRIPTION;
     }
 
     /**
@@ -53,7 +53,7 @@ class Species implements \Tfish\Interface\Viewable
      */
     public function displaySpecies(string $country = '', int $year = 0): void
     {
-        $this->template = "stats-species";
+        $this->template = "stats-intermediate";
         $this->model->loadSpeciesData($country, $year);
         $this->buildMetadata([$country, $year]);
     }
@@ -63,7 +63,7 @@ class Species implements \Tfish\Interface\Viewable
      */
     public function pageKey(): string
     {
-        return 'species';
+        return 'intermediate';
     }
 
     /**
