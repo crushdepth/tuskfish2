@@ -36,5 +36,5 @@ namespace Tfish\Stats;
 \define("TFISH_STATS_PRODUCTION_DESCRIPTION", "Discover where specific commodities are farmed, by country and year, drawn from FAO data.");
 
 \define("TFISH_STATS_ENVIRONMENT", "Environment");
-\define("TFISH_STATS_ENVIRONMENT_TITLE", "Aquaculture: Farming Environments");
+\define("TFISH_STATS_ENVIRONMENT_TITLE", "Aquaculture Farming Environments");
 \define("TFISH_STATS_ENVIRONMENT_DESCRIPTION", "Data on aquaculture production in freshwater, brackish and marine environments across countries, based on FAO statistics.");
