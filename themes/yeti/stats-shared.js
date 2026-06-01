@@ -117,8 +117,8 @@
     // country: not as a filter, but so the persisted country can be highlighted in the ranking.
     FS.NAV_PARAMS = {
         overview: ['country', 'species'],
-        intermediate: ['country', 'year'],
         species: ['species', 'year', 'country'],
+        production: ['country', 'year'],
         environment: ['country', 'year']
     };
 

@@ -138,9 +138,9 @@
         var tonnesUnit = FS.tonnesUnit;
         var usdUnit = FS.usdUnit;
 
-        const SPECIES_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/intermediate/'); ?>;
-        const PRODUCTION_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/species/'); ?>;
-        const initialData = <?php echo $viewModel->speciesDataJson(); ?>;
+        const PRODUCTION_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/production/'); ?>;
+        const SPECIES_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/species/'); ?>;
+        const initialData = <?php echo $viewModel->productionDataJson(); ?>;
         const countryList = <?php echo $viewModel->countryListJson(); ?>;
 
         // State
@@ -460,14 +460,14 @@
             valueTitle.textContent = prefix + ' — Top Aquaculture Species by Value';
         }
 
-        // Drill a clicked species bar through to the production (country) ranking for that species,
+        // Drill a clicked species bar through to the country ranking (/species/) for that species,
         // carrying the current country (highlighted there) and year via the shared dashboard params.
         function selectSpecies(code) {
             var qs = ['species=' + encodeURIComponent(code)];
             if (currentYear) qs.push('year=' + encodeURIComponent(currentYear));
             var country = filter ? filter.current() : '';
             if (country) qs.push('country=' + encodeURIComponent(country));
-            window.location.href = PRODUCTION_URL + '?' + qs.join('&');
+            window.location.href = SPECIES_URL + '?' + qs.join('&');
         }
 
         function renderAll(data) {
@@ -504,7 +504,7 @@
             showLoading();
             var c = country !== undefined ? country : (filter ? filter.current() : '');
             var y = year !== undefined ? year : currentYear;
-            var url = SPECIES_URL + '?action=speciesdata&country=' + encodeURIComponent(c || '')
+            var url = PRODUCTION_URL + '?action=productiondata&country=' + encodeURIComponent(c || '')
                 + '&year=' + encodeURIComponent(y || '');
 
             fetch(url)
@@ -572,20 +572,20 @@
             e.preventDefault();
             var body = speciesCsvRows(currentData.volume || {}, '"Volume (tonnes)"');
             if (!body) return;
-            FS.downloadCsv(csvFilename('stats-species-volume'), body + FS.csvLicense);
+            FS.downloadCsv(csvFilename('stats-production-volume'), body + FS.csvLicense);
         });
 
         document.getElementById('downloadValueCsv').addEventListener('click', function(e) {
             e.preventDefault();
             var body = speciesCsvRows(currentData.value || {}, '"Value (USD)"');
             if (!body) return;
-            FS.downloadCsv(csvFilename('stats-species-value'), body + FS.csvLicense);
+            FS.downloadCsv(csvFilename('stats-production-value'), body + FS.csvLicense);
         });
 
         // Carry the active state/year across the section nav, and keep this page's own URL in
         // sync so a refresh or bookmark restores the same view.
         function updateNav() {
-            FS.syncNav({ country: filter ? filter.current() : '', year: currentYear }, { page: 'intermediate' });
+            FS.syncNav({ country: filter ? filter.current() : '', year: currentYear }, { page: 'production' });
         }
 
         // Init

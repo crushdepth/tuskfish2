@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\Stats\Model;
 
 /**
- * \Tfish\Stats\Model\Intermediate class file.
+ * \Tfish\Stats\Model\Production class file.
  *
  * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -16,7 +16,7 @@ namespace Tfish\Stats\Model;
  */
 
 /**
- * Model for the aquaculture species profile page (/intermediate/, transitional).
+ * Model for the aquaculture species-ranking page (/production/).
  *
  * Produces a combined payload for the global picture or a single member state: the major-group
  * overview (the donut pair), plus the top species by volume and by value.
@@ -30,7 +30,7 @@ namespace Tfish\Stats\Model;
  * @uses        trait \Tfish\Traits\ValidateString  Validates UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Stats\Traits\StatsDatabase  Connection and country lookup helpers.
  */
-class Intermediate
+class Production
 {
     use \Tfish\Traits\ValidateString;
     use \Tfish\Stats\Traits\StatsDatabase;
@@ -40,7 +40,7 @@ class Intermediate
     private $session;
     private \Tfish\Logger $logger;
 
-    private array $speciesData = [];
+    private array $productionData = [];
     private array $countryList = [];
     private array $yearCache = [];
 
@@ -60,9 +60,9 @@ class Intermediate
     /**
      * Load the default payload (global picture, latest available year).
      */
-    public function displaySpecies(): void
+    public function displayProduction(): void
     {
-        $this->speciesData = $this->buildPayload('', $this->latestYear());
+        $this->productionData = $this->buildPayload('', $this->latestYear());
     }
 
     /**
@@ -70,9 +70,9 @@ class Intermediate
      *
      * @return  array Combined chart payload.
      */
-    public function speciesData(): array
+    public function productionData(): array
     {
-        return $this->speciesData;
+        return $this->productionData;
     }
 
     /**
@@ -84,10 +84,10 @@ class Intermediate
      * @param   string $countryName English country name, or '' for the global picture.
      * @param   int $year Year to display in the species charts.
      */
-    public function loadSpeciesData(string $countryName, int $year): void
+    public function loadProductionData(string $countryName, int $year): void
     {
         if (!$this->statsDb) {
-            $this->speciesData = $this->emptyPayload($countryName, $year);
+            $this->productionData = $this->emptyPayload($countryName, $year);
             return;
         }
 
@@ -103,7 +103,7 @@ class Intermediate
             $year = $years ? $years[0] : 0;
         }
 
-        $this->speciesData = $this->buildPayload($countryName, $year);
+        $this->productionData = $this->buildPayload($countryName, $year);
     }
 
     /**
@@ -124,7 +124,7 @@ class Intermediate
         // Fetch every species' volume and value in one query, then derive the two rankings and the
         // major-group donut overview from the same rows — the value ranking and both donuts add no
         // extra query. Each ranking is re-sorted in PHP on its own measure (cheap for ~500 rows).
-        $rows = $this->speciesRows($year, $countryCode);
+        $rows = $this->productionRows($year, $countryCode);
         $years = $this->availableYears();
         $volumeRows = $this->rankBy($rows, 'volume');
         $valueRows = $this->rankBy($rows, 'value');
@@ -186,11 +186,11 @@ class Intermediate
      * @param   ?string $countryCode UN country code, or null for the global total.
      * @return  array List of ['code' => string, 'name' => ?string, 'sci' => ?string, 'grp' => ?string, 'volume' => int, 'value' => int].
      */
-    private function speciesRows(int $year, ?string $countryCode): array
+    private function productionRows(int $year, ?string $countryCode): array
     {
         return ($countryCode === null && $this->hasSummaryTable('global_species_summary'))
-            ? $this->summarySpeciesRows($year)
-            : $this->liveSpeciesRows($year, $countryCode);
+            ? $this->summaryProductionRows($year)
+            : $this->liveProductionRows($year, $countryCode);
     }
 
     /**
@@ -205,7 +205,7 @@ class Intermediate
      * @param   int $year Year to read.
      * @return  array List of ['code' => string, 'name' => ?string, 'sci' => ?string, 'grp' => ?string, 'volume' => int, 'value' => int].
      */
-    private function summarySpeciesRows(int $year): array
+    private function summaryProductionRows(int $year): array
     {
         $stmt = $this->statsDb->prepare(
             "SELECT s.alpha_3_code AS code, s.name_en AS name, s.scientific_name AS sci,
@@ -230,7 +230,7 @@ class Intermediate
      * @param   ?string $countryCode UN country code, or null for the global total.
      * @return  array List of ['code' => string, 'name' => ?string, 'sci' => ?string, 'grp' => ?string, 'volume' => int, 'value' => int].
      */
-    private function liveSpeciesRows(int $year, ?string $countryCode): array
+    private function liveProductionRows(int $year, ?string $countryCode): array
     {
         $sql = "SELECT s.alpha_3_code AS code, s.name_en AS name, s.scientific_name AS sci,
                        s.major_group AS grp,
@@ -277,7 +277,7 @@ class Intermediate
      * restores the old per-measure semantics, where each ranking listed only species that actually
      * reported that measure.
      *
-     * @param   array $rows Combined rows from speciesRows().
+     * @param   array $rows Combined rows from productionRows().
      * @param   string $key Measure key to rank on: 'volume' or 'value'.
      * @return  array Rows sorted by descending total, each with a 'total' key added.
      */

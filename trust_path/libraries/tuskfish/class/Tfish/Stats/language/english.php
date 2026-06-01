@@ -31,11 +31,6 @@ namespace Tfish\Stats;
 \define("TFISH_STATS_SPECIES_TITLE", "Aquaculture: Farmed Species");
 \define("TFISH_STATS_SPECIES_DESCRIPTION", "See which aquatic species are farmed, where, and in what quantities, based on FAO aquaculture statistics.");
 
-// Transitional constants for the page/route swap (Stats route rename). Remove once the swap completes.
-\define("TFISH_STATS_INTERMEDIATE", "Species");
-\define("TFISH_STATS_INTERMEDIATE_TITLE", "Aquaculture: Farmed Species");
-\define("TFISH_STATS_INTERMEDIATE_DESCRIPTION", "See which aquatic species are farmed, where, and in what quantities, based on FAO aquaculture statistics.");
-
 \define("TFISH_STATS_PRODUCTION", "Production");
 \define("TFISH_STATS_PRODUCTION_TITLE", "Aquaculture: Where is it Farmed?");
 \define("TFISH_STATS_PRODUCTION_DESCRIPTION", "Discover where specific commodities are farmed, by country and year, drawn from FAO data.");

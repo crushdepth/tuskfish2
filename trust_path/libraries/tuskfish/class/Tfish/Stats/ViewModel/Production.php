@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\Stats\ViewModel;
 
 /**
- * \Tfish\Stats\ViewModel\Intermediate class file.
+ * \Tfish\Stats\ViewModel\Production class file.
  *
  * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -16,7 +16,7 @@ namespace Tfish\Stats\ViewModel;
  */
 
 /**
- * ViewModel for the aquaculture species profile page (/intermediate/, transitional).
+ * ViewModel for the aquaculture species-ranking page (/production/).
  *
  * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -27,7 +27,7 @@ namespace Tfish\Stats\ViewModel;
  * @uses        trait \Tfish\Traits\ValidateString  Validates UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\Viewable  Provides standard accessors required by the Viewable interface.
  */
-class Intermediate implements \Tfish\Interface\Viewable
+class Production implements \Tfish\Interface\Viewable
 {
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;
@@ -44,17 +44,17 @@ class Intermediate implements \Tfish\Interface\Viewable
         $this->preference = $preference;
         $this->theme = $preference->defaultTheme();
         $this->layout = 'layoutStats';
-        $this->pageTitle = TFISH_STATS_INTERMEDIATE_TITLE;
-        $this->description = TFISH_STATS_INTERMEDIATE_DESCRIPTION;
+        $this->pageTitle = TFISH_STATS_PRODUCTION_TITLE;
+        $this->description = TFISH_STATS_PRODUCTION_DESCRIPTION;
     }
 
     /**
-     * Render the species profile template.
+     * Render the species-ranking template.
      */
-    public function displaySpecies(string $country = '', int $year = 0): void
+    public function displayProduction(string $country = '', int $year = 0): void
     {
-        $this->template = "stats-intermediate";
-        $this->model->loadSpeciesData($country, $year);
+        $this->template = "stats-production";
+        $this->model->loadProductionData($country, $year);
         $this->buildMetadata([$country, $year]);
     }
 
@@ -63,7 +63,7 @@ class Intermediate implements \Tfish\Interface\Viewable
      */
     public function pageKey(): string
     {
-        return 'intermediate';
+        return 'production';
     }
 
     /**
@@ -71,10 +71,10 @@ class Intermediate implements \Tfish\Interface\Viewable
      *
      * @return  string JSON payload.
      */
-    public function speciesDataJson(): string
+    public function productionDataJson(): string
     {
         return \json_encode(
-            $this->model->speciesData(),
+            $this->model->productionData(),
             JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
         );
     }

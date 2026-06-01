@@ -28,11 +28,11 @@ $routingTable['/overview/'] = new \Tfish\Route(
     '\\Tfish\\Stats\\Controller\\Listing',
     0);
 
-$routingTable['/intermediate/'] = new \Tfish\Route(
-    '\\Tfish\\Stats\\Model\\Intermediate',
-    '\\Tfish\\Stats\\ViewModel\\Intermediate',
+$routingTable['/production/'] = new \Tfish\Route(
+    '\\Tfish\\Stats\\Model\\Production',
+    '\\Tfish\\Stats\\ViewModel\\Production',
     '\\Tfish\\View\\Single',
-    '\\Tfish\\Stats\\Controller\\Intermediate',
+    '\\Tfish\\Stats\\Controller\\Production',
     0);
 
 $routingTable['/species/'] = new \Tfish\Route(
