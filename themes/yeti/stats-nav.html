@@ -3,13 +3,14 @@
 /**
  * Shared Stats section navigation (icon tiles).
  *
- * Rendered at the top of every Stats page (/overview/, /species/, /production/, /environment/)
- * so users can move between the four sections. The active tile is determined by the viewModel's
- * pageKey(). The links carry the persisted dashboard selection (country/year/species) as query
- * parameters; on initial render they point at the bare section URL, and stats-shared.js
- * (FS.syncNav) rewrites the query strings client-side whenever a filter changes. The icons are
- * inline SVGs (currentColor, 24x24) from open-source icon sets: globe / trending-up / waves from
- * Lucide (https://lucide.dev, ISC license); fish from Tabler Icons (https://tabler.io/icons, MIT).
+ * Rendered at the top of every Stats page (/overview/, /production/, /species/, /trade/,
+ * /environment/, /consumption/) so users can move between the sections. The active tile is
+ * determined by the viewModel's pageKey(). The links carry the persisted dashboard selection
+ * (country/year/species) as query parameters; on initial render they point at the bare section URL,
+ * and stats-shared.js (FS.syncNav) rewrites the query strings client-side whenever a filter changes.
+ * The icons are inline SVGs (currentColor, 24x24) from open-source icon sets: globe / trending-up /
+ * arrows / waves / utensils from Lucide (https://lucide.dev, ISC license); fish from Tabler Icons
+ * (https://tabler.io/icons, MIT).
  */
 $navActive = \method_exists($viewModel, 'pageKey') ? $viewModel->pageKey() : '';
 
@@ -38,6 +39,11 @@ $navItems = [
         'url' => TFISH_URL . 'environment/',
         'label' => TFISH_STATS_ENVIRONMENT,
         'svg' => '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12q2.5 2 5 0t5 0 5 0 5 0"/><path d="M2 19q2.5 2 5 0t5 0 5 0 5 0"/><path d="M2 5q2.5 2 5 0t5 0 5 0 5 0"/></svg>',
+    ],
+    'consumption' => [
+        'url' => TFISH_URL . 'consumption/',
+        'label' => TFISH_STATS_CONSUMPTION,
+        'svg' => '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>',
     ],
 ];
 ?>

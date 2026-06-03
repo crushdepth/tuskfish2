@@ -1,0 +1,146 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Container -->
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="page-title">
+                <?php echo xss($viewModel->pageTitle()); ?>
+            </h1>
+        </div>
+    </div>
+
+    <div class="stats-container">
+        <?php include TFISH_THEMES_PATH . $viewModel->theme() . '/stats-nav.html'; ?>
+        <div class="chart-card">
+            <div class="consumption-map">
+                <div class="chart-header">
+                    <h2 class="chart-title">Apparent Aquatic Food Consumption per Capita</h2>
+                    <p class="chart-subtitle">Kilograms per year</p>
+                </div>
+
+                <div class="map-frame">
+                    <svg id="consumptionMap" viewBox="0 0 1000 490" role="img"
+                         aria-label="World choropleth of per-capita aquatic food consumption, 2023"></svg>
+                </div>
+
+                <div class="legend" id="consumptionLegend"></div>
+
+                <p class="map-note">Class breaks follow the FAO Yearbook of Fishery and Aquaculture Statistics 2023.
+                    Values are <em>apparent</em> consumption (domestic supply &divide; population), item &ldquo;Fish, Seafood&rdquo;.
+                    Tuvalu has no polygon at this map resolution and is not drawn. Antarctica is omitted. Boundaries are for display only and do not imply any endorsement or judgement of legal status.</p>
+                <p class="map-source">Data © FAO 2026. <a href="https://www.fao.org/fishery/collection/global_fish_consump_en/en">Consumption of Aquatic Products</a>. Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">Licensed under CC BY 4.0</a>.</p>
+                <div class="tooltip" id="consumptionTooltip"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- /.container -->
+</div>
+
+<!-- D3 + TopoJSON are page-specific (the shared layout only loads Chart.js), so they are vendored
+     in here, before the map script that consumes them. -->
+<script src="<?php echo TFISH_VENDOR_URL; ?>d3/d3.min.js"></script>
+<script src="<?php echo TFISH_VENDOR_URL; ?>topojson/topojson-client.min.js"></script>
+
+<script>
+// Fail visibly if a vendored library did not load (otherwise the map area is blank).
+if (typeof d3 === 'undefined' || typeof topojson === 'undefined') {
+    document.querySelector('.consumption-map .map-frame').innerHTML =
+        '<p style="color:#b00;font-size:0.85rem">Map libraries failed to load. ' +
+        'Check that the d3 and topojson-client scripts under /vendor/ are served.</p>';
+    throw new Error('d3 or topojson not loaded');
+}
+
+// Per-capita apparent aquatic food supply (kg/capita/yr), keyed by M49 numeric id. Supplied by the
+// Model (Stats\Model\Consumption) rather than hardcoded here, ready for the page to go dynamic.
+const data = <?php echo $viewModel->consumptionDataJson(); ?>;
+
+const byId = new Map(data.map(d => [d.id, d]));
+
+// FAO Yearbook 2023 class breaks: <5, 5-15, 15-30, 30-60, >60
+const breaks = [5, 15, 30, 60];
+const colors = ['#deebf7', '#9ecae1', '#4292c6', '#2171b5', '#084594'];
+const NO_DATA = '#e6e9ed';
+const color = d3.scaleThreshold().domain(breaks).range(colors);
+
+const legendDefs = [
+    { label: '< 5',     c: colors[0] },
+    { label: '5 – 15',  c: colors[1] },
+    { label: '15 – 30', c: colors[2] },
+    { label: '30 – 60', c: colors[3] },
+    { label: '> 60',    c: colors[4] },
+    { label: 'No data', c: NO_DATA }
+];
+
+// Build legend
+const legend = d3.select('#consumptionLegend');
+legendDefs.forEach(d => {
+    const item = legend.append('div').attr('class', 'legend-item');
+    item.append('span').attr('class', 'swatch').style('background', d.c);
+    item.append('span').text(d.label + (d.label.includes('data') ? '' : ' kg'));
+});
+
+const WIDTH = 1000, HEIGHT = 490;
+const svg = d3.select('#consumptionMap');
+const tooltip = d3.select('#consumptionTooltip');
+
+const projection = d3.geoEqualEarth();
+const path = d3.geoPath(projection);
+
+d3.json(<?php echo \json_encode(TFISH_VENDOR_URL . 'topojson/countries-50m.json'); ?>)
+    .then(world => {
+        let countries = topojson.feature(world, world.objects.countries).features;
+        // Drop Antarctica (M49 010) for a tighter, more legible frame.
+        countries = countries.filter(f => +f.id !== 10);
+
+        const fc = { type: 'FeatureCollection', features: countries };
+        projection.fitExtent([[2, 2], [WIDTH - 2, HEIGHT - 2]], fc);
+
+        // Sphere + graticule backdrop
+        svg.append('path').attr('class', 'sphere').attr('d', path({ type: 'Sphere' }));
+        svg.append('path').attr('class', 'graticule').attr('d', path(d3.geoGraticule10()));
+
+        svg.append('g')
+            .selectAll('path')
+            .data(countries)
+            .join('path')
+                .attr('class', 'country')
+                .attr('d', path)
+                .attr('fill', f => {
+                    const rec = byId.get(+f.id);
+                    return rec ? color(rec.kg) : NO_DATA;
+                })
+                .on('mousemove', (event, f) => {
+                    const rec = byId.get(+f.id);
+                    const name = rec ? rec.name : (f.properties && f.properties.name) || 'Unknown';
+                    const body = rec
+                        ? `<div class="t-val">${rec.kg.toFixed(1)} kg / person / year</div>`
+                        : `<div class="t-nodata">No data</div>`;
+                    // Name is set via .text() (not interpolated into HTML) to avoid any
+                    // injection if the data source later becomes dynamic.
+                    tooltip.html(`<div class="t-name"></div>${body}`)
+                        .style('left', (event.clientX + 14) + 'px')
+                        .style('top',  (event.clientY + 14) + 'px')
+                        .style('opacity', 1);
+                    tooltip.select('.t-name').text(name);
+                })
+                .on('mouseleave', () => tooltip.style('opacity', 0));
+    })
+    .catch(err => {
+        d3.select('.consumption-map .map-frame').append('p')
+            .style('color', '#b00').style('font-size', '0.85rem')
+            .text('Could not load world map geometry from vendor/topojson/countries-50m.json. ' + err);
+    });
+</script>
+
+<script>
+    // Carry the persisted selection across the section nav, and keep this page's own URL in sync so a
+    // refresh or bookmark restores it. The map acts on none of these dimensions; it is purely a
+    // pass-through carrier. stats-shared.js is deferred, so window.Stats is ready by DOMContentLoaded.
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.Stats && window.Stats.syncNav) {
+            window.Stats.syncNav(<?php echo \json_encode($viewModel->carriedState()); ?>, { page: 'consumption' });
+        }
+    });
+</script>

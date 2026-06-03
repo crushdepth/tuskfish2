@@ -56,3 +56,10 @@ $routingTable['/environment/'] = new \Tfish\Route(
     '\\Tfish\\Stats\\Controller\\Environment',
     0);
 
+$routingTable['/consumption/'] = new \Tfish\Route(
+    '\\Tfish\\Stats\\Model\\Consumption',
+    '\\Tfish\\Stats\\ViewModel\\Consumption',
+    '\\Tfish\\View\\Single',
+    '\\Tfish\\Stats\\Controller\\Consumption',
+    0);
+

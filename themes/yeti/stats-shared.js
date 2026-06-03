@@ -140,12 +140,15 @@
     // year to the year-keyed pages, species to the species-keyed pages. A dimension a page can't
     // use is simply dropped from that tile's link. Production is species-keyed, but it also carries
     // country: not as a filter, but so the persisted country can be highlighted in the ranking.
+    // Consumption acts on none of them — it is a single global map — but carries all three purely as
+    // pass-through, so a selection made elsewhere survives a visit here and is handed back intact.
     FS.NAV_PARAMS = {
         overview: ['country', 'species'],
         species: ['species', 'year', 'country'],
         production: ['country', 'year'],
         trade: ['country'],
-        environment: ['country', 'year']
+        environment: ['country', 'year'],
+        consumption: ['country', 'species', 'year']
     };
 
     function navQuery(keys, state) {

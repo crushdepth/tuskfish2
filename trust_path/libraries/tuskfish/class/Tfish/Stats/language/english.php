@@ -42,3 +42,7 @@ namespace Tfish\Stats;
 \define("TFISH_STATS_ENVIRONMENT", "Environment Profiles");
 \define("TFISH_STATS_ENVIRONMENT_TITLE", "Aquaculture Production by Environment");
 \define("TFISH_STATS_ENVIRONMENT_DESCRIPTION", "Data on aquaculture production in freshwater, brackish and marine environments across countries, based on FAO statistics.");
+
+\define("TFISH_STATS_CONSUMPTION", "Consumption");
+\define("TFISH_STATS_CONSUMPTION_TITLE", "Global Aquatic Food Consumption");
+\define("TFISH_STATS_CONSUMPTION_DESCRIPTION", "A world map of apparent per-capita aquatic food consumption (kilograms per person per year) by country, drawn from FAO Food Balance Sheets.");
