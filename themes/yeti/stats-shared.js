@@ -6,7 +6,7 @@
  * (search box + autocomplete dropdown + flag row + reset/badge). Each page supplies its own
  * chart-building code and an onSelect callback; everything below is page-independent.
  *
- * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
+ * @copyright   Simon Wilkinson 2026+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
  */
@@ -82,6 +82,19 @@
         return { divisor: 1, suffix: '', label: 'USD', decimals: 0 };
     };
 
+    // Shared chart palette, so a given series colour means the same thing on every Stats chart and
+    // every chart reads as cleanly as /overview (the clearest of the set). The muddy /trade look came
+    // from a low 0.55 fill alpha plus an extra orange layer; categorical fills here sit at 0.8. Multi-
+    // series charts take colours positionally from `palette`; single-series value charts use `value`.
+    FS.chartColors = {
+        palette: [
+            { bg: 'rgba(20, 50, 120, 0.8)',  border: 'rgba(20, 50, 120, 1)' },  // deep blue
+            { bg: 'rgba(140, 215, 70, 0.8)', border: 'rgba(100, 180, 40, 1)' },  // bright green
+            { bg: 'rgba(55, 150, 160, 0.8)', border: 'rgba(40, 120, 130, 1)' }   // teal
+        ],
+        value: { bg: 'rgba(55, 150, 160, 0.8)', border: 'rgba(40, 120, 130, 1)' } // teal — single-series value charts
+    };
+
     FS.slug = function(str) {
         return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     };
@@ -94,8 +107,20 @@
         return '"' + s.replace(/"/g, '""') + '"';
     };
 
-    FS.csvLicense = '\n\n"Source: FAO Fisheries and Aquaculture Statistics (FishStatJ), 2026.1.0"'
-        + '\n"License: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)"';
+    // Citation block appended to CSV downloads. Each data source carries its own source line;
+    // the license terms (CC BY 4.0) are shared. A page asks for the citation matching its data,
+    // e.g. FS.csvLicense('trade'). Add further sources here as new data sources are wired up.
+    var CSV_LICENSE_TERMS = '\n"License: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)"';
+
+    var CSV_SOURCES = {
+        production: 'FAO (2026). Global Production - Fisheries and Aquaculture (v2026.1.0)',
+        trade: 'FAO (2026). Global Aquatic Trade Statistics (division 2025-07-10)'
+    };
+
+    FS.csvLicense = function(source) {
+        var src = CSV_SOURCES[source] || CSV_SOURCES.production;
+        return '\n\n"Source: ' + src + '"' + CSV_LICENSE_TERMS;
+    };
 
     FS.downloadCsv = function(filename, csvContent) {
         var blob = new Blob(['﻿', csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -119,6 +144,7 @@
         overview: ['country', 'species'],
         species: ['species', 'year', 'country'],
         production: ['country', 'year'],
+        trade: ['country'],
         environment: ['country', 'year']
     };
 

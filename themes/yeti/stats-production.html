@@ -66,7 +66,7 @@
                 </div>
                 <p class="chart-source">
                     &ldquo;Other&rdquo; combines aquatic invertebrates, amphibians, reptiles and mammals.
-                    Data © FAO 2026. <a href="https://www.fao.org/fishery/stats/collections/en">Stats Statistical Collections (v2026.1.0)</a>.
+                    Data © FAO 2026. <a href="https://www.fao.org/fishery/stats/collections/en">Global Production - Fisheries and Aquaculture (v2026.1.0)</a>.
                     Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
                 </p>
             </div>
@@ -94,7 +94,7 @@
             <p class="chart-source">
                 Click any species bar to see its top producing countries.<br>
                 Species contributing at least 0.3% of the year&rsquo;s total are charted individually; smaller species are grouped as &ldquo;Other species&rdquo;. The CSV download contains the full, unaggregated data.<br>
-                Data © FAO 2026. <a href="https://www.fao.org/fishery/stats/collections/en">Stats Statistical Collections (v2026.1.0)</a>.
+                Data © FAO 2026. <a href="https://www.fao.org/fishery/stats/collections/en">Global Production - Fisheries and Aquaculture (v2026.1.0)</a>.
                 Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
             </p>
 
@@ -121,7 +121,7 @@
             <p class="chart-source">
                 Click any species bar to see its top producing countries.<br>
                 Species contributing at least 0.3% of the year&rsquo;s total are charted individually; smaller species are grouped as &ldquo;Other species&rdquo;. The CSV download contains the full, unaggregated data.<br>
-                Data © FAO 2026. <a href="https://www.fao.org/fishery/stats/collections/en">Stats Statistical Collections (v2026.1.0)</a>.
+                Data © FAO 2026. <a href="https://www.fao.org/fishery/stats/collections/en">Global Production - Fisheries and Aquaculture (v2026.1.0)</a>.
                 Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
             </p>
         </div>
@@ -572,14 +572,14 @@
             e.preventDefault();
             var body = speciesCsvRows(currentData.volume || {}, '"Volume (tonnes)"');
             if (!body) return;
-            FS.downloadCsv(csvFilename('stats-production-volume'), body + FS.csvLicense);
+            FS.downloadCsv(csvFilename('stats-production-volume'), body + FS.csvLicense('production'));
         });
 
         document.getElementById('downloadValueCsv').addEventListener('click', function(e) {
             e.preventDefault();
             var body = speciesCsvRows(currentData.value || {}, '"Value (USD)"');
             if (!body) return;
-            FS.downloadCsv(csvFilename('stats-production-value'), body + FS.csvLicense);
+            FS.downloadCsv(csvFilename('stats-production-value'), body + FS.csvLicense('production'));
         });
 
         // Carry the active state/year across the section nav, and keep this page's own URL in

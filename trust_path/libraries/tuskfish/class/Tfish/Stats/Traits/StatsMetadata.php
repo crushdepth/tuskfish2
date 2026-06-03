@@ -7,11 +7,11 @@ namespace Tfish\Stats\Traits;
 /**
  * \Tfish\Stats\Traits\StatsMetadata trait file.
  *
- * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
+ * @copyright   Simon Wilkinson 2026+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0.4
- * @since       2.0.4
+ * @since       2.2.9
  * @package     Stats
  */
 
@@ -24,11 +24,11 @@ namespace Tfish\Stats\Traits;
  * parameterised view such as /species/?country=Norway&year=2020 renders a specific title. The
  * resulting array is read by the FrontController, which merges it into the site \Tfish\Entity\Metadata.
  *
- * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
+ * @copyright   Simon Wilkinson 2026+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0.4
- * @since       2.0.4
+ * @since       2.2.9
  * @package     Stats
  * @var         string $description Meta description for this page.
  */

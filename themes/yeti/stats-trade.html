@@ -1,0 +1,628 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Container -->
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="page-title">
+                <?php echo xss($viewModel->pageTitle()); ?>
+            </h1>
+        </div>
+    </div>
+
+    <div class="stats-container">
+        <?php include TFISH_THEMES_PATH . $viewModel->theme() . '/stats-nav.html'; ?>
+        <div class="chart-card">
+            <!-- Member state flags -->
+            <div class="member-flags">
+                <div class="member-flags-label">Member States</div>
+                <div class="flag-row" id="memberFlags"></div>
+            </div>
+
+            <!-- Controls -->
+            <div class="stats-controls">
+                <div class="control-group control-group-narrow">
+                    <label for="countrySearch">Filter by state</label>
+                    <div class="country-search-wrap">
+                        <input
+                            type="text"
+                            id="countrySearch"
+                            placeholder="Type to search states..."
+                            autocomplete="off"
+                        />
+                        <div
+                            class="country-dropdown"
+                            id="countryDropdown"
+                        ></div>
+                    </div>
+                </div>
+                <div class="control-group control-group-narrow">
+                    <label>Show data</label>
+                    <div class="toggle-row">
+                        <div class="toggle-wrap">
+                            <input type="checkbox" id="importsToggle" checked />
+                            <span>Imports</span>
+                        </div>
+                        <div class="toggle-wrap">
+                            <input type="checkbox" id="exportsToggle" checked />
+                            <span>Exports</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="stats-actions">
+                <button class="btn-clear" id="resetBtn">Global view</button>
+                <span class="active-country-badge" id="activeBadge">
+                    <span id="badgeText"></span>
+                    <span class="badge-x" id="badgeClear">&times;</span>
+                </span>
+            </div>
+
+            <!-- Volume Chart -->
+            <div class="chart-header">
+                <div class="chart-header-row">
+                    <h2 class="chart-title" id="chartTitle">
+                        Global Fisheries &amp; Aquaculture Trade Volume
+                    </h2>
+                    <a href="#" class="btn-csv" id="downloadVolumeCsv" title="Download chart data as CSV">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8m0 0L5 7m3 3l3-3M3 12h10"/></svg>
+                        CSV
+                    </a>
+                </div>
+                <p class="chart-subtitle" id="chartSubtitle">
+                    Tonnes (product weight)
+                </p>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="volumeChart"></canvas>
+                <div class="chart-loading" id="chartLoading">
+                    <div class="spinner"></div>
+                    <span style="color: #666; font-size: 0.85rem">Loading...</span>
+                </div>
+            </div>
+            <p class="chart-source">
+                Data includes both aquaculture and capture fisheries products.<br>
+                Data © FAO 2025. <a href="https://www.fao.org/fishery/stats/collections/en">Global Aquatic Trade Statistics (division 2025-07-10)</a>.
+                Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>
+            </p>
+
+            <!-- Value Chart -->
+            <div class="chart-header">
+                <div class="chart-header-row">
+                    <h2 class="chart-title" id="valueChartTitle">
+                        Global Fisheries &amp; Aquaculture Trade Value
+                    </h2>
+                    <a href="#" class="btn-csv" id="downloadValueCsv" title="Download chart data as CSV">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8m0 0L5 7m3 3l3-3M3 12h10"/></svg>
+                        CSV
+                    </a>
+                </div>
+                <p class="chart-subtitle" id="valueChartSubtitle">
+                    USD
+                </p>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="valueChart"></canvas>
+                <div class="chart-loading" id="valueChartLoading">
+                    <div class="spinner"></div>
+                    <span style="color: #666; font-size: 0.85rem">Loading...</span>
+                </div>
+            </div>
+            <p class="chart-source">
+                Data include both aquaculture and capture fisheries products.<br>
+                Data © FAO 2025. <a href="https://www.fao.org/fishery/stats/collections/en">Global Aquatic Trade Statistics (division 2025-07-10)</a>.
+                Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- /.container -->
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        'use strict';
+
+        var FS = window.Stats;
+
+        const STATS_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/trade/'); ?>;
+        const initialData = <?php echo $viewModel->tradeDataJson(); ?>;
+        const countryList = <?php echo $viewModel->countryListJson(); ?>;
+
+        // The trade flows shown, in draw order. Each carries its volume/value payload keys and takes
+        // a stable colour from the shared palette, so a flow keeps the same colour across both charts
+        // and as toggles change. (Reexports exist in the data but are excluded: the source figures are
+        // unreliable — e.g. major re-exporters report near-zero. They can be re-added here, plus in
+        // Model\Trade's flow map, if the data improves; the summary table still carries them.)
+        const FLOWS = [
+            { key: 'imports', valueKey: 'imports_value', label: 'Imports', bg: FS.chartColors.palette[0].bg, border: FS.chartColors.palette[0].border },
+            { key: 'exports', valueKey: 'exports_value', label: 'Exports', bg: FS.chartColors.palette[1].bg, border: FS.chartColors.palette[1].border }
+        ];
+
+        // The two flows are overlaid, not stacked, so a high fill opacity lets the darker imports area
+        // bury the lighter exports beneath it. Drop the fill alpha for these charts only — the shared
+        // 0.8 palette still governs the single-area charts elsewhere — and keep the borders at full
+        // strength so each flow's outline stays crisp where the fills overlap.
+        const FILL_ALPHA = 0.4;
+        function fade(rgba) {
+            return rgba.replace(/[\d.]+\)\s*$/, FILL_ALPHA + ')');
+        }
+
+        // State
+        let currentCountry = '';
+        let showImports = true;
+        let showExports = true;
+        let chart = null;
+        let valueChart = null;
+        let highlightIndex = -1;
+        let currentData = initialData;
+
+        // Elements
+        const canvas = document.getElementById('volumeChart');
+        const searchInput = document.getElementById('countrySearch');
+        const dropdown = document.getElementById('countryDropdown');
+        const importsToggle = document.getElementById('importsToggle');
+        const exportsToggle = document.getElementById('exportsToggle');
+        const resetBtn = document.getElementById('resetBtn');
+        const chartTitle = document.getElementById('chartTitle');
+        const chartSubtitle = document.getElementById('chartSubtitle');
+        const loading = document.getElementById('chartLoading');
+        const activeBadge = document.getElementById('activeBadge');
+        const badgeText = document.getElementById('badgeText');
+        const badgeClear = document.getElementById('badgeClear');
+        const flagContainer = document.getElementById('memberFlags');
+        const valueCanvas = document.getElementById('valueChart');
+        const valueChartTitle = document.getElementById('valueChartTitle');
+        const valueChartSubtitle = document.getElementById('valueChartSubtitle');
+        const valueLoading = document.getElementById('valueChartLoading');
+
+        function activeFlows() {
+            return FLOWS.filter(function(f) {
+                return f.key === 'imports' ? showImports : showExports;
+            });
+        }
+
+        // Auto-scale tonnes (product weight) to a readable unit.
+        function pickUnit(data) {
+            var all = [].concat(data.imports || [], data.exports || []);
+            var maxVal = Math.max.apply(null, all.concat([0]));
+
+            if (maxVal >= 1e6) return { divisor: 1e6, label: 'Million tonnes (product weight)', suffix: 'M', decimals: 2 };
+            if (maxVal >= 1e4) return { divisor: 1e3, label: 'Thousand tonnes (product weight)', suffix: 'K', decimals: 1 };
+            return { divisor: 1, label: 'Tonnes (product weight)', suffix: '', decimals: 0 };
+        }
+
+        // Auto-scale full US dollars to a readable unit.
+        function pickValueUnit(data) {
+            var all = [].concat(data.imports_value || [], data.exports_value || []);
+            var maxVal = Math.max.apply(null, all.concat([0]));
+
+            if (maxVal >= 1e9) return { divisor: 1e9, label: 'Billion USD', suffix: 'B', decimals: 2 };
+            if (maxVal >= 1e6) return { divisor: 1e6, label: 'Million USD', suffix: 'M', decimals: 1 };
+            return { divisor: 1, label: 'USD', suffix: '', decimals: 0 };
+        }
+
+        function scaleValues(arr, divisor) {
+            return (arr || []).map(function(v) { return v / divisor; });
+        }
+
+        // Trim leading/trailing all-zero years across the active flows so the axis isn't padded
+        // with empty range (e.g. value reporting starts later than volume).
+        function trimRange(labels, series) {
+            var n = labels.length;
+            var nonZero = function(i) { return series.some(function(s) { return (s[i] || 0) > 0; }); };
+            var first = 0;
+            while (first < n && !nonZero(first)) first++;
+            var last = n - 1;
+            while (last > first && !nonZero(last)) last--;
+            return first <= last ? { first: first, last: last } : null;
+        }
+
+        function buildChart(data) {
+            var flows = activeFlows();
+            var rawSeries = flows.map(function(f) { return data[f.key] || []; });
+            var range = (data.labels && data.labels.length) ? trimRange(data.labels, rawSeries) : null;
+
+            if (!range) {
+                chartSubtitle.textContent = 'No data available for this selection';
+                if (chart) { chart.data.labels = []; chart.data.datasets = []; chart.update('none'); }
+                return;
+            }
+
+            var labels = data.labels.slice(range.first, range.last + 1);
+
+            // Scale the axis to the flows actually shown, so a single toggled-on flow rescales to fill
+            // the chart instead of flat-lining against an axis sized for both flows.
+            var unitSlices = {};
+            flows.forEach(function(f) { unitSlices[f.key] = (data[f.key] || []).slice(range.first, range.last + 1); });
+            var unit = pickUnit(unitSlices);
+
+            var datasets = flows.map(function(f) {
+                return {
+                    label: f.label,
+                    data: scaleValues((data[f.key] || []).slice(range.first, range.last + 1), unit.divisor),
+                    backgroundColor: fade(f.bg),
+                    borderColor: f.border,
+                    borderWidth: 1.5,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 0,
+                    pointHitRadius: 8
+                };
+            });
+
+            chartSubtitle.textContent = unit.label + ', ' + labels[0] + '–' + labels[labels.length - 1];
+
+            if (chart) {
+                chart.data.labels = labels;
+                chart.data.datasets = datasets;
+                chart.options.scales.y.title.text = unit.label;
+                chart.options.scales.y.ticks.callback = function(v) {
+                    return unit.suffix ? v + unit.suffix : v.toLocaleString();
+                };
+                chart.options.plugins.tooltip.callbacks.label = function(ctx) {
+                    return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(unit.decimals) + unit.suffix + ' tonnes';
+                };
+                chart.update('none');
+                return;
+            }
+
+            chart = new Chart(canvas.getContext('2d'), {
+                type: 'line',
+                data: { labels: labels, datasets: datasets },
+                options: chartOptions(unit, ' tonnes')
+            });
+        }
+
+        function buildValueChart(data) {
+            var flows = activeFlows();
+            var rawSeries = flows.map(function(f) { return data[f.valueKey] || []; });
+            var range = (data.labels && data.labels.length) ? trimRange(data.labels, rawSeries) : null;
+
+            if (!range) {
+                valueChartSubtitle.textContent = 'No value data available for this selection';
+                if (valueChart) { valueChart.data.labels = []; valueChart.data.datasets = []; valueChart.update('none'); }
+                return;
+            }
+
+            var labels = data.labels.slice(range.first, range.last + 1);
+
+            // Scale to the flows actually shown (see buildChart).
+            var unitSlices = {};
+            flows.forEach(function(f) { unitSlices[f.valueKey] = (data[f.valueKey] || []).slice(range.first, range.last + 1); });
+            var unit = pickValueUnit(unitSlices);
+
+            var datasets = flows.map(function(f) {
+                return {
+                    label: f.label,
+                    data: scaleValues((data[f.valueKey] || []).slice(range.first, range.last + 1), unit.divisor),
+                    backgroundColor: fade(f.bg),
+                    borderColor: f.border,
+                    borderWidth: 1.5,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 0,
+                    pointHitRadius: 8
+                };
+            });
+
+            valueChartSubtitle.textContent = unit.label + ', ' + labels[0] + '–' + labels[labels.length - 1];
+
+            if (valueChart) {
+                valueChart.data.labels = labels;
+                valueChart.data.datasets = datasets;
+                valueChart.options.scales.y.title.text = unit.label;
+                valueChart.options.scales.y.ticks.callback = function(v) {
+                    return unit.suffix ? '$' + v + unit.suffix : '$' + v.toLocaleString();
+                };
+                valueChart.options.plugins.tooltip.callbacks.label = function(ctx) {
+                    return ctx.dataset.label + ': $' + ctx.parsed.y.toFixed(unit.decimals) + unit.suffix;
+                };
+                valueChart.update('none');
+                return;
+            }
+
+            valueChart = new Chart(valueCanvas.getContext('2d'), {
+                type: 'line',
+                data: { labels: labels, datasets: datasets },
+                options: chartOptions(unit, '', true)
+            });
+        }
+
+        // Shared Chart.js options factory for both charts. `isValue` switches tick/tooltip to a
+        // dollar prefix; otherwise the `unitWord` suffix (e.g. ' tonnes') is appended.
+        function chartOptions(unit, unitWord, isValue) {
+            var tickFmt = function(v) {
+                if (isValue) return unit.suffix ? '$' + v + unit.suffix : '$' + v.toLocaleString();
+                return unit.suffix ? v + unit.suffix : v.toLocaleString();
+            };
+            return {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2.2,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: { grid: { display: false }, ticks: { maxTicksLimit: 15, font: { size: 12 } } },
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: unit.label, font: { size: 13 } },
+                        ticks: { font: { size: 12 }, callback: tickFmt },
+                        grid: { color: 'rgba(0,0,0,0.06)' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        onClick: null,
+                        labels: { usePointStyle: true, pointStyle: 'rect', padding: 20, font: { size: 13 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                if (isValue) return ctx.dataset.label + ': $' + ctx.parsed.y.toFixed(unit.decimals) + unit.suffix;
+                                return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(unit.decimals) + unit.suffix + unitWord;
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        function updateTitle() {
+            chartTitle.textContent = currentCountry
+                ? currentCountry + ' — Fisheries & Aquaculture Trade Volume'
+                : 'Global Fisheries & Aquaculture Trade Volume';
+            valueChartTitle.textContent = currentCountry
+                ? currentCountry + ' — Fisheries & Aquaculture Trade Value'
+                : 'Global Fisheries & Aquaculture Trade Value';
+        }
+
+        function setActiveCountry(name) {
+            currentCountry = name;
+            updateTitle();
+            searchInput.value = '';
+            closeDropdown();
+
+            if (name) {
+                activeBadge.classList.add('visible');
+                badgeText.textContent = name;
+            } else {
+                activeBadge.classList.remove('visible');
+            }
+
+            document.querySelectorAll('.flag-btn').forEach(function(btn) {
+                var dbName = btn.dataset.dbname || btn.dataset.country;
+                btn.classList.toggle('active', dbName === name);
+            });
+        }
+
+        function showLoading() { loading.classList.add('active'); valueLoading.classList.add('active'); }
+        function hideLoading() { loading.classList.remove('active'); valueLoading.classList.remove('active'); }
+
+        function fetchTradeData(country) {
+            showLoading();
+            var c = country !== undefined ? country : currentCountry;
+            var url = STATS_URL + '?action=tradedata&country=' + encodeURIComponent(c || '');
+
+            fetch(url)
+                .then(function(r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .then(function(data) {
+                    if (data.error) throw new Error(data.error);
+                    currentData = data;
+                    setActiveCountry(data.country || '');
+                    buildChart(data);
+                    buildValueChart(data);
+                    updateNav();
+                    hideLoading();
+                })
+                .catch(function(err) {
+                    console.warn('Stats: failed to load trade data', err);
+                    chartSubtitle.textContent = 'Failed to load data — please try again';
+                    hideLoading();
+                });
+        }
+
+        // Country autocomplete
+        function getFilteredCountries() {
+            var q = searchInput.value.trim().toLowerCase();
+            if (!q) return countryList.slice(0, 20);
+            return countryList.filter(function(c) {
+                return c.toLowerCase().indexOf(q) !== -1;
+            });
+        }
+
+        function renderDropdown(matches) {
+            var query = searchInput.value.trim().toLowerCase();
+            dropdown.innerHTML = '';
+
+            if (!matches.length) {
+                dropdown.innerHTML = '<div class="country-option" style="color:#999;cursor:default">No matches</div>';
+                dropdown.classList.add('open');
+                return;
+            }
+
+            matches.forEach(function(name, idx) {
+                var div = document.createElement('div');
+                div.className = 'country-option';
+                div.dataset.index = idx;
+
+                if (query) {
+                    var lower = name.toLowerCase();
+                    var pos = lower.indexOf(query);
+                    if (pos >= 0) {
+                        div.innerHTML = FS.escapeHtml(name.substring(0, pos))
+                            + '<mark>' + FS.escapeHtml(name.substring(pos, pos + query.length)) + '</mark>'
+                            + FS.escapeHtml(name.substring(pos + query.length));
+                    } else {
+                        div.textContent = name;
+                    }
+                } else {
+                    div.textContent = name;
+                }
+
+                div.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    fetchTradeData(name);
+                });
+                dropdown.appendChild(div);
+            });
+
+            dropdown.classList.add('open');
+            highlightIndex = -1;
+        }
+
+        function closeDropdown() {
+            dropdown.classList.remove('open');
+            highlightIndex = -1;
+        }
+
+        function updateHighlight(items) {
+            items.forEach(function(el, i) {
+                el.classList.toggle('highlighted', i === highlightIndex);
+            });
+            if (items[highlightIndex]) {
+                items[highlightIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        searchInput.addEventListener('input', function() {
+            renderDropdown(getFilteredCountries());
+        });
+
+        searchInput.addEventListener('focus', function() {
+            renderDropdown(getFilteredCountries());
+        });
+
+        searchInput.addEventListener('blur', function() {
+            setTimeout(closeDropdown, 150);
+        });
+
+        searchInput.addEventListener('keydown', function(e) {
+            var items = dropdown.querySelectorAll('.country-option[data-index]');
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                highlightIndex = Math.min(highlightIndex + 1, items.length - 1);
+                updateHighlight(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                highlightIndex = Math.max(highlightIndex - 1, 0);
+                updateHighlight(items);
+            } else if (e.key === 'Enter' && highlightIndex >= 0 && items[highlightIndex]) {
+                e.preventDefault();
+                var matches = getFilteredCountries();
+                if (matches[highlightIndex]) {
+                    fetchTradeData(matches[highlightIndex]);
+                }
+            } else if (e.key === 'Escape') {
+                closeDropdown();
+                searchInput.blur();
+            }
+        });
+
+        // Flow toggles — at least one must remain checked
+        function updateToggleState() {
+            var checked = [showImports, showExports].filter(Boolean).length;
+            importsToggle.disabled = showImports && checked === 1;
+            exportsToggle.disabled = showExports && checked === 1;
+        }
+
+        function onToggle() {
+            showImports = importsToggle.checked;
+            showExports = exportsToggle.checked;
+            updateToggleState();
+            buildChart(currentData);
+            buildValueChart(currentData);
+        }
+
+        importsToggle.addEventListener('change', onToggle);
+        exportsToggle.addEventListener('change', onToggle);
+
+        // Reset
+        resetBtn.addEventListener('click', function() { fetchTradeData(''); });
+        badgeClear.addEventListener('click', function() { fetchTradeData(''); });
+
+        // Member flags
+        function buildFlags() {
+            FS.memberCountries.forEach(function(mc) {
+                var btn = document.createElement('button');
+                btn.className = 'flag-btn';
+                btn.type = 'button';
+                btn.dataset.country = mc.name;
+                if (mc.dbName) btn.dataset.dbname = mc.dbName;
+                btn.innerHTML = (FS.flagSvgs[mc.iso2] || '') + '<span class="flag-tooltip">' + FS.escapeHtml(mc.name) + '</span>';
+
+                btn.addEventListener('click', function() {
+                    var name = mc.dbName || mc.name;
+                    if (currentCountry === name) {
+                        fetchTradeData('');
+                    } else {
+                        fetchTradeData(name);
+                    }
+                });
+
+                flagContainer.appendChild(btn);
+            });
+        }
+
+        // Chart.js shrinks correctly but won't expand because the canvas's inline pixel dimensions
+        // prevent the container from growing. Clear them on resize so the container recalculates.
+        window.addEventListener('resize', function() {
+            if (chart) { canvas.style.width = ''; canvas.style.height = ''; chart.resize(); }
+            if (valueChart) { valueCanvas.style.width = ''; valueCanvas.style.height = ''; valueChart.resize(); }
+        });
+
+        // CSV download
+        function csvFilename(prefix) {
+            var parts = [prefix];
+            parts.push(currentCountry ? FS.slug(currentCountry) : 'global');
+            return parts.join('-') + '.csv';
+        }
+
+        function downloadCsv(prefix, valueMode) {
+            if (!currentData || !currentData.labels || !currentData.labels.length) return;
+
+            var flows = activeFlows();
+            var unitWord = valueMode ? ' (USD)' : ' (tonnes product weight)';
+            var headers = ['Year'];
+            flows.forEach(function(f) { headers.push('"' + f.label + unitWord + '"'); });
+
+            var rows = [headers.join(',')];
+            for (var i = 0; i < currentData.labels.length; i++) {
+                var row = [currentData.labels[i]];
+                flows.forEach(function(f) {
+                    var key = valueMode ? f.valueKey : f.key;
+                    row.push((currentData[key] || [])[i] || 0);
+                });
+                rows.push(row.join(','));
+            }
+
+            FS.downloadCsv(csvFilename(prefix), rows.join('\n') + FS.csvLicense('trade'));
+        }
+
+        document.getElementById('downloadVolumeCsv').addEventListener('click', function(e) {
+            e.preventDefault();
+            downloadCsv('stats-trade-volume', false);
+        });
+
+        document.getElementById('downloadValueCsv').addEventListener('click', function(e) {
+            e.preventDefault();
+            downloadCsv('stats-trade-value', true);
+        });
+
+        // Carry the active state across the section nav, and keep this page's own URL in sync so a
+        // refresh or bookmark restores the same view.
+        function updateNav() {
+            FS.syncNav({ country: currentCountry }, { page: 'trade' });
+        }
+
+        // Init
+        buildFlags();
+        buildChart(initialData);
+        buildValueChart(initialData);
+        setActiveCountry(initialData.country || '');
+        updateNav();
+    });
+</script>

@@ -7,11 +7,11 @@ namespace Tfish\Stats\Model;
 /**
  * \Tfish\Stats\Model\Species class file.
  *
- * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
+ * @copyright   Simon Wilkinson 2026+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0.4
- * @since       2.0.4
+ * @since       2.2.9
  * @package     Stats
  */
 
@@ -28,11 +28,11 @@ namespace Tfish\Stats\Model;
  * (idx_production_species_measure_period), so this page always aggregates aquaculture_production
  * live — there is no pre-aggregated summary table for it, and none is needed.
  *
- * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
+ * @copyright   Simon Wilkinson 2026+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0.4
- * @since       2.0.4
+ * @since       2.2.9
  * @package     Stats
  * @uses        trait \Tfish\Traits\ValidateString  Validates UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Stats\Traits\StatsDatabase  Connection and species/country lookup helpers.

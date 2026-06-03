@@ -34,6 +34,8 @@ SCRIPTS=(
     global_production_summary.sql
     global_environment_summary.sql
     global_species_summary.sql
+    global_trade_summary.sql
+    country_trade_summary.sql
 )
 
 for s in "${SCRIPTS[@]}"; do
@@ -68,12 +70,15 @@ SRC_PROD_MAX="SELECT MAX(p) FROM (
     SELECT MAX(period) p FROM capture_production WHERE measure='Q_tlw'
     UNION ALL
     SELECT MAX(period)   FROM aquaculture_production WHERE measure IN ('Q_tlw','V_USD_1000'))"
+SRC_TRADE_MAX="SELECT MAX(period) FROM trade"
 
 # table | source-max-year query
 CHECKS=(
     "global_production_summary|$SRC_PROD_MAX"
     "global_environment_summary|$SRC_AQUA_MAX"
     "global_species_summary|$SRC_AQUA_MAX"
+    "global_trade_summary|$SRC_TRADE_MAX"
+    "country_trade_summary|$SRC_TRADE_MAX"
 )
 
 printf '\nVerifying:\n'

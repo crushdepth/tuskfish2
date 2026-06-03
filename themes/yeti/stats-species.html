@@ -61,7 +61,7 @@
                 <p class="landing-hint">Looking for a different species? Type <strong>any</strong> name in the Filter by Species box above to look it up.</p>
                 <p class="chart-source">
                     The biggest aquaculture species worldwide by live-weight volume. Click a bar, or use the search box, to see its top producing states.<br>
-                    Data © FAO 2026. <a href="https://www.fao.org/fishery/stats/collections/en">Stats Statistical Collections (v2026.1.0)</a>.
+                    Data © FAO 2026. <a href="https://www.fao.org/fishery/stats/collections/en">Global Production - Fisheries and Aquaculture (v2026.1.0)</a>.
                     Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
                 </p>
             </div>
@@ -88,7 +88,7 @@
                     </div>
                     <p class="chart-source">
                         Regions are FAO continental groupings (Asia, Americas, Europe, Africa, Oceania).<br>
-                        Data © FAO 2026. <a href="https://www.fao.org/fishery/stats/collections/en">Stats Statistical Collections (v2026.1.0)</a>.
+                        Data © FAO 2026. <a href="https://www.fao.org/fishery/stats/collections/en">Global Production - Fisheries and Aquaculture (v2026.1.0)</a>.
                         Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
                     </p>
                 </div>
@@ -118,7 +118,7 @@
                 </div>
                 <p class="chart-source">
                     Only states contributing enough to show a visible bar are charted individually. The CSV download contains the full, unaggregated data for every producer.<br>
-                    Data © FAO 2026. <a href="https://www.fao.org/fishery/stats/collections/en">Stats Statistical Collections (v2026.1.0)</a>.
+                    Data © FAO 2026. <a href="https://www.fao.org/fishery/stats/collections/en">Global Production - Fisheries and Aquaculture (v2026.1.0)</a>.
                     Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
                 </p>
 
@@ -144,7 +144,7 @@
                 </div>
                 <p class="chart-source">
                     Only states large enough to show a visible bar are charted individually. The CSV download contains the full, unaggregated data for every producer.<br>
-                    Data © FAO 2026. <a href="https://www.fao.org/fishery/stats/collections/en">Stats Statistical Collections (v2026.1.0)</a>.
+                    Data © FAO 2026. <a href="https://www.fao.org/fishery/stats/collections/en">Global Production - Fisheries and Aquaculture (v2026.1.0)</a>.
                     Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.
                 </p>
             </div>
@@ -759,14 +759,14 @@
             e.preventDefault();
             var body = producerCsvRows(currentData.volume || {}, '"Volume (tonnes)"');
             if (!body) return;
-            FS.downloadCsv(csvFilename('stats-species-volume'), body + FS.csvLicense);
+            FS.downloadCsv(csvFilename('stats-species-volume'), body + FS.csvLicense('production'));
         });
 
         document.getElementById('downloadValueCsv').addEventListener('click', function(e) {
             e.preventDefault();
             var body = producerCsvRows(currentData.value || {}, '"Value (USD)"');
             if (!body) return;
-            FS.downloadCsv(csvFilename('stats-species-value'), body + FS.csvLicense);
+            FS.downloadCsv(csvFilename('stats-species-value'), body + FS.csvLicense('production'));
         });
 
         // Init

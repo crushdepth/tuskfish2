@@ -28,7 +28,7 @@
 -- This is a DERIVED table. It is NOT user data and must be rebuilt whenever capture_production or
 -- aquaculture_production changes (e.g. the annual FAO data refresh). Re-run this whole script:
 --
---     sqlite3 trust_path/database/aquaculture-fisheries-2026.db < global_production_summary.sql
+--     sqlite3 trust_path/database/aquaculture-fisheries-trade.db < global_production_summary.sql
 
 DROP TABLE IF EXISTS global_production_summary;
 

@@ -7,11 +7,11 @@ declare(strict_types=1);
  *
  * Sets additional routes and path constants.
  *
- * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
+ * @copyright   Simon Wilkinson 2026+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0.4
- * @since       2.0.4
+ * @since       2.2.9
  * @package     User
  */
 
@@ -40,6 +40,13 @@ $routingTable['/species/'] = new \Tfish\Route(
     '\\Tfish\\Stats\\ViewModel\\Species',
     '\\Tfish\\View\\Single',
     '\\Tfish\\Stats\\Controller\\Species',
+    0);
+
+$routingTable['/trade/'] = new \Tfish\Route(
+    '\\Tfish\\Stats\\Model\\Trade',
+    '\\Tfish\\Stats\\ViewModel\\Trade',
+    '\\Tfish\\View\\Single',
+    '\\Tfish\\Stats\\Controller\\Trade',
     0);
 
 $routingTable['/environment/'] = new \Tfish\Route(

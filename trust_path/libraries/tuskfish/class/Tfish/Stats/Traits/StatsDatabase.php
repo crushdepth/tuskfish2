@@ -7,11 +7,11 @@ namespace Tfish\Stats\Traits;
 /**
  * \Tfish\Stats\Traits\StatsDatabase trait file.
  *
- * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
+ * @copyright   Simon Wilkinson 2026+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0.4
- * @since       2.0.4
+ * @since       2.2.9
  * @package     Stats
  */
 
@@ -21,11 +21,11 @@ namespace Tfish\Stats\Traits;
  * Provides a read-only PDO connection to the Stats SQLite database (separate from the main
  * Tuskfish site database) along with country lookup helpers reused by Stats models.
  *
- * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
+ * @copyright   Simon Wilkinson 2026+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0.4
- * @since       2.0.4
+ * @since       2.2.9
  * @package     Stats
  * @var         ?\PDO $statsDb Connection to the Stats statistical database.
  * @uses        \Tfish\Logger $logger Host class must provide a logger property.
@@ -52,12 +52,15 @@ trait StatsDatabase
         try {
             // Open read-only where the driver supports it: this database is reference data the
             // site only ever reads, so the connection should be incapable of writing it even if
-            // a future query bug tried to. The open-flags option is part of pdo_sqlite (PHP 7.3+);
-            // guard on it so an older/!sqlite driver simply falls back to a normal connection
-            // rather than fatalling on an undefined constant.
+            // a future query bug tried to. PHP 8.5 moved these constants onto the Pdo\Sqlite class
+            // and deprecated the old PDO::SQLITE_* spellings; prefer the new ones where present and
+            // fall back to the old ones, so the code is correct across 7.3–8.4 and 8.5+ alike. If
+            // neither is defined (an older/!sqlite driver) the connection simply opens read-write.
             $options = [];
 
-            if (\defined('PDO::SQLITE_ATTR_OPEN_FLAGS')) {
+            if (\defined('Pdo\Sqlite::ATTR_OPEN_FLAGS')) {
+                $options[\Pdo\Sqlite::ATTR_OPEN_FLAGS] = \Pdo\Sqlite::OPEN_READONLY;
+            } elseif (\defined('PDO::SQLITE_ATTR_OPEN_FLAGS')) {
                 $options[\PDO::SQLITE_ATTR_OPEN_FLAGS] = \PDO::SQLITE_OPEN_READONLY;
             }
 
@@ -140,6 +143,31 @@ trait StatsDatabase
              ORDER BY c.name_en"
         );
         $stmt->execute([':measure' => 'Q_tlw']);
+
+        return \array_column($stmt->fetchAll(\PDO::FETCH_ASSOC), 'name_en');
+    }
+
+    /**
+     * Return the list of countries that report trade, for the trade page state filter.
+     *
+     * Distinct from getCountryList() (which is keyed to aquaculture production): the trade table
+     * has its own, wider set of reporting countries (~225), so the trade page filters against this
+     * list. The EXISTS probe is satisfied by idx_trade_country.
+     *
+     * @return  array Alphabetical list of country names (name_en).
+     */
+    public function getTradeCountryList(): array
+    {
+        if (!$this->statsDb) return [];
+
+        $stmt = $this->statsDb->query(
+            "SELECT DISTINCT c.name_en
+             FROM countries c
+             WHERE EXISTS (
+                 SELECT 1 FROM trade t WHERE t.country_code = c.un_code
+             )
+             ORDER BY c.name_en"
+        );
 
         return \array_column($stmt->fetchAll(\PDO::FETCH_ASSOC), 'name_en');
     }

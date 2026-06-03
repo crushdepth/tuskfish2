@@ -12,7 +12,7 @@
 -- This is a DERIVED table. It is NOT user data and must be rebuilt whenever aquaculture_production
 -- changes (e.g. the annual FAO data refresh). Re-run this whole script against the database:
 --
---     sqlite3 trust_path/database/aquaculture-fisheries-2026.db < global_environment_summary.sql
+--     sqlite3 trust_path/database/aquaculture-fisheries-trade.db < global_environment_summary.sql
 --
 -- The application degrades gracefully if this table is absent (it falls back to live
 -- aggregation), so a forgotten rebuild is slow, not broken.

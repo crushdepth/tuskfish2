@@ -9,11 +9,11 @@ namespace Tfish\Stats;
  *
  * Translate this file to convert Tuskfish User module to another language.
  *
- * @copyright   Simon Wilkinson 2022+ (https://tuskfish.biz)
+ * @copyright   Simon Wilkinson 2026+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0
- * @since       2.0
+ * @since       2.2.9
  * @package     User
  */
 // Language constants.
@@ -24,17 +24,21 @@ namespace Tfish\Stats;
 
 // Page titles and meta descriptions.
 \define("TFISH_STATS_GLOBAL_OVERVIEW", "Global Overview");
-\define("TFISH_STATS_OVERVIEW_TITLE", "Global Fisheries and Aquaculture Statistics");
+\define("TFISH_STATS_OVERVIEW_TITLE", "Global Fisheries & Aquaculture Statistics");
 \define("TFISH_STATS_OVERVIEW_DESCRIPTION", "Explore global fisheries and aquaculture production at a glance: wild catch and farmed output by country and species, drawn from FAO data.");
 
 \define("TFISH_STATS_SPECIES", "Species Profiles");
-\define("TFISH_STATS_SPECIES_TITLE", "Species Production Profiles");
+\define("TFISH_STATS_SPECIES_TITLE", "Aquaculture Species Profiles");
 \define("TFISH_STATS_SPECIES_DESCRIPTION", "See which aquatic species are farmed, where, and in what quantities, based on FAO aquaculture statistics.");
 
 \define("TFISH_STATS_PRODUCTION", "Production Profiles");
 \define("TFISH_STATS_PRODUCTION_TITLE", "Aquaculture Production Profiles");
 \define("TFISH_STATS_PRODUCTION_DESCRIPTION", "Discover where specific commodities are farmed, by country and year, drawn from FAO data.");
 
-\define("TFISH_STATS_ENVIRONMENT", "Environment");
-\define("TFISH_STATS_ENVIRONMENT_TITLE", "Aquaculture Farming Environments");
+\define("TFISH_STATS_TRADE", "Trade Profiles");
+\define("TFISH_STATS_TRADE_TITLE", "Aquatic Product Trade");
+\define("TFISH_STATS_TRADE_DESCRIPTION", "Track the volume and value of imports, exports and reexports of fisheries and aquaculture commodities, by country and year, drawn from FAO data.");
+
+\define("TFISH_STATS_ENVIRONMENT", "Environment Profiles");
+\define("TFISH_STATS_ENVIRONMENT_TITLE", "Aquaculture Production by Environment");
 \define("TFISH_STATS_ENVIRONMENT_DESCRIPTION", "Data on aquaculture production in freshwater, brackish and marine environments across countries, based on FAO statistics.");

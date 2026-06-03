@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tfish\Stats\ViewModel;
 
 /**
- * \Tfish\Stats\ViewModel\Environment class file.
+ * \Tfish\Stats\ViewModel\Trade class file.
  *
  * @copyright   Simon Wilkinson 2026+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -16,7 +16,7 @@ namespace Tfish\Stats\ViewModel;
  */
 
 /**
- * ViewModel for the aquaculture production by environment page (/environment/).
+ * ViewModel for the trade page (/trade/).
  *
  * @copyright   Simon Wilkinson 2026+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -27,7 +27,7 @@ namespace Tfish\Stats\ViewModel;
  * @uses        trait \Tfish\Traits\ValidateString  Validates UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\Viewable  Provides standard accessors required by the Viewable interface.
  */
-class Environment implements \Tfish\Interface\Viewable
+class Trade implements \Tfish\Interface\Viewable
 {
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\Viewable;
@@ -44,17 +44,17 @@ class Environment implements \Tfish\Interface\Viewable
         $this->preference = $preference;
         $this->theme = $preference->defaultTheme();
         $this->layout = 'layoutStats';
-        $this->pageTitle = TFISH_STATS_ENVIRONMENT_TITLE;
-        $this->description = TFISH_STATS_ENVIRONMENT_DESCRIPTION;
+        $this->pageTitle = TFISH_STATS_TRADE_TITLE;
+        $this->description = TFISH_STATS_TRADE_DESCRIPTION;
     }
 
     /**
-     * Render the environment template.
+     * Render the trade template.
      */
-    public function displayEnvironment(string $country = ''): void
+    public function displayTrade(string $country = ''): void
     {
-        $this->template = "stats-environment";
-        $this->model->loadEnvironmentData($country);
+        $this->template = "stats-trade";
+        $this->model->loadTradeData($country);
         $this->buildMetadata([$country]);
     }
 
@@ -63,18 +63,18 @@ class Environment implements \Tfish\Interface\Viewable
      */
     public function pageKey(): string
     {
-        return 'environment';
+        return 'trade';
     }
 
     /**
-     * Production-by-environment payload as JSON for the initial page render.
+     * Combined trade payload as JSON for the initial page render.
      *
      * @return  string JSON payload.
      */
-    public function environmentDataJson(): string
+    public function tradeDataJson(): string
     {
         return \json_encode(
-            $this->model->environmentData(),
+            $this->model->tradeData(),
             JSON_THROW_ON_ERROR | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
         );
     }
