@@ -151,7 +151,7 @@
 
         var FS = window.Stats;
 
-        const STATS_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/overview/'); ?>;
+        const STATS_URL = <?php echo \json_encode(\rtrim(TFISH_URL, '/') . '/global/'); ?>;
         const initialData = <?php echo $viewModel->chartDataJson(); ?>;
         const countryList = <?php echo $viewModel->countryListJson(); ?>;
         let speciesList = [];
@@ -869,7 +869,7 @@
         // Carry the active state/species across the section nav, and keep this page's own URL in
         // sync so a refresh or bookmark restores the same view.
         function updateNav() {
-            FS.syncNav({ country: currentCountry, species: currentSpecies }, { page: 'overview' });
+            FS.syncNav({ country: currentCountry, species: currentSpecies }, { page: 'global' });
         }
 
         // Init

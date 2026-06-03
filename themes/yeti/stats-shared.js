@@ -83,7 +83,7 @@
     };
 
     // Shared chart palette, so a given series colour means the same thing on every Stats chart and
-    // every chart reads as cleanly as /overview (the clearest of the set). The muddy /trade look came
+    // every chart reads as cleanly as /global (the clearest of the set). The muddy /trade look came
     // from a low 0.55 fill alpha plus an extra orange layer; categorical fills here sit at 0.8. Multi-
     // series charts take colours positionally from `palette`; single-series value charts use `value`.
     FS.chartColors = {
@@ -143,7 +143,7 @@
     // Consumption acts on none of them — it is a single global map — but carries all three purely as
     // pass-through, so a selection made elsewhere survives a visit here and is handed back intact.
     FS.NAV_PARAMS = {
-        overview: ['country', 'species'],
+        global: ['country', 'species'],
         species: ['species', 'year', 'country'],
         production: ['country', 'year'],
         trade: ['country'],

@@ -66,7 +66,7 @@ class Listing implements \Tfish\Interface\Viewable
      */
     public function pageKey(): string
     {
-        return 'overview';
+        return 'global';
     }
 
     /**
