@@ -185,6 +185,20 @@
             'Other': 'rgba(150, 150, 150, 0.75)'
         };
 
+        // Opaque companions to GROUP_COLORS, used for the bar borders when tinting by group.
+        const GROUP_BORDERS = {
+            'Fish': 'rgba(20, 50, 120, 1)',
+            'Crustaceans': 'rgba(180, 75, 30, 1)',
+            'Molluscs': 'rgba(40, 120, 130, 1)',
+            'Plants & seaweed': 'rgba(45, 115, 45, 1)',
+            'Other': 'rgba(120, 120, 120, 1)'
+        };
+
+        // Tint each species bar by its major-group bucket (the same colours the donut uses), so
+        // casual readers get a visual cue — fish vs. crustacean vs. mollusc — for unfamiliar species.
+        // Set to false to revert to the flat per-chart fill (BAR_COLOR / VALUE_COLOR).
+        const COLOR_BARS_BY_GROUP = true;
+
         // Species contributing at least this share (%) of the year's total are charted
         // individually; smaller species are grouped into a single "Other species" bar.
         // Lower this value to name more species (and shrink "Other").
@@ -241,6 +255,7 @@
             }
 
             var fullSci = chartData.scientific || [];
+            var fullGroups = chartData.groups || [];
             var split = splitByShare(fullValues);
             var labels = split.named.map(function(i) { return fullLabels[i]; });
             var values = split.named.map(function(i) { return fullValues[i]; });
@@ -248,20 +263,32 @@
             // Codes track the displayed bars 1:1; the aggregated "Other species" bar gets '' so it
             // is not clickable (it has no single species to drill into).
             var codes = split.named.map(function(i) { return fullCodes[i] || ''; });
+            // Major-group bucket per displayed bar, used to tint it; '' for the aggregated bar
+            // (which spans multiple groups) so it falls back to the neutral "Other species" colour.
+            var groups = split.named.map(function(i) { return fullGroups[i] || ''; });
 
             if (split.other > 0) {
                 labels.push(OTHER_LABEL);
                 values.push(Math.round(split.other));
                 sciList.push('');
                 codes.push('');
+                groups.push('');
             }
 
             var max = Math.max.apply(null, values.concat([0]));
             var unit = kind === 'usd' ? usdUnit(max) : tonnesUnit(max);
             var scaled = values.map(function(v) { return v / unit.divisor; });
 
-            var bgColors = labels.map(function(l) { return l === OTHER_LABEL ? OTHER_COLOR : fillColor; });
-            var bdColors = labels.map(function(l) { return l === OTHER_LABEL ? OTHER_BORDER : borderColor; });
+            // The aggregated "Other species" bar is always neutral grey. Named bars use their
+            // major-group tint when COLOR_BARS_BY_GROUP is on, else the flat per-chart fill.
+            var bgColors = labels.map(function(l, idx) {
+                if (l === OTHER_LABEL) return OTHER_COLOR;
+                return COLOR_BARS_BY_GROUP ? (GROUP_COLORS[groups[idx]] || fillColor) : fillColor;
+            });
+            var bdColors = labels.map(function(l, idx) {
+                if (l === OTHER_LABEL) return OTHER_BORDER;
+                return COLOR_BARS_BY_GROUP ? (GROUP_BORDERS[groups[idx]] || borderColor) : borderColor;
+            });
 
             // Grand total across every species (reference figure), in the chart's own unit.
             var totalUnit = kind === 'usd' ? usdUnit(split.total) : tonnesUnit(split.total);

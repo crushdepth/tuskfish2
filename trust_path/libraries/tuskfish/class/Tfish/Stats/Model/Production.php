@@ -158,8 +158,8 @@ class Production
             'country' => $countryName,
             'year' => $year,
             'years' => [],
-            'volume' => ['labels' => [], 'scientific' => [], 'values' => [], 'codes' => []],
-            'value' => ['labels' => [], 'scientific' => [], 'values' => [], 'codes' => []],
+            'volume' => ['labels' => [], 'scientific' => [], 'values' => [], 'codes' => [], 'groups' => []],
+            'value' => ['labels' => [], 'scientific' => [], 'values' => [], 'codes' => [], 'groups' => []],
             'groups' => [
                 'volume' => ['labels' => [], 'values' => []],
                 'value' => ['labels' => [], 'values' => []],
@@ -311,8 +311,8 @@ class Production
      * Where the English name is missing the scientific name is used as the label, falling back to
      * the species code as a last resort. Totals are already in final units (integer tonnes / USD).
      *
-     * @param   array $rows List of ['code' => string, 'name' => ?string, 'sci' => ?string, 'total' => int|string].
-     * @return  array ['labels' => string[], 'scientific' => string[], 'values' => int[]] by descending value.
+     * @param   array $rows List of ['code' => string, 'name' => ?string, 'sci' => ?string, 'grp' => ?string, 'total' => int|string].
+     * @return  array ['labels' => string[], 'scientific' => string[], 'values' => int[], 'codes' => string[], 'groups' => string[]] by descending value.
      */
     private function formatRanking(array $rows): array
     {
@@ -320,6 +320,7 @@ class Production
         $scientific = [];
         $values = [];
         $codes = [];
+        $groups = [];
 
         foreach ($rows as $row) {
             $name = $this->trimString((string) ($row['name'] ?? ''));
@@ -329,43 +330,60 @@ class Production
             $values[] = (int) $row['total'];
             // Species code carried so the bars can drill through to the production (country) ranking.
             $codes[] = $this->trimString((string) ($row['code'] ?? ''));
+            // Major-group bucket carried so the bars can be tinted by group (the same buckets the
+            // donut uses), giving casual readers a visual cue for unfamiliar species.
+            $groups[] = $this->groupBucket($row['grp'] ?? null);
         }
 
-        return ['labels' => $labels, 'scientific' => $scientific, 'values' => $values, 'codes' => $codes];
+        return ['labels' => $labels, 'scientific' => $scientific, 'values' => $values, 'codes' => $codes, 'groups' => $groups];
     }
 
     /**
      * Collapse per-species rows into the five reader-friendly major-group buckets the donut shows.
      *
      * Rolls up the same species rows already fetched for the ranking (so the donut overview costs
-     * no extra query). The dataset's seven Latin major-group classes are mapped onto five
-     * plain-language buckets; anything unmapped (including a missing class) falls into "Other".
-     * Buckets are returned in a fixed order so the front-end can assign a stable colour per bucket
-     * across both donuts, which is what makes the volume-vs-value reshuffle legible. Zero-valued
-     * buckets are retained here (the front-end drops empty slices) so the array shape is constant.
+     * no extra query), folding each row into a reader-friendly bucket via groupBucket(). Buckets are
+     * returned in a fixed order so the front-end can assign a stable colour per bucket across both
+     * donuts, which is what makes the volume-vs-value reshuffle legible. Zero-valued buckets are
+     * retained here (the front-end drops empty slices) so the array shape is constant.
      *
      * @param   array $rows List of species rows, each with ['grp' => ?string, 'total' => int|string].
      * @return  array ['labels' => string[], 'values' => int[]] in fixed bucket order.
      */
     private function collapseGroups(array $rows): array
     {
-        $map = [
+        // Fixed display order; every bucket is always present so colours stay stable.
+        $order = ['Fish', 'Crustaceans', 'Molluscs', 'Plants & seaweed', 'Other'];
+        $totals = \array_fill_keys($order, 0);
+
+        foreach ($rows as $row) {
+            $totals[$this->groupBucket($row['grp'] ?? null)] += (int) $row['total'];
+        }
+
+        return ['labels' => $order, 'values' => \array_values($totals)];
+    }
+
+    /**
+     * Map a dataset major-group class onto one of the five reader-friendly buckets.
+     *
+     * The dataset's Latin major-group classes are folded into the five plain-language buckets shown
+     * by the donut overview; anything unmapped (including a missing class) falls into "Other". Shared
+     * by the donut roll-up (collapseGroups) and the per-species ranking (formatRanking) so the bar
+     * tints can never drift from the donut buckets.
+     *
+     * @param   ?string $grp Dataset major-group class, e.g. 'PISCES', or null.
+     * @return  string One of: 'Fish', 'Crustaceans', 'Molluscs', 'Plants & seaweed', 'Other'.
+     */
+    private function groupBucket(?string $grp): string
+    {
+        static $map = [
             'PISCES' => 'Fish',
             'CRUSTACEA' => 'Crustaceans',
             'MOLLUSCA' => 'Molluscs',
             'PLANTAE AQUATICAE' => 'Plants & seaweed',
         ];
 
-        // Fixed display order; every bucket is always present so colours stay stable.
-        $order = ['Fish', 'Crustaceans', 'Molluscs', 'Plants & seaweed', 'Other'];
-        $totals = \array_fill_keys($order, 0);
-
-        foreach ($rows as $row) {
-            $bucket = $map[(string) ($row['grp'] ?? '')] ?? 'Other';
-            $totals[$bucket] += (int) $row['total'];
-        }
-
-        return ['labels' => $order, 'values' => \array_values($totals)];
+        return $map[(string) ($grp ?? '')] ?? 'Other';
     }
 
     /**
