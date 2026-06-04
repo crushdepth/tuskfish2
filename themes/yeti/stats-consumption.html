@@ -20,7 +20,7 @@
                 </div>
 
                 <div class="map-frame">
-                    <svg id="consumptionMap" viewBox="0 0 1000 490" role="img"
+                    <svg id="consumptionMap" viewBox="0 0 1000 650" role="img"
                          aria-label="World choropleth of per-capita aquatic food consumption, 2023"></svg>
                 </div>
 
@@ -81,11 +81,11 @@ legendDefs.forEach(d => {
     item.append('span').text(d.label + (d.label.includes('data') ? '' : ' kg'));
 });
 
-const WIDTH = 1000, HEIGHT = 490;
+const WIDTH = 1000; // nominal internal resolution; the viewBox (and thus on-screen size) is fluid.
 const svg = d3.select('#consumptionMap');
 const tooltip = d3.select('#consumptionTooltip');
 
-const projection = d3.geoEqualEarth();
+const projection = d3.geoMercator();
 const path = d3.geoPath(projection);
 
 // Pull a viewport-relative point from either a mouse or a touch event.
@@ -127,7 +127,15 @@ d3.json(<?php echo \json_encode(TFISH_VENDOR_URL . 'topojson/countries-50m.json'
         countries = countries.filter(f => +f.id !== 10);
 
         const fc = { type: 'FeatureCollection', features: countries };
-        projection.fitExtent([[2, 2], [WIDTH - 2, HEIGHT - 2]], fc);
+
+        // Scale the projection to a nominal width, then size the SVG's viewBox to the map's actual
+        // drawn bounds (plus a small margin). Deriving the frame from the content — rather than
+        // fitting the content into a fixed-aspect box — means any projection fills the frame
+        // edge-to-edge with no letterboxing, and the CSS `width:100%` lets it scale fluidly.
+        const M = 2;
+        projection.fitWidth(WIDTH, fc);
+        const [[bx0, by0], [bx1, by1]] = path.bounds(fc);
+        svg.attr('viewBox', `${bx0 - M} ${by0 - M} ${(bx1 - bx0) + M * 2} ${(by1 - by0) + M * 2}`);
 
         // Sphere + graticule backdrop. Fill/stroke are set as presentation attributes rather than
         // left to the stylesheet: iOS Safari does not reliably apply CSS fill to inline SVG that is
