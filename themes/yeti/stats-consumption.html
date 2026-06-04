@@ -85,7 +85,8 @@ const WIDTH = 1000; // nominal internal resolution; the viewBox (and thus on-scr
 const svg = d3.select('#consumptionMap');
 const tooltip = d3.select('#consumptionTooltip');
 
-const projection = d3.geoMercator();
+// const projection = d3.geoMercator();
+const projection = d3.geoNaturalEarth1();
 const path = d3.geoPath(projection);
 
 // Pull a viewport-relative point from either a mouse or a touch event.
