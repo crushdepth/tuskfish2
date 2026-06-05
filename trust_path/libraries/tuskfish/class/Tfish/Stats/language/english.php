@@ -31,7 +31,7 @@ namespace Tfish\Stats;
 \define("TFISH_STATS_SPECIES_TITLE", "Aquaculture Species Profiles");
 \define("TFISH_STATS_SPECIES_DESCRIPTION", "See which aquatic species are farmed, where, and in what quantities, based on FAO aquaculture statistics.");
 
-\define("TFISH_STATS_PRODUCTION", "Production Profiles");
+\define("TFISH_STATS_PRODUCTION", "Production");
 \define("TFISH_STATS_PRODUCTION_TITLE", "Aquaculture Production Profiles");
 \define("TFISH_STATS_PRODUCTION_DESCRIPTION", "Discover where specific commodities are farmed, by country and year, drawn from FAO data.");
 
@@ -39,10 +39,14 @@ namespace Tfish\Stats;
 \define("TFISH_STATS_TRADE_TITLE", "Aquatic Product Trade");
 \define("TFISH_STATS_TRADE_DESCRIPTION", "Track the volume and value of imports, exports and reexports of fisheries and aquaculture commodities, by country and year, drawn from FAO data.");
 
-\define("TFISH_STATS_ENVIRONMENT", "Environment Profiles");
+\define("TFISH_STATS_ENVIRONMENT", "Environment");
 \define("TFISH_STATS_ENVIRONMENT_TITLE", "Aquaculture Production by Environment");
 \define("TFISH_STATS_ENVIRONMENT_DESCRIPTION", "Data on aquaculture production in freshwater, brackish and marine environments across countries, based on FAO statistics.");
 
 \define("TFISH_STATS_CONSUMPTION", "Consumption");
 \define("TFISH_STATS_CONSUMPTION_TITLE", "Global Aquatic Food Consumption");
 \define("TFISH_STATS_CONSUMPTION_DESCRIPTION", "A world map of apparent per-capita aquatic food consumption (kilograms per person per year) by country, drawn from FAO Food Balance Sheets.");
+
+\define("TFISH_STATS_FOODSECURITY", "Food Insecurity");
+\define("TFISH_STATS_FOODSECURITY_TITLE", "Global Food Insecurity");
+\define("TFISH_STATS_FOODSECURITY_DESCRIPTION", "A world map of the prevalence of moderate or severe food insecurity (percentage of the population, SDG indicator 2.1.2) by country, drawn from the FAO Food Insecurity Experience Scale.");

@@ -563,64 +563,77 @@
     height: 260px;
 }
 
-/* Consumption choropleth (/consumption/). Scoped to .consumption-map so the map's element-level
-   rules (svg, paths, tooltip) never leak into the rest of the site. */
-.consumption-map {
+/* Choropleth maps (/consumption/ and /food-security/). Scoped to the per-map wrapper so the map's
+   element-level rules (svg, paths, tooltip) never leak into the rest of the site. Both maps share the
+   same structure and chrome; only the fill scale (set inline by each template) differs. */
+.consumption-map,
+.foodsecurity-map {
     color: #1a2230;
 }
-.consumption-map .chart-header {
+.consumption-map .chart-header,
+.foodsecurity-map .chart-header {
     /* This header is the first element in the card (no controls above it), so drop the divider
        rule and its spacing that separate stacked sections on the other Stats pages. */
     border-top: none;
     padding-top: 0;
 }
-.consumption-map .map-frame {
+.consumption-map .map-frame,
+.foodsecurity-map .map-frame {
     position: relative;
     width: 100%;
 }
-.consumption-map svg {
+.consumption-map svg,
+.foodsecurity-map svg {
     width: 100%;
     height: auto;
     display: block;
 }
-.consumption-map .country {
+.consumption-map .country,
+.foodsecurity-map .country {
     stroke: #ffffff;
     stroke-width: 0.4px;
 }
-.consumption-map .country:hover {
+.consumption-map .country:hover,
+.foodsecurity-map .country:hover {
     stroke: #1a2230;
     stroke-width: 1px;
 }
-.consumption-map .sphere {
+.consumption-map .sphere,
+.foodsecurity-map .sphere {
     fill: #f3f7fb;
     stroke: #d9e2ec;
     stroke-width: 0.6px;
 }
-.consumption-map .graticule {
+.consumption-map .graticule,
+.foodsecurity-map .graticule {
     fill: none;
     stroke: #e4ecf3;
     stroke-width: 0.4px;
 }
-.consumption-map .legend {
+.consumption-map .legend,
+.foodsecurity-map .legend {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem 1.5rem;
     margin: 0.75rem 0 0.25rem;
 }
-.consumption-map .legend-item {
+.consumption-map .legend-item,
+.foodsecurity-map .legend-item {
     display: flex;
     align-items: center;
     gap: 0.4rem;
     font-size: 0.82rem;
     color: #3a4656;
 }
-.consumption-map .swatch {
+.consumption-map .swatch,
+.foodsecurity-map .swatch {
     width: 18px;
     height: 18px;
     border-radius: 3px;
     border: 1px solid rgba(0, 0, 0, 0.12);
 }
-.consumption-map .tooltip {
+.consumption-map .tooltip,
+.foodsecurity-map .tooltip {
     position: fixed;
     pointer-events: none;
     z-index: 10;
@@ -635,23 +648,29 @@
     opacity: 0;
     transition: opacity 0.08s ease;
 }
-.consumption-map .tooltip .t-name {
+.consumption-map .tooltip .t-name,
+.foodsecurity-map .tooltip .t-name {
     font-weight: 650;
     margin-bottom: 0.15rem;
 }
-.consumption-map .tooltip .t-val {
+.consumption-map .tooltip .t-val,
+.foodsecurity-map .tooltip .t-val {
     color: #8fd0ff;
 }
-.consumption-map .tooltip .t-nodata {
+.consumption-map .tooltip .t-nodata,
+.foodsecurity-map .tooltip .t-nodata {
     color: #c3ccd9;
     font-style: italic;
 }
 .consumption-map .map-note,
-.consumption-map .map-source {
+.consumption-map .map-source,
+.foodsecurity-map .map-note,
+.foodsecurity-map .map-source {
     margin-top: 0.4rem;
     font-size: 0.72rem;
     color: #97a1b0;
 }
-.consumption-map .map-note {
+.consumption-map .map-note,
+.foodsecurity-map .map-note {
     margin-top: 1rem;
 }
