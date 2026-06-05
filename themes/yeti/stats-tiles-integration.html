@@ -1,0 +1,9 @@
+<!-- Stats navigation tiles (homepage only) -->
+<?php if (\parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) === '/' && empty($_SERVER['QUERY_STRING'])): ?>
+<div class="container mt-5 pt-5">
+  <div class="text-center mb-4">
+    <h2><span class="text-primary">New!</span> Aquaculture Statistics Playground</h2>
+  </div>
+  <?php include TFISH_THEMES_PATH . 'landkit/stats-nav-homepage.html'; ?>
+</div>
+<?php endif; ?>
