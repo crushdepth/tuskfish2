@@ -114,6 +114,11 @@ class Consumption
      * Province of). Source: FAO Food Balance Sheets (FAOSTAT), CC BY 4.0. Replace this method body
      * with a database read to make the page dynamic.
      *
+     * SECURITY: the 'name' field is treated as hostile free text downstream. The /consumption map
+     * tooltip (themes/yeti/stats-consumption.html, showTip) renders it via .text() (textContent),
+     * never interpolated into .html(), so markup in a name cannot execute. If you swap this snapshot
+     * for a live query, keep that assumption intact — do not echo names into HTML without escaping.
+     *
      * @return  array List of ['id' => int, 'name' => string, 'kg' => float].
      */
     private function staticSnapshot(): array
