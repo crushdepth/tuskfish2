@@ -1,0 +1,85 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Container -->
+<div class="container">
+  <div class="row">
+    <div class="col description">
+
+      <!-- Display a single expert object -->
+      <?php if ($expert = $viewModel->expert()): ?>
+      <?php $expertTags = $viewModel->expertTags(); ?>
+
+      <!-- Image -->
+      <?php if ($expert->image()): ?>
+      <div class="float-end figure-right">
+        <figure>
+            <img class="image img-fluid" src="<?php echo $expert->cachedImage(200); ?>" alt="<?php echo xss($expert->nameAndJob()); ?>" />
+        </figure>
+      </div>
+      <?php endif; ?>
+
+      <!-- Title and meta information -->
+      <div>
+        <h2 class="name"><?php echo xss($expert->nameAndJob()); ?></h2>
+        <?php if ($expert->businessUnit() || $expert->organisation()): ?>
+        <p><b><?php echo xss($expert->affiliation()); ?></b></p>
+        <?php endif; ?>
+        <?php if (!empty($expertTags)): ?>
+        <p class="content-info">
+            <?php
+              echo '<strong>' . TFISH_EXPERTS_SKILLS . ':</strong> ';
+              foreach ($expertTags as $key => $value) {
+                $tags[] = '<a href="' . TFISH_EXPERTS_URL . '?tag=' . xss($key) . '">' . xss($value) . '</a>';
+              }
+              echo \implode(', ', $tags);
+            ?>
+        </p>
+        <p><strong><?php echo TFISH_EXPERTS_EMAIL . ': </strong>' . xss($expert->email()); ?></p>
+        <?php endif; ?>
+      </div>
+
+      <!-- Experience -->
+      <?php if ($expert->experience()): ?>
+      <div class="experience">
+        <h3><?php echo TFISH_EXPERTS_EXPERIENCE; ?></h3>
+        <?php echo $expert->experienceForDisplay(); ?>
+      </div>
+      <?php endif; ?>
+
+      <!-- Projects -->
+      <?php if ($expert->projects()): ?>
+      <div class="projects">
+        <h3><?php echo TFISH_EXPERTS_PROJECTS; ?></h3>
+        <?php echo $expert->projectsForDisplay(); ?>
+      </div>
+      <?php endif; ?>
+
+      <!-- Publications -->
+      <?php if ($expert->publications()): ?>
+      <div class="publications">
+        <h3><?php echo TFISH_EXPERTS_PUBLICATIONS; ?></h3>
+        <?php echo $expert->publicationsForDisplay(); ?>
+      </div>
+      <?php endif; ?>
+
+      <!-- Contact details -->
+      <?php if ($expert->address() || $expert->country() || $expert->email()): ?>
+      <div class="contact">
+        <h3><?php echo TFISH_EXPERTS_CONTACT; ?></h3>
+        <p><?php echo \nl2br(xss($expert->contactDetailsForDisplay())); ?></p>
+      </div>
+      <?php endif; ?>
+
+      <!-- Personal profile link -->
+      <?php if ($expert->profileUrl()): ?>
+      <div class="profileLink">
+        <h3><?php echo TFISH_EXPERTS_PROFILE_URL; ?></h3>
+        <p><?php echo xss($expert->profileUrl()); ?></p>
+      </div>
+      <?php endif; ?>
+
+      <?php endif; ?>
+
+    </div>
+  </div>
+</div>

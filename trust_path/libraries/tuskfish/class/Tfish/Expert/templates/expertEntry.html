@@ -1,0 +1,230 @@
+<?php declare(strict_types=1); ?>
+
+<?php
+  $content = $viewModel->expert();
+?>
+
+<!-- Container -->
+<div class="container">
+
+<div class="row">
+  <div class="col">
+    <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+  </div>
+</div>
+
+<!-- Custom form manager script to show or hide fields and manage file uploads -->
+<script type="text/javascript" src="<?php echo TFISH_VENDOR_URL . 'tuskfish/contentForm.js'; ?>"></script>
+
+<div class="row">
+  <div class="col">
+    <form class="form-horizontal" action="<?php echo TFISH_EXPERTS_ADMIN_URL . 'edit/'; ?>" method="post" enctype="multipart/form-data" role="form" accept-charset="UTF-8">
+      <div class="row">
+
+      <!-- Salutation -->
+      <div class="col-md-2 mb-3 text-left" id="salutationContainer">
+        <label for="salutation"><strong><?php echo TFISH_EXPERTS_SALUTATION; ?></strong></label>
+        <select class="form-control custom-select" name="content[salutation]" id="salutation">
+          <?php
+              foreach ($viewModel->salutationList() as $key => $salutation) {
+                  echo '<option value="' . xss($key) . '">'
+                      . xss($salutation) . '</option>';
+              }
+          ?>
+          </select>
+      </div>
+
+      <!-- First name -->
+      <div class="col-md-3 mb-3 text-left" id="firstNameContainer">
+        <label for="firstName"><strong><?php echo TFISH_EXPERTS_FIRST_NAME; ?></strong></label>
+        <input type="text" class="form-control" name="content[firstName]" id="firstName">
+      </div>
+
+      <!-- Mid name -->
+      <div class="col-md-3 mb-3 text-left" id="midNameContainer">
+        <label for="midName"><strong><?php echo TFISH_EXPERTS_MID_NAME; ?></strong></label>
+        <input type="text" class="form-control" name="content[midName]" id="midName">
+      </div>
+
+      <!-- Last name -->
+      <div class="col-md-4 mb-3 text-left" id="lastNameContainer">
+        <label for="lastName"><strong><?php echo TFISH_EXPERTS_LAST_NAME; ?></strong></label>
+        <input type="text" class="form-control" name="content[lastName]" id="lastName">
+      </div>
+
+      <!-- Job -->
+      <div class="col-md-4 mb-3 text-left" id="jobContainer">
+        <label for="job"><strong><?php echo TFISH_EXPERTS_JOB; ?></strong></label>
+        <input type="text" class="form-control" name="content[job]" id="job">
+      </div>
+
+      <!-- Business unit -->
+      <div class="col-md-4 mb-3 text-left" id="businessUnitContainer">
+        <label for="businessUnit"><strong><?php echo TFISH_EXPERTS_BUSINESS_UNIT; ?></strong></label>
+        <input type="text" class="form-control" name="content[businessUnit]" id="businessUnit">
+      </div>
+
+      <!-- Organisation -->
+      <div class="col-md-4 mb-3 text-left" id="organisationContainer">
+        <label for="organisation"><strong><?php echo TFISH_EXPERTS_ORGANISATION; ?></strong></label>
+        <input type="text" class="form-control" name="content[organisation]" id="organisation">
+      </div>
+
+      <!-- Email -->
+      <div class="col-md-4 mb-3 text-left" id="emailContainer">
+        <label for="email"><strong><?php echo TFISH_EXPERTS_EMAIL; ?></strong></label>
+        <input type="email" class="form-control" name="content[email]" id="email">
+      </div>
+
+      <!-- Profile URL -->
+      <div class="col-md-4 mb-3 text-left" id="profileUrlContainer">
+        <label for="profileUrl"><strong><?php echo TFISH_EXPERTS_PROFILE_URL; ?></strong></label>
+        <input type="url" class="form-control" name="content[profileUrl]" id="profileUrl">
+      </div>
+
+      <!-- Gender -->
+      <div class="col-md-2 mb-3 text-left" id="genderContainer">
+        <p><strong><?php echo TFISH_EXPERTS_GENDER; ?></strong></p>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" id="male" name="content[gender]" value="1" checked required>
+          <label class="form-check-label" for="male"><?php echo TFISH_EXPERTS_MALE; ?></label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" id="female" name="content[gender]" value="0" required>
+          <label class="form-check-label" for="female"><?php echo TFISH_EXPERTS_FEMALE; ?></label>
+        </div>
+      </div>
+
+      <!-- Online status -->
+      <div class="col-md-2 mb-3 text-left" id="onlineContainer">
+        <p><strong><?php echo TFISH_ONLINE_STATUS; ?></strong></p>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" id="online" name="content[onlineStatus]" value="1" checked>
+          <label class="form-check-label" for="online"><?php echo TFISH_ONLINE; ?></label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" id="offline" name="content[onlineStatus]" value="0" required>
+          <label class="form-check-label" for="offline"><?php echo TFISH_OFFLINE; ?></label>
+        </div>
+      </div>
+
+      <!-- Experience -->
+      <div class="col-12 mb-3 text-left" id="experienceContainer">
+        <label for="experience"><strong><?php echo TFISH_EXPERTS_EXPERIENCE; ?></strong></label>
+        <textarea id="experience" name="content[experience]" class="form-control text-left"></textarea>
+      </div>
+
+      <!-- Projects -->
+      <div class="col-12 mb-3 text-left" id="projectsContainer">
+        <label for="projects"><strong><?php echo TFISH_EXPERTS_PROJECTS; ?></strong></label>
+        <textarea id="projects" name="content[projects]" class="form-control text-left"></textarea>
+      </div>
+
+      <!-- Publications -->
+      <div class="col-12 mb-3 text-left" id="publicationsContainer">
+        <label for="publications"><strong><?php echo TFISH_EXPERTS_PUBLICATIONS; ?></strong></label>
+        <textarea id="publications" name="content[publications]" class="form-control text-left"></textarea>
+      </div>
+
+      <!-- Address -->
+      <div class="col-12 mb-3 text-left" id="addressContainer">
+        <label for="address"><strong><?php echo TFISH_EXPERTS_ADDRESS; ?></strong></label>
+        <textarea id="address" name="content[address]" rows="5" class="form-control text-left"></textarea>
+      </div>
+
+      <!-- Country -->
+      <div class="col-md-4 mb-3 text-left" id="countryContainer">
+        <label for="country"><strong><?php echo TFISH_STATE; ?></strong></label>
+        <select class="form-control custom-select" name="content[country]" id="country" required>
+          <?php
+              foreach ($viewModel->countryList() as $key => $country) {
+                  echo '<option value="' . xss($key) . '">'
+                      . xss($country) . '</option>';
+              }
+          ?>
+          </select>
+      </div>
+
+      <!-- Mobile -->
+      <div class="col-md-4 mb-3 text-left" id="mobileContainer">
+        <label for="mobile"><strong><?php echo TFISH_EXPERTS_MOBILE; ?></strong></label>
+        <input type="tel" class="form-control" name="content[mobile]" id="mobile">
+      </div>
+
+      <!-- Fax -->
+      <div class="col-md-4 mb-3 text-left" id="faxContainer">
+        <label for="fax"><strong><?php echo TFISH_EXPERTS_FAX; ?></strong></label>
+        <input type="tel" class="form-control" name="content[fax]" id="fax">
+      </div>
+
+      <!-- Image -->
+      <div class="col-md-6 mb-3 text-left" id="imageContainer">
+        <label for="image"><strong><?php echo TFISH_IMAGE; ?></strong></label>
+        <input id="image" name="content[image]" type="file" data-preview-file-type="text">
+      </div>
+      <script>
+      $(document).ready(function() {
+        $("#image").fileinput({
+        'showUpload': false,
+        'showRemove': true,
+        'allowedFileExtensions': ["gif", "jpg", "png"],
+        'previewFileType': ["image"],
+        'fileActionSettings': {
+            'showDrag': false},
+        'theme': "fa"});
+      });
+      </script>
+
+      <!-- Tags -->
+      <div class="col-md-6 mb-3 text-left" id="tagsContainer">
+        <label for="tags"><strong><?php echo TFISH_TAGS; ?></strong></label>
+        <select multiple class="form-control custom-select" size="5"  name="tags[]" id="tags">
+            <?php
+                foreach ($viewModel->listTags() as $tagId => $tagTitle) {
+                    echo '<option value="' . xss($tagId) . '">' . xss($tagTitle) . '</option>';
+                }
+            ?>
+        </select>
+      </div>
+
+      <div class="col-md-12" id="metaHeader">
+        <h2><?php echo TFISH_META_TAGS; ?></h2>
+        <hr>
+      </div>
+
+      <!-- Meta title -->
+      <div class="col-md-6 mb-3 text-left" id="metaTitleContainer">
+        <label for="metaTitle"><strong><?php echo TFISH_META_TITLE; ?></strong></label>
+        <input type="text" class="form-control" name="content[metaTitle]" id="metaTitle">
+      </div>
+
+      <!-- SEO -->
+      <div class="col-md-6 mb-3 text-left" id="seoContainer">
+        <label for="metaSeo"><strong><?php echo TFISH_SEO; ?></strong></label>
+        <input type="text" class="form-control" name="content[metaSeo]" id="metaSeo">
+      </div>
+
+      <!-- Meta description -->
+      <div class="col-12 mb-3 text-left" id="metaDescriptionContainer">
+        <label for="metaDescription"><strong><?php echo TFISH_META_DESCRIPTION; ?></strong></label>
+        <input type="text" class="form-control" name="content[metaDescription]" id="metaDescription">
+      </div>
+
+      <!-- Meta description counter -->
+      <div class="col-12 mb-3 text-left" id="metaCounter"></div>
+
+    </div> <!-- /row -->
+
+      <!-- Action buttons -->
+      <div class="float-start clearfix">
+        <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>" />
+        <button name="action" value="save" type="submit" class="btn btn-primary"><?php echo TFISH_SUBMIT; ?></button>
+        <button name="action" value="cancel" type="submit" class="btn btn-primary" formnovalidate><?php echo TFISH_CANCEL; ?></button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+</div>

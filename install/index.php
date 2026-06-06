@@ -327,10 +327,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "metaSeo" => "general"];
         $query = $database->insert('content', $contentData);
 
-        // Create an experts table - not required in public release.
+        // Create an experts table - not required in public release. Columns match the persisted
+        // fields of \Tfish\Expert\Entity\Expert (see that class and Model\ExpertEdit::validateForm()).
         /*$expertColumns = [
             "id" => "INTEGER",
-            "type" => "TEXT",
             "salutation" => "INTEGER",
             "firstName" => "TEXT",
             "midName" => "TEXT",
@@ -347,13 +347,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "email" => "TEXT",
             "mobile" => "TEXT",
             "fax" => "TEXT",
-            "profileLink" => "TEXT",
+            "profileUrl" => "TEXT",
             "image" => "TEXT",
+            "onlineStatus" => "INTEGER",
             "submissionTime" => "INTEGER",
             "lastUpdated" => "INTEGER",
             "expiresOn" => "INTEGER",
-            "counter" => "INTEGER",
-            "onlineStatus" => "INTEGER",
             "metaTitle" => "TEXT",
             "metaDescription" => "TEXT",
             "metaSeo" => "TEXT"
