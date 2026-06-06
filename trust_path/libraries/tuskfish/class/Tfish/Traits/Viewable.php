@@ -35,6 +35,7 @@ trait Viewable
     private string $template = '';
     private string $layout = 'layout';
     private string $theme = '';
+    private string $modulePath = '';
     private array $metadata = [];
     private bool $doNotCache = false;
 
@@ -65,7 +66,7 @@ trait Viewable
      */
     public function template(): \Tfish\Entity\Template
     {
-        return new \Tfish\Entity\Template($this->template, $this->theme);
+        return new \Tfish\Entity\Template($this->template, $this->theme, $this->modulePath);
     }
 
     /**
