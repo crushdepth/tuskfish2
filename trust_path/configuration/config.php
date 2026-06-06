@@ -93,6 +93,3 @@ function tfish_autoload(string $classname) {
 \spl_autoload_register('tfish_autoload');
 
 // Site database name are appended here.
-
-if (!\defined("TFISH_DATABASE")) define("TFISH_DATABASE", "/var/www/html/trust_path/database/1106599095_test.db");
-\define("TFISH_FISHSTAT_DB", 'aquaculture-fisheries.db');
