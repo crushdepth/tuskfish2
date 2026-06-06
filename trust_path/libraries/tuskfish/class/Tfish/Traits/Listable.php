@@ -42,6 +42,7 @@ trait Listable
     private string $template = '';
     private string $layout = 'layout';
     private string $theme = '';
+    private string $modulePath = '';
     private array $metadata = [];
     private string $sort = '';
     private string $order = '';
@@ -159,7 +160,7 @@ trait Listable
      */
     public function template(): \Tfish\Entity\Template
     {
-        return new \Tfish\Entity\Template($this->template, $this->theme);
+        return new \Tfish\Entity\Template($this->template, $this->theme, $this->modulePath);
     }
 
     /**

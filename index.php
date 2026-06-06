@@ -29,7 +29,10 @@ $routingTable = require_once TFISH_PATH . 'routingTable.php';
 require_once TFISH_PATH . 'header.php';
 
 // Module headers provide additional path, language constants, blocks, and routing table info.
-require_once TFISH_CLASS_PATH . 'Tfish/User/header.php';
+// Auto-discovered: any module directory containing a header.php is loaded (alphabetical order).
+foreach (\glob(TFISH_CLASS_PATH . 'Tfish/*/header.php') ?: [] as $moduleHeader) {
+    require_once $moduleHeader;
+}
 
 // Extract the route and action from the request.
 // Note: If using an NGINX reverse proxy in front of Apache/Tuskfish to terminate SSL, use the

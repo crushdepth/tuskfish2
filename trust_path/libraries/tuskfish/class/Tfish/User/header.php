@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace Tfish\User;
 
 // Make core language files available.
-include 'language/english.php';
+include __DIR__ . '/language/english.php';
 
 // Addtional routes for User module.
 $routingTable['/admin/user/'] = new \Tfish\Route(
@@ -37,3 +37,7 @@ $routingTable['/admin/user/edit/'] = new \Tfish\Route(
 
 // User file path constants.
 \define("TFISH_ADMIN_USER_URL", TFISH_ADMIN_URL . 'user/');
+
+// Module template directory, used as the bundled-default fallback when the active theme does not
+// provide a template (see \Tfish\Entity\Template::validPath()).
+\define("TFISH_USER_TEMPLATE_PATH", TFISH_CLASS_PATH . 'Tfish/User/templates/');

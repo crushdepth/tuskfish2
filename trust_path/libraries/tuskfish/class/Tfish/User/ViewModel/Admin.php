@@ -67,6 +67,7 @@ class Admin implements \Tfish\Interface\Listable
         $this->model = $model;
         $this->preference = $preference;
         $this->theme = 'admin';
+        $this->modulePath = TFISH_USER_TEMPLATE_PATH;
         $this->sort = 'email';
         $this->order = 'ASC';
         $this->setMetadata(['robots' => 'noindex,nofollow']);
@@ -93,7 +94,7 @@ class Admin implements \Tfish\Interface\Listable
     public function displayConfirmDelete(): void
     {
         $this->pageTitle = TFISH_CONFIRM;
-        $this->template = 'confirmDeleteUser';
+        $this->setTemplate('confirmDeleteUser');
         $this->action = 'confirm';
         $this->backUrl = TFISH_ADMIN_USER_URL;
     }
@@ -121,7 +122,7 @@ class Admin implements \Tfish\Interface\Listable
             $this->response = TFISH_OBJECT_DELETION_FAILED;
         }
 
-        $this->template = 'response';
+        $this->setTemplate('response');
         $this->backUrl = TFISH_ADMIN_USER_URL;
     }
 
@@ -136,7 +137,7 @@ class Admin implements \Tfish\Interface\Listable
     {
         $this->pageTitle = TFISH_USERS;
         $this->listContent();
-        $this->template = 'userTable';
+        $this->setTemplate('userTable');
     }
 
     /**
