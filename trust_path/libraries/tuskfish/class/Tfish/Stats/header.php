@@ -20,6 +20,14 @@ namespace Tfish\Stats;
 // Make core language files available.
 include 'language/english.php';
 
+// Path to the module's bundled default templates, used as a fallback when the active theme does
+// not provide a given Stats template (see \Tfish\Entity\Template::validPath()).
+\define("TFISH_STATS_TEMPLATE_PATH", TFISH_CLASS_PATH . 'Tfish/Stats/templates/');
+
+// Read-only SQLite database backing the Stats pages (resolved against TFISH_DATABASE_PATH in
+// \Tfish\Stats\Traits\StatsDatabase). Module-local: ships with the module, no site config needed.
+\define("TFISH_STATS_DB", 'aquaculture-fisheries-trade.db');
+
 // Addtional routes for User module.
 $routingTable['/global/'] = new \Tfish\Route(
     '\\Tfish\\Stats\\Model\\Listing',

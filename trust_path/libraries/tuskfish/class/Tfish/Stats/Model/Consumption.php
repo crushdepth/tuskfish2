@@ -115,7 +115,7 @@ class Consumption
      * with a database read to make the page dynamic.
      *
      * SECURITY: the 'name' field is treated as hostile free text downstream. The /consumption map
-     * tooltip (themes/yeti/stats-consumption.html, showTip) renders it via .text() (textContent),
+     * tooltip (Stats/templates/stats-consumption.html, showTip) renders it via .text() (textContent),
      * never interpolated into .html(), so markup in a name cannot execute. If you swap this snapshot
      * for a live query, keep that assumption intact — do not echo names into HTML without escaping.
      *

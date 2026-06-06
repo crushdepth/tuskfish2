@@ -11,26 +11,28 @@
     </div>
 
     <div class="stats-container">
-        <?php include TFISH_THEMES_PATH . $viewModel->theme() . '/stats-nav.html'; ?>
+        <?php include __DIR__ . '/stats-nav.html'; ?>
         <div class="chart-card">
-            <div class="consumption-map">
+            <div class="foodsecurity-map">
                 <div class="chart-header">
-                    <h2 class="chart-title">Apparent Aquatic Food Consumption per Capita</h2>
-                    <p class="chart-subtitle">Kilograms per year</p>
+                    <h2 class="chart-title">Prevalence of Moderate or Severe Food Insecurity</h2>
+                    <p class="chart-subtitle">Percentage of total population, <?php echo xss((string) $viewModel->referenceYear()); ?></p>
                 </div>
 
                 <div class="map-frame">
-                    <svg id="consumptionMap" viewBox="0 0 1000 650" role="img"
-                         aria-label="World choropleth of per-capita aquatic food consumption, 2023"></svg>
+                    <svg id="foodSecurityMap" viewBox="0 0 1000 650" role="img"
+                         aria-label="World choropleth of the prevalence of moderate or severe food insecurity, <?php echo xss((string) $viewModel->referenceYear()); ?>"></svg>
                 </div>
 
-                <div class="legend" id="consumptionLegend"></div>
+                <div class="legend" id="foodSecurityLegend"></div>
 
-                <p class="map-note">Class breaks follow the FAO Yearbook of Fishery and Aquaculture Statistics 2023.
-                    Values are <em>apparent</em> consumption (domestic supply &divide; population), item &ldquo;Fish, Seafood&rdquo;.
+                <p class="map-note">SDG indicator 2.1.2, measured with the FAO Food Insecurity Experience Scale (FIES).
+                    Values are the share of the total population experiencing <em>moderate or severe</em> food insecurity,
+                    reference year <?php echo xss((string) $viewModel->referenceYear()); ?> &mdash; chosen for its near-complete country coverage. Estimates carry a
+                    margin of uncertainty; countries shown in grey did not have a value published.
                     Boundaries are for display only and do not imply any endorsement or judgement of legal status.</p>
-                <p class="map-source">Data © FAO 2026. <a href="https://www.fao.org/fishery/collection/global_fish_consump_en/en">Consumption of Aquatic Products</a>. Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">Licensed under CC BY 4.0</a>.</p>
-                <div class="tooltip" id="consumptionTooltip"></div>
+                <p class="map-source">Data © FAO 2026. <a href="https://www.fao.org/faostat/en/#data/SDGB">SDG Indicator 2.1.2 (FIES)</a>. Licensed under <a href="https://creativecommons.org/licenses/by/4.0/legalcode.en">CC BY 4.0</a>.</p>
+                <div class="tooltip" id="foodSecurityTooltip"></div>
             </div>
         </div>
     </div>
@@ -46,44 +48,50 @@
 <script>
 // Fail visibly if a vendored library did not load (otherwise the map area is blank).
 if (typeof d3 === 'undefined' || typeof topojson === 'undefined') {
-    document.querySelector('.consumption-map .map-frame').innerHTML =
+    document.querySelector('.foodsecurity-map .map-frame').innerHTML =
         '<p style="color:#b00;font-size:0.85rem">Map libraries failed to load. ' +
         'Check that the d3 and topojson-client scripts under /vendor/ are served.</p>';
     throw new Error('d3 or topojson not loaded');
 }
 
-// Per-capita apparent aquatic food supply (kg/capita/yr), keyed by M49 numeric id. Supplied by the
-// Model (Stats\Model\Consumption) rather than hardcoded here, ready for the page to go dynamic.
-const data = <?php echo $viewModel->consumptionDataJson(); ?>;
+// Prevalence of moderate or severe food insecurity (% of population), keyed by M49 numeric id.
+// Supplied by the Model (Stats\Model\FoodSecurity) rather than hardcoded here, ready for the page to
+// go dynamic.
+const data = <?php echo $viewModel->foodSecurityDataJson(); ?>;
 
 const byId = new Map(data.map(d => [d.id, d]));
 
-// FAO Yearbook 2023 class breaks: <5, 5-15, 15-30, 30-60, >60
-const breaks = [5, 15, 30, 60];
-const colors = ['#deebf7', '#9ecae1', '#4292c6', '#2171b5', '#084594'];
+// Class breaks: <10, 10-25, 25-40, 40-60, >60 (% of population).
+const breaks = [10, 25, 40, 60, 80];
+// YlOrRd 9-class, low end lifted for contrast and spacing. The original <10% swatch (#ffffb2) was a
+// near-white that vanished against the light #f3f7fb sphere fill; it is now a clearly visible gold
+// (#fed976). The higher classes are each stepped one grade darker than that gold so the lowest two
+// categories stay easy to tell apart, ending on the darkest 9-class red (#800026) for >80%.
+const colors = ['#fed976', '#fd8d3c', '#fc4e2a', '#e31a1c', '#bd0026', '#800026'];
 const NO_DATA = '#e6e9ed';
 const color = d3.scaleThreshold().domain(breaks).range(colors);
 
 const legendDefs = [
-    { label: '< 5',     c: colors[0] },
-    { label: '5 – 15',  c: colors[1] },
-    { label: '15 – 30', c: colors[2] },
-    { label: '30 – 60', c: colors[3] },
-    { label: '> 60',    c: colors[4] },
+    { label: '< 10',    c: colors[0] },
+    { label: '10 – 25', c: colors[1] },
+    { label: '25 – 40', c: colors[2] },
+    { label: '40 – 60', c: colors[3] },
+    { label: '60 – 80', c: colors[4] },
+    { label: '> 80',    c: colors[5] },
     { label: 'No data', c: NO_DATA }
 ];
 
 // Build legend
-const legend = d3.select('#consumptionLegend');
+const legend = d3.select('#foodSecurityLegend');
 legendDefs.forEach(d => {
     const item = legend.append('div').attr('class', 'legend-item');
     item.append('span').attr('class', 'swatch').style('background', d.c);
-    item.append('span').text(d.label + (d.label.includes('data') ? '' : ' kg'));
+    item.append('span').text(d.label + (d.label.includes('data') ? '' : ' %'));
 });
 
 const WIDTH = 1000; // nominal internal resolution; the viewBox (and thus on-screen size) is fluid.
-const svg = d3.select('#consumptionMap');
-const tooltip = d3.select('#consumptionTooltip');
+const svg = d3.select('#foodSecurityMap');
+const tooltip = d3.select('#foodSecurityTooltip');
 
 // const projection = d3.geoMercator();
 const projection = d3.geoNaturalEarth1();
@@ -101,7 +109,7 @@ function showTip(event, f) {
     const rec = byId.get(+f.id);
     const name = rec ? rec.name : (f.properties && f.properties.name) || 'Unknown';
     const body = rec
-        ? `<div class="t-val">${rec.kg.toFixed(1)} kg / person / year</div>`
+        ? `<div class="t-val">${rec.pct.toFixed(1)}% of population</div>`
         : `<div class="t-nodata">No data</div>`;
     // Name is set via .text() (not interpolated into HTML) to avoid any
     // injection if the data source later becomes dynamic.
@@ -157,7 +165,7 @@ d3.json(<?php echo \json_encode(TFISH_VENDOR_URL . 'topojson/countries-50m.json'
                 .attr('stroke-width', 0.4)
                 .attr('fill', f => {
                     const rec = byId.get(+f.id);
-                    return rec ? color(rec.kg) : NO_DATA;
+                    return rec ? color(rec.pct) : NO_DATA;
                 })
                 .on('mousemove', showTip)
                 .on('mouseleave', hideTip)
@@ -168,12 +176,12 @@ d3.json(<?php echo \json_encode(TFISH_VENDOR_URL . 'topojson/countries-50m.json'
                 .on('touchmove',  function(event, f) { event.preventDefault(); showTip(event, f); });
 
         // Dismiss the tooltip when a touch lands anywhere that is not a country.
-        d3.select('body').on('touchstart.consumptionMap', function(event) {
-            if (!event.target.closest || !event.target.closest('.consumption-map .country')) hideTip();
+        d3.select('body').on('touchstart.foodSecurityMap', function(event) {
+            if (!event.target.closest || !event.target.closest('.foodsecurity-map .country')) hideTip();
         });
     })
     .catch(err => {
-        d3.select('.consumption-map .map-frame').append('p')
+        d3.select('.foodsecurity-map .map-frame').append('p')
             .style('color', '#b00').style('font-size', '0.85rem')
             .text('Could not load world map geometry from vendor/topojson/countries-50m.json. ' + err);
     });
@@ -185,7 +193,7 @@ d3.json(<?php echo \json_encode(TFISH_VENDOR_URL . 'topojson/countries-50m.json'
     // pass-through carrier. stats-shared.js is deferred, so window.Stats is ready by DOMContentLoaded.
     document.addEventListener('DOMContentLoaded', function() {
         if (window.Stats && window.Stats.syncNav) {
-            window.Stats.syncNav(<?php echo \json_encode($viewModel->carriedState(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>, { page: 'consumption' });
+            window.Stats.syncNav(<?php echo \json_encode($viewModel->carriedState(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>, { page: 'insecurity' });
         }
     });
 </script>

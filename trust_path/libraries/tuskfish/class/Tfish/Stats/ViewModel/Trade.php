@@ -44,6 +44,7 @@ class Trade implements \Tfish\Interface\Viewable
         $this->preference = $preference;
         $this->theme = $preference->defaultTheme();
         $this->layout = 'layoutStats';
+        $this->modulePath = TFISH_STATS_TEMPLATE_PATH;
         $this->pageTitle = TFISH_STATS_TRADE_TITLE;
         $this->description = TFISH_STATS_TRADE_DESCRIPTION;
     }
