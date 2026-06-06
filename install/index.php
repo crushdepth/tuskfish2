@@ -147,6 +147,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             \define("TFISH_DATABASE", $dbPath);
         }
 
+        // Generate a random key used to encrypt the SMTP password at rest, and append it to
+        // config.php. Keep this key safe: changing or removing it means re-entering the SMTP
+        // password. If you do not want encryption at rest, delete the constant from config.php.
+        if (!\defined("TFISH_ENCRYPTION_KEY")) {
+            $keyConstant = 'if (!\defined("TFISH_ENCRYPTION_KEY")) define("TFISH_ENCRYPTION_KEY", "'
+                    . \Tfish\Crypto::newKeyBase64() . '");';
+            $fileHandler->appendToFile(TFISH_CONFIGURATION_PATH, $keyConstant);
+        }
+
         $sql = "CREATE TABLE IF NOT EXISTS `user` (
             `id` INTEGER PRIMARY KEY,
             `adminEmail` TEXT NOT NULL UNIQUE,
