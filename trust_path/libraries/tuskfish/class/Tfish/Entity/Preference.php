@@ -121,6 +121,9 @@ class Preference
 
         unset($preferences['database']);
 
+        // Encrypt the SMTP password for storage (no-op if no key is configured).
+        $preferences['smtpPassword'] = $this->smtpPasswordForStorage();
+
         return $preferences;
     }
 
@@ -178,6 +181,11 @@ class Preference
 
         while ($row = $result->fetch(\PDO::FETCH_ASSOC)) {
             $preferences[$row['title']] = $row['value'];
+        }
+
+        // Decrypt the SMTP password (if stored encrypted) so the entity holds plaintext in memory.
+        if (isset($preferences['smtpPassword'])) {
+            $preferences['smtpPassword'] = \Tfish\Crypto::decrypt($preferences['smtpPassword']);
         }
 
         return $preferences;
@@ -883,6 +891,20 @@ class Preference
     public function smtpPassword(): string
     {
         return $this->smtpPassword;
+    }
+
+    /**
+     * The SMTP password in its at-rest (encrypted) form, for writing to the database.
+     *
+     * Paired with the decryption in readPreferences(): the entity holds plaintext in memory and
+     * exposes the encrypted form only when persisting. Returns plaintext unchanged if no encryption
+     * key is configured. See \Tfish\Crypto.
+     *
+     * @return string Encrypted SMTP password (enc:v1: token), or plaintext if no key is set.
+     */
+    public function smtpPasswordForStorage(): string
+    {
+        return \Tfish\Crypto::encrypt($this->smtpPassword);
     }
 
     public function setSmtpPassword(string $value): void

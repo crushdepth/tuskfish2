@@ -50,7 +50,7 @@ class Email
             'smtpPort' => (string) $this->preference->smtpPort(),
             'smtpEncryption' => (string) $this->preference->smtpEncryption(),
             'smtpUser' => (string) $this->preference->smtpUser(),
-            'smtpPassword' => (string) $this->preference->smtpPassword(),
+            'smtpPassword' => $this->preference->smtpPasswordForStorage(),
         ];
 
         $existingKeys = $this->existingPreferenceKeys();
