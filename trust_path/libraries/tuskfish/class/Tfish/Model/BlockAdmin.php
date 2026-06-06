@@ -40,6 +40,7 @@ class BlockAdmin
     private \Tfish\CriteriaFactory $criteriaFactory;
     private \Tfish\Entity\Preference $preference;
     private \Tfish\Cache $cache;
+    private \Tfish\BlockRegistry $registry;
 
     /**
      * Constructor.
@@ -48,17 +49,30 @@ class BlockAdmin
      * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish site preferences class.
      * @param   \Tfish\Cache Instance of the Tuskfish cache class.
+     * @param   \Tfish\BlockRegistry $registry Aggregated block whitelists used by the BlockOption trait.
      */
     public function __construct(
         \Tfish\Database $database,
         \Tfish\CriteriaFactory $criteriaFactory,
         \Tfish\Entity\Preference $preference,
-        \Tfish\Cache $cache)
+        \Tfish\Cache $cache,
+        \Tfish\BlockRegistry $registry)
     {
         $this->database = $database;
         $this->criteriaFactory = $criteriaFactory;
         $this->preference = $preference;
         $this->cache = $cache;
+        $this->registry = $registry;
+    }
+
+    /**
+     * Return the injected block registry (required by \Tfish\Traits\BlockOption).
+     *
+     * @return \Tfish\BlockRegistry
+     */
+    protected function registry(): \Tfish\BlockRegistry
+    {
+        return $this->registry;
     }
 
     /** Actions. */

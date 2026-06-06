@@ -24,7 +24,6 @@ namespace Tfish\ViewModel;
  * @version     Release: 2.0
  * @since       2.0
  * @package     core
- * @uses        trait \Tfish\Traits\BlockOption Provides block route and position whitelists.
  * @uses        trait \Tfish\Traits\Listable Provides a standard implementation of the \Tfish\View\Listable interface.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
@@ -44,7 +43,6 @@ namespace Tfish\ViewModel;
 
 class BlockAdmin implements \Tfish\Interface\Listable
 {
-    use \Tfish\Traits\BlockOption;
     use \Tfish\Traits\Listable;
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
@@ -381,6 +379,63 @@ class BlockAdmin implements \Tfish\Interface\Listable
         $defaultOption = $this->trimString($defaultOption);
 
         return [2 => $defaultOption, 1 => TFISH_ONLINE, 0 => TFISH_OFFLINE];
+    }
+
+    /**
+     * Block whitelists, delegated to the model (which holds the injected \Tfish\BlockRegistry).
+     *
+     * These preserve the public API the block admin templates call on the ViewModel.
+     */
+
+    /**
+     * Whitelist of block types available on the system.
+     *
+     * @return array Fully qualified class name => human-readable label.
+     */
+    public function blockTypes(): array
+    {
+        return $this->model->blockTypes();
+    }
+
+    /**
+     * Whitelist of templates available to each block type.
+     *
+     * @return array Fully qualified class name => [templateName => label].
+     */
+    public function blockTemplates(): array
+    {
+        return $this->model->blockTemplates();
+    }
+
+    /**
+     * Whitelist of permitted block positions (layout slots).
+     *
+     * @return array Position key => human-readable label.
+     */
+    public function blockPositions(): array
+    {
+        return $this->model->blockPositions();
+    }
+
+    /**
+     * Whitelist of routes that blocks are permitted to be displayed on.
+     *
+     * @return array Flat list of route strings.
+     */
+    public function blockRoutes(): array
+    {
+        return $this->model->blockRoutes();
+    }
+
+    /**
+     * Return the path to the configuration sub-template for a given block type.
+     *
+     * @param   string $class Fully qualified block class name.
+     * @return  string Absolute path to the block's config template.
+     */
+    public function blockConfigTemplate(string $class): string
+    {
+        return $this->model->blockConfigTemplate($class);
     }
 
     /** Getters and setters */
