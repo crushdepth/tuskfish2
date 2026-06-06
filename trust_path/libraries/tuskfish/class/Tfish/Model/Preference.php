@@ -102,6 +102,7 @@ class Preference
 
         foreach ($keyValues as $key => $value) {
             // Encrypt the SMTP password at the storage boundary (no-op if no key is configured).
+            // NB: Model\Email::writeSmtpPreferences() does the same; keep both in sync.
             if ($key === 'smtpPassword') {
                 $value = \Tfish\Crypto::encrypt((string) $value);
             }
