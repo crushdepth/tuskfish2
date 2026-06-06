@@ -50,18 +50,12 @@ class Email
             'smtpPort' => (string) $this->preference->smtpPort(),
             'smtpEncryption' => (string) $this->preference->smtpEncryption(),
             'smtpUser' => (string) $this->preference->smtpUser(),
-            'smtpPassword' => (string) $this->preference->smtpPassword(),
+            'smtpPassword' => $this->preference->smtpPasswordForStorage(),
         ];
 
         $existingKeys = $this->existingPreferenceKeys();
 
         foreach ($smtpKeys as $key => $value) {
-            // Encrypt the SMTP password at the storage boundary (no-op if no key is configured).
-            // NB: Model\Preference::writePreferences() does the same; keep both in sync.
-            if ($key === 'smtpPassword') {
-                $value = \Tfish\Crypto::encrypt((string) $value);
-            }
-
             if (\in_array($key, $existingKeys, true)) {
                 $sql = "UPDATE `preference` SET `value` = :value WHERE `title` = :title";
             } else {
