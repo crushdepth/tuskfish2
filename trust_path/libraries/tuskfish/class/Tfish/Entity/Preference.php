@@ -180,6 +180,11 @@ class Preference
             $preferences[$row['title']] = $row['value'];
         }
 
+        // Decrypt the SMTP password (if stored encrypted) so the entity holds plaintext in memory.
+        if (isset($preferences['smtpPassword'])) {
+            $preferences['smtpPassword'] = \Tfish\Crypto::decrypt($preferences['smtpPassword']);
+        }
+
         return $preferences;
     }
 
