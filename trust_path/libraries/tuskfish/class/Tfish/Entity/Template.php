@@ -39,6 +39,7 @@ class Template
 
     private string $template = '';
     private string $theme = '';
+    private string $modulePath = '';
     public array $variables = [];
 
     /**
@@ -46,11 +47,15 @@ class Template
      *
      * @param   string $template Name of the template to render for this page.
      * @param   string $theme Name of the theme to use for this page.
+     * @param   string $modulePath Absolute path to a module's templates directory, used as a
+     *          fallback default when the active theme does not provide the template. Empty for
+     *          core/theme-only resolution (preserves legacy behaviour).
      */
-    public function __construct(string $template, string $theme)
+    public function __construct(string $template, string $theme, string $modulePath = '')
     {
         $this->template = $this->trimString($template);
         $this->theme = $this->trimString($theme);
+        $this->modulePath = $this->trimString($modulePath);
         $this->variables = [];
     }
 
@@ -84,14 +89,34 @@ class Template
     }
 
     /**
-     * Check the theme and template for director traversals.
+     * Resolve the template file path, checking the active theme first and falling back to the
+     * module's bundled default.
+     *
+     * Resolution order:
+     * 1. Theme path (themes/{theme}/{template}.html) -- wins if present, letting theme authors
+     *    override a module's bundled template.
+     * 2. Module path ({modulePath}/{template}.html) -- the module's default, used only when a
+     *    module path was supplied and the theme does not provide the template.
+     *
+     * When no module path is set (core/Content/theme-only routes), behaviour is identical to
+     * resolving directly against the theme.
      */
     public function validPath()
     {
-        $path = TFISH_THEMES_PATH . $this->theme . '/' . $this->template . '.html';
+        $themePath = TFISH_THEMES_PATH . $this->theme . '/' . $this->template . '.html';
+
+        if ($this->modulePath === '' || \is_file($themePath)) {
+            $path = $themePath;
+        } else {
+            $path = $this->modulePath . $this->template . '.html';
+        }
 
         if ($this->hasTraversalorNullByte($path)) {
             throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
+        }
+
+        if (!\is_file($path)) {
+            throw new \RuntimeException(TFISH_ERROR_TEMPLATE_NOT_FOUND . ': ' . $this->template);
         }
 
         return $path;

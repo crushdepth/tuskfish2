@@ -16,7 +16,12 @@ namespace Tfish\Traits;
  */
 
 /**
- * Whitelisted route and position options for blocks.
+ * Exposes the block whitelists to the block admin Models.
+ *
+ * The whitelists themselves are no longer hard-coded here: they are aggregated from module headers
+ * and injected as a \Tfish\BlockRegistry. This trait is a thin façade preserving the long-standing
+ * blockX() method names that the block admin Models call. A using class MUST implement the abstract
+ * registry() accessor below (typically returning an injected \Tfish\BlockRegistry property).
  *
  * @copyright   Simon Wilkinson 2024+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -29,127 +34,64 @@ namespace Tfish\Traits;
 trait BlockOption
 {
     /**
-     * Whitelist of permitted block positions.
+     * Provide the block registry the using class holds.
      *
-     * You can customise this list, but don't delete or rename positions that currently have blocks
-     * assigned. If you want to do that, you need to update the positions in the database too.
+     * Declared abstract so a using class MUST supply it: the whitelist methods below are thin
+     * facades over the registry, and this enforces the dependency at class-definition time (a fatal
+     * error if unimplemented) rather than failing at call time on a missing property.
      *
-     * @return array
+     * @return \Tfish\BlockRegistry
+     */
+    abstract protected function registry(): \Tfish\BlockRegistry;
+
+    /**
+     * Whitelist of permitted block positions (layout slots).
+     *
+     * @return array Position key => human-readable label.
      */
     public function blockPositions(): array
     {
-        return [
-            'banner' => TFISH_BLOCK_BANNER,
-            'top-left' => TFISH_BLOCK_TOP_LEFT,
-            'top-right' => TFISH_BLOCK_TOP_RIGHT,
-            'top-centre' => TFISH_BLOCK_TOP_CENTRE,
-            'left' => TFISH_BLOCK_LEFT,
-            'right' => TFISH_BLOCK_RIGHT,
-            'bottom-left' => TFISH_BLOCK_BOTTOM_LEFT,
-            'bottom-right' => TFISH_BLOCK_BOTTOM_RIGHT,
-            'bottom-centre' => TFISH_BLOCK_BOTTOM_CENTRE,
-            'footer' => TFISH_BLOCK_FOOTER
-        ];
+        return $this->registry()->positions();
     }
 
     /**
      * Whitelist of routes that blocks are permitted to be displayed on.
      *
-     * You can customise this list, but don't delete or rename positions that currently have blocks
-     * assigned. If you want to do that, you need to update the positions in the database too.
-     *
-     * @return array
+     * @return array Flat list of route strings.
      */
     public function blockRoutes(): array
     {
-        return [
-            "/",
-            "/error/",
-            "/gallery/",
-            "/search/"
-        ];
+        return $this->registry()->routes();
     }
 
     /**
      * Whitelist of templates available to each block type.
      *
-     * If you add a custom block, add its templates to this list. Template name must match the
-     * file name (without .html extension).
-     *
-     * @return array
+     * @return array Fully qualified class name => [templateName => label].
      */
     public function blockTemplates(): array
     {
-        return [
-            '\Tfish\Content\Block\RecentContent' => ['recent-content-compact' => TFISH_BLOCK_RECENT_CONTENT_COMPACT],
-            '\Tfish\Content\Block\Spotlight' => ['spotlight-compact' => TFISH_BLOCK_SPOTLIGHT_COMPACT],
-            '\Tfish\Content\Block\FeaturedVideo' => ['featured-video' => TFISH_BLOCK_VIDEO_COMPACT],
-            '\Tfish\Content\Block\Html' => ['html' => TFISH_BLOCK_HTML],
-        ];
+        return $this->registry()->templates();
     }
 
     /**
-     * Return the configuration template options for each block type.
+     * Return the path to the configuration sub-template for a given block type.
      *
-     * Each block type has different configuration options. A sub-template is used to provide the
-     * to provide custom config form fields in the block entry / edit forms. If you add a custom
-     * block, add its config template to this list.
-     *
-     * @var string $class Fully qualified block class name.
-     * @return string $template Name of config template for this block class.
+     * @param   string $class Fully qualified block class name.
+     * @return  string Absolute path to the block's config template.
      */
     public function blockConfigTemplate(string $class): string
     {
-        $template = '';
-
-        $configTemplates = [
-            '\Tfish\Content\Block\RecentContent' => 'recent-content-config',
-            '\Tfish\Content\Block\Spotlight' => 'spotlight-config',
-            '\Tfish\Content\Block\FeaturedVideo' => 'featured-video-config',
-            '\Tfish\Content\Block\Html' => 'html-config',
-        ];
-
-        if (\array_key_exists($class, $configTemplates)) {
-            $path = $this->blockPath($class);
-            $template = $configTemplates[$class];
-        } else {
-            throw new \InvalidArgumentException(TFISH_ERROR_TEMPLATE_NOT_FOUND);
-        }
-
-        return $path . $template . '.html';
+        return $this->registry()->configTemplate($class);
     }
 
     /**
      * Whitelist of block types available on the system.
      *
-     * If you add a custom block type, add it to this list. The key is the fully qualified
-     * class name.
-     *
-     * @return array
+     * @return array Fully qualified class name => human-readable label.
      */
     public function blockTypes(): array
     {
-        return [
-            '\Tfish\Content\Block\RecentContent' => TFISH_BLOCK_RECENT_CONTENT,
-            '\Tfish\Content\Block\Spotlight' => TFISH_BLOCK_SPOTLIGHT,
-            '\Tfish\Content\Block\FeaturedVideo' => TFISH_BLOCK_FEATURED_VIDEO,
-            '\Tfish\Content\Block\Html' => TFISH_BLOCK_HTML,
-        ];
-    }
-
-    /**
-     * Calculate block path from fully qualified class name.
-     *
-     * @param string $class Fully qualified class name for a block.
-     * @return string File path to the config template for the block.
-     */
-    private function blockPath(string $class): string
-    {
-        $class = $this->trimString($class);
-        $path = \mb_substr($class, 0, \mb_strrpos($class, '\\') + 1);
-        $convertedPath = \str_replace('\\', '/', $path);
-        $finalPath = ltrim($convertedPath, '/');
-
-        return TFISH_CLASS_PATH . $finalPath;
+        return $this->registry()->types();
     }
 }

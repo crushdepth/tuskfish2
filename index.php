@@ -25,12 +25,28 @@ require_once "mainfile.php";
 // Routing table for front end controller is declared here for convenient editing.
 $routingTable = require_once TFISH_PATH . "routingTable.php";
 
-// Header for core and content module.
+// Core header: language constants, block-registry seed arrays, DICE container and error handlers.
 require_once TFISH_PATH . "header.php";
 
 // Module headers provide additional path, language constants, blocks, and routing table info.
-require_once TFISH_CLASS_PATH . "Tfish/User/header.php";
-require_once TFISH_CLASS_PATH . "Tfish/Stats/header.php";
+// Auto-discovered: any module directory containing a header.php is loaded (alphabetical order).
+foreach (\glob(TFISH_CLASS_PATH . "Tfish/*/header.php") ?: [] as $moduleHeader) {
+    require_once $moduleHeader;
+}
+
+// Finalise the block registry from the core + module block registrations and register it with DICE.
+// Must follow the glob (module headers populate the seed arrays) and precede FrontController
+// creation. addRule() returns a new immutable Dice instance, so $dice is reassigned.
+$dice = $dice->addRule("\\Tfish\\BlockRegistry", [
+    "shared" => true,
+    "constructParams" => [[
+        "types" => $blockTypes,
+        "templates" => $blockTemplates,
+        "positions" => $blockPositions,
+        "routes" => $blockRoutes,
+        "config" => $blockConfig
+    ]]
+]);
 
 // Extract the route and action from the request.
 // Note: If using an NGINX reverse proxy in front of Apache/Tuskfish to terminate SSL, use the

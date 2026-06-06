@@ -62,6 +62,7 @@ class UserEdit implements \Tfish\Interface\Viewable
         $this->model = $model;
         $this->preference = $preference;
         $this->theme = 'admin';
+        $this->modulePath = TFISH_USER_TEMPLATE_PATH;
         $this->setMetadata(['robots' => 'noindex,nofollow']);
     }
 
@@ -76,7 +77,7 @@ class UserEdit implements \Tfish\Interface\Viewable
     {
         $this->pageTitle = TFISH_USER_ADD;
         $this->content = new \Tfish\User\Entity\User;
-        $this->template = 'userEntry';
+        $this->setTemplate('userEntry');
     }
 
     /**
@@ -106,12 +107,12 @@ class UserEdit implements \Tfish\Interface\Viewable
             $content->load($data);
             $this->setContent($content);
             $this->action = 'update';
-            $this->template = 'userEdit';
+            $this->setTemplate('userEdit');
         } else {
             $this->pageTitle = TFISH_FAILED;
             $this->response = TFISH_ERROR_NO_SUCH_OBJECT;
             $this->backUrl = TFISH_ADMIN_USER_URL;
-            $this->template = 'response';
+            $this->setTemplate('response');
         }
     }
 
@@ -154,7 +155,7 @@ class UserEdit implements \Tfish\Interface\Viewable
             }
         }
 
-        $this->template = 'response';
+        $this->setTemplate('response');
         $this->backUrl = TFISH_ADMIN_USER_URL;
     }
 

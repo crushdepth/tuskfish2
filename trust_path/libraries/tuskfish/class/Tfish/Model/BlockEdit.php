@@ -49,6 +49,7 @@ class BlockEdit
     private \Tfish\CriteriaFactory $criteriaFactory;
     private \Tfish\Entity\Preference $preference;
     private \Tfish\Cache $cache;
+    private \Tfish\BlockRegistry $registry;
 
     /**
      * Constructor.
@@ -58,13 +59,15 @@ class BlockEdit
      * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
      * @param   \Tfish\Entity\Preference Instance of the Tfish site preferences class.
      * @param   \Tfish\Cache $cache Instance of the Tuskfish cache class.
+     * @param   \Tfish\BlockRegistry $registry Aggregated block whitelists used by the BlockOption trait.
      */
     public function __construct(
         \Tfish\Database $database,
         \Tfish\Session $session,
         \Tfish\CriteriaFactory $criteriaFactory,
         \Tfish\Entity\Preference $preference,
-        \Tfish\Cache $cache
+        \Tfish\Cache $cache,
+        \Tfish\BlockRegistry $registry
         )
     {
         $this->database = $database;
@@ -72,6 +75,17 @@ class BlockEdit
         $this->criteriaFactory = $criteriaFactory;
         $this->preference = $preference;
         $this->cache = $cache;
+        $this->registry = $registry;
+    }
+
+    /**
+     * Return the injected block registry (required by \Tfish\Traits\BlockOption).
+     *
+     * @return \Tfish\BlockRegistry
+     */
+    protected function registry(): \Tfish\BlockRegistry
+    {
+        return $this->registry;
     }
 
     /** Actions. */
@@ -303,7 +317,15 @@ class BlockEdit
 
         // Template.
         $template = $this->trimString($form['template'] ?? '');
-        $blockTemplates = $this->blockTemplates()[$clean['type']];
+        $allTemplates = $this->blockTemplates();
+
+        // A whitelisted type must also have a registered template list; if a module registered a type
+        // without one, fail cleanly here rather than indexing a missing key (TypeError on null).
+        if (!\array_key_exists($clean['type'], $allTemplates)) {
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_TYPE);
+        }
+
+        $blockTemplates = $allTemplates[$clean['type']];
 
         if (!\array_key_exists($template, $blockTemplates)) {
             throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_TYPE);
@@ -343,7 +365,7 @@ class BlockEdit
         $clean['html'] = $html ? $htmlPurifier->purify($html) : '';
 
         // Config.
-        $clean['config'] = $this->validateEncodeConfig($form);
+        $clean['config'] = $this->validateEncodeConfig($form, $clean['type']);
 
         return $clean;
     }
@@ -351,12 +373,14 @@ class BlockEdit
     /**
      * Validate configuration options and encode as JSON.
      *
-     * @param array $form
+     * @param array $form Submitted form data (supplies the 'config' sub-array only).
+     * @param string $type Whitelisted block class, already validated by the caller. Passed in rather
+     *                     than re-read from $form so the dynamic instantiation below can never act on
+     *                     an unvalidated class name.
      * @return string JSON-encoded block configuration data.
      */
-    public function validateEncodeConfig(array $form): string
+    public function validateEncodeConfig(array $form, string $type): string
     {
-        $type = $form['type'];
         $config = !empty($form['config']) ? $form['config'] : [];
 
         $block = new $type([], $this->database, $this->criteriaFactory);

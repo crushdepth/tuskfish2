@@ -174,6 +174,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement = $database->preparedStatement($sql);
         $statement->execute();
 
+        $database->preparedStatement(
+            "CREATE INDEX idx_session_lastactive ON session(lastActive)"
+        )->execute();
+
         $sql = "CREATE TABLE `content` (
             `type` TEXT NOT NULL,
             `template` TEXT NOT NULL,
@@ -207,6 +211,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement = $database->preparedStatement($sql);
         $statement->execute();
 
+        $database->preparedStatement(
+            "CREATE INDEX idx_content_online_type ON content(onlineStatus, type)"
+        )->execute();
+        $database->preparedStatement(
+            "CREATE INDEX idx_content_date_sub ON content(date DESC, submissionTime DESC)"
+        )->execute();
+        $database->preparedStatement(
+            "CREATE INDEX idx_content_parent ON content(parent)"
+        )->execute();
+        $database->preparedStatement(
+            "CREATE INDEX idx_content_expireson ON content(expiresOn)"
+        )->execute();
+        $database->preparedStatement(
+            "CREATE INDEX idx_content_stream ON content(onlineStatus, date DESC, submissionTime DESC) WHERE type != 'TfTag'"
+        )->execute();
+
         $sql = "CREATE TABLE IF NOT EXISTS `taglink` (
             `id` INTEGER PRIMARY KEY,
             `tagId` INTEGER NOT NULL,
@@ -216,6 +236,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );";
         $statement = $database->preparedStatement($sql);
         $statement->execute();
+
+        $database->preparedStatement(
+            "CREATE INDEX idx_taglink_contentid ON taglink(contentId)"
+        )->execute();
+        $database->preparedStatement(
+            "CREATE INDEX idx_taglink_tagid ON taglink(tagId)"
+        )->execute();
+        $database->preparedStatement(
+            "CREATE INDEX idx_taglink_module_contentid ON taglink(module, contentId)"
+        )->execute();
 
         // Insert admin user's details to database.
         $userData = [
@@ -354,6 +384,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $statement = $database->preparedStatement($sql);
         $statement->execute();
+
+        $database->preparedStatement(
+            "CREATE INDEX idx_blockroute_route ON blockRoute(route)"
+        )->execute();
+        $database->preparedStatement(
+            "CREATE INDEX idx_blockroute_blockid ON blockRoute(blockId)"
+        )->execute();
 
         // Create webauthn_credentials table for WebAuthn/FIDO2 authentication.
         $sql = "CREATE TABLE IF NOT EXISTS `webauthn_credentials` (

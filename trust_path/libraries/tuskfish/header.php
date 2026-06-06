@@ -48,14 +48,34 @@ declare(strict_types=1);
 // Make core language files available.
 include TFISH_DEFAULT_LANGUAGE;
 
-// Content module block constants.
-\define("TFISH_CONTENT_BLOCK_PATH", TFISH_PATH . 'class/Tfish/Content/Block/');
-\define("\Tfish\Content\Block\RecentContent", TFISH_BLOCK_RECENT_CONTENT);
-\define("\Tfish\Content\Block\Spotlight", TFISH_BLOCK_SPOTLIGHT);
-\define("\Tfish\Content\Block\Html", TFISH_BLOCK_HTML);
-
 // Block constants - move to config.php
 \define("TFISH_ADMIN_BLOCK_URL", TFISH_URL . 'admin/blocks/');
+
+// Seed the block registry whitelists. Positions are a core/theme layout-slot vocabulary and are not
+// module-extensible. The remaining arrays are seeded empty (plus core's own block-hosting route)
+// and populated by each block-providing module's header.php (auto-discovered in index.php); the
+// aggregated result is injected into \Tfish\BlockRegistry after the module glob.
+//
+// CONVENTION (module authors): APPEND to these arrays, never reassign them. Use $blockTypes[$class]
+// = ... / $blockConfig[$class] = ... for the keyed arrays and \array_merge() for $blockRoutes (see
+// Tfish/Content/header.php). Writing $blockTypes = [...] would clobber every other module's
+// registrations, because all module headers share these variables in index.php's scope.
+$blockPositions = [
+    'banner' => TFISH_BLOCK_BANNER,
+    'top-left' => TFISH_BLOCK_TOP_LEFT,
+    'top-right' => TFISH_BLOCK_TOP_RIGHT,
+    'top-centre' => TFISH_BLOCK_TOP_CENTRE,
+    'left' => TFISH_BLOCK_LEFT,
+    'right' => TFISH_BLOCK_RIGHT,
+    'bottom-left' => TFISH_BLOCK_BOTTOM_LEFT,
+    'bottom-right' => TFISH_BLOCK_BOTTOM_RIGHT,
+    'bottom-centre' => TFISH_BLOCK_BOTTOM_CENTRE,
+    'footer' => TFISH_BLOCK_FOOTER
+];
+$blockRoutes = ['/error/'];
+$blockTypes = [];
+$blockTemplates = [];
+$blockConfig = [];
 
 // Initialise dependencies via DICE dependency injection container.
 $dice = new \Dice\Dice;

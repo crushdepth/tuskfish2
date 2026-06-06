@@ -110,6 +110,16 @@ class Database
                 // Set \PDO to throw exceptions every time it encounters an error.
                 $this->database->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
                 $this->database->setAttribute(\PDO::ATTR_TIMEOUT, 5);
+
+                try {
+                    $this->database->exec("PRAGMA journal_mode=WAL");
+                    $this->database->exec("PRAGMA foreign_keys=ON");
+                } catch (\PDOException $e) {
+                    $this->logger->logError(
+                        (int) $e->getCode(), $e->getMessage(), $e->getFile(), (int) $e->getLine()
+                    );
+                }
+
                 return true;
             }
         }
