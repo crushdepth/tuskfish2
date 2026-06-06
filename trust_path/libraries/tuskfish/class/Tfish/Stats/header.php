@@ -12,7 +12,7 @@ declare(strict_types=1);
  * @author      Simon Wilkinson <simon@isengard.biz>
  * @version     Release: 2.0.4
  * @since       2.2.9
- * @package     User
+ * @package     Stats
  */
 
 namespace Tfish\Stats;
@@ -28,7 +28,7 @@ include 'language/english.php';
 // \Tfish\Stats\Traits\StatsDatabase). Module-local: ships with the module, no site config needed.
 \define("TFISH_STATS_DB", 'aquaculture-fisheries-trade.db');
 
-// Addtional routes for User module.
+// Additional routes for User module.
 $routingTable['/global/'] = new \Tfish\Route(
     '\\Tfish\\Stats\\Model\\Listing',
     '\\Tfish\\Stats\\ViewModel\\Listing',
