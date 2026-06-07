@@ -48,27 +48,28 @@ $dice = $dice->addRule('\\Tfish\\BlockRegistry', [
     ]]
 ]);
 
-// Extract the route and action from the request.
-// Note: If using an NGINX reverse proxy in front of Apache/Tuskfish to terminate SSL, use the
-// commented out line instead (which locks protocol to https), otherwise routing won't work.
-//$url = "https://" . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
-$url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http")
-    . "://" . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+// Extract the route from the request. Route purely from the request path. Scheme and host are
+// deliberately ignored: scheme is irrelevant to route matching (and works transparently behind a
+// reverse proxy that terminates SSL), and the host (Host header / SERVER_NAME) is client-supplied
+// and must not be trusted. The only admin-controlled input we need is the base directory, taken
+// from TFISH_LINK, which keeps subdirectory installs working.
+$basePath = \rtrim(\parse_url(TFISH_LINK, PHP_URL_PATH) ?? '', '/');
 
-$path = \parse_url($url, PHP_URL_PATH);
+// REQUEST_URI is origin-form (path[?query]); take the part before the query directly rather than
+// via parse_url(), which would misread a leading '//' as an authority and silently route bogus
+// '//foo//' URLs to the home page instead of returning a 404.
+$relativePath = \explode('?', $_SERVER['REQUEST_URI'] ?? '/', 2)[0];
 
-// Add trailing slash for consistent route handling.
-if (\mb_substr($path, -1, null, "UTF-8") !== '/') {
-    $path .= '/';
+// Strip the base directory (e.g. '/sub'), guarding against partial matches like '/subway'.
+if ($basePath !== ''
+    && (\strncmp($relativePath, $basePath . '/', \strlen($basePath) + 1) === 0
+        || $relativePath === $basePath)) {
+    $relativePath = \substr($relativePath, \strlen($basePath));
 }
 
-// Calculate relative path (without query) to align with routing table if installed in subdirectory.
-$relativeUrl = \parse_url($url, PHP_URL_QUERY) ?? '';
-$relativePath = \str_replace(TFISH_LINK, '', $url);
-$relativePath = \str_replace('?' . $relativeUrl, '', $relativePath);
-
-// Add trailing slash for consistent route handling.
-if (\mb_substr($relativePath, -1, null, "UTF-8") !== '/') {
+// Normalise to a single leading and trailing slash for consistent route matching.
+$relativePath = '/' . \trim($relativePath, '/');
+if ($relativePath !== '/') {
     $relativePath .= '/';
 }
 

@@ -59,21 +59,6 @@ $template['metadata'] = $metadata;
 $template = [];
 $page = '';
 
-/**
- * Helper function to grab the site URL and protocol during installation.
- *
- * @return string Site URL.
- */
-function getUrl() {
-    $url = @(!isset($_SERVER['HTTPS']) || $_SERVER["HTTPS"] != 'on') ? 'http://'
-            . $_SERVER["SERVER_NAME"] : 'https://' . $_SERVER["SERVER_NAME"];
-    $url .= ($_SERVER["SERVER_PORT"] != 80 && $_SERVER["SERVER_PORT"] != 443) ? ":"
-            . $_SERVER["SERVER_PORT"] : "";
-    $url .= '/';
-
-    return $url;
-}
-
 // Begin buffer.
 \ob_start();
 
