@@ -70,7 +70,15 @@ class EmailCheckTest extends TestCase
 
     public function testIsEmailWithLeadingAndTrailingWhiteSpace(): void
     {
-        // A string with leading and trailing whitespace should be trimmed and checked
-        $this->assertTrue($this->isEmail('  test@example.com  '));
+        // Raw input is validated without sanitisation; callers must trim first
+        $this->assertFalse($this->isEmail('  test@example.com  '));
+    }
+
+    public function testIsEmailRejectsHeaderInjection(): void
+    {
+        // CR/LF must not be stripped before validation (mail header injection)
+        $this->assertFalse($this->isEmail("test@example.com\r\nBcc: victim@example.com"));
+        $this->assertFalse($this->isEmail("test@example.com\n"));
+        $this->assertFalse($this->isEmail("te\rst@example.com"));
     }
 }
