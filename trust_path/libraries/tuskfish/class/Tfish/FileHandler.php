@@ -394,6 +394,17 @@ class FileHandler
             return false;
         }
 
+        // Reject images whose pixel dimensions exceed the hard limit, to guard against
+        // decompression-bomb images (a small file that decodes to enormous dimensions). Only
+        // applies to images: getimagesize() returns false for non-image media (audio, PDF, etc.),
+        // which are skipped. File SIZE is limited by php.ini (upload_max_filesize), not here.
+        $dimensions = \getimagesize($tmp);
+
+        if ($dimensions !== false && ($dimensions[0] > 10000 || $dimensions[1] > 10000)) {
+            \trigger_error(TFISH_ERROR_IMAGE_TOO_LARGE, E_USER_NOTICE);
+            return false;
+        }
+
         if (!\move_uploaded_file($_FILES['content']["tmp_name"][$fieldname], $upload_path)) {
             throw new \RuntimeException(TFISH_ERROR_FILE_UPLOAD_FAILED);
         } else {
