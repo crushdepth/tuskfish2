@@ -1,0 +1,25 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Parent / related collection -->
+<div class="related">
+  <h3><?php echo TFISH_RELATED; ?></h3>
+  <h4 class="parent">
+    <a href="<?php echo xss($parent->url()); ?>" class="icon-link"><?php echo $parent->icon($parent->type()); ?></a>
+    <a href="<?php echo xss($parent->url()); ?>" class="title-link"><?php echo xss($parent->title()); ?></a>
+  </h4>
+  <?php if ($parent->image()): ?>
+  <figure class="figure-left">
+    <a href="<?php echo xss($parent->url()); ?>">
+      <img src="<?php echo $parent->cachedImage(150); ?>"
+        <?php if ($parent->caption()): ?>
+          title="<?php echo xss($parent->caption()); ?>" alt="<?php echo xss($parent->caption()); ?>">
+        <?php else: ?>
+          alt="">
+        <?php endif; ?>
+    </a>
+  </figure>
+  <?php endif; ?>
+  <div class="teaser">
+    <?php echo $parent->teaserForDisplay(); ?>
+  </div>
+</div>

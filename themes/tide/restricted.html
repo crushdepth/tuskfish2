@@ -1,0 +1,10 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Container -->
+<div class="container">
+  <h1 class="page-title"><?php echo xss($viewModel->redirectTitle() ?? TFISH_LOGIN); ?></h1>
+  <?php if (!empty($message = $viewModel->redirectMessage())): ?>
+  <p class="text-center"><?php echo xss($message); ?></p>
+  <?php endif; ?>
+<!-- /.container -->
+</div>
