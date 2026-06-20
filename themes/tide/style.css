@@ -11,7 +11,9 @@
   --card:        #ffffff;
   --text:        #14323c;   /* deep sea          */
   --muted:       #5b727b;   /* muted slate       */
+  --text-soft:   #36505a;   /* teaser body, a touch lighter than --text */
   --rule:        #d9e3e6;   /* hairline          */
+  --rule-strong: #c3d4d8;   /* hairline on hover */
   --accent:      #0e7c86;   /* teal              */
   --accent-700:  #0a5d65;   /* teal, darker      */
   --accent-050:  #e2f0f1;   /* teal, faint       */
@@ -110,6 +112,18 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
 }
 .nav-links a:hover { background: rgba(255,255,255,.14); color: #fff; }
 
+/* RSS + theme toggle are utility controls, not nav items: group them tightly
+   and set them a little apart from the menu links. The visible spacing between
+   the two is their button padding, so trim that (the gap alone won't do it). */
+.nav-utilities { display: inline-flex; align-items: center; gap: 0; margin-left: .5rem; }
+.nav-utilities a, .nav-utilities .theme-toggle { padding-left: .4rem; padding-right: .4rem; }
+
+/* image-fill is inset (~14/16 tall) where rss/moon/sun are full-bleed, so it
+   renders shorter. Nudge it up to match their optical height. Its path also
+   touches the right edge of the 16-unit box, which the SVG viewport would clip
+   (default overflow:hidden) once enlarged — so let it overflow. */
+.nav-links svg.gallery-icon { width: 1.28rem; height: 1.28rem; overflow: visible; }
+
 /* Search */
 .nav-search { display: flex; gap: .4rem; }
 .nav-search input[type="search"] {
@@ -118,7 +132,9 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
   font-size: .95rem;
 }
 .nav-search input::placeholder { color: #cfe6e8; }
-.nav-search input:focus { background: #fff; color: var(--text); outline: none; border-color: #fff; }
+/* The input always turns white on focus (in both colour schemes), so pin the
+   text to a fixed dark — var(--text) would be near-white under dark mode. */
+.nav-search input:focus { background: #fff; color: #14323c; outline: none; border-color: #fff; }
 .nav-search .btn { padding: .45rem .9rem; }
 
 /* CSS-only mobile toggle */
@@ -137,7 +153,9 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
 .nav-toggle-label span::before { position: absolute; top: -7px; }
 .nav-toggle-label span::after  { position: absolute; top: 7px; }
 
-@media (max-width: 768px) {
+/* Collapse to the hamburger well before the full nav (brand + links + search)
+   runs out of room and starts wrapping onto a second line against the logo. */
+@media (max-width: 992px) {
   .nav { min-height: 84px; }
   .brand-logo img { height: 64px; }
   .nav-toggle-label { display: inline-flex; }
@@ -148,6 +166,8 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
   .nav-toggle:checked ~ .nav-menu { display: flex; }
   .nav-links { flex-direction: column; align-items: stretch; gap: .15rem; }
   .nav-links a { padding: .7rem .6rem; }
+  /* Keep the utility controls on one row even when the menu stacks. */
+  .nav-utilities { margin-left: 0; gap: .25rem; }
   .nav-search input[type="search"] { flex: 1; }
 }
 
@@ -171,7 +191,7 @@ input[type="text"], input[type="search"], input[type="email"],
 input[type="password"], input[type="number"], select, textarea {
   width: 100%; font: inherit; color: var(--text);
   padding: .6rem .75rem; border: 1px solid var(--rule); border-radius: var(--radius-sm);
-  background: #fff;
+  background: var(--card);
 }
 input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-050); }
 .field { margin-bottom: 1rem; }
@@ -246,7 +266,12 @@ a.icon-link:hover { color: var(--link-hover); }
    screens. Asymmetric and informational; hidden when there's no gutter (the
    same type/date still appears inline in .content-info on smaller screens). */
 .gutter-label { display: none; }
-@media (min-width: 1280px) {
+/* The gutter label is absolutely positioned into the free space to the LEFT of
+   the centred content (right:100% + ~10rem). That space only exists once the
+   viewport is wide enough: (vw - content) / 2 must exceed the gutter's width,
+   which lands around 1480px. Showing it any earlier pushes it off-screen and
+   triggers horizontal scroll, so gate it on the width where it actually fits. */
+@media (min-width: 1480px) {
   .gutter-label {
     display: block; position: absolute; right: 100%; top: 1.4rem;
     width: 8.5rem; margin-right: 1.75rem; text-align: right;
@@ -268,9 +293,9 @@ a.icon-link:hover { color: var(--link-hover); }
 }
 /* Inline meta separator (narrow screens, where the gutter is hidden). */
 .content-info .meta-info::before { content: " | "; }
-.stream-item:hover { box-shadow: var(--shadow); border-color: #c3d4d8; }
+.stream-item:hover { box-shadow: var(--shadow); border-color: var(--rule-strong); }
 .stream-item .title { margin-bottom: .35rem; font-size: var(--h3); }
-.stream-item .teaser { color: #36505a; }
+.stream-item .teaser { color: var(--text-soft); }
 .stream-item .teaser p:last-child { margin-bottom: 0; }
 .stream-item::after { content: ""; display: table; clear: both; }
 /* .stream is a flex column, so the last item's margin-bottom doesn't collapse —
@@ -298,7 +323,6 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
 .article { position: relative; background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius);
   padding: clamp(1.25rem, 0.8rem + 2vw, 2.5rem); box-shadow: var(--shadow); }
 .article .title { font-size: var(--h2); font-weight: 600; text-align: left; }
-.description, .teaser { }
 /* Inline prose links: the plain lagoon colour is hard to spot in running body
    text, so give them a standing underline and a slightly stronger weight. */
 .description a, .teaser a {
@@ -384,7 +408,7 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
 .pagination { display: flex; flex-wrap: wrap; gap: .3rem; padding: 0; margin: 1.25rem 0; justify-content: flex-end; }
 .page-link {
   display: block; padding: .45rem .8rem; border: 1px solid var(--rule); border-radius: var(--radius-sm);
-  color: var(--accent-700); background: #fff; text-decoration: none; font-weight: 600; line-height: 1;
+  color: var(--accent-700); background: var(--card); text-decoration: none; font-weight: 600; line-height: 1;
 }
 .page-link:hover { background: var(--accent-050); text-decoration: none; }
 .page-link.is-current { background: var(--coral); border-color: var(--coral); color: #fff; }
@@ -449,10 +473,18 @@ video { max-width: 100%; height: auto; }
   background: linear-gradient(180deg, var(--accent) 0%, var(--accent-700) 100%);
   color: #d6edef;
 }
+/* The wave's crest fills with the *page* colour so it reads as the page edge
+   biting into the teal band. Painting it as a solid var(--bg) revealed through
+   an SVG mask (rather than baking the colour into the SVG) keeps it matched to
+   the background in both light and dark — a hard-coded fill leaves a pale band
+   above the wave once the page goes dark. */
 .site-footer::before {
   content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 24px;
-  background: repeat-x top / 240px 24px
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 24' preserveAspectRatio='none'%3E%3Cpath fill='%23f4f7f8' d='M0,0 H80 V7 C66,7 60,18 40,18 C20,18 14,7 0,7 Z'/%3E%3C/svg%3E");
+  background: var(--bg);
+  -webkit-mask: repeat-x top / 240px 24px
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 24' preserveAspectRatio='none'%3E%3Cpath fill='%23fff' d='M0,0 H80 V7 C66,7 60,18 40,18 C20,18 14,7 0,7 Z'/%3E%3C/svg%3E");
+          mask: repeat-x top / 240px 24px
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 24' preserveAspectRatio='none'%3E%3Cpath fill='%23fff' d='M0,0 H80 V7 C66,7 60,18 40,18 C20,18 14,7 0,7 Z'/%3E%3C/svg%3E");
 }
 .site-footer .container { padding-top: 2.5rem; padding-bottom: 1.75rem; }
 .site-footer a { color: #fff; text-decoration: underline; }
@@ -473,3 +505,71 @@ video { max-width: 100%; height: auto; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* =========================================================================
+   Dark mode — "night tide"
+   Driven by [data-theme="dark"] on <html>, which tide-init.js sets before
+   first paint from the saved choice, falling back to the OS preference — so
+   auto-detection still happens and the header toggle can override it. (No JS =
+   no attribute = light, the baseline.) The header and footer stay teal in both
+   schemes, so --accent / --accent-700 keep their brand values; we only re-tint
+   the page surfaces and the places where teal is used as *text on a card* (it
+   must lift to a lighter teal to stay legible on the dark cards).
+   ========================================================================= */
+:root[data-theme="dark"] {
+  --bg:          #0c1a1f;   /* deep water        */
+  --bg-tint:     #102a31;
+  --card:        #13272e;
+  --text:        #e7eff1;
+  --text-soft:   #c5d3d7;
+  --muted:       #9fb3ba;
+  --rule:        #244249;
+  --rule-strong: #37636c;
+  --accent-050:  #143038;   /* faint teal wash → dark teal surface */
+  --link:        #5bc4df;   /* lagoon, lifted for dark */
+  --link-hover:  #8ad8ee;
+  --shadow:    0 1px 2px rgba(0,0,0,.45), 0 6px 18px rgba(0,0,0,.45);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.45);
+}
+
+/* Teal used as text on a dark card — lift to a light teal so it stays legible
+   (the token itself can't move: it also paints the teal header/footer band). */
+:root[data-theme="dark"] :is(.block h3, .card h3, .page-link, .tag-pill,
+  .alert-info, .gutter-label .kind, .content-info a:not(.icon-link), .content-tags a) {
+  color: #7fd4da;
+}
+:root[data-theme="dark"] :is(.content-info a:not(.icon-link):hover, .content-tags a:hover) { color: #a6e3e8; }
+
+/* The white header search button keeps dark teal text on its white face;
+   only its hover (which fills with the dark teal wash) flips to light text. */
+:root[data-theme="dark"] .btn-secondary { color: var(--accent-700); }
+:root[data-theme="dark"] .btn-secondary:hover { color: #d7f1f3; }
+
+/* Re-tint the light, hard-coded alert greens for the dark surface. */
+:root[data-theme="dark"] .alert-success { background: #14302a; border-color: #2c5a44; color: #8fe0b3; }
+
+/* Soften image hairlines, which were tuned for light cards. */
+:root[data-theme="dark"] :is(figure img, .description img) { border-color: rgba(255,255,255,.14); }
+
+/* =========================================================================
+   Theme toggle (header) — moon in light mode (= switch to dark), sun in dark.
+   Hidden until tide-init.js adds .js to <html>, so it never shows as a dead
+   control when scripting is unavailable.
+   ========================================================================= */
+.theme-toggle { display: none; }
+:root.js .theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; border: 0; cursor: pointer; color: #dff0f1;
+  padding: .45rem .7rem; border-radius: var(--radius-sm);
+  transition: background-color .15s ease, color .15s ease;
+}
+.theme-toggle:hover { background: rgba(255,255,255,.14); color: #fff; }
+/* Bootstrap Icons, solid fill (toggle + gallery + RSS) share one box so the
+   header set reads as a single family. */
+.nav-links svg {
+  width: 1.15rem; height: 1.15rem; display: block;
+  fill: currentColor; stroke: none;
+}
+.theme-toggle .sun { display: none; }
+:root[data-theme="dark"] .theme-toggle .moon { display: none; }
+:root[data-theme="dark"] .theme-toggle .sun { display: block; }

@@ -5,11 +5,12 @@
 
   <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
 
-  <!-- Select filters -->
+  <!-- Select filters. The select auto-submits via tide.js (data-autosubmit);
+       without JS it is inert — see tide.js for why we own that dependency. -->
   <div class="select-filters">
     <label for="tag" class="sr-only"><?php echo TFISH_KEYWORDS; ?></label>
     <form name="selectFilters" method="get">
-      <select name="tag" id="tag" onchange="this.form.submit()">
+      <select name="tag" id="tag" data-autosubmit>
         <?php foreach ($viewModel->activeTagOptions() as $key => $value) {
           echo ($key === $viewModel->tag()) ?
             '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>' :

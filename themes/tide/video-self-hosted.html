@@ -1,13 +1,13 @@
 <?php declare(strict_types=1); ?>
 
 <!-- Title and meta information -->
-<h2 class="title">
+<h1 class="title">
   <?php if ($content->media()): ?>
   <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>"><?php echo xss($content->title()); ?></a>
   <?php else: ?>
   <?php echo xss($content->title()); ?>
   <?php endif; ?>
-</h2>
+</h1>
 
 <p class="content-info">
   <span class="small">

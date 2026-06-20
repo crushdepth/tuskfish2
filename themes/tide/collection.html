@@ -11,14 +11,14 @@
 <article class="article">
 
   <!-- Title and meta information -->
-  <h2 class="title">
+  <h1 class="title">
     <?php if ($content->media()): ?>
     <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>" class="icon-link"><?php echo $content->icon($content->type()); ?></a>
     <a href="<?php echo TFISH_URL . 'enclosure/?id=' . xss($content->id()); ?>" class="title-link"><?php echo xss($content->title()); ?></a>
     <?php else: ?>
     <?php echo '<span class="icon-link">' . $content->icon($content->type()) . '</span><span class="title-link">' . xss($content->title()) . '</span>'; ?>
     <?php endif; ?>
-  </h2>
+  </h1>
 
   <p class="content-info">
     <span class="small">
