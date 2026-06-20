@@ -1,0 +1,40 @@
+<?php if (!empty($children)): ?>
+<!-- Children -->
+<div class="collection-children">
+
+  <?php if (!empty($pagination)): ?>
+  <div class="collection-pagination-top"><?php echo $pagination; ?></div>
+  <?php endif; ?>
+
+  <h3><?php echo TFISH_IN_THIS_COLLECTION; ?></h3>
+
+  <?php foreach ($children as $child): ?>
+  <div class="child-item">
+    <h4 class="child-title">
+      <a href="<?php echo xss($child->url()); ?>" class="icon-link"><?php echo $child->icon($child->type()); ?></a>
+      <a href="<?php echo xss($child->url()); ?>" class="title-link"><?php echo xss($child->title()); ?></a>
+    </h4>
+    <?php if ($child->image()): ?>
+    <figure class="figure-left">
+      <a href="<?php echo xss($child->url()); ?>">
+        <img src="<?php echo $child->cachedImage(150); ?>"
+          <?php if ($child->caption()): ?>
+            title="<?php echo xss($child->caption()); ?>" alt="<?php echo xss($child->caption()); ?>">
+          <?php else: ?>
+            alt="">
+          <?php endif; ?>
+      </a>
+    </figure>
+    <?php endif; ?>
+    <div class="child-teaser teaser">
+      <?php echo $child->teaserForDisplay(); ?>
+    </div>
+  </div>
+  <?php endforeach; ?>
+
+  <?php if (!empty($pagination)): ?>
+  <div class="collection-pagination-bottom"><?php echo $pagination; ?></div>
+  <?php endif; ?>
+
+</div>
+<?php endif; ?>

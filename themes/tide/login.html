@@ -1,0 +1,58 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Container -->
+<div class="container">
+
+  <h1 class="page-title"><?php echo xss($viewModel->redirectTitle() ?? TFISH_LOGIN); ?></h1>
+  <?php
+    $message = $viewModel->redirectMessage();
+    echo !empty($message) ? '<p class="text-center">' . xss($message) . '</p>' : '';
+  ?>
+
+  <!-- Login form -->
+  <div class="form-narrow">
+    <form action="<?php echo TFISH_URL . 'login/'; ?>" method="post" accept-charset="UTF-8">
+
+      <!-- Email -->
+      <div class="field">
+        <div class="input-group">
+          <input type="email" name="email" id="email" placeholder="<?php echo TFISH_EMAIL; ?>" required>
+          <span class="input-group-text"><i class="icon-envelope"></i></span>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="field">
+        <div class="input-group">
+          <input type="password" name="password" id="password" placeholder="<?php echo TFISH_PASSWORD; ?>" required>
+          <span class="input-group-text" id="password-addon"><i class="icon-lock"></i></span>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="field">
+        <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>">
+        <input type="hidden" name="action" value="login">
+        <button type="submit" class="btn"><?php echo TFISH_SUBMIT; ?></button>
+      </div>
+
+    </form>
+
+    <div id="webauthn-prompt" style="display: none;">
+      <div class="alert alert-info">
+        <strong><?php echo TFISH_WEBAUTHN_TWO_FACTOR_REQUIRED; ?></strong>
+        <p><?php echo TFISH_WEBAUTHN_AUTHENTICATE_PROMPT; ?></p>
+      </div>
+      <div id="webauthn-status"></div>
+    </div>
+
+  </div>
+
+<!-- /.container -->
+</div>
+
+<script>
+// Define TFISH_URL for JavaScript
+const TFISH_URL = '<?php echo TFISH_URL; ?>';
+</script>
+<script src="<?php echo TFISH_URL; ?>vendor/tuskfish/webauthn-login.js"></script>

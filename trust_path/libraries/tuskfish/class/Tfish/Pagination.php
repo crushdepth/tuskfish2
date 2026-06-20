@@ -82,12 +82,14 @@ class Pagination
      * whitelisted values. Do not pass through random query strings someone gave you on the
      * internetz.
      *
-     * If you want to create pagination controls for other presentation-side libraries add
-     * additional methods to this class.
+     * The control markup itself lives in the active theme's pagination.html template (with a core
+     * default as fallback); this method only computes the page slots and hands them off for
+     * rendering. To change the look and feel, edit the template rather than this class.
      *
+     * @param string $theme Name of the active theme, used to resolve the pagination template.
      * @return string|bool HTML pagination control or false if not required.
      */
-    public function renderPaginationControl(): string|bool
+    public function renderPaginationControl(string $theme): string|bool
     {
         // If the count is zero there is no need for a pagination control.
         if ($this->count === 0 || $this->limit <= 0) {
@@ -150,52 +152,73 @@ class Pagination
         $pageSlots[0] = TFISH_PAGINATION_FIRST;
         ksort($pageSlots);
 
-        return $this->_renderPaginationControl($pageSlots, $currentPage);
+        $slots = $this->buildSlots($pageSlots, $currentPage);
+
+        $template = new Entity\Template('pagination', $theme, TFISH_TEMPLATE_PATH);
+        $template->assign('slots', $slots);
+
+        return $template->render();
     }
 
-    /** @internal */
-    private function _renderPaginationControl(array $pageSlots, int $currentPage)
+    /**
+     * Convert the calculated page slots into a presentation-agnostic data structure for the
+     * pagination template.
+     *
+     * Each slot is an associative array: 'page' (1-based page number), 'label' (the link text,
+     * including the substituted first/last labels), 'url' (fully-built link target) and
+     * 'isCurrent' (whether this slot is the page currently being viewed).
+     *
+     * @param array $pageSlots Page slots (key => label) produced by renderPaginationControl().
+     * @param int $currentPage The page number currently being viewed.
+     * @return array List of slot descriptors.
+     * @internal
+     */
+    private function buildSlots(array $pageSlots, int $currentPage): array
     {
-        $control = '<nav aria-label="Page navigation"><ul class="pagination">';
+        $slots = [];
 
-        $query = '';
+        foreach ($pageSlots as $key => $label) {
+            $start = (int) ($key * $this->limit);
 
-        foreach ($pageSlots as $key => $slot) {
-            $this->start = (int) ($key * $this->limit);
-
-            if ($this->start || $this->tag || $this->extraParamsString) {
-                $args = [];
-
-                if (!empty($this->extraParamsString)) {
-                    $args[] = $this->extraParamsString;
-                }
-
-                if (!empty($this->tag)) {
-                    $args[] = 'tag=' . $this->tag;
-                }
-
-                if (!empty($this->start)) {
-                    $args[] = 'start=' . $this->start;
-                }
-
-                $query = '?' . implode('&amp;', $args);
-            } else {
-                $query = '';
-            }
-
-            if (($key + 1) === $currentPage) {
-                $control .= '<li class="page-item active"><a class="page-link" href="' . $this->url
-                        . $query . '">' . $slot . '</a></li>';
-            } else {
-                $control .= '<li class="page-item"><a class="page-link" href="' . $this->url
-                        . $query . '">' . $slot . '</a></li>';
-            }
-            unset($query, $key, $slot);
+            $slots[] = [
+                'page' => $key + 1,
+                'label' => $label,
+                'url' => $this->url . $this->query($start),
+                'isCurrent' => ($key + 1) === $currentPage,
+            ];
         }
 
-        $control .= '</ul></nav>';
+        return $slots;
+    }
 
-        return $control;
+    /**
+     * Build the query string fragment for a pagination link at a given start position.
+     *
+     * @param int $start Offset (start position) of the target page in the result set.
+     * @return string Query string fragment (including leading '?') or an empty string.
+     * @internal
+     */
+    private function query(int $start): string
+    {
+        if (!$start && !$this->tag && !$this->extraParamsString) {
+            return '';
+        }
+
+        $args = [];
+
+        if (!empty($this->extraParamsString)) {
+            $args[] = $this->extraParamsString;
+        }
+
+        if (!empty($this->tag)) {
+            $args[] = 'tag=' . $this->tag;
+        }
+
+        if (!empty($start)) {
+            $args[] = 'start=' . $start;
+        }
+
+        return '?' . \implode('&amp;', $args);
     }
 
     /**
