@@ -60,7 +60,7 @@ class Listing
         $this->pagination->setTag($this->viewModel->tag());
         $this->pagination->setExtraParams($this->viewModel->extraParams());
 
-        return $this->pagination->renderPaginationControl();
+        return $this->pagination->renderPaginationControl($this->viewModel->theme());
     }
 
     /**

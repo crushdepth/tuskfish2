@@ -23,16 +23,21 @@
     <span class="small">
       <?php echo xss($content->date()->format($viewModel->dateFormat())) . ' | '; ?>
       <?php echo xss($content->info()); ?>
-      <?php if ($contentTags) {
-          echo ' | ';
-          $tags = [];
-          foreach ($contentTags as $key => $value) {
-            $tags[] = '<a href="?id=' . xss($key) . '">' . xss($value) . '</a>';
-          }
-          echo \implode(', ', $tags);
-        } ?>
     </span>
   </p>
+
+  <?php if ($contentTags): ?>
+  <p class="content-tags small">
+    <i class="icon-tag"></i>
+    <?php
+      $tags = [];
+      foreach ($contentTags as $key => $value) {
+        $tags[] = '<a href="?id=' . xss($key) . '">' . xss($value) . '</a>';
+      }
+      echo \implode(', ', $tags);
+    ?>
+  </p>
+  <?php endif; ?>
 
   <!-- Image -->
   <?php if ($content->image()): ?>
@@ -78,7 +83,7 @@
         zoom: 14
       });
 
-      var src = '<?php echo TFISH_MEDIA_URL . xss($content->media()); ?>';
+      var src = <?php echo \json_encode(TFISH_MEDIA_URL . $content->media(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES); ?>;
 
       var kmlLayer = new google.maps.KmlLayer(src, {
           suppressInfoWindows: false,

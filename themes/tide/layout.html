@@ -31,7 +31,7 @@
     <link href="<?php echo TFISH_VENDOR_URL . 'icons/solid/style.css'; ?>" rel="stylesheet">
 
     <!-- Theme styles -->
-    <link href="<?php echo TFISH_THEMES_URL . 'tide/style.css?v=1'; ?>" rel="stylesheet">
+    <link href="<?php echo TFISH_THEMES_URL . 'tide/style.css?v=7'; ?>" rel="stylesheet">
   </head>
 
   <body>
@@ -41,9 +41,9 @@
     <header class="site-header">
       <div class="container">
         <nav class="nav" aria-label="Primary">
-          <a class="brand" href="<?php echo TFISH_URL; ?>">
-            <span class="mark"><i class="icon-route"></i></span>
-            <?php echo xss($metadata->siteName); ?>
+          <a class="brand-logo" href="<?php echo TFISH_URL; ?>">
+            <img src="<?php echo TFISH_THEMES_URL . 'tide/logo.svg'; ?>" width="70" height="69" alt="">
+            <span class="brand-text"><?php echo xss($metadata->siteName); ?></span>
           </a>
 
           <input class="nav-toggle" type="checkbox" id="nav-toggle">

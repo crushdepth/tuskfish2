@@ -6,16 +6,21 @@
   <span class="small">
     <?php echo xss($content->date()->format($viewModel->dateFormat())) . ' | '; ?>
     <?php echo xss($content->info()); ?>
-    <?php if ($contentTags) {
-        echo ' | ';
-        $tags = [];
-        foreach ($contentTags as $key => $value) {
-          $tags[] = '<a href="?id=' . xss($key) . '">' . xss($value) . '</a>';
-        }
-        echo \implode(', ', $tags);
-      } ?>
   </span>
 </p>
+
+<?php if ($contentTags): ?>
+<p class="content-tags small">
+  <i class="icon-tag"></i>
+  <?php
+    $tags = [];
+    foreach ($contentTags as $key => $value) {
+      $tags[] = '<a href="?id=' . xss($key) . '">' . xss($value) . '</a>';
+    }
+    echo \implode(', ', $tags);
+  ?>
+</p>
+<?php endif; ?>
 
 <!-- Available video aspect ratios are ratio-1x1, ratio-4x3, ratio-1x1, ratio-21x9 -->
 <?php if ($content->externalMedia()): ?>
