@@ -47,12 +47,18 @@ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 body {
   margin: 0;
   font-family: var(--font);
-  font-size: 1.0625rem;
+  font-size: 1.125rem;
   line-height: 1.65;
   color: var(--text);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
+  /* Sticky footer: fill the viewport so the footer sits at the bottom even
+     when the page content is short. */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
+main { flex: 1 0 auto; }
 img { max-width: 100%; height: auto; display: block; }
 h1, h2, h3, h4 { line-height: 1.2; font-weight: 700; margin: 0 0 .6em; color: var(--text); }
 h1 { font-size: var(--h1); letter-spacing: -.01em; }
@@ -90,7 +96,7 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
 }
 .nav {
   display: flex; align-items: center; flex-wrap: wrap; gap: var(--gap);
-  min-height: 116px;
+  min-height: 132px;
 }
 .nav-menu { display: flex; align-items: center; gap: var(--gap); }
 .brand-logo {
@@ -101,7 +107,7 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
 .brand-logo img { height: 92px; width: auto; display: block; flex-shrink: 0; }
 .brand-text {
   font-size: clamp(1.05rem, .85rem + .75vw, 1.4rem);
-  font-weight: 700; letter-spacing: -.015em; line-height: 1.15;
+  font-weight: 600; letter-spacing: -.015em; line-height: 1.15;
   max-width: 16rem;
 }
 .nav-links { list-style: none; display: flex; align-items: center; gap: .35rem; margin: 0; padding: 0; }
@@ -124,11 +130,46 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
    (default overflow:hidden) once enlarged — so let it overflow. */
 .nav-links svg.gallery-icon { width: 1.28rem; height: 1.28rem; overflow: visible; }
 
+/* Dropdown menus. No-JS by design: a native <details>/<summary> owns the open
+   state, so it works with keyboard and touch alike (no hover trap on mobile). */
+.nav-dropdown { position: relative; }
+.nav-dropdown details > summary {
+  /* Match the styling of a plain nav link, but as a clickable summary. */
+  color: #dff0f1; cursor: pointer; list-style: none;
+  padding: .45rem .7rem; border-radius: var(--radius-sm);
+  font-weight: 600; font-size: .97rem;
+  display: inline-flex; align-items: center; gap: .35rem;
+  transition: background-color .15s ease, color .15s ease;
+}
+.nav-dropdown details > summary::-webkit-details-marker { display: none; }
+.nav-dropdown details > summary:hover { background: rgba(255,255,255,.14); color: #fff; }
+.nav-dropdown details[open] > summary { background: rgba(255,255,255,.14); color: #fff; }
+.nav-dropdown summary .chevron {
+  width: .85rem; height: .85rem; transition: transform .15s ease;
+}
+.nav-dropdown details[open] > summary .chevron { transform: rotate(180deg); }
+
+.nav-submenu {
+  list-style: none; margin: 0; padding: .35rem;
+  position: absolute; top: calc(100% + .35rem); left: 0; z-index: 50;
+  min-width: 13rem;
+  background: var(--card); color: var(--text);
+  border: 1px solid var(--rule); border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+}
+.nav-submenu a {
+  display: block; padding: .5rem .7rem; border-radius: var(--radius-sm);
+  color: var(--text); font-weight: 500; font-size: .95rem; text-decoration: none;
+  white-space: nowrap;
+}
+.nav-submenu a:hover { background: var(--accent-050); color: var(--accent-700); text-decoration: none; }
+
 /* Search */
 .nav-search { display: flex; gap: .4rem; }
 .nav-search input[type="search"] {
   border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.12);
-  color: #fff; border-radius: var(--radius-sm); padding: .45rem .7rem; min-width: 9rem;
+  color: #fff; border-radius: var(--radius-sm); padding: .45rem .7rem;
+  width: 7rem; min-width: 0;
   font-size: .95rem;
 }
 .nav-search input::placeholder { color: #cfe6e8; }
@@ -153,9 +194,11 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
 .nav-toggle-label span::before { position: absolute; top: -7px; }
 .nav-toggle-label span::after  { position: absolute; top: 7px; }
 
-/* Collapse to the hamburger well before the full nav (brand + links + search)
-   runs out of room and starts wrapping onto a second line against the logo. */
-@media (max-width: 992px) {
+/* Collapse to the hamburger before the full nav (brand + links + search) runs
+   out of room and starts wrapping onto a second line against the logo. With the
+   expanded dropdown menu + search, the horizontal row only fits comfortably once
+   the container reaches its 1140px max, so switch over below that. */
+@media (max-width: 1140px) {
   .nav { min-height: 84px; }
   .brand-logo img { height: 64px; }
   .nav-toggle-label { display: inline-flex; }
@@ -166,6 +209,12 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
   .nav-toggle:checked ~ .nav-menu { display: flex; }
   .nav-links { flex-direction: column; align-items: stretch; gap: .15rem; }
   .nav-links a { padding: .7rem .6rem; }
+  /* Dropdowns expand inline (not as a floating overlay) within the stacked menu. */
+  .nav-dropdown details > summary { padding: .7rem .6rem; justify-content: space-between; }
+  .nav-submenu {
+    position: static; min-width: 0; margin: .15rem 0 .35rem .6rem;
+    box-shadow: none;
+  }
   /* Keep the utility controls on one row even when the menu stacks. */
   .nav-utilities { margin-left: 0; gap: .25rem; }
   .nav-search input[type="search"] { flex: 1; }
@@ -206,7 +255,12 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--a
 /* =========================================================================
    Page title & meta
    ========================================================================= */
-.page-title { text-align: center; margin-bottom: 1.75rem; }
+.page-title {
+  text-align: center; margin-bottom: 1.75rem;
+  /* Lighter than the base h1 (700/--h1): page titles sit above their own
+     content, so a 600 weight and a slightly smaller size read less heavy. */
+  font-weight: 600; font-size: clamp(1.6rem, 1.25rem + 1.4vw, 2.15rem);
+}
 /* "Horizon" rule — a short teal underline echoing the header waterline */
 .page-title::after {
   content: ""; display: block; width: 3.5rem; height: 3px; margin: .6rem auto 0;
@@ -313,6 +367,8 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
 .figure-centre img { width: 100%; }
 
 @media (max-width: 560px) {
+  /* Nudge body text up a touch more on phones. */
+  body { font-size: 1.1875rem; }
   .figure-left, .figure-right { float: none; margin: 0 0 1rem; max-width: 100%; }
   .figure-left img, .figure-right img { width: 100%; }
 }
@@ -380,6 +436,47 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
   background: var(--card); aspect-ratio: 4 / 3; }
 .gallery-grid img { width: 100%; height: 100%; object-fit: cover; transition: transform .25s ease; }
 .gallery-grid a:hover img { transform: scale(1.04); }
+
+/* =========================================================================
+   Featured content block (CSS grid of card tiles)
+   ========================================================================= */
+.featured-content { padding-top: clamp(1.75rem, 1rem + 3vw, 3.25rem); padding-bottom: 0; }
+.featured-title { text-align: center; margin: 0 0 2rem; font-weight: 600; }
+.featured-grid {
+  display: grid; gap: var(--gap);
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+.featured-card { display: flex; flex-direction: column; }
+/* Old-style printed-photo framing: white mat, thin outer stroke, soft shadow that
+   lifts gently on hover (slow, eased — no sudden jump). */
+.featured-thumb {
+  display: block; overflow: hidden;
+  background: #fff; padding: 8px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(20, 50, 60, .12);
+  transition: box-shadow .25s ease, transform .25s ease;
+}
+.featured-thumb img { width: 100%; height: auto; display: block; }
+.featured-card:hover .featured-thumb {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(20, 50, 60, .18);
+}
+/* The global prefers-reduced-motion rule below kills all transitions with !important
+   (a stricter stance than Bootstrap, which only neutralises specific components and
+   lets its .lift hover through). Re-enable this one gentle decorative lift to match. */
+@media (prefers-reduced-motion: reduce) {
+  .featured-thumb { transition: box-shadow .25s ease, transform .25s ease !important; }
+}
+.featured-card h3 { font-size: 1.15rem; margin: .9rem 0 .4rem; }
+.featured-card h3 a { color: var(--text); text-decoration: none; }
+.featured-card h3 a:hover { color: var(--accent-700); }
+.featured-card p { margin: 0; color: var(--text-soft); }
+/* This block carries its own full-width layout, so strip the standard .block card
+   chrome (background, border, accent bar, shadow, padding) when it wraps one. */
+.block:has(.featured-content) {
+  background: none; border: none; border-radius: 0; box-shadow: none; padding: 0;
+}
 
 /* =========================================================================
    Centre blocks (layout regions)
@@ -466,10 +563,12 @@ video { max-width: 100%; height: auto; }
    Footer
    ========================================================================= */
 /* The footer is the surface of the water: a teal band whose top edge is a
-   crisp, repeating wave (fixed 80px wavelength, so it never stretches). */
+   crisp, repeating wave (fixed 800px wavelength, so it never stretches). */
 .site-footer {
   position: relative;
-  margin-top: 3rem;
+  /* The .page already supplies generous bottom padding; a small top margin
+     here is enough to clear the wave crest without doubling the gap. */
+  margin-top: 1rem;
   background: linear-gradient(180deg, var(--accent) 0%, var(--accent-700) 100%);
   color: #d6edef;
 }
@@ -481,14 +580,59 @@ video { max-width: 100%; height: auto; }
 .site-footer::before {
   content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 24px;
   background: var(--bg);
-  -webkit-mask: repeat-x top / 240px 24px
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 24' preserveAspectRatio='none'%3E%3Cpath fill='%23fff' d='M0,0 H80 V7 C66,7 60,18 40,18 C20,18 14,7 0,7 Z'/%3E%3C/svg%3E");
-          mask: repeat-x top / 240px 24px
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 24' preserveAspectRatio='none'%3E%3Cpath fill='%23fff' d='M0,0 H80 V7 C66,7 60,18 40,18 C20,18 14,7 0,7 Z'/%3E%3C/svg%3E");
+  -webkit-mask: repeat-x top / 800px 24px
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 24' preserveAspectRatio='none'%3E%3Cpath fill='%23fff' d='M0,0 H80 V6 C66,6 60,20 40,20 C20,20 14,6 0,6 Z'/%3E%3C/svg%3E");
+          mask: repeat-x top / 800px 24px
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 24' preserveAspectRatio='none'%3E%3Cpath fill='%23fff' d='M0,0 H80 V6 C66,6 60,20 40,20 C20,20 14,6 0,6 Z'/%3E%3C/svg%3E");
 }
-.site-footer .container { padding-top: 2.5rem; padding-bottom: 1.75rem; }
+/* Extra top padding keeps the columns clear of the wave crest above. */
+.site-footer .container { padding-top: 4rem; padding-bottom: 1.75rem; }
 .site-footer a { color: #fff; text-decoration: underline; }
 .site-footer a:hover { color: #fff; }
+
+/* Four-column footer: logo + social, then three link columns. The first column
+   is given a touch more room for the logo; the rest share the remainder. */
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2.25rem;
+}
+.footer-brand { display: flex; flex-direction: column; gap: 1.25rem; }
+.footer-logo { display: inline-block; }
+.footer-logo img { height: 84px; width: auto; }
+.footer-social { display: flex; align-items: center; gap: 1rem; }
+.footer-social a { color: #d6edef; text-decoration: none; line-height: 0; }
+.footer-social a:hover { color: #fff; }
+.footer-social [class^="icon-"] { font-size: 1.4rem; }
+/* Facebook is an inline SVG (the bundle lacks a square tile). The font tiles ink
+   only ~0.875em of their 1.4rem box, so size the (full-bleed) SVG to that inked
+   height to match; align-items:center keeps it level with the glyph baselines. */
+.footer-social .social-svg {
+  width: 1.22rem; height: 1.22rem; fill: currentColor; display: block;
+  /* The font glyphs ink slightly below their box centre (a small descender);
+     align-items:center alone leaves the SVG riding high, so drop it to match. */
+  position: relative; top: 0.18em;
+}
+/* The icon font hard-codes the YouTube glyph red; override to match the set. */
+.footer-social .icon-youtube:before { color: inherit; }
+
+.footer-title {
+  margin: 0 0 .9rem; color: #fff;
+  font-size: 1rem; font-weight: 700; letter-spacing: .02em; text-transform: uppercase;
+}
+.footer-links { list-style: none; margin: 0; padding: 0; }
+.footer-links li { margin-bottom: .5rem; }
+.footer-links a { color: #d6edef; text-decoration: none; font-size: .95rem; }
+.footer-links a:hover { color: #fff; text-decoration: underline; }
+
+@media (max-width: 768px) {
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 1.75rem 2rem; }
+}
+@media (max-width: 480px) {
+  .footer-grid { grid-template-columns: 1fr; }
+}
+
 .copyright { margin: 0; font-size: .92rem; }
 
 /* =========================================================================

@@ -65,6 +65,16 @@
               <?php else: ?>
               <li><a href="<?php echo TFISH_URL . 'login/'; ?>"><?php echo TFISH_LOGIN; ?></a></li>
               <?php endif; ?>
+              <!-- Placeholder dropdown menu (demonstrates the .nav-dropdown style). -->
+              <li class="nav-dropdown">
+                <details>
+                  <summary>Menu <svg class="chevron" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+                  <ul class="nav-submenu">
+                    <li><a href="#">Sublink 1</a></li>
+                    <li><a href="#">Sublink 2</a></li>
+                  </ul>
+                </details>
+              </li>
               <li><a href="<?php echo TFISH_URL . 'gallery/'; ?>"><svg class="gallery-icon" aria-hidden="true"><use href="#i-gallery"/></svg> <?php echo TFISH_IMAGE_GALLERY; ?></a></li>
               <li class="nav-utilities">
                 <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
@@ -119,6 +129,55 @@
     <!-- Footer -->
     <footer class="site-footer">
       <div class="container">
+        <div class="footer-grid">
+
+          <!-- Column 1: logo + social -->
+          <div class="footer-col footer-brand">
+            <a class="footer-logo" href="<?php echo TFISH_URL; ?>" aria-label="<?php echo xss($metadata->siteName); ?>">
+              <img src="<?php echo TFISH_THEMES_URL . 'tide/logo.svg'; ?>" width="70" height="69" alt="">
+            </a>
+            <div class="footer-social">
+              <a href="#" aria-label="YouTube"><span class="icon-youtube" aria-hidden="true"></span></a>
+              <a href="#" aria-label="Facebook"><svg class="social-svg" aria-hidden="true"><use href="#i-facebook-square"/></svg></a>
+              <a href="#" aria-label="LinkedIn"><span class="icon-linkedin" aria-hidden="true"></span></a>
+              <a href="#" aria-label="X"><span class="icon-square-x-twitter" aria-hidden="true"></span></a>
+            </div>
+          </div>
+
+          <!-- Column 2 -->
+          <nav class="footer-col" aria-label="Heading">
+            <h2 class="footer-title">Heading</h2>
+            <ul class="footer-links">
+              <li><a href="#">Link 1</a></li>
+              <li><a href="#">Link 2</a></li>
+              <li><a href="#">Link 3</a></li>
+              <li><a href="#">Link 4</a></li>
+            </ul>
+          </nav>
+
+          <!-- Column 3 -->
+          <nav class="footer-col" aria-label="Heading">
+            <h2 class="footer-title">Heading</h2>
+            <ul class="footer-links">
+              <li><a href="#">Link 1</a></li>
+              <li><a href="#">Link 2</a></li>
+              <li><a href="#">Link 3</a></li>
+              <li><a href="#">Link 4</a></li>
+            </ul>
+          </nav>
+
+          <!-- Column 4 -->
+          <nav class="footer-col" aria-label="Heading">
+            <h2 class="footer-title">Heading</h2>
+            <ul class="footer-links">
+              <li><a href="#">Link 1</a></li>
+              <li><a href="#">Link 2</a></li>
+              <li><a href="#">Link 3</a></li>
+              <li><a href="#">Link 4</a></li>
+            </ul>
+          </nav>
+
+        </div>
         <p class="copyright">Copyright &copy; <?php echo xss($metadata->author) . ' ' . \date('Y'); ?> | <?php if (isset($session)) echo $session->getLoginLink(); ?></p>
       </div>
     </footer>
