@@ -30,6 +30,7 @@ if (!\defined("TFISH_ROOT_PATH")) die("TFISH_ERROR_ROOT_PATH_NOT_DEFINED");
 \define("TFISH_DATABASE_PATH", TFISH_TRUST_PATH . "database/");
 \define("TFISH_ERROR_LOG_PATH", TFISH_TRUST_PATH . "log/tuskfish_log.txt");
 \define("TFISH_FORM_PATH", TFISH_PATH . "form/");
+\define("TFISH_TEMPLATE_PATH", TFISH_PATH . "templates/");
 \define("TFISH_LIBRARIES_PATH", TFISH_TRUST_PATH . "libraries/");
 \define("TFISH_PRIVATE_CACHE_PATH", TFISH_TRUST_PATH . "cache/");
 \define("TFISH_MODULE_PATH", TFISH_TRUST_PATH . "modules/");
