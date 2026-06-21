@@ -4,6 +4,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateTemplateOptions() {
         const selectedType = typeField.value; // Get the selected block type.
+
+        // Preserve the current selection before clearing. On the edit form this is the saved
+        // template rendered server-side; reapplying it below keeps a non-first template (e.g. a
+        // custom 'featured-content' template) selected instead of defaulting to the first option.
+        // When the type changes the old value is absent from the new list, so it harmlessly drops.
+        const selectedTemplate = templateField.value;
+
         templateField.innerHTML = ''; // Clear existing options.
 
         // Get the templates for the selected block type.
@@ -12,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const option = document.createElement('option');
             option.value = value;
             option.textContent = label;
+            if (value === selectedTemplate) {
+                option.selected = true;
+            }
             templateField.appendChild(option);
         }
     }
