@@ -517,7 +517,7 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
    Featured content block (CSS grid of card tiles)
    ========================================================================= */
 .featured-content { padding-top: clamp(1.75rem, 1rem + 3vw, 3.25rem); padding-bottom: 0; }
-.featured-title { text-align: center; margin: 0 0 2rem; font-weight: 600; }
+.featured-content .featured-title { text-align: center; margin: 0 0 2rem; font-size: var(--h2) !important; font-weight: 600; }
 .featured-grid {
   display: grid; gap: var(--gap);
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
