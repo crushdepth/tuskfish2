@@ -204,6 +204,16 @@ class FrontController
      */
     private function renderBlocks(string $path, string $theme = ''): array
     {
+        // The home route '/' is overloaded: besides the front page it also serves single content
+        // objects (?id=), pagination (?start=) and tag/type filters, all on the same path. Blocks
+        // attached to '/' are intended for the bare front page, so suppress them as soon as the
+        // request carries any query parameter (i.e. the visitor has navigated deeper than the bare
+        // route). NB: this also suppresses on tracking params such as ?utm_source; narrow the test
+        // to specific keys here if that becomes an issue.
+        if ($path === '/' && !empty($_GET)) {
+            return ['position' => []];
+        }
+
         $sql = "SELECT `block`.`id`, `type`, `position`, `title`, `html`, `config`, `weight`,
          `template`, `onlineStatus`
           FROM `block`
