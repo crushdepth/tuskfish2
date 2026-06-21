@@ -43,8 +43,11 @@
 
   <!-- Image -->
   <?php if ($content->image()): ?>
+  <!-- srcset: «figure-side» — rungs/sizes map in themes/tide/style.css -->
   <figure class="figure-right">
     <img src="<?php echo $content->cachedImage(640); ?>"
+      srcset="<?php echo $content->cachedImageSrcset([320, 400, 640, 800]); ?>"
+      sizes="(max-width: 560px) calc(92vw - 42px), 400px"
       <?php if ($content->caption()): ?>
         title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>">
       <?php else: ?>

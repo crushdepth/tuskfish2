@@ -41,8 +41,11 @@
 
   <!-- Image -->
   <?php if ($content->image()): ?>
+  <!-- srcset: «figure-centre» — rungs/sizes map in themes/tide/style.css -->
   <figure class="figure-centre">
-    <img src="<?php echo $content->cachedImage(1296); ?>"
+    <img src="<?php echo $content->cachedImage(996); ?>"
+      srcset="<?php echo $content->cachedImageSrcset([400, 680, 996, 1400, 1992]); ?>"
+      sizes="(min-width: 1140px) 996px, calc(92vw - 42px)"
       <?php if ($content->caption()): ?>
         title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>">
       <?php else: ?>

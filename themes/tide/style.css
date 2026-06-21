@@ -87,6 +87,59 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
 .page { padding-block: clamp(1.75rem, 1rem + 3vw, 3.25rem); }
 
 /* =========================================================================
+   Responsive images — srcset / sizes MAP   (read before changing any width)
+   -------------------------------------------------------------------------
+   The image candidate widths (srcset "rungs") and the `sizes` hint live in
+   the TEMPLATES, not here — see  $content->cachedImageSrcset([...])  and the
+   sizes="..." attribute in each .html file. The browser resolves `sizes`
+   against the viewport, multiplies by device DPR (we cap support at 2x) and
+   downloads the smallest rung that covers the result. So `sizes` must mirror
+   the display width the CSS below actually produces: change a max-width /
+   padding / breakpoint here and you MUST recompute `sizes` (and revisit the
+   rungs) in the listed template(s), or the browser will fetch a too-small
+   (blurry) or too-large (wasted bandwidth) image. The helper itself is
+   layout-agnostic — it just resamples to the widths it's handed.
+
+   Layout inputs the maths is derived from (all defined elsewhere in this file):
+     --container ........ 1140px          max content width
+     .container ......... padding-inline  clamp(1rem, .5rem + 2vw, 2rem)
+     .article ........... padding         clamp(1.25rem, .8rem + 2vw, 2.5rem)
+     phone breakpoint ... max-width: 560px  (figures drop to full width)
+
+   Each governing rule below is tagged  «srcset: NAME»  — search that tag to
+   jump between this map and the rule.
+
+   NAME            CSS rule (this file)        template(s)        src / rungs / sizes
+   -------------------------------------------------------------------------
+   stream-thumb    .figure-left (200px cap)    listView.html      src 200
+                                               search.html        rungs [200,400,600,800]
+                                                                  sizes (max-width:560px) calc(96vw - 61px), 200px
+
+   child-thumb     .article .figure-left       children.html      src 200
+                   (nested, 200px cap)         parent.html        rungs [200,400,600,800]
+                                                                  sizes (max-width:560px) calc(92vw - 42px), 200px
+
+   figure-side     .figure-right (40%) and     collection.html        src 640
+                   .article > .figure-left     collection-compact.html rungs [320,400,640,800]
+                   (40%, the left mirror)      tag.html, download.html (40% of ~996 ≈ 398 → 400 @1x)
+                                               article-right.html      sizes (max-width:560px) calc(92vw - 42px), 400px
+                                               article-left.html
+                                               audio.html
+
+   figure-centre   .figure-centre img (100%)   article.html       src 996
+                                               image.html         rungs [400,680,996,1400,1992]
+                                               track.html         sizes (min-width:1140px) 996px, calc(92vw - 42px)
+
+   gallery-tile    .gallery-grid               gallery.html       src 400
+                   (minmax(220px,1fr), 4/3)                       rungs [260,400,520,800]
+                                                                  sizes (min-width:1200px) 251px,
+                                                                        (min-width:1008px) calc((96vw - 88px)/4),
+                                                                        (min-width:754px)  calc((96vw - 64px)/3),
+                                                                        (min-width:500px)  calc((96vw - 40px)/2),
+                                                                        calc(96vw - 16px)
+   ========================================================================= */
+
+/* =========================================================================
    Header / navigation
    ========================================================================= */
 .site-header {
@@ -357,19 +410,37 @@ a.icon-link:hover { color: var(--link-hover); }
    larger than the gap below the top pagination. Drop it for parity. */
 .stream-item:last-child { margin-bottom: 0; }
 
-/* Floated thumbnails */
+/* Floated thumbnails.
+   The max-widths below drive the responsive-image `sizes` in the templates —
+   see the "Responsive images — srcset / sizes MAP" block near the top of this
+   file. Each rule is tagged «srcset: NAME»; search the tag to jump to the map. */
 figure { margin: 0; }
 figure img { border-radius: var(--radius-sm); border: 1px solid rgba(20, 50, 60, .18); }
 figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
+/* «srcset: stream-thumb» (streams) / «child-thumb» (.article child & parent lists) */
 .figure-left  { float: left;  margin: .25rem 1.25rem 1rem 0; max-width: 200px; }
+/* «srcset: figure-side» */
 .figure-right { float: right; margin: .25rem 0 1rem 1.25rem; max-width: 40%; }
+/* An article body image floated left is the mirror of .figure-right and sits at
+   40%, not the 200px thumbnail cap. .figure-left is otherwise the small thumbnail
+   used in streams and in collection child/parent lists (nested deeper, not direct
+   children of .article), so widen only the direct-child body image.
+   «srcset: figure-side» (shares the right mirror's rungs/sizes). */
+.article > .figure-left { max-width: 40%; }
+/* «srcset: figure-centre» */
 .figure-centre { margin: 1.25rem auto; }
 .figure-centre img { width: 100%; }
 
 @media (max-width: 560px) {
   /* Nudge body text up a touch more on phones. */
   body { font-size: 1.1875rem; }
+  /* Phone full-width branch of every figure `sizes` (the "(max-width:560px) …"
+     clause). Move this breakpoint and you must update that clause in every
+     figure template — see the srcset map. */
   .figure-left, .figure-right { float: none; margin: 0 0 1rem; max-width: 100%; }
+  /* Match the .article > .figure-left specificity above so the body image also
+     goes full width on phones. */
+  .article > .figure-left { max-width: 100%; }
   .figure-left img, .figure-right img { width: 100%; }
 }
 
@@ -428,6 +499,9 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
 /* =========================================================================
    Gallery (CSS grid)
    ========================================================================= */
+/* «srcset: gallery-tile» — the minmax() track width, the --gap, the container
+   padding and the 4/3 aspect-ratio all feed gallery.html's `sizes` breakpoints;
+   change any of them and recompute that sizes string. See the srcset map. */
 .gallery-grid {
   display: grid; gap: var(--gap);
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));

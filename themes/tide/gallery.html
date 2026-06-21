@@ -26,10 +26,13 @@
 
   <!-- Image grid -->
   <?php if ($contentObjects = $viewModel->contentList()): ?>
+  <!-- srcset: «gallery-tile» — rungs/sizes map in themes/tide/style.css -->
   <div class="gallery-grid">
     <?php foreach ($contentObjects as $content): ?>
     <a href="<?php echo xss($content->url()); ?>">
       <img src="<?php echo $content->cachedImage(400); ?>"
+        srcset="<?php echo $content->cachedImageSrcset([260, 400, 520, 800]); ?>"
+        sizes="(min-width: 1200px) 251px, (min-width: 1008px) calc((96vw - 88px)/4), (min-width: 754px) calc((96vw - 64px)/3), (min-width: 500px) calc((96vw - 40px)/2), calc(96vw - 16px)"
         <?php if ($content->caption()): ?>
         alt="<?php echo xss($content->caption()); ?>" title="<?php echo xss($content->caption()); ?>">
         <?php else: ?>

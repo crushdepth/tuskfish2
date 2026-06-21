@@ -206,6 +206,57 @@ trait ResizeImage
     }
 
     /**
+     * Builds a srcset string of cached image variants at the given widths.
+     *
+     * Each width is generated (and cached) via cachedImage() and paired with its 'w' descriptor,
+     * ready to drop into an <img srcset="..."> attribute. Widths that cannot be produced (e.g. no
+     * associated image) are silently skipped. URLs are already escaped by cachedImage(). Pass the
+     * exact widths a template actually displays the image at (plus retina multiples) so the browser
+     * can pick the smallest sufficient file: no upscaling blur, no wasted bytes.
+     *
+     * Candidate widths are clamped to the original image width so we never upscale (which would
+     * waste bytes and serve a soft image while advertising a width descriptor the file cannot
+     * honour). Clamping can collapse several requested widths onto the original, so duplicates are
+     * dropped.
+     *
+     * @param array $widths List of widths (px) to offer as candidates.
+     * @return string Comma-separated "url width" pairs, or an empty string if none could be made.
+     */
+    public function cachedImageSrcset(array $widths): string
+    {
+        if (!$this->image || !\is_readable(TFISH_IMAGE_PATH . $this->image)) {
+            return '';
+        }
+
+        $size = \getimagesize(TFISH_IMAGE_PATH . $this->image);
+
+        if (!$size || (int) $size[0] < 1) {
+            return '';
+        }
+
+        $originalWidth = (int) $size[0];
+
+        $sources = [];
+        $seen = [];
+
+        foreach ($widths as $width) {
+            $width = \min((int) $width, $originalWidth); // Never upscale beyond the source.
+
+            if ($width < 1 || isset($seen[$width])) {
+                continue; // Skip duplicates created by clamping.
+            }
+
+            $seen[$width] = true;
+
+            if ($url = $this->cachedImage($width)) {
+                $sources[] = $url . ' ' . $width . 'w';
+            }
+        }
+
+        return \implode(', ', $sources);
+    }
+
+    /**
      * Scales an image to the specified dimensions and caches it using libvips.
      *
      * Validates the MIME type and confirms that libvips is available before doing any work. The

@@ -44,9 +44,12 @@
       </p>
 
       <?php if ($content->image()): ?>
+      <!-- srcset: «stream-thumb» — rungs/sizes map in themes/tide/style.css -->
       <figure class="figure-left">
         <a href="<?php echo xss($content->url()); ?>">
           <img src="<?php echo $content->cachedImage(200); ?>"
+            srcset="<?php echo $content->cachedImageSrcset([200, 400, 600, 800]); ?>"
+            sizes="(max-width: 560px) calc(96vw - 61px), 200px"
             <?php if ($content->caption()): ?>
             title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>">
             <?php else: ?>
