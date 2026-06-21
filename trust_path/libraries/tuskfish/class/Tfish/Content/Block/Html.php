@@ -31,10 +31,12 @@ namespace Tfish\Content\Block;
 class Html implements \Tfish\Interface\Block
 {
     use \Tfish\Content\Traits\ContentTypes;
+    use \Tfish\Traits\BlockTemplate;
     use \Tfish\Traits\IntegerCheck;
     use \Tfish\Traits\ValidateString;
 
     private int $id = 0;
+    private string $theme = '';
     private string $type = '\Tfish\Content\Block\Html';
     private string $position = '';
     private string $title = '';
@@ -47,8 +49,9 @@ class Html implements \Tfish\Interface\Block
     private mixed $content = false;
 
     /** Constructor. */
-    public function __construct(array $row, \Tfish\Database $database, \Tfish\CriteriaFactory $criteriaFactory)
+    public function __construct(array $row, \Tfish\Database $database, \Tfish\CriteriaFactory $criteriaFactory, string $theme = '')
     {
+        $this->theme = $this->trimString($theme);
         $this->load($row);
         $this->render();
     }
@@ -96,11 +99,7 @@ class Html implements \Tfish\Interface\Block
     {
         $content = $this->content;
 
-        $filepath = TFISH_CONTENT_BLOCK_PATH . $this->template . '.html';
-
-        if (!\file_exists($filepath)) {
-            throw new \RuntimeException(TFISH_ERROR_TEMPLATE_NOT_FOUND);
-        }
+        $filepath = $this->blockTemplatePath($this->theme, $this->template, TFISH_CONTENT_BLOCK_PATH);
 
         \ob_start();
         include $filepath;
@@ -131,7 +130,8 @@ class Html implements \Tfish\Interface\Block
      * Returns a list of display-side template options for this block.
      *
      * Add your custom templates to this list (without .html extension) and put a template file
-     * with the same name (with .html extensin) in the Block directory.
+     * with the same name (with .html extension) in the module's Block directory. A theme may
+     * override any of these by placing a same-named file in its themes/{theme}/blocks/ directory.
      *
      * @return  array Array of type-template key values.
      */

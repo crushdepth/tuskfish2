@@ -142,7 +142,10 @@ interface Block
      * and storing the result in the $html property. Wrap the assignment to $html in output
      * buffering so that it doesn't output immediately.
      *
-     * See Content/RecentContent.php for an example.
+     * To support per-theme template overrides, accept an optional fourth constructor argument
+     * (string $theme = '') and resolve the template path via the \Tfish\Traits\BlockTemplate trait:
+     * a theme-supplied template (themes/{theme}/blocks/{template}.html) takes precedence over the
+     * module's bundled default. See Content/RecentContent.php for an example.
      *
      * @return void
      */

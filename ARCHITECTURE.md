@@ -215,6 +215,13 @@ Templates are `.html` files containing inline PHP (`<?php echo xss($viewModel->t
 
 This fallback is what makes drop-in modules possible (the `User` module ships its own templates under `User/templates/` and works in any theme without the theme author copying files in). Core and Content routes pass an empty `modulePath`, so they resolve theme-only, preserving legacy behaviour. Both candidate paths are traversal/null-byte checked.
 
+**Block templates** resolve the same way via the `\Tfish\Traits\BlockTemplate` trait (`blockTemplatePath()`), used by each block's `render()`:
+
+1. `themes/{theme}/blocks/{template}.html` — the active theme's override, if present.
+2. `{module}/Block/{template}.html` — the module's bundled default.
+
+A block receives the active theme as an optional fourth constructor argument (`FrontController::renderBlocks()` passes it, having resolved the theme before rendering blocks); an empty theme resolves straight to the module default. Block **config** sub-templates (the admin edit-form fragments) remain module-only for now — only display templates are theme-overridable.
+
 The **layout** (`themes/{theme}/layout.html`) is the outer HTML shell — `<head>`, nav bar, block positions, footer, `</html>`. It is `include`d by `FrontController::renderLayout()` with `$page` (the rendered body), `$blocks`, `$metadata` and `$session` in scope. Layouts and CSS/JS are **not** module-local — they always come from the theme.
 
 ## Modules

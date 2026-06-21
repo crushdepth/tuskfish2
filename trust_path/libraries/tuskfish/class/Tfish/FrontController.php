@@ -170,7 +170,6 @@ class FrontController
     private function renderLayout(Entity\Metadata $metadata, $viewModel, string $path)
     {
         $page = $this->view->render();
-        $blocks = $this->renderBlocks($path);
 
         $metadata->update($viewModel->metadata());
         $session = $this->session;
@@ -181,6 +180,10 @@ class FrontController
         if ($this->hasTraversalorNullByte($theme) || $this->hasTraversalorNullByte($layout)) {
             throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
+
+        // Resolve the theme before rendering blocks so each block can prefer a theme-supplied
+        // template (themes/{theme}/blocks/) over its module's bundled default.
+        $blocks = $this->renderBlocks($path, $theme);
 
         include_once TFISH_THEMES_PATH . $theme . "/" . $layout . ".html";
     }
@@ -195,9 +198,11 @@ class FrontController
      * that position.
      *
      * @param string $path URL path.
+     * @param string $theme Active theme, passed to each block so it can prefer a theme-supplied
+     *               template over its module's bundled default.
      * @return array Blocked indexed by ID.
      */
-    private function renderBlocks(string $path): array
+    private function renderBlocks(string $path, string $theme = ''): array
     {
         $sql = "SELECT `block`.`id`, `type`, `position`, `title`, `html`, `config`, `weight`,
          `template`, `onlineStatus`
@@ -220,7 +225,7 @@ class FrontController
                 continue;
             }
 
-            $obj = new $className($row, $this->database, $this->criteriaFactory);
+            $obj = new $className($row, $this->database, $this->criteriaFactory, $theme);
 
             $blocks[$row['id']] = $obj;
 
