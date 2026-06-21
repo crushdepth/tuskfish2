@@ -347,8 +347,7 @@ a.icon-link:hover { color: var(--link-hover); }
 /* The icon font pushes every glyph down 0.115em to sit on the body-text
    baseline; in the larger/bolder headings that drops the icon below the
    text. Cancel the nudge for icons inside titles so they sit level. */
-.title [class^="icon-"], .title [class*=" icon-"],
-.parent [class^="icon-"], .child-title [class^="icon-"] { top: .06em; }
+.title [class^="icon-"], .title [class*=" icon-"] { top: .06em; }
 /* The icon font's 0.115em down-nudge drops the RSS/tag glyphs below the small
    meta text. The icons are inline-block (vendor `a > [icon]` rule), so
    vertical-align:middle centres their full em box and sinks them well below the
@@ -493,7 +492,10 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
 /* Clear the floated thumbnail so a tall image / short teaser doesn't spill past
    the bottom edge of the related block. */
 .related::after { content: ""; display: table; clear: both; }
-.child-title, .parent { font-size: 1.15rem; }
+/* Parent / child titles share the stream/search teaser heading style (var(--h3),
+   weight 600) for consistency. Placed after `.article .title` so it wins on
+   source order at equal specificity. */
+.related .title, .collection-children .title { font-size: var(--h3); font-weight: 600; margin-bottom: .35rem; }
 .child-item { padding: 1rem 0; border-bottom: 1px solid var(--rule); }
 .child-item:last-child { border-bottom: 0; }
 .child-item::after { content: ""; display: table; clear: both; }

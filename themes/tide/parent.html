@@ -3,10 +3,15 @@
 <!-- Parent / related collection -->
 <div class="related">
   <h3><?php echo TFISH_RELATED; ?></h3>
-  <h4 class="parent">
+  <h4 class="title">
     <a href="<?php echo xss($parent->url()); ?>" class="icon-link"><?php echo $parent->icon($parent->type()); ?></a>
     <a href="<?php echo xss($parent->url()); ?>" class="title-link"><?php echo xss($parent->title()); ?></a>
   </h4>
+
+  <p class="content-info small">
+    <?php echo xss($parent->date()->format('j F Y')); ?><?php if ($parent->info()) echo ' | ' . xss($parent->info()); ?>
+  </p>
+
   <?php if ($parent->image()): ?>
   <!-- srcset: «child-thumb» — rungs/sizes map in themes/tide/style.css -->
   <figure class="figure-left">

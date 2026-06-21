@@ -10,10 +10,15 @@
 
   <?php foreach ($children as $child): ?>
   <div class="child-item">
-    <h4 class="child-title">
+    <h4 class="title">
       <a href="<?php echo xss($child->url()); ?>" class="icon-link"><?php echo $child->icon($child->type()); ?></a>
       <a href="<?php echo xss($child->url()); ?>" class="title-link"><?php echo xss($child->title()); ?></a>
     </h4>
+
+    <p class="content-info small">
+      <?php echo xss($child->date()->format('j F Y')); ?><?php if ($child->info()) echo ' | ' . xss($child->info()); ?>
+    </p>
+
     <?php if ($child->image()): ?>
     <!-- srcset: «child-thumb» — rungs/sizes map in themes/tide/style.css -->
     <figure class="figure-left">
