@@ -43,6 +43,16 @@ class FrontController
     use Traits\TraversalCheck;
     use Traits\ValidateString;
 
+    /**
+     * Cache-param keys that mean the visitor has moved to a deeper view of a route (single item,
+     * pagination, tag filter, search) and so suppress that route's blocks. Read against the
+     * controller's $cacheParams, which records a key only when its value is meaningful. 'type' is
+     * deliberately excluded: it is genuine navigation on the listing but a hardcoded constant on
+     * the gallery route, so it cannot be used as a reliable deeper-view signal. Add a key here when
+     * a route gains a new navigation parameter.
+     */
+    private const NAVIGATION_PARAMS = ['id', 'start', 'tag', 'searchTerms'];
+
     private $session;
     private $view;
     private $controller;
@@ -100,7 +110,7 @@ class FrontController
 
         $cacheParams = $this->controller->{$action}();
         $cache->check($path, $cacheParams);
-        $this->renderLayout($metadata, $viewModel, $path);
+        $this->renderLayout($metadata, $viewModel, $path, $cacheParams);
 
         // Do not cache restricted content.
         if ($viewModel->doNotCache() === false) {
@@ -166,8 +176,9 @@ class FrontController
      * @param \Tfish\Entity\Metadata $metadata Instance of the Tuskfish metadata class.
      * @param mixed $viewModel Instance of a viewModel class.
      * @param string $path URL path (route) associated with this request.
+     * @param array $cacheParams Controller's parsed view state, used to decide block suppression.
      */
-    private function renderLayout(Entity\Metadata $metadata, $viewModel, string $path)
+    private function renderLayout(Entity\Metadata $metadata, $viewModel, string $path, array $cacheParams = [])
     {
         $page = $this->view->render();
 
@@ -183,7 +194,7 @@ class FrontController
 
         // Resolve the theme before rendering blocks so each block can prefer a theme-supplied
         // template (themes/{theme}/blocks/) over its module's bundled default.
-        $blocks = $this->renderBlocks($path, $theme);
+        $blocks = $this->renderBlocks($path, $theme, $cacheParams);
 
         include_once TFISH_THEMES_PATH . $theme . "/" . $layout . ".html";
     }
@@ -200,17 +211,18 @@ class FrontController
      * @param string $path URL path.
      * @param string $theme Active theme, passed to each block so it can prefer a theme-supplied
      *               template over its module's bundled default.
+     * @param array $cacheParams Controller's parsed view state for this request.
      * @return array Blocked indexed by ID.
      */
-    private function renderBlocks(string $path, string $theme = ''): array
+    private function renderBlocks(string $path, string $theme = '', array $cacheParams = []): array
     {
-        // The home route '/' is overloaded: besides the front page it also serves single content
-        // objects (?id=), pagination (?start=) and tag/type filters, all on the same path. Blocks
-        // attached to '/' are intended for the bare front page, so suppress them as soon as the
-        // request carries any query parameter (i.e. the visitor has navigated deeper than the bare
-        // route). NB: this also suppresses on tracking params such as ?utm_source; narrow the test
-        // to specific keys here if that becomes an issue.
-        if ($path === '/' && !empty($_GET)) {
+        // Blocks belong to a route's canonical (bare) view. When the visitor has moved to a deeper
+        // view (a single item, pagination, a tag/type filter, a search) the blocks are dropped. We
+        // read this from $cacheParams, the controller's own parsed view state, rather than from raw
+        // $_GET: the controller records a navigation key only when its value is meaningful, so empty
+        // or zero params (e.g. /?id=) and tracking tags (utm_*, gclid, etc.) correctly leave blocks
+        // in place. NAVIGATION_PARAMS filters out framework baseline keys such as 'page'/'loggedIn'.
+        if (\array_intersect_key($cacheParams, \array_flip(self::NAVIGATION_PARAMS))) {
             return ['position' => []];
         }
 
