@@ -31,7 +31,7 @@
     <link href="<?php echo TFISH_VENDOR_URL . 'icons/solid/style.css'; ?>" rel="stylesheet">
 
     <!-- Theme styles -->
-    <link href="<?php echo TFISH_THEMES_URL . 'tide/style.css?v=15'; ?>" rel="stylesheet">
+    <link href="<?php echo TFISH_THEMES_URL . 'tide/style.css?v=17'; ?>" rel="stylesheet">
 
     <!-- Set the colour scheme before first paint (no flash). Blocking by design. -->
     <script src="<?php echo TFISH_THEMES_URL . 'tide/tide-init.js'; ?>"></script>
@@ -98,29 +98,31 @@
     <main id="main" role="main">
       <div class="page">
 
-        <!-- Top centre blocks -->
+        <!-- Top centre blocks. Marked up as a complementary landmark so assistive
+             tech reads its h2 block titles as a side region, not as a broken
+             outline (these can render above the page's h1 "Latest posts"). -->
         <?php if (!empty($blocks['position']['top-centre'])): ?>
-        <div class="container">
+        <aside class="container" aria-label="<?php echo TFISH_FEATURED; ?>">
           <div class="block-region">
             <?php foreach ($blocks['position']['top-centre'] ?? [] as $block): ?>
             <div class="block"><?= $block->html(); ?></div>
             <?php endforeach; ?>
           </div>
-        </div>
+        </aside>
         <?php endif; ?>
 
         <!-- Main page (includes its own container) -->
         <?php if ($page ?? null) echo $page; ?>
 
-        <!-- Bottom centre blocks -->
+        <!-- Bottom centre blocks (complementary landmark — see top-centre above). -->
         <?php if (!empty($blocks['position']['bottom-centre'])): ?>
-        <div class="container">
+        <aside class="container" aria-label="<?php echo TFISH_MORE; ?>">
           <div class="block-region">
             <?php foreach ($blocks['position']['bottom-centre'] ?? [] as $block): ?>
             <div class="block"><?= $block->html(); ?></div>
             <?php endforeach; ?>
           </div>
-        </div>
+        </aside>
         <?php endif; ?>
 
       </div><!-- /.page -->

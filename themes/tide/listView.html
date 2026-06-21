@@ -34,10 +34,10 @@
         <span class="when"><?php echo xss($content->date()->format('j M Y')); ?></span>
       </div>
 
-      <h3 class="title">
+      <h2 class="title">
         <a href="<?php echo xss($content->url()); ?>" class="icon-link"><?php echo $content->icon($content->type()); ?></a>
         <a href="<?php echo xss($content->url()); ?>" class="title-link"><?php echo xss($content->title()); ?></a>
-      </h3>
+      </h2>
 
       <p class="content-info small">
         <span class="meta-date"><?php echo xss($content->date()->format('j F Y')); ?></span><?php if ($content->info()): ?><span class="meta-info"><?php echo xss($content->info()); ?></span><?php endif; ?>

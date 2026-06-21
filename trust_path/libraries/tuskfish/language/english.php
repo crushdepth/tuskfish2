@@ -95,6 +95,10 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 // Home page stream.
 \define("TFISH_LATEST_POSTS", "Latest posts");
 
+// Block region landmarks (aria-labels for the centre block regions).
+\define("TFISH_FEATURED", "Featured");
+\define("TFISH_MORE", "More");
+
 // Preferences.
 \define("TFISH_PREFERENCE", "Preference");
 \define("TFISH_PREFERENCES", "Preferences");

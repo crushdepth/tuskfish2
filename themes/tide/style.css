@@ -401,7 +401,9 @@ a.icon-link:hover { color: var(--link-hover); }
 /* Inline meta separator (narrow screens, where the gutter is hidden). */
 .content-info .meta-info::before { content: " | "; }
 .stream-item:hover { box-shadow: var(--shadow); border-color: var(--rule-strong); }
-.stream-item .title { margin-bottom: .35rem; font-size: var(--h3); }
+/* Secondary tier: lighter than the base heading 700 so it harmonises with the
+   600-weight h1 page title (and the matching .block titles). */
+.stream-item .title { margin-bottom: .35rem; font-size: var(--h3); font-weight: 600; }
 .stream-item .teaser { color: var(--text-soft); }
 .stream-item .teaser p:last-child { margin-bottom: 0; }
 .stream-item::after { content: ""; display: table; clear: both; }
@@ -564,7 +566,23 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
   background: var(--card); border: 1px solid var(--rule); border-left: 4px solid var(--accent);
   border-radius: var(--radius); padding: 1.1rem 1.3rem; box-shadow: var(--shadow-sm);
 }
-.block h3 { font-size: 1.1rem; margin-bottom: .6rem; color: var(--accent-700); }
+/* Block titles come from shared, theme-agnostic templates that use mixed
+   heading levels — Spotlight/Featured-video emit <h2>, Recent-content/HTML
+   emit <h3>. Normalise both to the SAME visual tier as the content-stream item
+   titles (.stream-item .title): var(--h3) at weight 600. The home page then
+   reads as one dominant h1 ("Latest posts") over a single, uniform secondary
+   tier — what sets a block apart from a stream item is the card chrome (border
+   + accent bar), not the title size. Position-independent: a Featured-video or
+   Spotlight sitting ABOVE the page title (top-centre region) gets the identical
+   treatment. Linked titles (Spotlight) take the lagoon link colour exactly as
+   stream titles do; unlinked ones (Featured-video, Recent content, HTML) stay
+   text colour. */
+.block :is(h2, h3) {
+  font-size: var(--h3); font-weight: 600; line-height: 1.25;
+  margin: 0 0 .6rem; letter-spacing: -.005em; color: var(--text);
+}
+.block :is(h2, h3) a { color: var(--link); text-decoration: none; }
+.block :is(h2, h3) a:hover { color: var(--link-hover); text-decoration: underline; }
 .block ul { margin: 0; padding-left: 1.1rem; }
 .block li { margin-bottom: .35rem; }
 
@@ -752,7 +770,7 @@ video { max-width: 100%; height: auto; }
 
 /* Teal used as text on a dark card — lift to a light teal so it stays legible
    (the token itself can't move: it also paints the teal header/footer band). */
-:root[data-theme="dark"] :is(.block h3, .card h3, .page-link, .tag-pill,
+:root[data-theme="dark"] :is(.card h3, .page-link, .tag-pill,
   .alert-info, .gutter-label .kind, .content-info a:not(.icon-link), .content-tags a) {
   color: #7fd4da;
 }
