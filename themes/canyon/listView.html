@@ -1,0 +1,75 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Container -->
+<div class="container">
+
+  <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+
+  <!-- Select filters. The select auto-submits via tide.js (data-autosubmit);
+       without JS it is inert — see tide.js for why we own that dependency. -->
+  <div class="select-filters">
+    <label for="tag" class="sr-only"><?php echo TFISH_KEYWORDS; ?></label>
+    <form name="selectFilters" method="get">
+      <select name="tag" id="tag" data-autosubmit>
+        <?php foreach ($viewModel->activeTagOptions() as $key => $value) {
+          echo ($key === $viewModel->tag()) ?
+            '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>' :
+            '<option value="' . xss($key) . '">' . xss($value) . '</option>';
+        } ?>
+      </select>
+    </form>
+  </div>
+
+  <!-- Top pagination -->
+  <?php if ($pagination ?? null): ?>
+  <div class="pagination-top"><?php echo $pagination; ?></div>
+  <?php endif; ?>
+
+  <!-- Teaser stream -->
+  <div class="stream">
+    <?php foreach ($viewModel->contentList() as $content): ?>
+    <article class="stream-item">
+      <div class="gutter-label">
+        <span class="kind"><?php echo xss($content->listTypes()[$content->type()] ?? ''); ?></span>
+        <span class="when"><?php echo xss($content->date()->format('j M Y')); ?></span>
+      </div>
+
+      <h2 class="title">
+        <a href="<?php echo xss($content->url()); ?>" class="icon-link"><?php echo $content->icon($content->type()); ?></a>
+        <a href="<?php echo xss($content->url()); ?>" class="title-link"><?php echo xss($content->title()); ?></a>
+      </h2>
+
+      <p class="content-info small">
+        <span class="meta-date"><?php echo xss($content->date()->format('j F Y')); ?></span><?php if ($content->info()): ?><span class="meta-info"><?php echo xss($content->info()); ?></span><?php endif; ?>
+      </p>
+
+      <?php if ($content->image()): ?>
+      <!-- srcset: «stream-thumb» — rungs/sizes map in themes/canyon/style.css -->
+      <figure class="figure-left">
+        <a href="<?php echo xss($content->url()); ?>">
+          <img src="<?php echo $content->cachedImage(200); ?>"
+            srcset="<?php echo $content->cachedImageSrcset([200, 400, 600, 800]); ?>"
+            sizes="(max-width: 560px) calc(96vw - 61px), 200px"
+            <?php if ($content->caption()): ?>
+            title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>">
+            <?php else: ?>
+            alt="<?php echo xss($content->title()); ?>">
+            <?php endif; ?>
+        </a>
+      </figure>
+      <?php endif; ?>
+
+      <?php if ($content->teaser()): ?>
+      <div class="teaser"><?php echo $content->teaserForDisplay(); ?></div>
+      <?php endif; ?>
+    </article>
+    <?php endforeach; ?>
+  </div>
+
+  <!-- Bottom pagination -->
+  <?php if ($pagination ?? null): ?>
+  <div class="pagination-bottom"><?php echo $pagination; ?></div>
+  <?php endif; ?>
+
+<!-- /.container -->
+</div>

@@ -1,0 +1,89 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Container -->
+<div class="container">
+
+  <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+
+  <!-- Advanced search form -->
+  <form class="search-form" method="get" accept-charset="UTF-8">
+    <div class="field">
+      <label for="searchTerms" class="sr-only"><?php echo TFISH_SEARCH; ?></label>
+      <input type="text" name="searchTerms" id="searchTerms"
+        <?php if ($searchTerms = $viewModel->searchTermsForForm()): ?>
+        value="<?php echo htmlspecialchars($searchTerms, ENT_QUOTES, "UTF-8", false); ?>"
+        <?php else: ?>
+        placeholder="<?php echo TFISH_SEARCH_ENTER_TERMS; ?>"
+        <?php endif; ?>
+        required>
+    </div>
+
+    <div class="field">
+      <label for="searchType" class="sr-only"><?php echo TFISH_SEARCH; ?></label>
+      <select name="searchType" id="searchType">
+        <option <?php if ($viewModel->searchType() === "AND") echo "selected"; ?> value="AND"><?php echo TFISH_SEARCH_ALL; ?></option>
+        <option <?php if ($viewModel->searchType() === "OR") echo "selected"; ?> value="OR"><?php echo TFISH_SEARCH_ANY; ?></option>
+        <option <?php if ($viewModel->searchType() === "exact") echo "selected"; ?> value="exact"><?php echo TFISH_SEARCH_EXACT; ?></option>
+      </select>
+    </div>
+
+    <div class="field">
+      <input type="hidden" name="action" value="search">
+      <button type="submit" class="btn"><?php echo TFISH_SEARCH; ?></button>
+    </div>
+  </form>
+
+  <?php if (($_REQUEST['action'] ?? false)): ?>
+  <!-- Search results -->
+  <hr>
+  <?php if ($searchResults = $viewModel->searchResults()): ?>
+
+  <h2><?php echo xss($viewModel->contentCount()) . ' ' . TFISH_SEARCH_RESULTS . ':'; ?></h2>
+
+  <?php if ($pagination ?? null): ?>
+  <div class="pagination-top"><?php echo $pagination; ?></div>
+  <?php endif; ?>
+
+  <div class="stream">
+    <?php foreach ($searchResults as $key => $content): ?>
+    <article class="stream-item">
+      <h3 class="title">
+        <a href="<?php echo xss($content->url()); ?>" class="icon-link"><?php echo $content->icon($content->type()); ?></a>
+        <a href="<?php echo xss($content->url()); ?>" class="title-link"><?php echo xss($content->title()); ?></a>
+      </h3>
+
+      <p class="content-info small">
+        <?php echo xss($content->date()->format('j F Y')); ?><?php if ($content->info()) echo ' | ' . xss($content->info()); ?>
+      </p>
+
+      <?php if ($content->image()): ?>
+      <!-- srcset: «stream-thumb» — rungs/sizes map in themes/kelp/style.css -->
+      <figure class="figure-left">
+        <a href="<?php echo xss($content->url()); ?>">
+          <img src="<?php echo $content->cachedImage(200); ?>"
+            srcset="<?php echo $content->cachedImageSrcset([200, 400, 600, 800]); ?>"
+            sizes="(max-width: 560px) calc(96vw - 61px), 200px"
+            <?php if ($content->caption()): ?>
+            title="<?php echo xss($content->caption()); ?>" alt="<?php echo xss($content->caption()); ?>">
+            <?php else: ?>
+            alt="">
+            <?php endif; ?>
+        </a>
+      </figure>
+      <?php endif; ?>
+      <div class="teaser"><?php echo $content->teaserForDisplay(); ?></div>
+    </article>
+    <?php endforeach; ?>
+  </div>
+
+  <?php if ($pagination ?? null): ?>
+  <div class="pagination-bottom"><?php echo $pagination; ?></div>
+  <?php endif; ?>
+
+  <?php else: ?>
+  <h2><?php echo TFISH_SEARCH_NO_RESULTS; ?></h2>
+  <?php endif; ?>
+  <?php endif; ?>
+
+<!-- /.container -->
+</div>

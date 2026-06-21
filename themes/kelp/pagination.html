@@ -1,0 +1,7 @@
+<?php if (!empty($slots)): ?>
+<nav class="pagination" aria-label="Page navigation">
+  <?php foreach ($slots as $slot): ?>
+  <a class="page-link<?php echo $slot['isCurrent'] ? ' is-current' : ''; ?>" href="<?php echo xss($slot['url']); ?>"<?php echo $slot['isCurrent'] ? ' aria-current="page"' : ''; ?>><?php echo xss($slot['label']); ?></a>
+  <?php endforeach; ?>
+</nav>
+<?php endif; ?>

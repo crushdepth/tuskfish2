@@ -1,0 +1,16 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Container -->
+<div class="container">
+  <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+
+  <div class="alert alert-success">
+    <strong><?php echo xss($viewModel->response()); ?></strong>
+  </div>
+
+  <form method="post" action="<?php echo xss($viewModel->backUrl()); ?>">
+    <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>">
+    <button type="submit" class="btn"><?php echo TFISH_BACK; ?></button>
+  </form>
+<!-- /.container -->
+</div>

@@ -1,0 +1,22 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Display a single video object -->
+<?php $content = $viewModel->content(); ?>
+<?php $contentTags = $viewModel->contentTags(); ?>
+<?php $parent = $viewModel->parent(); ?>
+
+<!-- Container -->
+<div class="container">
+<article class="article">
+
+<?php
+  if (!empty($content->externalMedia())) {
+      include 'video-player21x9.html';
+  } else {
+      include 'video-self-hosted.html';
+  }
+?>
+
+</article>
+<!-- /.container -->
+</div>

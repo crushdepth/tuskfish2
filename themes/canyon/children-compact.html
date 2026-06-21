@@ -1,0 +1,26 @@
+<?php if (!empty($children)): ?>
+<!-- Children (compact) -->
+<div class="collection-children">
+
+  <?php if (!empty($pagination)): ?>
+  <div class="collection-pagination-top"><?php echo $pagination; ?></div>
+  <?php endif; ?>
+
+  <h3><?php echo TFISH_IN_THIS_COLLECTION; ?></h3>
+
+  <ul class="child-list">
+  <?php foreach ($children as $child): ?>
+    <li>
+      <a href="<?php echo xss($child->url()); ?>" class="icon-link"><?php echo $child->icon($child->type()); ?></a>
+      <a href="<?php echo xss($child->url()); ?>"><strong><?php echo xss($child->title()); ?></strong></a>
+      <?php if ($child->creator()) echo '<br><em>' . xss($child->creator()) . '</em>'; ?>
+    </li>
+  <?php endforeach; ?>
+  </ul>
+
+  <?php if (!empty($pagination)): ?>
+  <div class="collection-pagination-bottom"><?php echo $pagination; ?></div>
+  <?php endif; ?>
+
+</div>
+<?php endif; ?>

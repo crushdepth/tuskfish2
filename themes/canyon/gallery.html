@@ -1,0 +1,52 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Container -->
+<div class="container">
+
+  <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+
+  <!-- Select filters -->
+  <div class="select-filters">
+    <label for="tag" class="sr-only"><?php echo TFISH_KEYWORDS; ?></label>
+    <form name="selectFilters" method="get">
+      <select name="tag" id="tag" onchange="this.form.submit()">
+        <?php foreach ($viewModel->activeTagOptions() as $key => $value) {
+          echo ($key === $viewModel->tag()) ?
+            '<option value="' . xss($key) . '" selected>' . xss($value) . '</option>' :
+            '<option value="' . xss($key) . '">' . xss($value) . '</option>';
+        } ?>
+      </select>
+    </form>
+  </div>
+
+  <!-- Top pagination -->
+  <?php if ($pagination ?? null): ?>
+  <div class="pagination-top"><?php echo $pagination; ?></div>
+  <?php endif; ?>
+
+  <!-- Image grid -->
+  <?php if ($contentObjects = $viewModel->contentList()): ?>
+  <!-- srcset: «gallery-tile» — rungs/sizes map in themes/canyon/style.css -->
+  <div class="gallery-grid">
+    <?php foreach ($contentObjects as $content): ?>
+    <a href="<?php echo xss($content->url()); ?>">
+      <img src="<?php echo $content->cachedImage(400); ?>"
+        srcset="<?php echo $content->cachedImageSrcset([260, 400, 520, 800]); ?>"
+        sizes="(min-width: 1200px) 251px, (min-width: 1008px) calc((96vw - 88px)/4), (min-width: 754px) calc((96vw - 64px)/3), (min-width: 500px) calc((96vw - 40px)/2), calc(96vw - 16px)"
+        <?php if ($content->caption()): ?>
+        alt="<?php echo xss($content->caption()); ?>" title="<?php echo xss($content->caption()); ?>">
+        <?php else: ?>
+        alt="<?php echo xss($content->title()); ?>">
+        <?php endif; ?>
+    </a>
+    <?php endforeach; ?>
+  </div>
+  <?php endif; ?>
+
+  <!-- Bottom pagination -->
+  <?php if ($pagination ?? null): ?>
+  <div class="pagination-bottom"><?php echo $pagination; ?></div>
+  <?php endif; ?>
+
+<!-- /.container -->
+</div>
