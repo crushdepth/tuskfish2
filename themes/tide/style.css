@@ -536,6 +536,7 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
   border-radius: 3px;
   box-shadow: 0 1px 3px rgba(20, 50, 60, .12);
   transition: box-shadow .25s ease, transform .25s ease;
+  margin-bottom: .8rem;
 }
 .featured-thumb img { width: 100%; height: auto; display: block; }
 .featured-card:hover .featured-thumb {
