@@ -40,6 +40,7 @@
   --radius-sm: 6px;
   --shadow: 0 1px 2px rgba(30, 51, 40, .06), 0 6px 18px rgba(30, 51, 40, .06);
   --shadow-sm: 0 1px 2px rgba(30, 51, 40, .08);
+  --img-border: 1px solid rgba(30, 51, 40, .18);   /* hairline on figure imagery */
 }
 
 /* ---- Reset ------------------------------------------------------------ */
@@ -91,16 +92,12 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
 /* =========================================================================
    Responsive images — srcset / sizes MAP   (read before changing any width)
    -------------------------------------------------------------------------
-   The image candidate widths (srcset "rungs") and the `sizes` hint live in
-   the TEMPLATES, not here — see  $content->cachedImageSrcset([...])  and the
-   sizes="..." attribute in each .html file. The browser resolves `sizes`
-   against the viewport, multiplies by device DPR (we cap support at 2x) and
-   downloads the smallest rung that covers the result. So `sizes` must mirror
-   the display width the CSS below actually produces: change a max-width /
-   padding / breakpoint here and you MUST recompute `sizes` (and revisit the
-   rungs) in the listed template(s), or the browser will fetch a too-small
-   (blurry) or too-large (wasted bandwidth) image. The helper itself is
-   layout-agnostic — it just resamples to the widths it's handed.
+   The srcset "rungs" and the `sizes` hint live in the TEMPLATES, not here —
+   see $content->cachedImageSrcset([...]) and the sizes="..." attribute in each
+   .html file. `sizes` must mirror the display width the CSS below produces:
+   change a max-width / padding / breakpoint here and you MUST recompute `sizes`
+   (and revisit the rungs) in the listed template(s), or the browser fetches a
+   too-small (blurry) or too-large (wasteful) image.
 
    Layout inputs the maths is derived from (all defined elsewhere in this file):
      --container ........ 1140px          max content width
@@ -173,16 +170,15 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
 }
 .nav-links a:hover { background: rgba(255,255,255,.14); color: #fff; }
 
-/* RSS + theme toggle are utility controls, not nav items: group them tightly
-   and set them a little apart from the menu links. The visible spacing between
-   the two is their button padding, so trim that (the gap alone won't do it). */
+/* RSS + theme toggle are utility controls, not nav items: group them tight and
+   set apart from the menu. Their visible gap is button padding, so trim that —
+   gap alone won't do it. */
 .nav-utilities { display: inline-flex; align-items: center; gap: 0; margin-left: .5rem; }
 .nav-utilities a, .nav-utilities .theme-toggle { padding-left: .4rem; padding-right: .4rem; }
 
-/* image-fill is inset (~14/16 tall) where rss/moon/sun are full-bleed, so it
-   renders shorter. Nudge it up to match their optical height. Its path also
-   touches the right edge of the 16-unit box, which the SVG viewport would clip
-   (default overflow:hidden) once enlarged — so let it overflow. */
+/* image-fill is inset (~14/16 tall) vs the full-bleed rss/moon/sun, so it
+   renders short — nudge it up to match. Its path also touches the box's right
+   edge, which the viewport clips when enlarged: allow overflow. */
 .nav-links svg.gallery-icon { width: 1.28rem; height: 1.28rem; overflow: visible; }
 
 /* Dropdown menus. No-JS by design: a native <details>/<summary> owns the open
@@ -249,10 +245,9 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
 .nav-toggle-label span::before { position: absolute; top: -7px; }
 .nav-toggle-label span::after  { position: absolute; top: 7px; }
 
-/* Collapse to the hamburger before the full nav (brand + links + search) runs
-   out of room and starts wrapping onto a second line against the logo. With the
-   expanded dropdown menu + search, the horizontal row only fits comfortably once
-   the container reaches its 1140px max, so switch over below that. */
+/* Collapse to the hamburger at the container's 1140px max: with the dropdown +
+   search, the nav row only fits above that width; below it the menu wraps
+   against the logo. */
 @media (max-width: 1140px) {
   .nav { min-height: 84px; }
   .brand-logo img { height: 64px; }
@@ -312,8 +307,8 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--a
    ========================================================================= */
 .page-title {
   text-align: center; margin-bottom: 1.75rem;
-  /* Lighter than the base h1 (700/--h1): page titles sit above their own
-     content, so a 600 weight and a slightly smaller size read less heavy. */
+  /* Lighter than the base h1 (700): a 600 weight and smaller size read less
+     heavy above their own content. */
   font-weight: 600; font-size: clamp(1.6rem, 1.25rem + 1.4vw, 2.15rem);
 }
 /* "Horizon" rule — a short teal underline echoing the header waterline */
@@ -326,10 +321,9 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--a
   background: var(--coral); border-radius: 3px;
 }
 .content-info { color: var(--muted); font-size: .92rem; margin-bottom: 1.25rem; }
-/* Tags sit on their own line below the meta. Lift the links with weight + an
-   underline (not size) so they read as links; a small teal tag icon adds a
-   little colour without the bulk of pills. Exclude any icon link from the
-   underline treatment. */
+/* Tags sit on their own line below the meta. Lift the links with weight +
+   underline (not size); a small teal tag icon adds colour without pill bulk.
+   Exclude icon links from the underline. */
 .content-tags { margin: -.9rem 0 1.25rem; color: var(--muted); }
 .content-tags .icon-tag { color: var(--accent); margin-right: .15rem; }
 .content-info a:not(.icon-link), .content-tags a {
@@ -339,21 +333,19 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--a
 .content-info a:not(.icon-link):hover, .content-tags a:hover { color: var(--accent-700); }
 .small { font-size: .92rem; }
 
-/* Type icon next to titles — teal signals "clickable", so only colour it when
-   the icon is actually a link (<a>). A non-linked title (e.g. an article with
-   no download) renders the icon in a <span>, which stays in the text colour. */
+/* Type icon next to titles — teal signals "clickable", so colour it only when
+   it's a link (<a>). A non-linked title renders the icon in a <span>, which
+   stays text colour. */
 .icon-link { color: var(--text); }
 a.icon-link { color: var(--link); }
 a.icon-link:hover { color: var(--link-hover); }
 .title .icon-link, .title-link { vertical-align: baseline; }
-/* The icon font pushes every glyph down 0.115em to sit on the body-text
-   baseline; in the larger/bolder headings that drops the icon below the
-   text. Cancel the nudge for icons inside titles so they sit level. */
+/* The icon font drops every glyph 0.115em onto the body-text baseline; in the
+   larger headings that sinks it below the text. Cancel the nudge inside titles. */
 .title [class^="icon-"], .title [class*=" icon-"] { top: .06em; }
-/* The icon font's 0.115em down-nudge drops the RSS/tag glyphs below the small
-   meta text. The icons are inline-block (vendor `a > [icon]` rule), so
-   vertical-align:middle centres their full em box and sinks them well below the
-   baseline — align to the baseline and lift a touch so they sit on the line. */
+/* The same 0.115em nudge drops RSS/tag glyphs below the small meta text. They're
+   inline-block (vendor `a > [icon]`), so vertical-align:middle sinks them — pin
+   to the baseline and lift slightly to sit on the line. */
 .content-info [class^="icon-"], .content-info [class*=" icon-"],
 .content-tags [class^="icon-"], .content-tags [class*=" icon-"] {
   top: .02em; vertical-align: baseline;
@@ -364,21 +356,19 @@ a.icon-link:hover { color: var(--link-hover); }
    ========================================================================= */
 .stream { display: flex; flex-direction: column; }
 .stream-item {
-  position: relative;
+  position: relative; display: flow-root;   /* contains the floated thumbnail */
   background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius);
   padding: 1.25rem 1.4rem; margin-bottom: 1.1rem; box-shadow: var(--shadow-sm);
   transition: box-shadow .18s ease, transform .18s ease, border-color .18s ease;
 }
 
 /* Gutter label — content type + date pulled into the left gutter on wide
-   screens. Asymmetric and informational; hidden when there's no gutter (the
-   same type/date still appears inline in .content-info on smaller screens). */
+   screens. Hidden when there's no gutter; the same type/date then appears
+   inline in .content-info. */
 .gutter-label { display: none; }
-/* The gutter label is absolutely positioned into the free space to the LEFT of
-   the centred content (right:100% + ~10rem). That space only exists once the
-   viewport is wide enough: (vw - content) / 2 must exceed the gutter's width,
-   which lands around 1480px. Showing it any earlier pushes it off-screen and
-   triggers horizontal scroll, so gate it on the width where it actually fits. */
+/* Absolutely positioned into the free space LEFT of the centred content
+   (right:100%). That space only exists once (vw - content)/2 exceeds the gutter
+   width — ~1480px; showing it earlier overflows and triggers horizontal scroll. */
 @media (min-width: 1480px) {
   .gutter-label {
     display: block; position: absolute; right: 100%; top: 1.4rem;
@@ -407,27 +397,24 @@ a.icon-link:hover { color: var(--link-hover); }
 .stream-item .title { margin-bottom: .35rem; font-size: var(--h3); font-weight: 600; }
 .stream-item .teaser { color: var(--text-soft); }
 .stream-item .teaser p:last-child { margin-bottom: 0; }
-.stream-item::after { content: ""; display: table; clear: both; }
 /* .stream is a flex column, so the last item's margin-bottom doesn't collapse —
    it would otherwise add to the gap above the bottom pagination, making it
    larger than the gap below the top pagination. Drop it for parity. */
 .stream-item:last-child { margin-bottom: 0; }
 
-/* Floated thumbnails.
-   The max-widths below drive the responsive-image `sizes` in the templates —
-   see the "Responsive images — srcset / sizes MAP" block near the top of this
-   file. Each rule is tagged «srcset: NAME»; search the tag to jump to the map. */
+/* Floated thumbnails. The max-widths below drive the responsive-image `sizes`
+   in the templates — see the srcset MAP at the top; each rule is tagged
+   «srcset: NAME». */
 figure { margin: 0; }
-figure img { border-radius: var(--radius-sm); border: 1px solid rgba(30, 51, 40, .18); }
+figure img { border-radius: var(--radius-sm); border: var(--img-border); }
 figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
 /* «srcset: stream-thumb» (streams) / «child-thumb» (.article child & parent lists) */
 .figure-left  { float: left;  margin: .25rem 1.25rem 1rem 0; max-width: 200px; }
 /* «srcset: figure-side» */
 .figure-right { float: right; margin: .25rem 0 1rem 1.25rem; max-width: 40%; }
-/* An article body image floated left is the mirror of .figure-right and sits at
-   40%, not the 200px thumbnail cap. .figure-left is otherwise the small thumbnail
-   used in streams and in collection child/parent lists (nested deeper, not direct
-   children of .article), so widen only the direct-child body image.
+/* A left-floated article body image mirrors .figure-right at 40%, not the 200px
+   thumbnail cap. .figure-left is otherwise the stream/child-list thumbnail
+   (nested deeper, not a direct .article child), so widen only the direct child.
    «srcset: figure-side» (shares the right mirror's rungs/sizes). */
 .article > .figure-left { max-width: 40%; }
 /* «srcset: figure-centre» */
@@ -453,15 +440,20 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
 .article { position: relative; background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius);
   padding: clamp(1.25rem, 0.8rem + 2vw, 2.5rem); box-shadow: var(--shadow); }
 .article .title { font-size: var(--h2); font-weight: 600; text-align: left; }
-/* Inline prose links: the plain lagoon colour is hard to spot in running body
-   text, so give them a standing underline and a slightly stronger weight. */
+/* Inline prose links: the plain lagoon colour is hard to spot in body text, so
+   add a standing underline and a stronger weight. */
 .description a, .teaser a {
   color: var(--link); font-weight: 600;
   text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px;
 }
 .description a:hover, .teaser a:hover { color: var(--link-hover); }
-.description img { border-radius: var(--radius-sm); border: 1px solid rgba(30, 51, 40, .18); margin: 1rem 0; }
+.description img { border-radius: var(--radius-sm); border: var(--img-border); margin: 1rem 0; }
 .description h2, .description h3 { margin-top: 1.6rem; }
+/* Clearfix (not flow-root): the body text must wrap around a preceding sibling
+   thumbnail (.figure-right/-left in article-right/-left.html). flow-root would
+   make .description a BFC, which refuses to overlap that float and drops into a
+   column beside it. The pseudo-element only contains .description's own internal
+   floats (body images), leaving the external wrap intact. */
 .description::after { content: ""; display: table; clear: both; }
 .rights { font-style: italic; color: var(--muted); }
 .media a { font-weight: 600; }
@@ -474,13 +466,11 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
 }
 .tag-pill:hover { background: var(--coral); color: #fff; text-decoration: none; }
 
-/* Prose lists inside teasers/descriptions — hanging indents, with the marker
-   clear of the wrapped text. A teaser wraps beside a floated thumbnail, so a
-   plain block list would start behind the float and strand its outside markers
-   far to the left. `display: flow-root` makes each list its own block
-   formatting context, so it sits in the text column beside the float instead;
-   outside markers then hang correctly within its padding. Harmless where there
-   is no float (descriptions). */
+/* Prose lists in teasers/descriptions. A teaser wraps beside a floated
+   thumbnail, so a plain list would start behind the float and strand its outside
+   markers. `display: flow-root` gives each list its own BFC, so it sits in the
+   text column beside the float and the markers hang correctly. Harmless where
+   there's no float (descriptions). */
 .teaser ul, .teaser ol,
 .description ul, .description ol {
   display: flow-root;
@@ -490,17 +480,17 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
 .teaser li, .description li { margin-bottom: .25rem; }
 
 /* Related / parent / children */
-.related, .collection-children { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--rule); }
-/* Clear the floated thumbnail so a tall image / short teaser doesn't spill past
-   the bottom edge of the related block. */
-.related::after { content: ""; display: table; clear: both; }
-/* Parent / child titles share the stream/search teaser heading style (var(--h3),
-   weight 600) for consistency. Placed after `.article .title` so it wins on
-   source order at equal specificity. */
+.related, .collection-children {
+  margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--rule);
+  /* flow-root contains a floated thumbnail so a tall image / short teaser
+     doesn't spill past the block's bottom edge. */
+  display: flow-root;
+}
+/* Parent / child titles share the stream teaser heading (var(--h3), weight 600);
+   placed after `.article .title` so it wins on source order at equal specificity. */
 .related .title, .collection-children .title { font-size: var(--h3); font-weight: 600; margin-bottom: .35rem; }
-.child-item { padding: 1rem 0; border-bottom: 1px solid var(--rule); }
+.child-item { padding: 1rem 0; border-bottom: 1px solid var(--rule); display: flow-root; }
 .child-item:last-child { border-bottom: 0; }
-.child-item::after { content: ""; display: table; clear: both; }
 
 /* =========================================================================
    Gallery (CSS grid)
@@ -527,8 +517,8 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 }
 .featured-card { display: flex; flex-direction: column; }
-/* Old-style printed-photo framing: white mat, thin outer stroke, soft shadow that
-   lifts gently on hover (slow, eased — no sudden jump). */
+/* Printed-photo framing: white mat, thin stroke, soft shadow that lifts on
+   hover (slow, eased). */
 .featured-thumb {
   display: block; overflow: hidden;
   background: #fff; padding: 8px;
@@ -542,9 +532,8 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
   transform: translateY(-4px);
   box-shadow: 0 10px 24px rgba(30, 51, 40, .18);
 }
-/* The global prefers-reduced-motion rule below kills all transitions with !important
-   (a stricter stance than Bootstrap, which only neutralises specific components and
-   lets its .lift hover through). Re-enable this one gentle decorative lift to match. */
+/* The global reduced-motion rule kills all transitions with !important;
+   re-enable this one gentle decorative lift. */
 @media (prefers-reduced-motion: reduce) {
   .featured-thumb { transition: box-shadow .25s ease, transform .25s ease !important; }
 }
@@ -552,15 +541,10 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
 .featured-card h3 a { color: var(--text); text-decoration: none; }
 .featured-card h3 a:hover { color: var(--accent-700); }
 .featured-card p { margin: 0; color: var(--text-soft); }
-/* This block carries its own full-width layout, so strip the standard .block card
-   chrome (background, border, accent bar, shadow, padding) when it wraps one. */
-.block:has(.featured-content) {
-  background: none; border: none; border-radius: 0; box-shadow: none; padding: 0;
-}
-
-/* Featured-video block (themes/pond/blocks/featured-video.html): let the player
-   sit seamlessly on the page background by stripping the same card chrome. */
-.block:has(.featured-video) {
+/* Both blocks carry their own full-width layout, so strip the standard .block
+   card chrome (background, border, accent bar, shadow, padding) when wrapping
+   one — the featured-video player then sits seamlessly on the page. */
+.block:has(.featured-content), .block:has(.featured-video) {
   background: none; border: none; border-radius: 0; box-shadow: none; padding: 0;
 }
 
@@ -568,25 +552,19 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
    Centre blocks (layout regions)
    ========================================================================= */
 .block-region { display: grid; gap: var(--gap); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-bottom: 2rem; }
-/* When a centre-block region is the last thing on the page (e.g. "Featured
-   content" below the stream and there's no pagination to space it off), give
-   it a top margin so it doesn't rub against the main content. */
+/* When a block region is the last thing on the page (no pagination to space it
+   off), add a top margin so it doesn't rub against the main content. */
 .page > .container:last-child > .block-region { margin-top: 1.25rem; }
 .block {
   background: var(--card); border: 1px solid var(--rule); border-left: 4px solid var(--accent);
   border-radius: var(--radius); padding: 1.1rem 1.3rem; box-shadow: var(--shadow-sm);
 }
-/* Block titles come from shared, theme-agnostic templates that use mixed
-   heading levels — Spotlight/Featured-video emit <h2>, Recent-content/HTML
-   emit <h3>. Normalise both to the SAME visual tier as the content-stream item
-   titles (.stream-item .title): var(--h3) at weight 600. The home page then
-   reads as one dominant h1 ("Latest posts") over a single, uniform secondary
-   tier — what sets a block apart from a stream item is the card chrome (border
-   + accent bar), not the title size. Position-independent: a Featured-video or
-   Spotlight sitting ABOVE the page title (top-centre region) gets the identical
-   treatment. Linked titles (Spotlight) take the lagoon link colour exactly as
-   stream titles do; unlinked ones (Featured-video, Recent content, HTML) stay
-   text colour. */
+/* Block titles arrive from shared templates at mixed levels (Spotlight/
+   Featured-video <h2>; Recent-content/HTML <h3>). Normalise both to the
+   content-stream tier — var(--h3)/600 — so the home page reads as one h1 over a
+   uniform secondary tier; card chrome (border + accent bar), not title size,
+   sets a block apart. Applies wherever the block sits. Linked titles (Spotlight)
+   take the link colour like stream titles; unlinked ones stay text colour. */
 .block :is(h2, h3) {
   font-size: var(--h3); font-weight: 600; line-height: 1.25;
   margin: 0 0 .6rem; letter-spacing: -.005em; color: var(--text);
@@ -674,11 +652,9 @@ video { max-width: 100%; height: auto; }
   background: linear-gradient(180deg, var(--accent) 0%, var(--accent-700) 100%);
   color: #d6edef;
 }
-/* The wave's crest fills with the *page* colour so it reads as the page edge
-   biting into the teal band. Painting it as a solid var(--bg) revealed through
-   an SVG mask (rather than baking the colour into the SVG) keeps it matched to
-   the background in both light and dark — a hard-coded fill leaves a pale band
-   above the wave once the page goes dark. */
+/* The crest fills with the *page* colour (var(--bg) revealed through an SVG
+   mask, not baked into the SVG) so it stays matched to the background in both
+   light and dark — a hard-coded fill leaves a pale band above the wave in dark. */
 .site-footer::before {
   content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 24px;
   background: var(--bg);
@@ -692,8 +668,8 @@ video { max-width: 100%; height: auto; }
 .site-footer a { color: #fff; text-decoration: underline; }
 .site-footer a:hover { color: #fff; }
 
-/* Four-column footer: logo + social, then three link columns. The first column
-   is given a touch more room for the logo; the rest share the remainder. */
+/* Four-column footer: logo + social, then three link columns; the first gets a
+   little more room for the logo. */
 .footer-grid {
   display: grid;
   grid-template-columns: 1.3fr 1fr 1fr 1fr;
@@ -708,12 +684,12 @@ video { max-width: 100%; height: auto; }
 .footer-social a:hover { color: #fff; }
 .footer-social [class^="icon-"] { font-size: 1.4rem; }
 /* Facebook is an inline SVG (the bundle lacks a square tile). The font tiles ink
-   only ~0.875em of their 1.4rem box, so size the (full-bleed) SVG to that inked
-   height to match; align-items:center keeps it level with the glyph baselines. */
+   only ~0.875em of their 1.4rem box, so size the full-bleed SVG to that height
+   to match. */
 .footer-social .social-svg {
   width: 1.22rem; height: 1.22rem; fill: currentColor; display: block;
-  /* The font glyphs ink slightly below their box centre (a small descender);
-     align-items:center alone leaves the SVG riding high, so drop it to match. */
+  /* Font glyphs ink slightly below box centre, so align-items:center leaves the
+     SVG riding high — drop it to match. */
   position: relative; top: 0.18em;
 }
 /* The icon font hard-codes the YouTube glyph red; override to match the set. */
@@ -754,13 +730,11 @@ video { max-width: 100%; height: auto; }
 
 /* =========================================================================
    Dark mode — "night tide"
-   Driven by [data-theme="dark"] on <html>, which tide-init.js sets before
-   first paint from the saved choice, falling back to the OS preference — so
-   auto-detection still happens and the header toggle can override it. (No JS =
-   no attribute = light, the baseline.) The header and footer stay teal in both
-   schemes, so --accent / --accent-700 keep their brand values; we only re-tint
-   the page surfaces and the places where teal is used as *text on a card* (it
-   must lift to a lighter teal to stay legible on the dark cards).
+   Driven by [data-theme="dark"] on <html>, set by tide-init.js before first
+   paint from the saved choice, falling back to OS preference (no JS = light).
+   Header and footer stay teal in both schemes, so --accent / --accent-700 keep
+   their brand values; we only re-tint the page surfaces and teal-as-text-on-card
+   (which must lift to a lighter teal to stay legible on dark cards).
    ========================================================================= */
 :root[data-theme="dark"] {
   --bg:          #0c1712;
