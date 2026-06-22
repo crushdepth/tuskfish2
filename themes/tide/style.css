@@ -456,6 +456,18 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
 .rights { font-style: italic; color: var(--muted); }
 .media a { font-weight: 600; }
 
+/* Newsletter sign-up panel (Mailerlite embed). A tinted, centred callout that
+   sits in the normal content flow — the tide replacement for the Bootstrap
+   full-bleed .block-newsletter band. The embed mount keeps its data-form id. */
+.newsletter {
+  background: var(--bg-tint);
+  border-radius: var(--radius);
+  padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  margin-block: 2rem;
+  text-align: center;
+}
+.newsletter .ml-embedded { max-width: 38rem; margin-inline: auto; }
+
 /* tag pills */
 .tags { display: flex; flex-wrap: wrap; gap: .4rem; }
 .tag-pill {

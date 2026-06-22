@@ -31,7 +31,7 @@
           echo ' | ';
           $tags = [];
           foreach ($contentTags as $key => $value) {
-            $tags[] = '<a href="?id=' . xss($key) . '">' . xss($value) . '</a>';
+            $tags[] = '<a href="' . TFISH_URL . '?id=' . xss($key) . '">' . xss($value) . '</a>';
           }
           echo \implode(', ', $tags);
         } ?>
