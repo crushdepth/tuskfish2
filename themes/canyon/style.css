@@ -311,7 +311,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--a
      heavy above their own content. */
   font-weight: 600; font-size: clamp(1.6rem, 1.25rem + 1.4vw, 2.15rem);
 }
-/* "Horizon" rule — a short teal underline echoing the header waterline */
+/* "Horizon" rule — a short plum underline beneath the title */
 .page-title::after {
   content: ""; display: block; width: 3.5rem; height: 3px; margin: .6rem auto 0;
   background: var(--coral); border-radius: 3px;
@@ -322,7 +322,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--a
 }
 .content-info { color: var(--muted); font-size: .92rem; margin-bottom: 1.25rem; }
 /* Tags sit on their own line below the meta. Lift the links with weight +
-   underline (not size); a small teal tag icon adds colour without pill bulk.
+   underline (not size); a small iron-oxide tag icon adds colour without pill bulk.
    Exclude icon links from the underline. */
 .content-tags { margin: -.9rem 0 1.25rem; color: var(--muted); }
 .content-tags .icon-tag { color: var(--accent); margin-right: .15rem; }
@@ -333,9 +333,9 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--a
 .content-info a:not(.icon-link):hover, .content-tags a:hover { color: var(--accent-700); }
 .small { font-size: .92rem; }
 
-/* Type icon next to titles — teal signals "clickable", so colour it only when
-   it's a link (<a>). A non-linked title renders the icon in a <span>, which
-   stays text colour. */
+/* Type icon next to titles — the link colour signals "clickable", so colour it
+   only when it's a link (<a>). A non-linked title renders the icon in a <span>,
+   which stays text colour. */
 .icon-link { color: var(--text); }
 a.icon-link { color: var(--link); }
 a.icon-link:hover { color: var(--link-hover); }
@@ -642,29 +642,14 @@ video { max-width: 100%; height: auto; }
 /* =========================================================================
    Footer
    ========================================================================= */
-/* The footer is the surface of the water: a teal band whose top edge is a
-   crisp, repeating wave (fixed 800px wavelength, so it never stretches). */
+/* The footer is a flat iron-oxide band. */
 .site-footer {
   position: relative;
-  /* The .page already supplies generous bottom padding; a small top margin
-     here is enough to clear the wave crest without doubling the gap. */
   margin-top: 1rem;
   background: linear-gradient(180deg, var(--accent) 0%, var(--accent-700) 100%);
   color: #d6edef;
 }
-/* The crest fills with the *page* colour (var(--bg) revealed through an SVG
-   mask, not baked into the SVG) so it stays matched to the background in both
-   light and dark — a hard-coded fill leaves a pale band above the wave in dark. */
-.site-footer::before {
-  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 24px;
-  background: var(--bg);
-  -webkit-mask: repeat-x top / 800px 24px
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 24' preserveAspectRatio='none'%3E%3Cpath fill='%23fff' d='M0,0 H80 V6 C66,6 60,20 40,20 C20,20 14,6 0,6 Z'/%3E%3C/svg%3E");
-          mask: repeat-x top / 800px 24px
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 24' preserveAspectRatio='none'%3E%3Cpath fill='%23fff' d='M0,0 H80 V6 C66,6 60,20 40,20 C20,20 14,6 0,6 Z'/%3E%3C/svg%3E");
-}
-/* Extra top padding keeps the columns clear of the wave crest above. */
-.site-footer .container { padding-top: 4rem; padding-bottom: 1.75rem; }
+.site-footer .container { padding-top: 3.75rem; padding-bottom: 2rem; }
 .site-footer a { color: #fff; text-decoration: underline; }
 .site-footer a:hover { color: #fff; }
 
@@ -732,9 +717,10 @@ video { max-width: 100%; height: auto; }
    Dark mode — "night tide"
    Driven by [data-theme="dark"] on <html>, set by tide-init.js before first
    paint from the saved choice, falling back to OS preference (no JS = light).
-   Header and footer stay teal in both schemes, so --accent / --accent-700 keep
-   their brand values; we only re-tint the page surfaces and teal-as-text-on-card
-   (which must lift to a lighter teal to stay legible on dark cards).
+   Header and footer keep their iron-oxide brand colour in both schemes, so
+   --accent / --accent-700 keep their values; we only re-tint the page surfaces
+   and the accent-as-text-on-card (links and meta lift to a lighter iron-oxide
+   to stay legible on dark cards).
    ========================================================================= */
 :root[data-theme="dark"] {
   --bg:          #1b110c;
@@ -752,16 +738,17 @@ video { max-width: 100%; height: auto; }
   --shadow-sm: 0 1px 2px rgba(0,0,0,.45);
 }
 
-/* Teal used as text on a dark card — lift to a light teal so it stays legible
-   (the token itself can't move: it also paints the teal header/footer band). */
+/* Iron-oxide used as text on a dark card — lift to a lighter tint so it stays
+   legible (the --accent token itself can't move: it also paints the header/
+   footer band). */
 :root[data-theme="dark"] :is(.card h3, .page-link, .tag-pill,
   .alert-info, .gutter-label .kind, .content-info a:not(.icon-link), .content-tags a) {
   color: #e0a184;
 }
 :root[data-theme="dark"] :is(.content-info a:not(.icon-link):hover, .content-tags a:hover) { color: #ecb89f; }
 
-/* The white header search button keeps dark teal text on its white face;
-   only its hover (which fills with the dark teal wash) flips to light text. */
+/* The white header search button keeps dark iron-oxide text on its white face;
+   only its hover (which fills with the dark iron-oxide wash) flips to light text. */
 :root[data-theme="dark"] .btn-secondary { color: var(--accent-700); }
 :root[data-theme="dark"] .btn-secondary:hover { color: #f3ddd0; }
 

@@ -642,29 +642,14 @@ video { max-width: 100%; height: auto; }
 /* =========================================================================
    Footer
    ========================================================================= */
-/* The footer is the surface of the water: a teal band whose top edge is a
-   crisp, repeating wave (fixed 800px wavelength, so it never stretches). */
+/* The footer is a flat band in the accent colour. */
 .site-footer {
   position: relative;
-  /* The .page already supplies generous bottom padding; a small top margin
-     here is enough to clear the wave crest without doubling the gap. */
   margin-top: 1rem;
   background: linear-gradient(180deg, var(--accent) 0%, var(--accent-700) 100%);
   color: #d6edef;
 }
-/* The crest fills with the *page* colour (var(--bg) revealed through an SVG
-   mask, not baked into the SVG) so it stays matched to the background in both
-   light and dark — a hard-coded fill leaves a pale band above the wave in dark. */
-.site-footer::before {
-  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 24px;
-  background: var(--bg);
-  -webkit-mask: repeat-x top / 800px 24px
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 24' preserveAspectRatio='none'%3E%3Cpath fill='%23fff' d='M0,0 H80 V6 C66,6 60,20 40,20 C20,20 14,6 0,6 Z'/%3E%3C/svg%3E");
-          mask: repeat-x top / 800px 24px
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 24' preserveAspectRatio='none'%3E%3Cpath fill='%23fff' d='M0,0 H80 V6 C66,6 60,20 40,20 C20,20 14,6 0,6 Z'/%3E%3C/svg%3E");
-}
-/* Extra top padding keeps the columns clear of the wave crest above. */
-.site-footer .container { padding-top: 4rem; padding-bottom: 1.75rem; }
+.site-footer .container { padding-top: 3.75rem; padding-bottom: 2rem; }
 .site-footer a { color: #fff; text-decoration: underline; }
 .site-footer a:hover { color: #fff; }
 
