@@ -107,7 +107,7 @@ trait ResizeImage
      * around 0.5 approximates the ImageMagick variant's old `-sharpen 0x0.5`. GIFs are never
      * sharpened.
      */
-    private float $sharpenSigma = 0.5;
+    private float $sharpenSigma = 0;
 
     /** JPEG output quality, 1-100. Higher is better quality and larger files. */
     private int $jpegQuality = 82;
