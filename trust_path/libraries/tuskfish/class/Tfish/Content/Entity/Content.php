@@ -646,7 +646,9 @@ class Content
         if ($this->creator)
             $info[] = $this->creator;
 
-        if ($this->counter >= $this->minimumViews) {
+        // Never show a zero counter (the original behaviour), and otherwise honour the
+        // minimum views threshold.
+        if ($this->counter > 0 && $this->counter >= $this->minimumViews) {
             $suffix = ($this->type == 'TfDownload') ? TFISH_DOWNLOADS : TFISH_VIEWS;
             $info[] = $this->counter . ' ' . $suffix;
         }

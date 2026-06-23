@@ -170,7 +170,17 @@ class Listing
             return [];
         }
 
-        return $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Content\Entity\Content');
+        $content = $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Content\Entity\Content');
+
+        // Pass in the minimum views preference value so the view/download counter is
+        // suppressed below the threshold in listings (not just on single content pages).
+        $minimumViews = $this->preference->minimumViews();
+
+        foreach ($content as $object) {
+            $object->setMinimumViews($minimumViews);
+        }
+
+        return $content;
     }
 
     private function runTagQuery(\Tfish\Criteria $criteria): array
