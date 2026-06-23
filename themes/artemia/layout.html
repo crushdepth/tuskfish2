@@ -1,0 +1,187 @@
+<?php declare(strict_types=1); ?>
+<!doctype html>
+<html lang="<?php echo xss($metadata->language); ?>">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="<?php echo xss($metadata->description); ?>">
+    <meta name="author" content="<?php echo xss($metadata->author); ?>">
+    <meta name="dcterms.rights" content="<?php echo xss($metadata->copyright); ?>">
+    <meta name="robots" content="<?php echo xss($metadata->robots); ?>">
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="<?php echo TFISH_URL . 'rss/'; ?>" />
+    <link rel="schema.dcterms" href="http://purl.org/dc/terms/">
+
+    <?php if (!empty($metadata->canonicalUrl)): ?>
+    <!-- Canonical URL -->
+    <link rel="canonical" href="<?php echo xss($metadata->canonicalUrl); ?>">
+    <?php endif; ?>
+
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo TFISH_URL . 'apple-touch-icon.png'; ?>">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?php echo TFISH_URL . 'favicon-32x32.png'; ?>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?php echo TFISH_URL . 'favicon-16x16.png'; ?>">
+    <link rel="manifest" href="<?php echo TFISH_URL . 'site.webmanifest'; ?>">
+    <link rel="mask-icon" href="<?php echo TFISH_URL . 'safari-pinned-tab.svg'; ?>" color="#a8472b">
+    <meta name="msapplication-TileColor" content="#a8472b">
+    <meta name="theme-color" content="#a8472b">
+
+    <title><?php echo xss($metadata->title); ?></title>
+
+    <!-- Content icons -->
+    <link href="<?php echo TFISH_VENDOR_URL . 'icons/solid/style.css'; ?>" rel="stylesheet">
+
+    <!-- Theme styles -->
+    <link href="<?php echo TFISH_THEMES_URL . 'artemia/style.css?v=2'; ?>" rel="stylesheet">
+
+    <!-- Set the colour scheme before first paint (no flash). Blocking by design. -->
+    <script src="<?php echo TFISH_THEMES_URL . 'artemia/tide-init.js'; ?>"></script>
+    <!-- Progressive enhancement (theme toggle, filter auto-submit). -->
+    <script src="<?php echo TFISH_THEMES_URL . 'artemia/tide.js'; ?>" defer></script>
+  </head>
+
+  <body>
+    <?php include TFISH_THEMES_PATH . 'artemia/svg-icons.html'; ?>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- Header / navigation -->
+    <header class="site-header">
+      <div class="container">
+        <nav class="nav" aria-label="Primary">
+          <a class="brand-logo" href="<?php echo TFISH_URL; ?>">
+            <img src="<?php echo TFISH_THEMES_URL . 'artemia/logo.svg'; ?>" width="70" height="69" alt="">
+            <span class="brand-text"><?php echo xss($metadata->siteName); ?></span>
+          </a>
+
+          <input class="nav-toggle" type="checkbox" id="nav-toggle">
+          <label class="nav-toggle-label" for="nav-toggle" aria-label="Toggle navigation"><span></span></label>
+
+          <div class="nav-menu">
+            <ul class="nav-links">
+              <?php if (isset($session) && $session->isEditor()): ?>
+              <li><a href="<?php echo TFISH_ADMIN_URL; ?>"><?php echo TFISH_ADMIN; ?></a></li>
+              <?php endif; ?>
+              <?php if (isset($session) && $session->isLoggedIn()): ?>
+              <li><a href="<?php echo TFISH_URL . 'logout/'; ?>"><?php echo TFISH_LOGOUT; ?></a></li>
+              <?php else: ?>
+              <li><a href="<?php echo TFISH_URL . 'login/'; ?>"><?php echo TFISH_LOGIN; ?></a></li>
+              <?php endif; ?>
+              <!-- Placeholder dropdown menu (demonstrates the .nav-dropdown style). -->
+              <li class="nav-dropdown">
+                <details>
+                  <summary>Menu <svg class="chevron" aria-hidden="true"><use href="#i-chevron-down"/></svg></summary>
+                  <ul class="nav-submenu">
+                    <li><a href="#">Sublink 1</a></li>
+                    <li><a href="#">Sublink 2</a></li>
+                  </ul>
+                </details>
+              </li>
+              <li><a href="<?php echo TFISH_URL . 'gallery/'; ?>"><svg class="gallery-icon" aria-hidden="true"><use href="#i-gallery"/></svg> <?php echo TFISH_IMAGE_GALLERY; ?></a></li>
+              <li class="nav-utilities">
+                <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+                  <svg class="moon" aria-hidden="true"><use href="#i-moon"/></svg>
+                  <svg class="sun" aria-hidden="true"><use href="#i-sun"/></svg>
+                </button>
+                <a href="<?php echo TFISH_RSS_URL; ?>" aria-label="RSS feed"><svg aria-hidden="true"><use href="#i-rss"/></svg></a>
+              </li>
+            </ul>
+            <form class="nav-search" role="search" method="get" accept-charset="UTF-8" action="<?php echo TFISH_URL . 'search/'; ?>">
+              <input type="search" name="searchTerms" placeholder="<?php echo TFISH_KEYWORDS; ?>" aria-label="<?php echo TFISH_KEYWORDS; ?>">
+              <input type="hidden" name="action" value="search">
+              <input type="hidden" name="searchType" value="AND">
+              <button class="btn btn-secondary" type="submit"><?php echo TFISH_SEARCH; ?></button>
+            </form>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" role="main">
+      <div class="page">
+
+        <!-- Top centre blocks. Marked up as a complementary landmark so assistive
+             tech reads its h2 block titles as a side region, not as a broken
+             outline (these can render above the page's h1 "Latest posts"). -->
+        <?php if (!empty($blocks['position']['top-centre'])): ?>
+        <aside class="container" aria-label="<?php echo TFISH_FEATURED; ?>">
+          <div class="block-region">
+            <?php foreach ($blocks['position']['top-centre'] ?? [] as $block): ?>
+            <div class="block"><?= $block->html(); ?></div>
+            <?php endforeach; ?>
+          </div>
+        </aside>
+        <?php endif; ?>
+
+        <!-- Main page (includes its own container) -->
+        <?php if ($page ?? null) echo $page; ?>
+
+        <!-- Bottom centre blocks (complementary landmark — see top-centre above). -->
+        <?php if (!empty($blocks['position']['bottom-centre'])): ?>
+        <aside class="container" aria-label="<?php echo TFISH_MORE; ?>">
+          <div class="block-region">
+            <?php foreach ($blocks['position']['bottom-centre'] ?? [] as $block): ?>
+            <div class="block"><?= $block->html(); ?></div>
+            <?php endforeach; ?>
+          </div>
+        </aside>
+        <?php endif; ?>
+
+      </div><!-- /.page -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-grid">
+
+          <!-- Column 1: logo + social -->
+          <div class="footer-col footer-brand">
+            <a class="footer-logo" href="<?php echo TFISH_URL; ?>" aria-label="<?php echo xss($metadata->siteName); ?>">
+              <img src="<?php echo TFISH_THEMES_URL . 'artemia/logo.svg'; ?>" width="70" height="69" alt="">
+            </a>
+            <div class="footer-social">
+              <a href="#" aria-label="YouTube"><span class="icon-youtube" aria-hidden="true"></span></a>
+              <a href="#" aria-label="Facebook"><svg class="social-svg" aria-hidden="true"><use href="#i-facebook-square"/></svg></a>
+              <a href="#" aria-label="LinkedIn"><span class="icon-linkedin" aria-hidden="true"></span></a>
+              <a href="#" aria-label="X"><span class="icon-square-x-twitter" aria-hidden="true"></span></a>
+            </div>
+          </div>
+
+          <!-- Column 2 -->
+          <nav class="footer-col" aria-label="Heading">
+            <h2 class="footer-title">Heading</h2>
+            <ul class="footer-links">
+              <li><a href="#">Link 1</a></li>
+              <li><a href="#">Link 2</a></li>
+              <li><a href="#">Link 3</a></li>
+              <li><a href="#">Link 4</a></li>
+            </ul>
+          </nav>
+
+          <!-- Column 3 -->
+          <nav class="footer-col" aria-label="Heading">
+            <h2 class="footer-title">Heading</h2>
+            <ul class="footer-links">
+              <li><a href="#">Link 1</a></li>
+              <li><a href="#">Link 2</a></li>
+              <li><a href="#">Link 3</a></li>
+              <li><a href="#">Link 4</a></li>
+            </ul>
+          </nav>
+
+          <!-- Column 4 -->
+          <nav class="footer-col" aria-label="Heading">
+            <h2 class="footer-title">Heading</h2>
+            <ul class="footer-links">
+              <li><a href="#">Link 1</a></li>
+              <li><a href="#">Link 2</a></li>
+              <li><a href="#">Link 3</a></li>
+              <li><a href="#">Link 4</a></li>
+            </ul>
+          </nav>
+
+        </div>
+        <p class="copyright">Copyright &copy; <?php echo xss($metadata->author) . ' ' . \date('Y'); ?> | <?php if (isset($session)) echo $session->getLoginLink(); ?></p>
+      </div>
+    </footer>
+  </body>
+</html>

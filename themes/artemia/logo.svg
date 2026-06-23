@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80" role="img" aria-label="Site logo">
+  <rect x="2" y="2" width="76" height="76" rx="16" fill="#ffffff"/>
+  <rect x="2" y="2" width="76" height="76" rx="16" fill="none" stroke="#cfe3f1" stroke-width="2"/>
+  <!-- sky-blue sun over the salt lake -->
+  <circle cx="61" cy="20" r="6" fill="#1683c7"/>
+  <!-- brine shrimp (soft salmon-coral) -->
+  <g fill="none" stroke="#c45a4c" stroke-linecap="round" stroke-linejoin="round">
+    <!-- segmented body, head at left sweeping down to the tail -->
+    <path d="M14 42 C26 36 42 38 54 44 C58 46 61 49 63 52" stroke-width="5"/>
+    <!-- forked tail filaments -->
+    <path d="M60 50 L70 47 M60 52 L69 58" stroke-width="2.4"/>
+    <!-- feathery swimming legs along the belly -->
+    <path d="M24 40 L23 48 M30 40 L29 49 M36 41 L35 50 M42 42 L41 50 M48 43 L47 49" stroke-width="2.2"/>
+    <!-- antennae at the head -->
+    <path d="M14 42 L6 36 M14 42 L7 45" stroke-width="2.2"/>
+  </g>
+  <!-- eye -->
+  <circle cx="16" cy="41" r="2.3" fill="#1683c7"/>
+</svg>
