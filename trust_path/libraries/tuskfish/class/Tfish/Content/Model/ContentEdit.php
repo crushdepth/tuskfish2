@@ -262,6 +262,22 @@ class ContentEdit
                 \trigger_error(TFISH_ERROR_PARENT_UPDATE_FAILED, E_USER_NOTICE);
             }
         }
+
+        // If the object used to be a gallery but no longer is (type or template changed away from
+        // the gallery template), clear references to it from content that appended it as a gallery.
+        $wasGallery = $savedContent['type'] === 'TfCollection'
+            && ($savedContent['template'] ?? '') === 'collection-gallery';
+        $isGallery = $content['type'] === 'TfCollection'
+            && ($content['template'] ?? '') === 'collection-gallery';
+
+        if ($wasGallery && !$isGallery) {
+            $criteria = $this->criteriaFactory->criteria();
+            $criteria->add($this->criteriaFactory->item('attachedGallery', (int) $content['id']));
+
+            if (!$this->database->updateAll('content', array('attachedGallery' => 0), $criteria)) {
+                \trigger_error(TFISH_ERROR_PARENT_UPDATE_FAILED, E_USER_NOTICE);
+            }
+        }
     }
 
     /**
@@ -274,6 +290,35 @@ class ContentEdit
         $criteria = $this->criteriaFactory->criteria();
 
         $criteria->add($this->criteriaFactory->item('type', 'TfCollection'));
+        $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
+        $criteria->setSort('title');
+        $criteria->setOrder('ASC');
+        $criteria->setSecondarySort('submissionTime');
+        $criteria->setSecondaryOrder('DESC');
+
+        $statement = $this->database->select('content', $criteria);
+
+        if(!$statement) {
+            throw new \RuntimeException(TFISH_ERROR_NO_RESULT);
+        }
+
+        return $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Content\Entity\Content');
+    }
+
+    /**
+     * Get all gallery-flagged collections (collections using the gallery template).
+     *
+     * Used to populate the 'attached gallery' select box on the content form, so that only
+     * collections flagged as galleries can be appended to other content.
+     *
+     * @return  array Array of gallery collections.
+     */
+    public function galleries(): array
+    {
+        $criteria = $this->criteriaFactory->criteria();
+
+        $criteria->add($this->criteriaFactory->item('type', 'TfCollection'));
+        $criteria->add($this->criteriaFactory->item('template', 'collection-gallery'));
         $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
         $criteria->setSort('title');
         $criteria->setOrder('ASC');
@@ -455,6 +500,7 @@ class ContentEdit
         $clean['inFeed'] = (int) ($form['inFeed'] ?? 0);
         $clean['onlineStatus'] = (int) ($form['onlineStatus'] ?? 0);
         $clean['parent'] = (int) ($form['parent'] ?? 0);
+        $clean['attachedGallery'] = (int) ($form['attachedGallery'] ?? 0);
         $clean['language'] = $this->trimString($form['language'] ?? '');
         $clean['rights'] = (int) ($form['rights'] ?? 0);
         $clean['publisher'] = $this->trimString($form['publisher'] ?? '');

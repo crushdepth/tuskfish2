@@ -1,0 +1,14 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Gallery appended to a content item, shown below the 'Related' partial. -->
+<?php $gallery = $viewModel->attachedGallery(); ?>
+<?php $galleryItems = $viewModel->attachedGalleryItems(); ?>
+<?php if (!empty($gallery) && !empty($galleryItems)): ?>
+<div class="appended-gallery">
+  <h3><?php echo xss($gallery->title()); ?></h3>
+  <?php include 'photo-gallery.html'; ?>
+  <p class="gallery-more">
+    <a href="<?php echo xss($gallery->url()); ?>"><?php echo TFISH_VIEW_FULL_GALLERY; ?> &rarr;</a>
+  </p>
+</div>
+<?php endif; ?>
