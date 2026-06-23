@@ -16,5 +16,5 @@ namespace Tfish;
  */
 
 $version = 'Tuskfish V2.3.3';
-$released = '20 June 2026';
+$released = '23 June 2026';
 $minPhpVersion = '8.4';
