@@ -7,11 +7,22 @@ body {}
 }
 
 /** Bootstrap overrides **/
-.navbar-brand {}
+.navbar-brand {
+    font-weight: 400;
+}
 
-.nav-link {}
+.nav-link {
+    font-weight:500;
+}
 
-.dropdown-item {}
+.dropdown-item {
+    font-weight:500;
+}
+
+.bg-light::placeholder {
+    color: #495057 !important;  /* Bootstrap's $gray-700 */
+    opacity: 1 !important;
+}
 
 /** Control styles */
 .add-content {
@@ -149,6 +160,10 @@ figcaption {
     height:0;
     margin-bottom: 1em;
 }
+
+/**
+ * Theme-specific overrides for the cosmo theme.
+ */
 
 /* =========================================================================
    Gallery thumbnails (collection-gallery): gentle hover lift, for parity

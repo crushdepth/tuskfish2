@@ -149,7 +149,7 @@ function loadTemplateOptions() {
         "TfBlock":
             {"block": "Block"},
         "TfCollection":
-            {"collection": "Detailed view", "collection-compact": "Compact view"},
+            {"collection": "Detailed view", "collection-compact": "Compact view", "collection-gallery": "Gallery"},
         "TfDownload":
             {"download": "Download"},
         "TfImage":
@@ -341,9 +341,9 @@ function showHide() {
     }
     if ($("#type").val() === 'TfBlock') {
         var disabledProperties = [
-            'teaserContainer', 'creatorContainer', 'parentContainer', 'rightsContainer',
-            'publisherContainer', 'metaHeader', 'metaTitleContainer', 'seoContainer',
-            'metaDescriptionContainer'];
+            'teaserContainer', 'creatorContainer', 'parentContainer',
+            'rightsContainer', 'publisherContainer', 'metaHeader', 'metaTitleContainer',
+            'seoContainer', 'metaDescriptionContainer'];
         $.each(disabledProperties, function (i, value) {
             $('#' + value).hide();
         });
