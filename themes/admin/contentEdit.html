@@ -185,20 +185,6 @@
         </select>
       </div>
 
-      <!-- Attached gallery -->
-      <div class="col-12 mb-3 text-start" id="attachedGalleryContainer">
-        <label for="attachedGallery" class="form-label"><strong><?php echo TFISH_ATTACHED_GALLERY; ?></strong></label>
-        <select class="form-select" name="content[attachedGallery]" id="attachedGallery">
-        <?php foreach ($viewModel->galleryOptions() as $key => $option): ?>
-          <?php if ($key === $content->attachedGallery()): ?>
-            <option value="<?php echo xss($key); ?>" selected><?php echo xss($option); ?></option>
-          <?php else: ?>
-            <option value="<?php echo xss($key); ?>"><?php echo xss($option); ?></option>
-          <?php endif; ?>
-        <?php endforeach; ?>
-        </select>
-      </div>
-
       <!-- Image -->
       <?php if (!empty($content->image())): ?>
       <div class="col-md-6 mb-4 text-start" id="imageContainer">

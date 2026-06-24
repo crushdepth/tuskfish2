@@ -111,14 +111,9 @@ class Admin
             return false;
         }
 
-        // If object is a collection delete related parent references in child content, and clear
-        // any references to it as an appended gallery (only collections can be galleries).
+        // If object is a collection delete related parent references in child content.
         if ($row['type'] === 'TfCollection') {
             if (!$this->deleteReferencesToParent($id)) {
-                return false;
-            }
-
-            if (!$this->deleteReferencesToAttachedGallery($id)) {
                 return false;
             }
         }
@@ -314,25 +309,6 @@ class Admin
         $criteria->add($this->criteriaFactory->item('parent', $id));
 
         return $this->database->updateAll('content', ['parent' => 0], $criteria);
-    }
-
-    /**
-     * Removes references to a gallery when its collection is deleted.
-     *
-     * Prevents dangling attachedGallery pointers (which, as SQLite reuses rowids, could otherwise
-     * later resolve to an unrelated collection).
-     *
-     * @param int $id ID of the gallery collection.
-     * @return boolean True on success, false on failure.
-     */
-    private function deleteReferencesToAttachedGallery(int $id): bool
-    {
-        if ($id < 1) return false;
-
-        $criteria = $this->criteriaFactory->criteria();
-        $criteria->add($this->criteriaFactory->item('attachedGallery', $id));
-
-        return $this->database->updateAll('content', ['attachedGallery' => 0], $criteria);
     }
 
     /**

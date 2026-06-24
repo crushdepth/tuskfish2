@@ -208,25 +208,6 @@ class ContentEdit implements \Tfish\Interface\Viewable
     }
 
     /**
-     * Returns a list of options for the attached gallery select box.
-     *
-     * Galleries are referenced (not nested), so this is a flat list rather than a hierarchical
-     * select box. Only collections flagged as galleries are offered.
-     *
-     * @return  array Array of gallery (collection) IDs and titles as key-value pairs.
-     */
-    public function galleryOptions(): array
-    {
-        $options = [0 => TFISH_SELECT_GALLERY];
-
-        foreach ($this->model->galleries() as $gallery) {
-            $options[$gallery->id()] = $gallery->title();
-        }
-
-        return $options;
-    }
-
-    /**
      * Return the site author preference.
      *
      * @return  string

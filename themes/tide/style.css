@@ -564,7 +564,6 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
    Printed-photo framing (white mat, thin stroke, soft shadow lifting on hover)
    borrowed from .featured-thumb; grid capped at 4 columns.
    ========================================================================= */
-.appended-gallery { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--rule); }
 .photo-gallery {
   display: grid; gap: var(--gap);
   grid-template-columns: repeat(2, 1fr);
@@ -589,7 +588,6 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
 @media (prefers-reduced-motion: reduce) {
   .photo-frame { transition: box-shadow .25s ease, transform .25s ease !important; }
 }
-.gallery-more { margin-top: 1.25rem; }
 
 /* =========================================================================
    Centre blocks (layout regions)

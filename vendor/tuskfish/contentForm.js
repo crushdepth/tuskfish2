@@ -319,7 +319,7 @@ function showHide() {
     var allowedProperties = ['teaserContainer', 'descriptionContainer',
         'captionContainer','creatorContainer', 'dateContainer', 'expiresOnContainer',
         'imageContainer', 'languageContainer','mediaContainer',
-        'parentContainer', 'attachedGalleryContainer', 'publisherContainer', 'templateContainer',
+        'parentContainer', 'publisherContainer', 'templateContainer',
         'rightsContainer', 'tagsContainer', 'metaHeader', 'metaTitleContainer',
         'seoContainer', 'metaDescriptionContainer'];
 
@@ -341,7 +341,7 @@ function showHide() {
     }
     if ($("#type").val() === 'TfBlock') {
         var disabledProperties = [
-            'teaserContainer', 'creatorContainer', 'parentContainer', 'attachedGalleryContainer',
+            'teaserContainer', 'creatorContainer', 'parentContainer',
             'rightsContainer', 'publisherContainer', 'metaHeader', 'metaTitleContainer',
             'seoContainer', 'metaDescriptionContainer'];
         $.each(disabledProperties, function (i, value) {

@@ -101,7 +101,6 @@ class Content
     private int $inFeed = 1;
     private int $onlineStatus = 0;
     private int $parent = 0;
-    private int $attachedGallery = 0;
     private string $language = '';
     private int $rights = 1;
     private string $publisher = '';
@@ -141,7 +140,6 @@ class Content
         $this->setInFeed((int) ($row['inFeed'] ?? 1));
         $this->setOnlineStatus((int) ($row['onlineStatus'] ?? 1));
         $this->setParent((int) ($row['parent'] ?? 0));
-        $this->setAttachedGallery((int) ($row['attachedGallery'] ?? 0));
         $this->setLanguage((string) ($row['language'] ?? 'en'));
         $this->setRights((int) ($row['rights'] ?? 1));
         $this->setPublisher((string) ($row['publisher'] ?? ''));
@@ -890,30 +888,6 @@ class Content
         }
 
         $this->parent = $parent;
-    }
-
-    /**
-     * Return attached gallery ID.
-     *
-     * @return int ID of the gallery collection appended to this content (0 if none).
-     */
-    public function attachedGallery(): int
-    {
-        return (int) $this->attachedGallery;
-    }
-
-    /**
-     * Set attached gallery.
-     *
-     * @param   int $attachedGallery ID of a gallery collection to append to this content.
-     */
-    public function setAttachedGallery(int $attachedGallery)
-    {
-        if ($attachedGallery < 0) {
-            throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
-        }
-
-        $this->attachedGallery = $attachedGallery;
     }
 
     /**

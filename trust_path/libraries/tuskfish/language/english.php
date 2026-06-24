@@ -62,7 +62,6 @@ namespace Tfish;
 \define("TFISH_SELECT_TYPE", "- Select type -");
 \define("TFISH_SELECT_TEMPLATE", "- Select template -");
 \define("TFISH_SELECT_PARENT", "- Select parent -");
-\define("TFISH_SELECT_GALLERY", "- None -");
 \define("TFISH_SELECT_BOX_ZERO_OPTION", "---");
 \define("TFISH_META_TAGS", "Meta tags");
 \define("TFISH_CHANGE_PASSWORD", "Change password");
@@ -325,7 +324,6 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_MEDIA", "Media");
 \define("TFISH_EXTERNAL_MEDIA", "External media URL (eg. Youtube share link)");
 \define("TFISH_PARENT", "Parent (collection)");
-\define("TFISH_ATTACHED_GALLERY", "Attached gallery");
 \define("TFISH_LANGUAGE", "Language");
 \define("TFISH_RIGHTS", "Rights");
 \define("TFISH_PUBLISHER", "Publisher");
@@ -335,7 +333,6 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 // Related and parent works.
 \define("TFISH_RELATED", "Related");
 \define("TFISH_IN_THIS_COLLECTION", "In this collection");
-\define("TFISH_VIEW_FULL_GALLERY", "View full gallery");
 
 // Miscellaneous.
 \define("TFISH_CONTENT_ACCESS", "Access");

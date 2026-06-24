@@ -62,8 +62,6 @@ class Listing implements \Tfish\Interface\Listable
     private int $contentCount = 0;
     private mixed $parent = '';
     private array $children = [];
-    private mixed $attachedGallery = false;
-    private array $attachedGalleryItems = [];
     private string $description = '';
     private string $author = '';
     private string $backUrl = '';
@@ -138,7 +136,6 @@ class Listing implements \Tfish\Interface\Listable
             $this->description = $this->content->metaDescription();
             $this->author = $this->content->creator();
             $this->parent = $this->getObject($this->content->parent());
-            $this->loadAttachedGallery();
 
             if ($this->content->type() === 'TfCollection' || $this->content->type() === 'TfTag') {
                 $this->listChildren();
@@ -321,33 +318,6 @@ class Listing implements \Tfish\Interface\Listable
     }
 
     /**
-     * Retrieve the gallery (if any) appended to this content item.
-     *
-     * Loads the attached gallery collection and a bounded set of its member images. The set is
-     * capped at the gallery pagination preference to keep host pages light; the full set is reached
-     * via the 'view full gallery' link to the gallery's own page.
-     *
-     * @return  void
-     */
-    private function loadAttachedGallery(): void
-    {
-        $galleryId = $this->content->attachedGallery();
-
-        if ($galleryId < 1) return;
-
-        $gallery = $this->getObject($galleryId);
-
-        if (empty($gallery) || $gallery->type() !== 'TfCollection') return;
-
-        $this->attachedGallery = $gallery;
-        $this->attachedGalleryItems = $this->model->getObjects([
-            'parent' => $galleryId,
-            'limit' => $this->preference->galleryPagination(),
-            'onlineStatus' => 1,
-        ]);
-    }
-
-    /**
      * Get content objects matching cached filter criteria.
      *
      * Result is cached as $contentList property.
@@ -395,26 +365,6 @@ class Listing implements \Tfish\Interface\Listable
     public function children(): array
     {
         return $this->children;
-    }
-
-    /**
-     * Return the gallery collection appended to this content item.
-     *
-     * @return  \Tfish\Content\Entity\Content|bool The gallery collection, or false if none.
-     */
-    public function attachedGallery(): mixed
-    {
-        return $this->attachedGallery;
-    }
-
-    /**
-     * Return the (bounded) member images of the appended gallery.
-     *
-     * @return  array Array of content objects.
-     */
-    public function attachedGalleryItems(): array
-    {
-        return $this->attachedGalleryItems;
     }
 
     /**
