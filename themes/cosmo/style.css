@@ -1,3 +1,11 @@
+/** Template layout styles */
+
+body {}
+
+.page {
+    padding: 3rem 1.5rem;
+}
+
 /** Bootstrap overrides **/
 .navbar-brand {
     font-weight: 400;
