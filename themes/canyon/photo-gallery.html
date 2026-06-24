@@ -1,0 +1,22 @@
+<?php declare(strict_types=1); ?>
+
+<!-- Shared print-photo grid. Expects $galleryItems (array of content objects). -->
+<?php if (!empty($galleryItems)): ?>
+<!-- srcset: «photo-frame» — 4-column cap and gap map in themes/canyon/style.css -->
+<div class="photo-gallery">
+  <?php foreach ($galleryItems as $item): ?>
+    <?php if (!$item->image()) continue; ?>
+  <a class="photo-frame" href="<?php echo xss($item->url()); ?>">
+    <img src="<?php echo $item->cachedImage(400); ?>"
+      srcset="<?php echo $item->cachedImageSrcset([260, 400]); ?>"
+      sizes="(min-width: 760px) 220px, (min-width: 500px) calc((96vw - 88px)/3), calc((96vw - 56px)/2)"
+      loading="lazy" decoding="async"
+      <?php if ($item->caption()): ?>
+      alt="<?php echo xss($item->caption()); ?>" title="<?php echo xss($item->caption()); ?>">
+      <?php else: ?>
+      alt="<?php echo xss($item->title()); ?>">
+      <?php endif; ?>
+  </a>
+  <?php endforeach; ?>
+</div>
+<?php endif; ?>
