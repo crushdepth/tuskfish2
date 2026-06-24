@@ -209,16 +209,20 @@ class Listing implements \Tfish\Interface\Listable
         $params = [
             'tag' => $this->tag,
             'type' => $this->type,
-            'inFeed' => $this->inFeed,
             'onlineStatus' => $this->onlineStatus
         ];
 
+        // The count must mirror the criteria of the listing it is paginating, otherwise the
+        // pagination control is calculated from a different population than is displayed.
         if (!empty($this->content) && $this->content->type() === 'TfTag') {
+            // Counting a tag's children: listChildren() does not filter on inFeed, so neither do we.
             $params['tag'] = $this->content->id();
-        }
-
-        if (!empty($this->content) && $this->content->type() === 'TfCollection') {
+        } elseif (!empty($this->content) && $this->content->type() === 'TfCollection') {
+            // Counting a collection's children: listChildren() does not filter on inFeed.
             $params['parent'] = $this->content->id();
+        } else {
+            // Counting a list/stream (home or type view): listContent() filters on inFeed.
+            $params['inFeed'] = $this->inFeed;
         }
 
         $this->contentCount = $this->model->getCount($params);

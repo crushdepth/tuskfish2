@@ -77,6 +77,7 @@
     <?php if (!empty($pagination)): ?>
     <div class="collection-pagination-top"><?php echo $pagination; ?></div>
     <?php endif; ?>
+    <h3><?php echo TFISH_IN_THIS_COLLECTION; ?></h3>
     <?php $galleryItems = $children; include 'photo-gallery.html'; ?>
     <?php if (!empty($pagination)): ?>
     <div class="collection-pagination-bottom"><?php echo $pagination; ?></div>
