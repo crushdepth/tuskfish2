@@ -560,7 +560,7 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
 }
 
 /* =========================================================================
-   Photo gallery — appended to articles and shown on a gallery's own page.
+   Photo gallery — framed-thumbnail grid shown on a gallery collection's page (collection-gallery.html).
    Printed-photo framing (white mat, thin stroke, soft shadow lifting on hover)
    borrowed from .featured-thumb; grid capped at 4 columns.
    ========================================================================= */
