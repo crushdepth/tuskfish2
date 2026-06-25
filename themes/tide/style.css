@@ -407,9 +407,9 @@ figure { margin: 0; }
 figure img { border-radius: var(--radius-sm); border: var(--img-border); }
 figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
 /* «srcset: stream-thumb» (streams) / «child-thumb» (.article child & parent lists) */
-.figure-left  { float: left;  margin: .25rem 1.25rem 1rem 0; max-width: 200px; }
+.figure-left  { float: left;  margin: .25rem 1.25rem 0 0; max-width: 200px; }
 /* «srcset: figure-side» */
-.figure-right { float: right; margin: .25rem 0 1rem 1.25rem; max-width: 40%; }
+.figure-right { float: right; margin: .25rem 0 0 1.25rem; max-width: 40%; }
 /* A left-floated article body image mirrors .figure-right at 40%, not the 200px
    thumbnail cap. .figure-left is otherwise the stream/child-list thumbnail
    (nested deeper, not a direct .article child), so widen only the direct child.
