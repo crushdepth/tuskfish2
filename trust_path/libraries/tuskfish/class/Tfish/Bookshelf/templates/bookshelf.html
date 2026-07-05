@@ -1,0 +1,100 @@
+<?php declare(strict_types=1); ?>
+
+<!--
+  Bookshelf module template (bundled default; used unless the active theme provides its own
+  bookshelf.html). A hand-curated grid of book covers grouped by subject, styled for the CSS-grid
+  theme family: it builds on the shared .container / .page-title / .select-filters / .gallery-grid
+  classes and adds only a portrait modifier (see bookshelf.css).
+
+  Styling resolves the same way this template does (see \Tfish\Entity\Template::validPath()): if the
+  active theme ships its own bookshelf.css it is linked (web-served, browser-cacheable, and nothing
+  is read from trust_path); otherwise the module's bundled default is inlined server-side, because
+  trust_path is not web-accessible and so cannot be linked. The subject <select> filters client-side;
+  it is revealed by JS, so without JS every section shows (the "all books" default).
+-->
+<?php $sections = $viewModel->sections(); ?>
+
+<?php $cssHref = $viewModel->cssHref(); ?>
+<?php if ($cssHref !== null): ?>
+<link rel="stylesheet" href="<?php echo xss($cssHref); ?>">
+<?php else: ?>
+<style>
+<?php readfile(TFISH_BOOKSHELF_CSS); ?>
+</style>
+<?php endif; ?>
+
+<!-- Container -->
+<div class="container">
+
+  <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+
+  <!-- Subject filter (reuses the theme's .select-filters bar). Hidden by default and revealed by
+       the script below (progressive enhancement) so no-JS visitors see all sections, which is the
+       intended default view anyway. -->
+  <div class="select-filters" id="bookshelf-filters" hidden>
+    <label class="bookshelf-filter-label" for="bookshelf-filter">Filter by subject</label>
+    <select id="bookshelf-filter">
+      <option value="all">All books</option>
+      <?php foreach ($sections as $section): ?>
+      <option value="<?php echo xss($viewModel->slug($section['subject'])); ?>"><?php echo xss($section['subject']); ?></option>
+      <?php endforeach; ?>
+    </select>
+  </div>
+
+  <!-- Sections -->
+  <?php foreach ($sections as $section): ?>
+  <section class="bookshelf-section" data-subject="<?php echo xss($viewModel->slug($section['subject'])); ?>">
+    <h2><?php echo xss($section['subject']); ?></h2>
+
+    <div class="gallery-grid bookshelf">
+      <?php foreach ($section['books'] as $book): ?>
+      <?php $external = $viewModel->isExternal($book['url']); ?>
+      <a class="<?php echo $book['cover'] === '' ? 'book--placeholder' : ''; ?>"
+         href="<?php echo xss($book['url']); ?>"
+         <?php if ($external): ?>target="_blank" rel="noopener noreferrer"<?php endif; ?>
+         title="<?php echo xss($book['title']); ?>">
+        <?php if ($book['cover'] !== ''): ?>
+        <?php $cover = $viewModel->coverImage($book['cover']); ?>
+        <!-- srcset rungs generated + cached on demand by the resizer (never upscaled past the master);
+             sizes mirrors the 3/2/1-column layout in bookshelf.css (the 346px fixed slot is the 3-up
+             tile at the 1140px container: (1140 - 2*24px gap)/3, less the 8px mat + 1px border each
+             side). width/height carry the master's intrinsic pixels so the browser reserves the box
+             and lazy-loaded covers don't shift the grid. loading="lazy" defers off-screen covers so
+             the browser only fetches the handful in view. srcset URLs are pre-escaped. -->
+        <img src="<?php echo xss($book['cover']); ?>"
+             <?php if ($cover['srcset'] !== ''): ?>srcset="<?php echo $cover['srcset']; ?>"
+             sizes="(min-width: 1204px) 346px, (min-width: 761px) calc(33.3vw - 50px), (min-width: 601px) calc(50vw - 50px), calc(100vw - 48px)"<?php endif; ?>
+             <?php if ($cover['width'] > 0): ?>width="<?php echo $cover['width']; ?>" height="<?php echo $cover['height']; ?>"<?php endif; ?>
+             alt="<?php echo xss($book['title']); ?>" loading="lazy" decoding="async">
+        <?php else: ?>
+        <span class="book-placeholder-label"><?php echo xss($book['title']); ?></span>
+        <?php endif; ?>
+        <?php if ($external): ?><span class="book-external" aria-hidden="true">&#8599;</span><?php endif; ?>
+      </a>
+      <?php endforeach; ?>
+    </div>
+  </section>
+  <?php endforeach; ?>
+
+<!-- /.container -->
+</div>
+
+<script>
+(function () {
+  var filters = document.getElementById('bookshelf-filters');
+  var select = document.getElementById('bookshelf-filter');
+  if (!filters || !select) return;
+
+  // We have JS, so it's safe to expose the control.
+  filters.hidden = false;
+
+  var sections = Array.prototype.slice.call(document.querySelectorAll('.bookshelf-section'));
+
+  select.addEventListener('change', function () {
+    var value = select.value;
+    sections.forEach(function (section) {
+      section.hidden = (value !== 'all' && section.getAttribute('data-subject') !== value);
+    });
+  });
+})();
+</script>

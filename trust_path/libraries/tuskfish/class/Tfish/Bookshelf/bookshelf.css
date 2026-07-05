@@ -1,0 +1,86 @@
+/*
+ * Bookshelf module styles.
+ *
+ * Intentionally small: the CSS-grid theme family (Tide, Kelp, Sandsea, Pond, Canyon) shares a
+ * common class vocabulary and design tokens, so this file only adds the deltas needed to turn the
+ * shared landscape .gallery-grid into a portrait book-cover grid, plus the placeholder and
+ * external-link affordances. It reuses .container, .page-title, .select-filters, .gallery-grid and
+ * the --gap / --card / --rule / --coral / --radius-sm / --shadow-sm / --muted / --text /
+ * --accent-050 / --bg-tint tokens defined by those themes.
+ *
+ * trust_path is not web-accessible, so this file is not linked; the module template inlines it
+ * server-side (see templates/bookshelf.html + TFISH_BOOKSHELF_CSS in header.php).
+ */
+
+/* Portrait book covers, 3 per row, stepping down one column at a time (3 -> 2 -> 1) so a cover is
+   never smaller than ~210px wide at any width — small enough to read the title on. The step points
+   are chosen against this theme's 1140px container + 1.5rem gap: 3-up tiles are ~364px at full
+   width, 2-up ~268px just above the 600px phone breakpoint. The grid geometry is inherited from the
+   theme's .gallery-grid rules; the per-tile chrome (below) is NOT — book covers are framed and
+   lifted like the theme's Featured-content tiles rather than cropped-and-zoomed like the landscape
+   gallery. NOTE: 3-up tiles (~364px) are wider than the 251px-wide source covers, so re-export the
+   artwork larger (see the resolution note) or covers render soft even on 1x screens. */
+.gallery-grid.bookshelf { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 760px) { .gallery-grid.bookshelf { grid-template-columns: repeat(2, 1fr); } }
+/* Single column for phone-portrait widths: two covers side by side are too cramped to read on a
+   vertical phone, so drop to one at 600px (covers every current portrait phone, incl. large ones). */
+@media (max-width: 600px) { .gallery-grid.bookshelf { grid-template-columns: 1fr; } }
+
+/* Printed-photo framing borrowed from the theme's .featured-thumb: a white mat that shows the WHOLE
+   cover (no crop) and a soft shadow that lifts smoothly on hover. This overrides the shared
+   .gallery-grid tile chrome (fixed 2/3 box + object-fit:cover + scale-zoom hover) for the bookshelf
+   grid only — the two problems it caused here were cropped cover edges and an abrupt (unzoomed)
+   hover. */
+.gallery-grid.bookshelf a {
+  position: relative;
+  aspect-ratio: auto;                 /* let each cover keep its natural height, so none is cropped */
+  background: #fff; padding: 8px;
+  border: 1px solid var(--rule); border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(20, 50, 60, .12);
+  transition: box-shadow .25s ease, transform .25s ease;
+}
+.gallery-grid.bookshelf a img {
+  width: 100%; height: auto;          /* natural aspect: cancels the inherited height:100% + cover crop */
+  transition: none;
+}
+.gallery-grid.bookshelf a:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(20, 50, 60, .18);
+}
+/* The shared rule zooms the <img> on hover; the bookshelf lifts the whole framed tile instead. */
+.gallery-grid.bookshelf a:hover img { transform: none; }
+/* The global reduced-motion rule kills all transitions with !important; re-enable this one gentle
+   decorative lift (matches .featured-thumb / .photo-frame). */
+@media (prefers-reduced-motion: reduce) {
+  .gallery-grid.bookshelf a { transition: box-shadow .25s ease, transform .25s ease !important; }
+}
+
+/* Section headings and spacing (echoes the theme's .page-title underline in miniature). */
+.bookshelf-section { margin-bottom: 2.75rem; }
+.bookshelf-section > h2 { font-size: var(--h2); font-weight: 600; margin-bottom: 1.25rem; }
+.bookshelf-section > h2::after {
+  content: ""; display: block; width: 3.5rem; height: 3px; margin: .5rem 0 0;
+  background: var(--coral); border-radius: 3px;
+}
+
+/* Visible label above the shared .select-filters control. */
+.bookshelf-filter-label { display: block; margin-bottom: .35rem; color: var(--muted); font-size: .92rem; }
+
+/* Labelled placeholder shown until real cover art is supplied (cover === ''). Has no <img> to give
+   it height, so it keeps the fixed 2/3 book shape (the cover tiles now size to their image). */
+.gallery-grid.bookshelf a.book--placeholder {
+  display: flex; align-items: center; justify-content: center; padding: 1.2rem;
+  aspect-ratio: 2 / 3;
+  background: linear-gradient(160deg, var(--accent-050), var(--bg-tint)); border: 1px solid var(--rule);
+}
+.book-placeholder-label {
+  color: var(--text); font-weight: 600; font-size: clamp(.95rem, .8rem + .6vw, 1.2rem);
+  line-height: 1.3; text-align: center;
+}
+
+/* External-link badge, top-right corner of the cover. */
+.book-external {
+  position: absolute; top: .4rem; right: .4rem; width: 1.4rem; height: 1.4rem;
+  display: flex; align-items: center; justify-content: center; border-radius: 50%;
+  background: rgba(20, 50, 60, .55); color: #fff; font-size: .8rem; line-height: 1;
+}
