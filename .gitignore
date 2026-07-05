@@ -19,4 +19,7 @@ uploads/image/
 uploads/media/
 !uploads/media/index.html
 
+# HTMLPurifier serializer definition cache (generated at runtime; keep the README)
+trust_path/libraries/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/*/
+
 mainfile.php
