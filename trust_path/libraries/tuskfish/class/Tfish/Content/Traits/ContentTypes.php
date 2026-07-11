@@ -43,7 +43,7 @@ trait ContentTypes
         return [
             'TfArticle' => ['article', 'article-left', 'article-right'],
             'TfAudio' => ['audio'],
-            'TfCollection' => ['collection', 'collection-compact', 'collection-gallery'],
+            'TfCollection' => ['collection', 'collection-compact', 'collection-gallery', 'collection-gallery-full'],
             'TfDownload' => ['download'],
             'TfImage' => ['image'],
             'TfTag' => ['tag'],
