@@ -508,6 +508,36 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
 .gallery-grid a:hover img { transform: scale(1.04); }
 
 /* =========================================================================
+   Photo gallery — framed-thumbnail grid shown on a gallery collection's page (collection-gallery.html).
+   Printed-photo framing (white mat, thin stroke, soft shadow lifting on hover);
+   grid capped at 4 columns.
+   ========================================================================= */
+.photo-gallery {
+  display: grid; gap: var(--gap);
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (min-width: 500px) { .photo-gallery { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 760px) { .photo-gallery { grid-template-columns: repeat(4, 1fr); } }
+.photo-frame {
+  display: block;
+  background: #fff; padding: 8px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(20, 50, 60, .12);
+  transition: box-shadow .25s ease, transform .25s ease;
+}
+.photo-frame img { width: 100%; height: auto; display: block; }
+.photo-frame:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(20, 50, 60, .18);
+}
+/* The global reduced-motion rule kills all transitions with !important;
+   re-enable this one gentle decorative lift. */
+@media (prefers-reduced-motion: reduce) {
+  .photo-frame { transition: box-shadow .25s ease, transform .25s ease !important; }
+}
+
+/* =========================================================================
    Featured content block (CSS grid of card tiles)
    ========================================================================= */
 .featured-content { padding-top: clamp(1.75rem, 1rem + 3vw, 3.25rem); padding-bottom: 0; }
