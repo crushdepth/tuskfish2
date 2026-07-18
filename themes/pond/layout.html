@@ -180,7 +180,7 @@
           </nav>
 
         </div>
-        <p class="copyright">Copyright &copy; <?php echo xss($metadata->author) . ' ' . \date('Y'); ?> | <?php if (isset($session)) echo $session->getLoginLink(); ?></p>
+        <p class="copyright">Copyright &copy; <?php echo xss($metadata->siteName) . ' ' . \date('Y'); ?> | <?php if (isset($session)) echo $session->getLoginLink(); ?></p>
       </div>
     </footer>
   </body>
