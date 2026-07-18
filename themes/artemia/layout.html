@@ -98,9 +98,7 @@
     <main id="main" role="main">
       <div class="page">
 
-        <!-- Top centre blocks. Marked up as a complementary landmark so assistive
-             tech reads its h2 block titles as a side region, not as a broken
-             outline (these can render above the page's h1 "Latest posts"). -->
+        <!-- Top centre blocks -->
         <?php if (!empty($blocks['position']['top-centre'])): ?>
         <aside class="container" aria-label="<?php echo TFISH_FEATURED; ?>">
           <div class="block-region">
@@ -180,7 +178,7 @@
           </nav>
 
         </div>
-        <p class="copyright">Copyright &copy; <?php echo xss($metadata->author) . ' ' . \date('Y'); ?> | <?php if (isset($session)) echo $session->getLoginLink(); ?></p>
+        <p class="copyright">Copyright &copy; <?php echo xss($metadata->siteName) . ' ' . \date('Y'); ?> | <?php if (isset($session)) echo $session->getLoginLink(); ?></p>
       </div>
     </footer>
   </body>

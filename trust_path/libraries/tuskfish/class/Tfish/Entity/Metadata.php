@@ -28,7 +28,7 @@ namespace Tfish\Entity;
  * @package     core
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         string $siteName Name of this website.
- * @var         string $title Meta title of this website.
+ * @var         string $title Meta title of this individual page.
  * @var         string $description Meta description of this website.
  * @var         string $author Author of this website.
  * @var         string $copyright Copyright notice.
