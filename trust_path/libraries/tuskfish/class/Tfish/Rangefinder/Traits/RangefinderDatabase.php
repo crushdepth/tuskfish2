@@ -94,6 +94,26 @@ trait RangefinderDatabase
     }
 
     /**
+     * Last-modified time of the occurrence database file, as a Unix timestamp.
+     *
+     * The database is never written in place: it is rebuilt wholesale from the Darwin Core
+     * archives and copied in, so its mtime changes if and only if the data changes. That makes it
+     * an exact, free validator for HTTP caching — an ETag derived from it invalidates every
+     * browser copy the moment new data is deployed, with no manual purge step to forget. A flat
+     * max-age cannot do that: it would keep serving superseded records for its full duration with
+     * no way to recall them.
+     *
+     * @return  int Unix timestamp, or 0 if the file is unreadable.
+     */
+    public function databaseTimestamp(): int
+    {
+        $dbPath = TFISH_DATABASE_PATH . TFISH_RANGEFINDER_DB;
+        $mtime = \is_file($dbPath) ? \filemtime($dbPath) : false;
+
+        return $mtime === false ? 0 : $mtime;
+    }
+
+    /**
      * Run a read-only SELECT and return all rows as associative arrays.
      *
      * The statement is always prepared and its parameters bound; callers must never interpolate

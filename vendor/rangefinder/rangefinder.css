@@ -1,0 +1,336 @@
+/**
+ * Rangefinder occurrence map styling.
+ *
+ * The load-bearing part of this file is the two-layer visual distinction (species vs presence).
+ * Everything else is furniture.
+ *
+ * A species record is a determination made by a taxonomist and verified against a curated cyst
+ * bank. A presence record is a genus-level hit swept from an aggregator: it says something of this
+ * genus was reported near here, and nothing at all about which species. Rendering the second like
+ * the first turns a lead into a claim, which misrepresents the science. Note that this failure is
+ * silent — nothing errors, the map just quietly asserts things that are not known — so the two
+ * palettes below must stay clearly different in hue, fill AND outline, not merely in shade.
+ *
+ * Colours are duplicated in rangefinder.js, which passes them to Leaflet as path options (Leaflet
+ * writes SVG presentation attributes, so styling markers from a stylesheet would mean fighting it
+ * with !important). The swatches here mirror those values so the legend matches the map; if you
+ * change one, change both. The RANGEFINDER_PALETTE block in rangefinder.js is the source of truth.
+ *
+ * @copyright   Simon Wilkinson 2026+ (https://tuskfish.biz)
+ * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
+ * @package     Rangefinder
+ */
+
+:root {
+    --rf-species: #1b6ca8;
+    --rf-species-edge: #0d3c61;
+    --rf-presence: #c2740a;
+    --rf-presence-edge: #8a5207;
+    --rf-panel-bg: #f7f7f5;
+    --rf-panel-edge: #d8d8d2;
+    --rf-muted: #5a5a55;
+}
+
+/* ---------------------------------------------------------------- layout */
+
+.rangefinder-container {
+    margin-bottom: 2rem;
+}
+
+.rangefinder-summary {
+    margin: 1rem 0 1.25rem;
+}
+
+.rangefinder-count {
+    font-size: 1.6rem;
+    font-weight: 600;
+    line-height: 1.1;
+}
+
+.rangefinder-label {
+    font-size: 0.8rem;
+    color: var(--rf-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.rangefinder-map {
+    width: 100%;
+    height: 600px;
+    border: 1px solid var(--rf-panel-edge);
+    border-radius: 3px;
+    /* Leaflet's own panes sit at z-index 400-700; keep the map below sticky site furniture. */
+    z-index: 0;
+}
+
+.rangefinder-empty {
+    padding: 1rem;
+    background: #fbeaea;
+    border: 1px solid #e0b4b4;
+    border-radius: 3px;
+}
+
+/* ---------------------------------------------------------------- filters */
+
+.rangefinder-filters {
+    background: var(--rf-panel-bg);
+    border: 1px solid var(--rf-panel-edge);
+    border-radius: 3px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.rangefinder-filter-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.rangefinder-filter {
+    flex: 1 1 190px;
+    min-width: 0;
+}
+
+.rangefinder-filter > label,
+.rangefinder-filter-heading {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--rf-muted);
+    margin-bottom: 0.3rem;
+}
+
+.rangefinder-filter select {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.3rem;
+    border: 1px solid var(--rf-panel-edge);
+    border-radius: 3px;
+    background: #fff;
+}
+
+/* The species list is a scrolling checkbox list rather than a <select multiple>, which is close to
+   unusable on touch devices and gives no room for the per-lineage record counts. */
+.rangefinder-species-list {
+    max-height: 190px;
+    overflow-y: auto;
+    border: 1px solid var(--rf-panel-edge);
+    border-radius: 3px;
+    background: #fff;
+    padding: 0.35rem 0.5rem;
+}
+
+.rangefinder-check {
+    display: block;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    cursor: pointer;
+}
+
+.rangefinder-check input {
+    margin-right: 0.4rem;
+}
+
+.rangefinder-check .rangefinder-taxon {
+    font-style: italic;
+}
+
+.rangefinder-check .rangefinder-tally {
+    color: var(--rf-muted);
+    font-size: 0.82rem;
+    font-style: normal;
+}
+
+.rangefinder-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--rf-panel-edge);
+}
+
+.rangefinder-btn {
+    font: inherit;
+    font-size: 0.88rem;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid var(--rf-panel-edge);
+    border-radius: 3px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.rangefinder-btn:hover {
+    background: #ececea;
+}
+
+.rangefinder-btn[aria-pressed="true"] {
+    background: var(--rf-presence);
+    border-color: var(--rf-presence-edge);
+    color: #fff;
+}
+
+.rangefinder-plotted {
+    margin-left: auto;
+    font-size: 0.88rem;
+    color: var(--rf-muted);
+}
+
+/* ---------------------------------------------------------------- legend */
+
+/* Always visible, never behind a control: a visitor must not have to go looking for the one piece
+   of information that stops them reading a presence marker as a species record. */
+.rangefinder-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    align-items: center;
+    padding: 0.6rem 1rem;
+    margin-top: 0.5rem;
+    background: var(--rf-panel-bg);
+    border: 1px solid var(--rf-panel-edge);
+    border-radius: 3px;
+    font-size: 0.88rem;
+}
+
+.rangefinder-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.rangefinder-swatch {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    flex: none;
+}
+
+.rangefinder-swatch-species {
+    background: var(--rf-species);
+    border: 2px solid var(--rf-species-edge);
+}
+
+.rangefinder-swatch-presence {
+    background: rgba(194, 116, 10, 0.15);
+    border: 2px dashed var(--rf-presence-edge);
+}
+
+.rangefinder-swatch-both {
+    background: var(--rf-species);
+    border: 2px dashed var(--rf-presence-edge);
+}
+
+.rangefinder-legend-note {
+    color: var(--rf-muted);
+    font-size: 0.84rem;
+}
+
+/* ---------------------------------------------------------------- clusters */
+
+/* markercluster's default skin is a single green/yellow/red ramp keyed on child count, which would
+   make a species cluster and a presence cluster indistinguishable. Override it so cluster colour
+   carries layer, exactly as marker colour does. Count still means localities, not records: markers
+   are one-per-locality, so the library's own childCount is already the right number. */
+.marker-cluster.rangefinder-cluster {
+    background: transparent;
+}
+
+.marker-cluster.rangefinder-cluster div {
+    width: 34px;
+    height: 34px;
+    margin-left: 3px;
+    margin-top: 3px;
+    border-radius: 50%;
+    text-align: center;
+    font: 600 12px/34px "Helvetica Neue", Arial, Helvetica, sans-serif;
+    color: #fff;
+}
+
+.rangefinder-cluster-species div {
+    background: var(--rf-species);
+    border: 2px solid var(--rf-species-edge);
+    line-height: 30px;
+}
+
+.rangefinder-cluster-presence div {
+    background: rgba(194, 116, 10, 0.85);
+    border: 2px dashed #fff;
+    line-height: 30px;
+}
+
+/* ---------------------------------------------------------------- popups */
+
+.rangefinder-popup {
+    font-size: 0.9rem;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.rangefinder-popup h2 {
+    font-size: 1rem;
+    margin: 0 0 0.2rem;
+}
+
+.rangefinder-popup .rangefinder-coords {
+    color: var(--rf-muted);
+    font-size: 0.82rem;
+    margin: 0 0 0.5rem;
+}
+
+.rangefinder-popup ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.rangefinder-popup li {
+    padding: 0.2rem 0;
+    border-top: 1px solid #eee;
+}
+
+.rangefinder-popup .rangefinder-taxon {
+    font-style: italic;
+}
+
+.rangefinder-popup .rangefinder-tally,
+.rangefinder-popup .rangefinder-ploidy {
+    color: var(--rf-muted);
+    font-size: 0.82rem;
+}
+
+/* The badge that keeps an unverified record legible as unverified even once it is in a popup and
+   the marker colour is no longer in view. */
+.rangefinder-badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.05rem 0.35rem;
+    border-radius: 2px;
+    background: rgba(194, 116, 10, 0.15);
+    border: 1px solid var(--rf-presence-edge);
+    color: var(--rf-presence-edge);
+    white-space: nowrap;
+}
+
+.rangefinder-attribution-data {
+    font-size: 0.78rem;
+    color: var(--rf-muted);
+    margin-top: 0.4rem;
+}
+
+@media (max-width: 640px) {
+    .rangefinder-map {
+        height: 420px;
+    }
+
+    .rangefinder-filter {
+        flex-basis: 100%;
+    }
+}

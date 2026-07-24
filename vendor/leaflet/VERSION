@@ -1,0 +1,15 @@
+leaflet 1.9.4
+released     2023-05-18
+licence      BSD-2-Clause (see LICENSE)
+source       npm pack leaflet@1.9.4
+sha1(tgz)    23fae724e282fa25745aff82ca4d394748db7d8d
+sha512(tgz)  nxS1ynzJOmOlHp+iL3FyWqK89GtNL8U8rvlMOsQdTTssxZwCXh8N2NB3GDQOL+YR3XnWyZAxwQixURb+FA74PA==
+vendored     2026-07-24, verbatim copy of package/dist/ plus LICENSE.
+
+leaflet.js      minified build - this is what templates/map.html loads.
+leaflet-src.js  identical, unminified - kept for auditing, never served.
+images/         marker + layers-control icons. Leaflet resolves these RELATIVE TO
+                leaflet.css, so this directory must not be moved or flattened.
+
+To update: npm pack leaflet@<version>, verify the sha1 against the npm registry's
+dist.integrity, then replace this directory wholesale and update this file.

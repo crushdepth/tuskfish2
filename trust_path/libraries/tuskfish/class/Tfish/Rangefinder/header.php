@@ -24,6 +24,25 @@ include __DIR__ . '/language/english.php';
 // not provide a given Rangefinder template (see \Tfish\Entity\Template::validPath()).
 \define("TFISH_RANGEFINDER_TEMPLATE_PATH", TFISH_CLASS_PATH . 'Tfish/Rangefinder/templates/');
 
+// Path to the module's editable configuration (currently the basemap tile provider registry).
+// Configuration lives in a file rather than a site preference so the module installs with no core
+// edits; \Tfish\Entity\Preference is a fixed-property class, so a first-class preference would mean
+// patching Preference.php, ViewModel\PreferenceEdit, the admin form template and the language file.
+\define("TFISH_RANGEFINDER_CONFIG_PATH", TFISH_CLASS_PATH . 'Tfish/Rangefinder/config/');
+
+// Web-accessible base URL for the module's client assets (its own JS/CSS plus the vendored copies
+// of Leaflet and Leaflet.markercluster). trust_path/ is outside the web root, so these cannot ship
+// beside the module's PHP; they live in vendor/ rather than in a theme, which keeps installation to
+// "copy one class directory and three vendor directories" with no theme edit either.
+\define("TFISH_RANGEFINDER_ASSET_URL", TFISH_URL . 'vendor/');
+
+// Hard ceiling on map zoom, applied on top of whatever the active tile provider allows (D-2a).
+// Two reasons, and the second is the load-bearing one: it keeps tile requests inside the free
+// tiers, and it stops the map implying a precision the data does not have. Coordinate precision in
+// this dataset runs ~31 m to ~1850 m and localities are gridded to ~1 km at import, so a marker
+// zoomed to street level would look like a surveyed point when it is a rounded centroid.
+\define("TFISH_RANGEFINDER_MAX_ZOOM", 11);
+
 // Read-only SQLite occurrence database backing the map (resolved against TFISH_DATABASE_PATH in
 // \Tfish\Rangefinder\Traits\RangefinderDatabase). Rangefinder is the taxon-agnostic engine; this
 // constant names the *deployment* dataset, which for artemia.info is ArtemiaBase. Point it at a

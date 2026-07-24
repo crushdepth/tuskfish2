@@ -53,11 +53,14 @@ class Map implements \Tfish\Interface\Viewable
 
     /**
      * Render the occurrence map.
+     *
+     * Sets up the page but does not load its data. The model's accessors load on first use, so on a
+     * cache hit — where the template is never rendered and no accessor is ever called — the
+     * occurrence database is not queried at all.
      */
     public function displayMap(): void
     {
         $this->template = 'map';
-        $this->model->loadMap();
         $this->buildMetadata();
     }
 
@@ -100,13 +103,50 @@ class Map implements \Tfish\Interface\Viewable
     /**
      * Marker payload as JSON, for the client-side map and filters.
      *
+     * Emitted as distinct localities plus lean occurrence tuples that reference them by index —
+     * the shape the client needs anyway, since one locality is one marker. See
+     * \Tfish\Rangefinder\Model\Map::buildMarkerPayload() for the tuple layouts.
+     *
+     * This whole payload ships once with the page rather than being fetched per viewport, because
+     * clustering is computed in the browser and a cluster count is only truthful if every marker is
+     * in the group. Load markers by viewport and a world-zoom bubble over Iran reads "12" when the
+     * answer is 340 — wrong, and wrong silently. At 577 localities it is ~18 KB on the wire, which
+     * also makes every filter interaction round-trip-free.
+     *
      * Escaped with the JSON_HEX_* flags so it is safe to embed directly in a <script> block.
      *
-     * @return  string JSON array of marker rows.
+     * @return  string JSON object of {localities, occurrences}.
      */
     public function markersJson(): string
     {
-        return $this->encode($this->model->markers());
+        return $this->encode([
+            'localities' => $this->model->localities(),
+            'occurrences' => $this->model->occurrences(),
+        ]);
+    }
+
+    /**
+     * The active basemap tile provider as JSON.
+     *
+     * Only the active provider is emitted. The browser needs exactly one, and shipping the whole
+     * registry would publish the API key of every configured-but-inactive provider to anyone who
+     * views source.
+     *
+     * @return  string JSON object of {key, label, url, maxZoom, attribution, subdomains}.
+     */
+    public function tileProviderJson(): string
+    {
+        return $this->encode($this->model->tileProvider());
+    }
+
+    /**
+     * Hard ceiling on map zoom, independent of what the tile provider allows.
+     *
+     * @return  int Maximum zoom level.
+     */
+    public function maxZoom(): int
+    {
+        return TFISH_RANGEFINDER_MAX_ZOOM;
     }
 
     /**

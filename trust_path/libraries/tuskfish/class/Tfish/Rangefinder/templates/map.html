@@ -1,5 +1,16 @@
 <?php declare(strict_types=1); ?>
 <?php $summary = $viewModel->summary(); ?>
+<?php $asset = TFISH_RANGEFINDER_ASSET_URL; ?>
+
+<!-- Client assets. In the body rather than the head because trust_path/ is outside the web root,
+     so the module's own CSS/JS cannot ship beside its PHP, and putting them in a theme would mean
+     editing a theme to install the module. A stylesheet link in the body is technically
+     non-conforming but universally supported, and it buys installation with no core and no theme
+     edit at all. Load order matters: Leaflet, then markercluster (which extends it), then ours. -->
+<link rel="stylesheet" href="<?php echo xss($asset); ?>leaflet/leaflet.css">
+<link rel="stylesheet" href="<?php echo xss($asset); ?>leaflet.markercluster/MarkerCluster.css">
+<link rel="stylesheet" href="<?php echo xss($asset); ?>leaflet.markercluster/MarkerCluster.Default.css">
+<link rel="stylesheet" href="<?php echo xss($asset); ?>rangefinder/rangefinder.css">
 
 <!-- Container -->
 <div class="container">
@@ -13,7 +24,9 @@
 
     <div class="rangefinder-container">
 
-        <!-- Headline counts: composition of the marker payload actually plotted. -->
+        <!-- Headline counts: composition of the marker payload actually plotted. Species and
+             presence are counted separately and never summed into a single "records of species X"
+             figure, because the presence half makes no species claim. -->
         <div class="rangefinder-summary row text-center">
             <div class="col">
                 <div class="rangefinder-count"><?php echo xss((string) ($summary['localities'] ?? 0)); ?></div>
@@ -37,10 +50,83 @@
             </div>
         </div>
 
-        <!-- Map canvas. Leaflet + markercluster are vendored and initialised in a later step; until
-             then this is an empty, sized container and the payload below is the contract it will
-             consume. -->
-        <div id="rangefinderMap" class="rangefinder-map" style="height: 600px;"></div>
+        <!-- Filters. All four compose with AND and run client-side against the payload below, so
+             changing one costs no request. The species list is populated by rangefinder.js from the
+             facet; the rest are static and translated here. -->
+        <div class="rangefinder-filters">
+            <div class="rangefinder-filter-grid">
+
+                <div class="rangefinder-filter">
+                    <span class="rangefinder-filter-heading"><?php echo xss(TFISH_RANGEFINDER_LAYERS); ?></span>
+                    <label class="rangefinder-check">
+                        <input type="checkbox" id="rangefinderSpeciesLayer" checked>
+                        <?php echo xss(TFISH_RANGEFINDER_SPECIES_LAYER); ?>
+                    </label>
+                    <label class="rangefinder-check">
+                        <input type="checkbox" id="rangefinderPresenceLayer" checked>
+                        <?php echo xss(TFISH_RANGEFINDER_PRESENCE_LAYER); ?>
+                    </label>
+                    <label class="rangefinder-check">
+                        <input type="checkbox" id="rangefinderGaps">
+                        <?php echo xss(TFISH_RANGEFINDER_GAPS_ONLY); ?>
+                    </label>
+                </div>
+
+                <div class="rangefinder-filter">
+                    <span class="rangefinder-filter-heading"><?php echo xss(TFISH_RANGEFINDER_SPECIES_FILTER); ?></span>
+                    <div class="rangefinder-species-list" id="rangefinderSpecies"></div>
+                </div>
+
+                <div class="rangefinder-filter">
+                    <label for="rangefinderCountry"><?php echo xss(TFISH_RANGEFINDER_COUNTRY); ?></label>
+                    <select id="rangefinderCountry">
+                        <option value=""><?php echo xss(TFISH_RANGEFINDER_ALL_COUNTRIES); ?></option>
+                    </select>
+                </div>
+
+                <div class="rangefinder-filter">
+                    <label for="rangefinderHolding"><?php echo xss(TFISH_RANGEFINDER_HOLDING); ?></label>
+                    <select id="rangefinderHolding">
+                        <option value="any"><?php echo xss(TFISH_RANGEFINDER_HOLDING_ANY); ?></option>
+                        <option value="obtainable"><?php echo xss(TFISH_RANGEFINDER_HOLDING_OBTAINABLE); ?></option>
+                        <option value="live"><?php echo xss(TFISH_RANGEFINDER_HOLDING_LIVE); ?></option>
+                        <option value="exhausted"><?php echo xss(TFISH_RANGEFINDER_HOLDING_EXHAUSTED); ?></option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="rangefinder-actions">
+                <button type="button" class="rangefinder-btn" id="rangefinderGapMap" aria-pressed="false">
+                    <?php echo xss(TFISH_RANGEFINDER_GAP_MAP); ?>
+                </button>
+                <button type="button" class="rangefinder-btn" id="rangefinderReset">
+                    <?php echo xss(TFISH_RANGEFINDER_RESET); ?>
+                </button>
+                <span class="rangefinder-plotted" id="rangefinderPlotted"></span>
+            </div>
+        </div>
+
+        <!-- Map canvas. -->
+        <div id="rangefinderMap" class="rangefinder-map"></div>
+
+        <!-- Legend. Deliberately part of the page rather than a Leaflet control, so it is always
+             visible and cannot be collapsed away. -->
+        <div class="rangefinder-legend">
+            <span class="rangefinder-legend-item">
+                <span class="rangefinder-swatch rangefinder-swatch-species"></span>
+                <?php echo xss(TFISH_RANGEFINDER_LEGEND_SPECIES); ?>
+            </span>
+            <span class="rangefinder-legend-item">
+                <span class="rangefinder-swatch rangefinder-swatch-presence"></span>
+                <?php echo xss(TFISH_RANGEFINDER_LEGEND_PRESENCE); ?>
+            </span>
+            <span class="rangefinder-legend-item">
+                <span class="rangefinder-swatch rangefinder-swatch-both"></span>
+                <?php echo xss(TFISH_RANGEFINDER_LEGEND_BOTH); ?>
+            </span>
+            <span class="rangefinder-legend-note"><?php echo xss(TFISH_RANGEFINDER_LEGEND_NOTE); ?></span>
+        </div>
 
         <?php if (empty($summary['records'])): ?>
             <p class="rangefinder-empty"><?php echo xss(TFISH_RANGEFINDER_DB_UNAVAILABLE); ?></p>
@@ -50,10 +136,30 @@
 </div>
 
 <!-- Payload for the client-side map and filters. Markers carry only what is needed to plot and
-     filter; full occurrence detail is fetched on demand from a bounded query endpoint. -->
+     filter; full occurrence detail is fetched on demand from a bounded query endpoint. All of it is
+     JSON_HEX_* escaped server-side, so none of it can break out of this script block. -->
 <script>
     window.rangefinder = window.rangefinder || {};
     window.rangefinder.markers = <?php echo $viewModel->markersJson(); ?>;
     window.rangefinder.speciesFacet = <?php echo $viewModel->speciesFacetJson(); ?>;
     window.rangefinder.countryFacet = <?php echo $viewModel->countryFacetJson(); ?>;
+    window.rangefinder.tileProvider = <?php echo $viewModel->tileProviderJson(); ?>;
+    window.rangefinder.maxZoom = <?php echo (int) $viewModel->maxZoom(); ?>;
+    window.rangefinder.strings = {
+        unnamedLocality: <?php echo \json_encode(TFISH_RANGEFINDER_UNNAMED_LOCALITY); ?>,
+        unverified: <?php echo \json_encode(TFISH_RANGEFINDER_UNVERIFIED); ?>,
+        genusOnly: <?php echo \json_encode(TFISH_RANGEFINDER_GENUS_ONLY); ?>,
+        speciesHeading: <?php echo \json_encode(TFISH_RANGEFINDER_SPECIES_HEADING); ?>,
+        presenceHeading: <?php echo \json_encode(TFISH_RANGEFINDER_PRESENCE_HEADING); ?>,
+        recordTally: <?php echo \json_encode(TFISH_RANGEFINDER_RECORD_TALLY); ?>,
+        mappedTally: <?php echo \json_encode(TFISH_RANGEFINDER_MAPPED_TALLY); ?>,
+        showing: <?php echo \json_encode(TFISH_RANGEFINDER_SHOWING); ?>,
+        coordsWithPrecision: <?php echo \json_encode(TFISH_RANGEFINDER_COORDS_PRECISION); ?>,
+        dataAttribution: <?php echo \json_encode(TFISH_RANGEFINDER_DATA_ATTRIBUTION); ?>,
+        noTileProvider: <?php echo \json_encode(TFISH_RANGEFINDER_NO_TILE_PROVIDER); ?>
+    };
 </script>
+<script src="<?php echo xss($asset); ?>leaflet/leaflet.js"></script>
+<script src="<?php echo xss($asset); ?>leaflet.markercluster/leaflet.markercluster.js"></script>
+<script src="<?php echo xss($asset); ?>rangefinder/iso3166.js"></script>
+<script src="<?php echo xss($asset); ?>rangefinder/rangefinder.js"></script>

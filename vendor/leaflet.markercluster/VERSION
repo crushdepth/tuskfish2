@@ -1,0 +1,18 @@
+leaflet.markercluster 1.5.3
+released     2021-10-18
+licence      MIT (see LICENSE, upstream MIT-LICENCE.txt)
+source       npm pack leaflet.markercluster@1.5.3
+sha1(tgz)    9cdb52a4eab92671832e1ef9899669e80efc4056
+sha512(tgz)  vPTw/Bndq7eQHjLBVlWpnGeLa3t+3zGiuM7fJwCkiMFq+nmRuG3RI3f7f4N4TDX7T4NpbAXpR2+NTRSEGfCSeA==
+vendored     2026-07-24, verbatim copy of package/dist/ plus LICENSE.
+
+leaflet.markercluster.js      minified build - this is what templates/map.html loads.
+leaflet.markercluster-src.js  identical, unminified - kept for auditing, never served.
+MarkerCluster.css             positioning/animation; required.
+MarkerCluster.Default.css     default cluster bubble skin; Rangefinder overrides the
+                              colours in vendor/rangefinder/rangefinder.css.
+
+Requires Leaflet >= 1.3.1. Load AFTER leaflet.js.
+
+To update: npm pack leaflet.markercluster@<version>, verify the sha1 against the npm
+registry's dist.integrity, then replace this directory wholesale and update this file.
