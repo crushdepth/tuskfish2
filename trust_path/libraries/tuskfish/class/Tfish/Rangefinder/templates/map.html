@@ -1,0 +1,59 @@
+<?php declare(strict_types=1); ?>
+<?php $summary = $viewModel->summary(); ?>
+
+<!-- Container -->
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="page-title">
+                <?php echo xss($viewModel->pageTitle()); ?>
+            </h1>
+        </div>
+    </div>
+
+    <div class="rangefinder-container">
+
+        <!-- Headline counts: composition of the marker payload actually plotted. -->
+        <div class="rangefinder-summary row text-center">
+            <div class="col">
+                <div class="rangefinder-count"><?php echo xss((string) ($summary['localities'] ?? 0)); ?></div>
+                <div class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_LOCALITIES); ?></div>
+            </div>
+            <div class="col">
+                <div class="rangefinder-count"><?php echo xss((string) ($summary['records'] ?? 0)); ?></div>
+                <div class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_RECORDS); ?></div>
+            </div>
+            <div class="col">
+                <div class="rangefinder-count"><?php echo xss((string) ($summary['species'] ?? 0)); ?></div>
+                <div class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_SPECIES_LAYER); ?></div>
+            </div>
+            <div class="col">
+                <div class="rangefinder-count"><?php echo xss((string) ($summary['presence'] ?? 0)); ?></div>
+                <div class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_PRESENCE_LAYER); ?></div>
+            </div>
+            <div class="col">
+                <div class="rangefinder-count"><?php echo xss((string) ($summary['countries'] ?? 0)); ?></div>
+                <div class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_COUNTRIES); ?></div>
+            </div>
+        </div>
+
+        <!-- Map canvas. Leaflet + markercluster are vendored and initialised in a later step; until
+             then this is an empty, sized container and the payload below is the contract it will
+             consume. -->
+        <div id="rangefinderMap" class="rangefinder-map" style="height: 600px;"></div>
+
+        <?php if (empty($summary['records'])): ?>
+            <p class="rangefinder-empty"><?php echo xss(TFISH_RANGEFINDER_DB_UNAVAILABLE); ?></p>
+        <?php endif; ?>
+
+    </div>
+</div>
+
+<!-- Payload for the client-side map and filters. Markers carry only what is needed to plot and
+     filter; full occurrence detail is fetched on demand from a bounded query endpoint. -->
+<script>
+    window.rangefinder = window.rangefinder || {};
+    window.rangefinder.markers = <?php echo $viewModel->markersJson(); ?>;
+    window.rangefinder.speciesFacet = <?php echo $viewModel->speciesFacetJson(); ?>;
+    window.rangefinder.countryFacet = <?php echo $viewModel->countryFacetJson(); ?>;
+</script>
