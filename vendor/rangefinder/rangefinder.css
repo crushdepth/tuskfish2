@@ -400,13 +400,54 @@
     color: var(--rf-muted);
 }
 
-/* "+N more" footer under a capped (unidentified) taxon line. Plain muted text until the Phase 4
-   /explore deep-link replaces it. */
+/* "+N more" toggle under a capped (unidentified) taxon line: a real, clearly-clickable pill button
+   that opens the folded records in place. Deliberately given border + background (not link-styled
+   text) so it stays findable as a control both before opening AND once the list below it is open --
+   an underlined-text version got lost among the revealed record lines. A caret (::before) rotates
+   with aria-expanded to signal open/closed. Superseded by the Phase 4 /explore deep-link. */
 .rangefinder-popup .rangefinder-record-more {
-    margin: 0.1rem 0 0.2rem 0.6rem;
-    font-size: 0.76rem;
-    font-style: italic;
-    color: var(--rf-muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin: 0.25rem 0 0.2rem 0.6rem;
+    padding: 0.15rem 0.55rem;
+    border: 1px solid #2f2f2b;
+    border-radius: 999px;
+    /* Solid dark fill: deliberately NOT the blue/orange used by the material and unverified badges,
+       so the control never blends into the light-tinted boxes stacked around it. */
+    background: #46463f;
+    font: inherit;
+    font-size: 0.75rem;
+    font-style: normal;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    line-height: 1.3;
+}
+
+.rangefinder-popup .rangefinder-record-more::before {
+    content: "\25B8"; /* Right-pointing triangle: collapsed. */
+    font-size: 0.7em;
+    transition: transform 0.12s ease;
+}
+
+.rangefinder-popup .rangefinder-record-more[aria-expanded="true"]::before {
+    transform: rotate(90deg); /* Points down when open. */
+}
+
+.rangefinder-popup .rangefinder-record-more:hover {
+    background: #2f2f2b;
+}
+
+.rangefinder-popup .rangefinder-record-more:focus-visible {
+    outline: 2px solid var(--rf-species);
+    outline-offset: 1px;
+}
+
+/* The folded record list revealed by the toggle. Same indented, left-bordered look as the always
+   visible records, so an opened accordion reads as a continuation of the lines above it. */
+.rangefinder-popup .rangefinder-records-extra {
+    margin-top: 0.1rem;
 }
 
 .rangefinder-attribution-data {

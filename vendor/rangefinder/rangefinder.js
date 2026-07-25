@@ -393,6 +393,23 @@
     }
 
     /**
+     * Sort key for the unidentified cap: obtainable material first, then depleted, then no holding.
+     *
+     * The always-visible cap should surface the records a visitor can act on, so a held (still
+     * obtainable) sample outranks a used-up one, which outranks a bare observation. Records past the
+     * cap are not dropped — they fold into the "+N more" accordion — so this only decides ordering,
+     * never inclusion.
+     *
+     * @param   {Object} occurrence
+     * @returns {number}
+     */
+    function holdingRank(occurrence) {
+        if (!occurrence.holding) return 2;
+
+        return occurrence.holding === 'exhausted' ? 1 : 0;
+    }
+
+    /**
      * Does one occurrence pass the current filters?
      *
      * @param   {Object} occurrence
@@ -520,19 +537,21 @@
                 // still carry the record's real date/source — provenance without a species claim.
                 //
                 // Verified and reported list in full — their source is the point. Unidentified leads
-                // are capped: surface the sample-backed ones first (a held specimen can still matter),
-                // show at most UNIDENTIFIED_RECORD_CAP, and let the "+N more" footer stand in for the
-                // rest until the /explore deep-link exists (Phase 4).
+                // are capped so a 96-record genus stack cannot bury the popup: rank sample-backed
+                // records first (a held specimen can still matter), show at most
+                // UNIDENTIFIED_RECORD_CAP inline, and fold the remainder into a "+N more" accordion
+                // the visitor can open in place. Every folded record still carries its date — the one
+                // field that matters for a bare genus-level lead — so nothing is lost, only deferred.
                 var toShow = entry.records;
+                var extra = [];
 
                 if (section.category === 'unidentified') {
-                    toShow = entry.records.filter(function (occurrence) {
-                        return occurrence.holding;
-                    }).sort(function (a, b) {
-                        // Obtainable material ahead of depleted ('exhausted'), so the useful samples
-                        // are the ones that survive the cap.
-                        return (a.holding === 'exhausted' ? 1 : 0) - (b.holding === 'exhausted' ? 1 : 0);
-                    }).slice(0, UNIDENTIFIED_RECORD_CAP);
+                    var ranked = entry.records.slice().sort(function (a, b) {
+                        return holdingRank(a) - holdingRank(b);
+                    });
+
+                    toShow = ranked.slice(0, UNIDENTIFIED_RECORD_CAP);
+                    extra = ranked.slice(UNIDENTIFIED_RECORD_CAP);
                 }
 
                 if (toShow.length) {
@@ -545,14 +564,31 @@
                     item.appendChild(records);
                 }
 
-                // How many records this line represents but does not individually show. Only the
-                // capped 'unidentified' bucket ever hides any; the footer is plain text now (a live
-                // /explore link would 404 until Phase 4) but tells the user the records are here.
-                var hidden = entry.count - toShow.length;
+                // The folded remainder (only the capped 'unidentified' bucket ever has any). A toggle
+                // button reveals a collapsed list of the rest in place — no request, no navigation.
+                // Kept a real <button> for keyboard/AT reach; the /explore deep-link supersedes it in
+                // Phase 4, but until then the records are here, not merely tallied.
+                if (extra.length) {
+                    var moreList = el('ul', 'rangefinder-records rangefinder-records-extra');
+                    moreList.hidden = true;
 
-                if (section.category === 'unidentified' && hidden > 0) {
-                    item.appendChild(el('p', 'rangefinder-record-more',
-                        text('moreRecords', { count: hidden })));
+                    extra.forEach(function (occurrence) {
+                        moreList.appendChild(buildRecordLine(occurrence));
+                    });
+
+                    var moreLabel = text('moreRecords', { count: extra.length });
+                    var toggle = el('button', 'rangefinder-record-more', moreLabel);
+                    toggle.type = 'button';
+                    toggle.setAttribute('aria-expanded', 'false');
+                    toggle.addEventListener('click', function () {
+                        var open = moreList.hidden;
+                        moreList.hidden = !open;
+                        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                        toggle.textContent = open ? text('fewerRecords') : moreLabel;
+                    });
+
+                    item.appendChild(toggle);
+                    item.appendChild(moreList);
                 }
 
                 list.appendChild(item);

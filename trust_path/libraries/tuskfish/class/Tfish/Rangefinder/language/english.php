@@ -88,10 +88,11 @@ namespace Tfish\Rangefinder;
 // out to the source's own page (iNaturalist observation, museum record) where one exists.
 \define("TFISH_RANGEFINDER_ACCESSION", "Accession {id}");
 \define("TFISH_RANGEFINDER_VIEW_RECORD", "View record");
-// Footer under a capped "not identified to species" popup line: the count of records represented by
-// the tally but not shown individually. Becomes the /explore deep-link once that surface exists
-// (Phase 4). {count} is the number hidden.
+// Toggle under a capped "not identified to species" popup line. Opens an in-place accordion of the
+// records not shown inline (each still carrying its date). {count} is the number folded away.
+// Becomes the /explore deep-link once that surface exists (Phase 4).
 \define("TFISH_RANGEFINDER_MORE_RECORDS", "+{count} more not identified to species");
+\define("TFISH_RANGEFINDER_FEWER_RECORDS", "Show fewer");
 \define("TFISH_RANGEFINDER_MAPPED_TALLY", "({mapped} mapped)");
 \define("TFISH_RANGEFINDER_SHOWING", "Showing {shown} of {total} localities \u{2014} {records} records");
 \define("TFISH_RANGEFINDER_COORDS_PRECISION", "{coords} \u{00b1}{precision} m");
