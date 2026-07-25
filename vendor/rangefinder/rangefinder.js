@@ -278,6 +278,20 @@
     }
 
     /**
+     * Sort rank for a ploidy word: unknown (none) first, then by increasing chromosome-set count,
+     * with the open-ended "polyploid" last. Only used to order a lineage's variants in the filter;
+     * an unrecognised value sorts after the known set rather than throwing.
+     *
+     * @param   {?string} ploidy
+     * @returns {number}
+     */
+    function ploidyRank(ploidy) {
+        var order = { diploid: 1, triploid: 2, tetraploid: 3, pentaploid: 4, polyploid: 5 };
+        if (!ploidy) return 0;
+        return order[ploidy] || 6;
+    }
+
+    /**
      * Display form of a scientific name.
      *
      * Names arrive as the canonical_taxon: already citation-free, rank-marker-free and lower-cased at
@@ -751,9 +765,83 @@
             map.attributionControl.addAttribution(text('dataAttribution'));
         }
 
+        L.control.scale({ imperial: false }).addTo(map);
+
+        addFullscreenControl(container);
+
         map.setView([20, 10], 2);
 
         return true;
+    }
+
+    /**
+     * Add a fullscreen toggle as a Leaflet control.
+     *
+     * Built as an L.Control so it lives in the map's own control layer -- same corner stack, same
+     * classes, same event handling as zoom and scale -- rather than a DOM button floating over the
+     * canvas. Leaflet ships no fullscreen control of its own, and the plugin that adds one is not
+     * worth a new dependency, so the control drives the browser Fullscreen API directly.
+     *
+     * The element made fullscreen is the map container only, not the filter panel. That is the whole
+     * point of the requirement: filters keep their state (this touches nothing in the filter DOM or
+     * the marker set) but are hidden while fullscreen, so they are changed after exiting. On
+     * entering/exiting the map is resized with invalidateSize() so Leaflet redraws at the new
+     * dimensions instead of leaving grey tile gaps.
+     */
+    function addFullscreenControl(container) {
+        // Feature-detect: if the browser cannot go fullscreen (older iOS Safari), do not add a
+        // control that would do nothing when pressed.
+        if (!container.requestFullscreen && !container.webkitRequestFullscreen) return;
+
+        var Fullscreen = L.Control.extend({
+            options: { position: 'topleft' },
+
+            onAdd: function () {
+                var wrapper = L.DomUtil.create('div', 'leaflet-bar leaflet-control rangefinder-fullscreen');
+                var link = L.DomUtil.create('a', '', wrapper);
+                link.href = '#';
+                link.setAttribute('role', 'button');
+                this._link = link;
+                this._setState(false);
+
+                // stopPropagation so the click toggles fullscreen without also panning/zooming the
+                // map underneath; preventDefault so the '#' href does not scroll the page.
+                L.DomEvent.on(link, 'click', L.DomEvent.stop)
+                    .on(link, 'click', this._toggle, this);
+
+                return wrapper;
+            },
+
+            _setState: function (isFull) {
+                var label = isFull ? text('exitFullscreen') : text('fullscreen');
+                this._link.title = label;
+                this._link.setAttribute('aria-label', label);
+                this._link.innerHTML = isFull ? '✕' : '⛶'; // ✕ / ⛶
+            },
+
+            _toggle: function () {
+                var doc = document;
+                var isFull = doc.fullscreenElement || doc.webkitFullscreenElement;
+                if (isFull) {
+                    (doc.exitFullscreen || doc.webkitExitFullscreen).call(doc);
+                } else {
+                    (container.requestFullscreen || container.webkitRequestFullscreen).call(container);
+                }
+            }
+        });
+
+        var control = new Fullscreen();
+        control.addTo(map);
+
+        // A single handler for both the button and the Esc key / browser chrome, so the icon and the
+        // map size stay correct however fullscreen was left.
+        function onChange() {
+            var isFull = !!(document.fullscreenElement || document.webkitFullscreenElement);
+            control._setState(isFull);
+            map.invalidateSize();
+        }
+        document.addEventListener('fullscreenchange', onChange);
+        document.addEventListener('webkitfullscreenchange', onChange);
     }
 
     /**
@@ -810,31 +898,68 @@
      */
     function buildSpeciesFilter() {
         var list = elements.speciesList;
+        var rows = (rf.speciesFacet || []).slice();
 
-        (rf.speciesFacet || []).forEach(function (row) {
-            var key = taxonKey(row.canonical_taxon, row.ploidy);
-            var label = el('label', 'rangefinder-check');
-            var input = document.createElement('input');
+        if (!rows.length) return;
 
-            input.type = 'checkbox';
-            input.value = key;
-            input.checked = state.species.indexOf(key) !== -1;
-            input.addEventListener('change', onSpeciesChange);
+        // Order a lineage's ploidy variants by increasing ploidy level, unknown (no ploidy word)
+        // first — e.g. A. parthenogenetica, then diploid, triploid, tetraploid, ... — rather than
+        // the incidental facet order. Stable sort on a copy keeps the canonical-name grouping the
+        // facet already supplies and only reorders within each name.
+        rows.sort(function (a, b) {
+            var byName = (a.canonical_taxon || '').localeCompare(b.canonical_taxon || '');
+            if (byName !== 0) return byName;
+            return ploidyRank(a.ploidy) - ploidyRank(b.ploidy);
+        });
 
-            label.appendChild(input);
-            label.appendChild(el('span', 'rangefinder-taxon', row.display_name));
+        // Lay the facet out as side-by-side columns rather than one tall scroll column, which
+        // dominated the panel height. Columns are filled in order up to MAX_PER_COLUMN entries each,
+        // so the leading columns are full and the last carries the remainder (13 rows -> 5 / 5 / 3).
+        // Rows read top-to-bottom, left-to-right — a lineage's ploidy variants are not forced into
+        // one column.
+        var MAX_PER_COLUMN = 5;
+        var column = null;
 
-            if (row.ploidy) {
-                label.appendChild(document.createTextNode(' '));
-                label.appendChild(el('span', 'rangefinder-tally', row.ploidy));
+        rows.forEach(function (row, i) {
+            if (i % MAX_PER_COLUMN === 0) {
+                column = el('div', 'rangefinder-species-col');
+                list.appendChild(column);
             }
 
-            label.appendChild(document.createTextNode(' '));
-            label.appendChild(el('span', 'rangefinder-tally',
-                text('mappedTally', { mapped: row.n_mapped })));
-
-            list.appendChild(label);
+            column.appendChild(speciesCheck(row));
         });
+    }
+
+    /**
+     * One species/lineage checkbox row: the taxon name, an optional ploidy word, and the mapped count.
+     * The value is the taxon key (canonical + ploidy), so the label text is free to be abbreviated
+     * without affecting selection or filtering.
+     *
+     * @param   {object} row  Facet row {canonical_taxon, ploidy, display_name, n_mapped, ...}.
+     * @return  {HTMLLabelElement}
+     */
+    function speciesCheck(row) {
+        var label = el('label', 'rangefinder-check');
+        var input = document.createElement('input');
+
+        input.type = 'checkbox';
+        input.value = taxonKey(row.canonical_taxon, row.ploidy);
+        input.checked = state.species.indexOf(input.value) !== -1;
+        input.addEventListener('change', onSpeciesChange);
+
+        label.appendChild(input);
+        label.appendChild(el('span', 'rangefinder-taxon', row.display_name));
+
+        if (row.ploidy) {
+            label.appendChild(document.createTextNode(' '));
+            label.appendChild(el('span', 'rangefinder-tally', row.ploidy));
+        }
+
+        label.appendChild(document.createTextNode(' '));
+        label.appendChild(el('span', 'rangefinder-tally',
+            text('mappedTally', { mapped: row.n_mapped })));
+
+        return label;
     }
 
     /**

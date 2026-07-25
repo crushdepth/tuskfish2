@@ -81,6 +81,22 @@
     z-index: 0;
 }
 
+/* In fullscreen the browser matches :fullscreen on the map container; override the fixed 600px so it
+   fills the viewport, and drop the border/radius that would otherwise frame a full-screen surface. */
+.rangefinder-map:fullscreen {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 0;
+}
+
+/* Fullscreen toggle: an L.Control glyph link, sized to match Leaflet's zoom buttons. */
+.rangefinder-fullscreen a {
+    font-size: 18px;
+    line-height: 26px;
+    text-align: center;
+}
+
 .rangefinder-empty {
     padding: 1rem;
     background: #fbeaea;
@@ -139,15 +155,32 @@
     color: var(--rf-muted);
 }
 
-/* The species list is a scrolling checkbox list rather than a <select multiple>, which is close to
-   unusable on touch devices and gives no room for the per-lineage record counts. */
+/* Species / lineage sits on its own full-width row below the filter grid: with ~19 taxa a vertical
+   scroll column dominated the panel height. It stays a checkbox list rather than a <select multiple>
+   (close to unusable on touch, and no room for the per-lineage counts), but the checks are wrapped
+   horizontally so the whole set is visible in a few short rows with no scroll. */
+.rangefinder-species-filter {
+    margin-top: 1rem;
+}
+
 .rangefinder-species-list {
-    max-height: 190px;
-    overflow-y: auto;
     border: 1px solid var(--rf-panel-edge);
     border-radius: 3px;
     background: #fff;
     padding: 0.35rem 0.5rem;
+}
+
+.rangefinder-species-filter .rangefinder-species-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.75rem;
+}
+
+/* Each column is a plain vertical stack of checks. Equal flex-grow shares the row width three ways
+   on a wide panel; the flex-basis lets columns drop to two or one on a narrow screen. */
+.rangefinder-species-col {
+    flex: 1 1 12rem;
+    min-width: 0;
 }
 
 .rangefinder-check {

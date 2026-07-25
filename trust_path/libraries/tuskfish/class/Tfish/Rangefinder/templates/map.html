@@ -79,11 +79,6 @@
                 </div>
 
                 <div class="rangefinder-filter">
-                    <span class="rangefinder-filter-heading"><?php echo xss(TFISH_RANGEFINDER_SPECIES_FILTER); ?></span>
-                    <div class="rangefinder-species-list" id="rangefinderSpecies"></div>
-                </div>
-
-                <div class="rangefinder-filter">
                     <label for="rangefinderCountry"><?php echo xss(TFISH_RANGEFINDER_COUNTRY); ?></label>
                     <select id="rangefinderCountry">
                         <option value=""><?php echo xss(TFISH_RANGEFINDER_ALL_COUNTRIES); ?></option>
@@ -100,9 +95,16 @@
                         <option value="tissue_or_dna"><?php echo xss(TFISH_RANGEFINDER_HOLDING_TISSUE); ?></option>
                         <option value="exhausted"><?php echo xss(TFISH_RANGEFINDER_HOLDING_EXHAUSTED); ?></option>
                     </select>
-                    <p class="rangefinder-filter-help"><?php echo xss(TFISH_RANGEFINDER_HOLDING_HELP); ?></p>
                 </div>
 
+            </div>
+
+            <!-- Species / lineage sits on its own full-width row: with ~19 taxa a vertical scroll
+                 column dominated the panel height, so the checkboxes are wrapped horizontally here
+                 instead. -->
+            <div class="rangefinder-filter rangefinder-species-filter">
+                <span class="rangefinder-filter-heading"><?php echo xss(TFISH_RANGEFINDER_SPECIES_FILTER); ?></span>
+                <div class="rangefinder-species-list" id="rangefinderSpecies"></div>
             </div>
 
             <div class="rangefinder-actions">
@@ -179,7 +181,9 @@
         showing: <?php echo \json_encode(TFISH_RANGEFINDER_SHOWING); ?>,
         coordsWithPrecision: <?php echo \json_encode(TFISH_RANGEFINDER_COORDS_PRECISION); ?>,
         dataAttribution: <?php echo \json_encode(TFISH_RANGEFINDER_DATA_ATTRIBUTION); ?>,
-        noTileProvider: <?php echo \json_encode(TFISH_RANGEFINDER_NO_TILE_PROVIDER); ?>
+        noTileProvider: <?php echo \json_encode(TFISH_RANGEFINDER_NO_TILE_PROVIDER); ?>,
+        fullscreen: <?php echo \json_encode(TFISH_RANGEFINDER_FULLSCREEN); ?>,
+        exitFullscreen: <?php echo \json_encode(TFISH_RANGEFINDER_EXIT_FULLSCREEN); ?>
     };
 </script>
 <script src="<?php echo xss($asset); ?>leaflet/leaflet.js"></script>

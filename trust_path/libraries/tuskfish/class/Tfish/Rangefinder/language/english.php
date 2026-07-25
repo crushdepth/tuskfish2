@@ -97,6 +97,10 @@ namespace Tfish\Rangefinder;
 \define("TFISH_RANGEFINDER_SHOWING", "Showing {shown} of {total} localities \u{2014} {records} records");
 \define("TFISH_RANGEFINDER_COORDS_PRECISION", "{coords} \u{00b1}{precision} m");
 \define("TFISH_RANGEFINDER_DATA_ATTRIBUTION", "Occurrence data: IATS-CSIC Artemia cyst bank and GBIF contributors, CC BY-NC 4.0");
+// Map control tooltips. Fullscreen shows the map only; filters stay set but are hidden, so the map
+// carries a note that they are changed after exiting fullscreen.
+\define("TFISH_RANGEFINDER_FULLSCREEN", "Full screen");
+\define("TFISH_RANGEFINDER_EXIT_FULLSCREEN", "Exit full screen");
 
 // Errors.
 \define("TFISH_RANGEFINDER_DB_UNAVAILABLE", "The occurrence database is currently unavailable. Please try again later.");
