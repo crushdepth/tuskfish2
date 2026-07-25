@@ -42,7 +42,7 @@ namespace Tfish\Rangefinder;
 // Filter controls.
 \define("TFISH_RANGEFINDER_FILTERS", "Filters");
 \define("TFISH_RANGEFINDER_CONFIDENCE", "Taxonomic confidence");
-\define("TFISH_RANGEFINDER_SPECIES_FILTER", "Species / lineage");
+\define("TFISH_RANGEFINDER_SPECIES_FILTER", "Artemia species / lineage");
 \define("TFISH_RANGEFINDER_COUNTRY", "Country");
 \define("TFISH_RANGEFINDER_ALL_COUNTRIES", "All countries");
 // The holding filter exposes the *kind* of physical material a record represents, derived at import
@@ -53,11 +53,11 @@ namespace Tfish\Rangefinder;
 \define("TFISH_RANGEFINDER_HOLDING", "Physical holding");
 \define("TFISH_RANGEFINDER_HOLDING_ANY", "\u{2014}\u{2014}\u{2014}"); // Three em dashes: filter disabled.
 \define("TFISH_RANGEFINDER_HOLDING_OBTAINABLE", "Any obtainable material");
-\define("TFISH_RANGEFINDER_HOLDING_LIVE_CYSTS", "Live cysts");
+\define("TFISH_RANGEFINDER_HOLDING_LIVE_CYSTS", "Cysts");
 \define("TFISH_RANGEFINDER_HOLDING_PRESERVED", "Preserved specimen");
 \define("TFISH_RANGEFINDER_HOLDING_TISSUE", "Tissue or DNA");
 \define("TFISH_RANGEFINDER_HOLDING_EXHAUSTED", "Depleted");
-\define("TFISH_RANGEFINDER_HOLDING_HELP", "The kind of physical material behind a record. \u{201c}Any obtainable material\u{201d} is anything still held \u{2014} live cysts, preserved specimens or tissue/DNA; only live cysts can be hatched and cultured. \u{201c}Depleted\u{201d} once existed but is used up.");
+\define("TFISH_RANGEFINDER_HOLDING_HELP", "The kind of physical material behind a record. \u{201c}Any obtainable material\u{201d} is anything still held \u{2014} cysts, preserved specimens or tissue/DNA; only cysts can be hatched and cultured. \u{201c}Depleted\u{201d} once existed but is used up.");
 \define("TFISH_RANGEFINDER_GAP_MAP", "Gap map");
 \define("TFISH_RANGEFINDER_GAP_MAP_HELP", "Shows only localities with no verified species determination \u{2014} only reported or genus-level leads \u{2014} the survey gaps where no expert has yet confirmed which Artemia is present.");
 \define("TFISH_RANGEFINDER_RESET", "Reset filters");

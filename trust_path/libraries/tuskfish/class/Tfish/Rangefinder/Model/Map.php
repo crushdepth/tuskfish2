@@ -348,10 +348,11 @@ class Map
                     $facet[$fkey] = [
                         'canonical_taxon' => $canonical,
                         'ploidy' => $ploidy,
-                        // Display form: the canonical is already citation-free and lower-cased, so
-                        // capitalising the initial gives correct binomial case (genus up, epithet
-                        // down) with no parser.
-                        'display_name' => \ucfirst($canonical),
+                        // Display form: the canonical is already citation-free and lower-cased. For a
+                        // binomial, abbreviate the genus to its initial ("artemia franciscana" ->
+                        // "A. franciscana") to keep the filter list compact; a single-word lineage just
+                        // gets its initial capitalised. Taxon-agnostic: no genus name is hard-coded.
+                        'display_name' => $this->abbreviateTaxon($canonical),
                         'n_records' => 0,
                         'n_mapped' => 0,
                     ];
@@ -372,6 +373,27 @@ class Map
         $this->occurrences = $occurrences;
         $this->details = $details;
         $this->speciesFacet = $facet;
+    }
+
+    /**
+     * Abbreviated display form of a canonical taxon for the compact filter list.
+     *
+     * A binomial "genus epithet" becomes "G. epithet"; a single-word lineage is just capitalised.
+     * The canonical is already lower-cased and citation-free, so this is pure string work — no genus
+     * name is hard-coded, keeping the engine taxon-agnostic.
+     *
+     * @param   string $canonical Lower-cased, citation-free canonical taxon name.
+     * @return  string
+     */
+    private function abbreviateTaxon(string $canonical): string
+    {
+        $parts = \explode(' ', $canonical, 2);
+
+        if (isset($parts[1]) && $parts[0] !== '') {
+            return \strtoupper($parts[0][0]) . '. ' . $parts[1];
+        }
+
+        return \ucfirst($canonical);
     }
 
     /**
