@@ -24,8 +24,10 @@
 :root {
     --rf-species: #1b6ca8;
     --rf-species-edge: #0d3c61;
-    --rf-presence: #c2740a;
-    --rf-presence-edge: #8a5207;
+    --rf-presence: #ae3ec9;
+    --rf-presence-edge: #6b1f8a;
+    --rf-both: #e03131;
+    --rf-both-edge: #000000;
     --rf-panel-bg: #f7f7f5;
     --rf-panel-edge: #d8d8d2;
     --rf-muted: #5a5a55;
@@ -238,17 +240,17 @@
 
 .rangefinder-swatch-species {
     background: var(--rf-species);
-    border: 2px solid var(--rf-species-edge);
+    border: 2px solid #000;
 }
 
 .rangefinder-swatch-presence {
-    background: rgba(194, 116, 10, 0.15);
-    border: 2px dashed var(--rf-presence-edge);
+    background: var(--rf-presence);
+    border: 2px solid #000;
 }
 
 .rangefinder-swatch-both {
-    background: var(--rf-species);
-    border: 2px dashed var(--rf-presence-edge);
+    background: var(--rf-both);
+    border: 2px solid var(--rf-both-edge);
 }
 
 .rangefinder-legend-note {
@@ -279,13 +281,13 @@
 
 .rangefinder-cluster-species div {
     background: var(--rf-species);
-    border: 2px solid var(--rf-species-edge);
+    border: 2px solid #000;
     line-height: 30px;
 }
 
 .rangefinder-cluster-presence div {
-    background: rgba(194, 116, 10, 0.85);
-    border: 2px dashed #fff;
+    background: rgba(174, 62, 201, 0.85);
+    border: 2px solid #000;
     line-height: 30px;
 }
 
@@ -338,7 +340,7 @@
     letter-spacing: 0.03em;
     padding: 0.05rem 0.35rem;
     border-radius: 2px;
-    background: rgba(194, 116, 10, 0.15);
+    background: rgba(174, 62, 201, 0.15);
     border: 1px solid var(--rf-presence-edge);
     color: var(--rf-presence-edge);
     white-space: nowrap;

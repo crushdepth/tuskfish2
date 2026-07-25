@@ -43,38 +43,42 @@
      * Passed to Leaflet as path options rather than applied from the stylesheet, because Leaflet
      * writes SVG presentation attributes directly onto the path and CSS would have to fight it.
      *
-     * Species and presence differ in hue, in fill and in stroke pattern, not merely in shade: the
+     * Species, presence and both differ in hue (blue / violet / green), not merely in shade: the
      * distinction has to survive a small screen, a projector and colour-blind vision, because the
      * failure it guards against (a lead read as a determination) is silent.
      */
     var PALETTE = {
         species: {
             radius: 7,
-            color: '#0d3c61',
+            color: '#000000',
             weight: 2,
             opacity: 1,
             fillColor: '#1b6ca8',
             fillOpacity: 0.85
         },
+        // Solid violet fill with a black edge: a genus-only lead, unverified. The black border and
+        // opaque fill keep it legible on any basemap; species (blue), presence (violet) and both
+        // (crimson) separate by hue alone, so all three share one radius/weight — the markers are the
+        // same size and stroke, differing only in colour.
         presence: {
-            radius: 6,
-            color: '#8a5207',
+            radius: 7,
+            color: '#000000',
             weight: 2,
             opacity: 1,
-            dashArray: '3,3',
-            fillColor: '#c2740a',
-            fillOpacity: 0.15
+            fillColor: '#ae3ec9',
+            fillOpacity: 0.9
         },
-        // A locality holding both. Species fill (a determination does exist here) inside a dashed
-        // presence-coloured ring (so does an unverified report). Resolvable from either neighbour.
+        // A locality holding both a determination and a lead. Neither blue nor violet — a third
+        // solid colour (crimson) so it can't be misread as either single-layer marker. Red reads
+        // against a topographic basemap (muted greens/browns/pale-blues) where green blended into
+        // vegetation and water tint; the dark edge holds it on the rare warm-toned ground.
         both: {
             radius: 7,
-            color: '#8a5207',
-            weight: 2.5,
+            color: '#000000',
+            weight: 2,
             opacity: 1,
-            dashArray: '4,3',
-            fillColor: '#1b6ca8',
-            fillOpacity: 0.85
+            fillColor: '#e03131',
+            fillOpacity: 0.9
         },
         // Precision circle. Faint by design: it is a statement about uncertainty, not a feature.
         precision: {
@@ -729,7 +733,7 @@
 
         map = L.map(container, {
             maxZoom: maxZoom,
-            minZoom: 1,
+            minZoom: 2,
             worldCopyJump: true
         });
 
