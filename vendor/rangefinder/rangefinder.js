@@ -213,6 +213,41 @@
     }
 
     /**
+     * Display form of a scientific name: the binomial without its author citation.
+     *
+     * The facet supplies the verbatim determination in full ("Artemia franciscana (Kellogg, 1906)"),
+     * which is the right thing to key and filter on but noisy in a checkbox list. This trims the
+     * authorship for display ONLY -- the filter key stays the untouched verbatim name via taxonKey(),
+     * so nothing about which records match is affected.
+     *
+     * The citation is cut at the first parenthesis, or failing that at the first capitalised word
+     * after the genus (an author starts upper-case; epithets and rank markers -- subsp., var., f.,
+     * cf. -- do not), which covers both "Genus epithet (Author, year)" and "Genus epithet Author,
+     * year" without a taxonomic parser.
+     *
+     * @param   {?string} name
+     * @returns {string}
+     */
+    function displayTaxon(name) {
+        if (!name) return '';
+
+        var trimmed = String(name).replace(/^\s+|\s+$/g, '');
+        var paren = trimmed.indexOf('(');
+
+        if (paren > 0) trimmed = trimmed.slice(0, paren);
+
+        var words = trimmed.split(/\s+/);
+        var out = words.length ? [words[0]] : [];
+
+        for (var i = 1; i < words.length; i++) {
+            if (/^[A-Z]/.test(words[i])) break;
+            out.push(words[i]);
+        }
+
+        return out.join(' ').replace(/\s+$/, '');
+    }
+
+    /**
      * Does one occurrence pass the current filters?
      *
      * @param   {Object} occurrence
@@ -536,7 +571,7 @@
             input.addEventListener('change', onSpeciesChange);
 
             label.appendChild(input);
-            label.appendChild(el('span', 'rangefinder-taxon', row.verbatim_scientific_name));
+            label.appendChild(el('span', 'rangefinder-taxon', displayTaxon(row.verbatim_scientific_name)));
 
             if (row.ploidy) {
                 label.appendChild(document.createTextNode(' '));
@@ -667,7 +702,6 @@
     function syncControls() {
         elements.speciesLayer.checked = state.speciesLayer;
         elements.presenceLayer.checked = state.presenceLayer;
-        elements.gaps.checked = state.gapsOnly;
         elements.country.value = state.country;
         elements.holding.value = state.holding;
 
@@ -688,12 +722,6 @@
         elements.presenceLayer.addEventListener('change', function () {
             state.presenceLayer = this.checked;
             apply(false);
-        });
-
-        elements.gaps.addEventListener('change', function () {
-            state.gapsOnly = this.checked;
-            syncControls();
-            apply(true);
         });
 
         elements.country.addEventListener('change', function () {
@@ -762,7 +790,6 @@
             speciesList: document.getElementById('rangefinderSpecies'),
             speciesLayer: document.getElementById('rangefinderSpeciesLayer'),
             presenceLayer: document.getElementById('rangefinderPresenceLayer'),
-            gaps: document.getElementById('rangefinderGaps'),
             country: document.getElementById('rangefinderCountry'),
             holding: document.getElementById('rangefinderHolding'),
             gapMap: document.getElementById('rangefinderGapMap'),

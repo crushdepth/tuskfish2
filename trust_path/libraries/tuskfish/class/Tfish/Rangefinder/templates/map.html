@@ -26,29 +26,31 @@
 
         <!-- Headline counts: composition of the marker payload actually plotted. Species and
              presence are counted separately and never summed into a single "records of species X"
-             figure, because the presence half makes no species claim. -->
-        <div class="rangefinder-summary row text-center">
-            <div class="col">
-                <div class="rangefinder-count"><?php echo xss((string) ($summary['localities'] ?? 0)); ?></div>
-                <div class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_LOCALITIES); ?></div>
-            </div>
-            <div class="col">
-                <div class="rangefinder-count"><?php echo xss((string) ($summary['records'] ?? 0)); ?></div>
-                <div class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_RECORDS); ?></div>
-            </div>
-            <div class="col">
-                <div class="rangefinder-count"><?php echo xss((string) ($summary['species'] ?? 0)); ?></div>
-                <div class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_SPECIES_LAYER); ?></div>
-            </div>
-            <div class="col">
-                <div class="rangefinder-count"><?php echo xss((string) ($summary['presence'] ?? 0)); ?></div>
-                <div class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_PRESENCE_LAYER); ?></div>
-            </div>
-            <div class="col">
-                <div class="rangefinder-count"><?php echo xss((string) ($summary['countries'] ?? 0)); ?></div>
-                <div class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_COUNTRIES); ?></div>
-            </div>
-        </div>
+             figure, because the presence half makes no species claim. A self-contained inline flex
+             row rather than the theme grid, so the five figures read as one compact strip instead of
+             a tall stacked column. -->
+        <ul class="rangefinder-summary">
+            <li>
+                <span class="rangefinder-count"><?php echo xss((string) ($summary['localities'] ?? 0)); ?></span>
+                <span class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_LOCALITIES); ?></span>
+            </li>
+            <li>
+                <span class="rangefinder-count"><?php echo xss((string) ($summary['records'] ?? 0)); ?></span>
+                <span class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_RECORDS); ?></span>
+            </li>
+            <li>
+                <span class="rangefinder-count"><?php echo xss((string) ($summary['species'] ?? 0)); ?></span>
+                <span class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_SPECIES_LAYER); ?></span>
+            </li>
+            <li>
+                <span class="rangefinder-count"><?php echo xss((string) ($summary['presence'] ?? 0)); ?></span>
+                <span class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_PRESENCE_LAYER); ?></span>
+            </li>
+            <li>
+                <span class="rangefinder-count"><?php echo xss((string) ($summary['countries'] ?? 0)); ?></span>
+                <span class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_COUNTRIES); ?></span>
+            </li>
+        </ul>
 
         <!-- Filters. All four compose with AND and run client-side against the payload below, so
              changing one costs no request. The species list is populated by rangefinder.js from the
@@ -65,10 +67,6 @@
                     <label class="rangefinder-check">
                         <input type="checkbox" id="rangefinderPresenceLayer" checked>
                         <?php echo xss(TFISH_RANGEFINDER_PRESENCE_LAYER); ?>
-                    </label>
-                    <label class="rangefinder-check">
-                        <input type="checkbox" id="rangefinderGaps">
-                        <?php echo xss(TFISH_RANGEFINDER_GAPS_ONLY); ?>
                     </label>
                 </div>
 
@@ -92,12 +90,14 @@
                         <option value="live"><?php echo xss(TFISH_RANGEFINDER_HOLDING_LIVE); ?></option>
                         <option value="exhausted"><?php echo xss(TFISH_RANGEFINDER_HOLDING_EXHAUSTED); ?></option>
                     </select>
+                    <p class="rangefinder-filter-help"><?php echo xss(TFISH_RANGEFINDER_HOLDING_HELP); ?></p>
                 </div>
 
             </div>
 
             <div class="rangefinder-actions">
-                <button type="button" class="rangefinder-btn" id="rangefinderGapMap" aria-pressed="false">
+                <button type="button" class="rangefinder-btn" id="rangefinderGapMap" aria-pressed="false"
+                        title="<?php echo xss(TFISH_RANGEFINDER_GAP_MAP_HELP); ?>">
                     <?php echo xss(TFISH_RANGEFINDER_GAP_MAP); ?>
                 </button>
                 <button type="button" class="rangefinder-btn" id="rangefinderReset">

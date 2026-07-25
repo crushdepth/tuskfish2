@@ -37,12 +37,28 @@
     margin-bottom: 2rem;
 }
 
+/* One compact horizontal strip: each figure is "<count> <label>" inline, and the strip wraps as a
+   whole on a narrow screen rather than stacking into a tall column per figure. Self-contained flex,
+   independent of the theme grid. */
 .rangefinder-summary {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem 1.6rem;
+    align-items: baseline;
+    list-style: none;
     margin: 1rem 0 1.25rem;
+    padding: 0;
+}
+
+.rangefinder-summary li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
 }
 
 .rangefinder-count {
-    font-size: 1.6rem;
+    font-size: 1.35rem;
     font-weight: 600;
     line-height: 1.1;
 }
@@ -110,6 +126,15 @@
     border: 1px solid var(--rf-panel-edge);
     border-radius: 3px;
     background: #fff;
+}
+
+/* Small muted note under a filter, disambiguating options that read similarly (the presence toggle
+   vs the gap filter; obtainable holding vs live cysts only). */
+.rangefinder-filter-help {
+    margin: 0.4rem 0 0;
+    font-size: 0.76rem;
+    line-height: 1.35;
+    color: var(--rf-muted);
 }
 
 /* The species list is a scrolling checkbox list rather than a <select multiple>, which is close to

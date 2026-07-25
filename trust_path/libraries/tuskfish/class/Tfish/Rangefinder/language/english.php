@@ -41,12 +41,13 @@ namespace Tfish\Rangefinder;
 \define("TFISH_RANGEFINDER_COUNTRY", "Country");
 \define("TFISH_RANGEFINDER_ALL_COUNTRIES", "All countries");
 \define("TFISH_RANGEFINDER_HOLDING", "Physical holding");
-\define("TFISH_RANGEFINDER_HOLDING_ANY", "Any");
+\define("TFISH_RANGEFINDER_HOLDING_ANY", "\u{2014}\u{2014}\u{2014}"); // Three em dashes: filter disabled.
 \define("TFISH_RANGEFINDER_HOLDING_OBTAINABLE", "Obtainable holding");
 \define("TFISH_RANGEFINDER_HOLDING_LIVE", "Live cysts only");
-\define("TFISH_RANGEFINDER_HOLDING_EXHAUSTED", "Held but depleted");
-\define("TFISH_RANGEFINDER_GAPS_ONLY", "Localities with no verified species");
+\define("TFISH_RANGEFINDER_HOLDING_EXHAUSTED", "Depleted");
+\define("TFISH_RANGEFINDER_HOLDING_HELP", "\u{201c}Obtainable holding\u{201d} is any material still available \u{2014} live cysts, preserved specimens or tissue/DNA. \u{201c}Live cysts only\u{201d} narrows that to living cyst material that can be hatched.");
 \define("TFISH_RANGEFINDER_GAP_MAP", "Gap map");
+\define("TFISH_RANGEFINDER_GAP_MAP_HELP", "Shows only localities that carry genus-level records and no verified species determination \u{2014} the survey gaps where no expert has yet confirmed which Artemia is present.");
 \define("TFISH_RANGEFINDER_RESET", "Reset filters");
 
 // Legend. Always on screen, never behind a control: this is the one piece of information that
