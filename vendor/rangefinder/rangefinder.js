@@ -8,7 +8,7 @@
  * Reads everything from window.rangefinder, which templates/map.html populates server-side:
  *
  *   markers        {localities: [...], occurrences: [...]}  see expandPayload() for the tuples
- *   speciesFacet   [{verbatim_scientific_name, ploidy, n_records, n_mapped}, ...]
+ *   speciesFacet   [{canonical_taxon, ploidy, display_name, n_records, n_mapped}, ...]
  *   countryFacet   [{country_code, country_name, n_records, min_lat, max_lat, min_lng, max_lng}, ...]
  *   tileProvider   {key, label, url, maxZoom, attribution, subdomains} -- the ACTIVE one only
  *   maxZoom        hard zoom ceiling, applied on top of the provider's own
@@ -18,10 +18,15 @@
  * loading state anywhere in this file. That is deliberate and is what makes the cluster counts
  * trustworthy -- see buildClusterGroups().
  *
- * TWO-LAYER MODEL. Occurrences carry layer = 'species' or 'presence'. A species record is a
- * taxonomic determination; a presence record is a genus-level report that says nothing about which
- * species. They must never look alike, never be totalled together, and a presence record must
- * never be labelled with a species name. Every place this file could blur them is marked.
+ * CONFIDENCE MODEL (D-18). Every occurrence falls in one of three buckets, derived once from its
+ * stored layer and taxon_rank (see expandPayload):
+ *   verified     -- layer 'species': an expert determination.
+ *   reported     -- layer 'presence', rank species: a species name from a non-authoritative source.
+ *   unidentified -- layer 'presence', rank genus: a lead that reaches only the genus.
+ * The filter, the popup and the summary all speak in these three. Marker colour, though, stays
+ * TWO-TONE: a verified determination, or a lead (reported and unidentified share the lead colour).
+ * That is the load-bearing line -- a lead must never look like a determination, never be totalled
+ * with one, and never be labelled as a species claim. Every place this file could blur it is marked.
  *
  * @copyright   Simon Wilkinson 2026+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -82,12 +87,15 @@
         }
     };
 
-    // Holding filter option -> the holding_type values it admits. 'exhausted' is a holding that
-    // existed and is used up: still evidence the material was collected, but not obtainable now,
-    // so it is deliberately excluded from 'obtainable'.
+    // Holding filter option -> the holding_type values it admits. 'obtainable' is the union of the
+    // three kinds that still physically exist; the three narrower options select one kind each.
+    // 'exhausted' is a holding that existed and is used up: still evidence the material was
+    // collected, but not obtainable now, so it is deliberately excluded from 'obtainable'.
     var HOLDING = {
         obtainable: ['live_cysts', 'preserved_specimen', 'tissue_or_dna'],
-        live: ['live_cysts'],
+        live_cysts: ['live_cysts'],
+        preserved_specimen: ['preserved_specimen'],
+        tissue_or_dna: ['tissue_or_dna'],
         exhausted: ['exhausted']
     };
 
@@ -100,8 +108,9 @@
     var elements = {};
 
     var state = {
-        speciesLayer: true,
-        presenceLayer: true,
+        verified: true,
+        reported: true,
+        unidentified: true,
         species: [],
         country: '',
         holding: 'any',
@@ -159,7 +168,7 @@
      * this file readable property names.
      *
      *   locality tuple    [locality_id, name, latitude, longitude, precision_m]
-     *   occurrence tuple  [localityIndex, verbatim_name, ploidy, layer, country_code, holding_type]
+     *   occurrence tuple  [localityIndex, canonical_taxon, ploidy, layer, country_code, holding_type, taxon_rank]
      */
     function expandPayload() {
         var payload = rf.markers || {};
@@ -190,9 +199,16 @@
                 ploidy: tuple[2],
                 layer: tuple[3],
                 country: tuple[4],
-                holding: tuple[5]
+                holding: tuple[5],
+                // Confidence bucket (D-18), derived once here so the filter, popup and marker code
+                // all read the same value. verified = a determination; reported = a species name
+                // from a non-authoritative source; unidentified = a lead reaching only the genus.
+                category: tuple[3] === 'species' ? 'verified'
+                    : (tuple[6] === 'genus' || !tuple[6]) ? 'unidentified' : 'reported'
             });
 
+            // hasSpecies means "a verified determination exists here" and drives the gap map and the
+            // mixed-marker styling; it keys on the verified bucket, i.e. layer 'species'.
             if (tuple[3] === 'species') locality.hasSpecies = true;
         });
     }
@@ -213,17 +229,11 @@
     }
 
     /**
-     * Display form of a scientific name: the binomial without its author citation.
+     * Display form of a scientific name.
      *
-     * The facet supplies the verbatim determination in full ("Artemia franciscana (Kellogg, 1906)"),
-     * which is the right thing to key and filter on but noisy in a checkbox list. This trims the
-     * authorship for display ONLY -- the filter key stays the untouched verbatim name via taxonKey(),
-     * so nothing about which records match is affected.
-     *
-     * The citation is cut at the first parenthesis, or failing that at the first capitalised word
-     * after the genus (an author starts upper-case; epithets and rank markers -- subsp., var., f.,
-     * cf. -- do not), which covers both "Genus epithet (Author, year)" and "Genus epithet Author,
-     * year" without a taxonomic parser.
+     * Names arrive as the canonical_taxon: already citation-free, rank-marker-free and lower-cased at
+     * import (the one place normalisation happens). Display just restores binomial case by
+     * capitalising the initial (genus up, epithet down), so there is nothing to parse here.
      *
      * @param   {?string} name
      * @returns {string}
@@ -231,20 +241,7 @@
     function displayTaxon(name) {
         if (!name) return '';
 
-        var trimmed = String(name).replace(/^\s+|\s+$/g, '');
-        var paren = trimmed.indexOf('(');
-
-        if (paren > 0) trimmed = trimmed.slice(0, paren);
-
-        var words = trimmed.split(/\s+/);
-        var out = words.length ? [words[0]] : [];
-
-        for (var i = 1; i < words.length; i++) {
-            if (/^[A-Z]/.test(words[i])) break;
-            out.push(words[i]);
-        }
-
-        return out.join(' ').replace(/\s+$/, '');
+        return name.charAt(0).toUpperCase() + name.slice(1);
     }
 
     /**
@@ -254,17 +251,25 @@
      * @returns {boolean}
      */
     function matches(occurrence) {
-        var isSpecies = occurrence.layer === 'species';
+        // Each occurrence sits in exactly one confidence bucket (verified / reported / unidentified);
+        // if that bucket's checkbox is off, the record is hidden.
+        if (!state[occurrence.category]) return false;
 
-        if (isSpecies && !state.speciesLayer) return false;
-        if (!isSpecies && !state.presenceLayer) return false;
+        // A species/lineage selection names one or more taxa. It constrains every record that makes a
+        // species claim -- verified determinations AND reported leads -- to the selected taxa, because
+        // both carry a canonical name that can match. Genus-only leads name no species, so they can
+        // never satisfy a species selection and are hidden while one is active, regardless of the
+        // "not identified" toggle (which is locked off to match; see syncUnidentifiedLock). An empty
+        // selection means "no species restriction". Matching is by canonical name + ploidy, so a
+        // verified and a reported record of the same taxon share a key despite differing verbatim
+        // spellings. A reported match is still styled and labelled a lead, never a determination --
+        // the confidence bucket (marker colour, popup) is untouched by this filter.
+        if (state.species.length) {
+            if (occurrence.category === 'unidentified') return false;
 
-        // The species/lineage selection constrains species records only. Presence records carry a
-        // reported name, but it is genus-level and unverified, so it is not a species claim and
-        // must not answer a species query. An empty selection means "no species restriction".
-        if (isSpecies && state.species.length &&
-            state.species.indexOf(taxonKey(occurrence.name, occurrence.ploidy)) === -1) {
-            return false;
+            if (state.species.indexOf(taxonKey(occurrence.name, occurrence.ploidy)) === -1) {
+                return false;
+            }
         }
 
         if (state.country && occurrence.country !== state.country) return false;
@@ -281,8 +286,8 @@
     /**
      * Build the popup for a locality from the occurrences currently shown at it.
      *
-     * Species and presence entries are listed separately and counted separately. A combined total
-     * would read as "n records of Artemia here", which for the presence half is not known.
+     * The three confidence buckets are listed and counted separately, in a fixed order. A combined
+     * total would read as "n records of Artemia here", which for the two lead buckets is not known.
      *
      * @param   {Object} locality
      * @param   {Array} shown  Occurrences passing the filters.
@@ -297,17 +302,31 @@
             ? text('coordsWithPrecision', { coords: coords, precision: locality.precision })
             : coords));
 
-        ['species', 'presence'].forEach(function (layer) {
+        // Fixed display order, strongest evidence first. 'verified' renders as a determination; the
+        // two lead buckets render with an explicit unverified badge so neither can be read as one.
+        var sections = [
+            { category: 'verified', heading: 'verifiedHeading' },
+            { category: 'reported', heading: 'reportedHeading' },
+            { category: 'unidentified', heading: 'unidentifiedHeading' }
+        ];
+
+        sections.forEach(function (section) {
             var entries = {};
             var order = [];
 
             shown.forEach(function (occurrence) {
-                if (occurrence.layer !== layer) return;
+                if (occurrence.category !== section.category) return;
 
-                var key = taxonKey(occurrence.name, occurrence.ploidy);
+                // Unidentified leads make no species claim, so they collapse to a single
+                // genus-level line whatever the underlying token (a bare genus, a BOLD BIN, or a
+                // demoted null). Verified and reported keep their name + ploidy identity.
+                var isLead = section.category === 'unidentified';
+                var name = isLead ? null : occurrence.name;
+                var ploidy = isLead ? null : occurrence.ploidy;
+                var key = taxonKey(name, ploidy);
 
                 if (!entries[key]) {
-                    entries[key] = { name: occurrence.name, ploidy: occurrence.ploidy, count: 0 };
+                    entries[key] = { name: name, ploidy: ploidy, count: 0 };
                     order.push(key);
                 }
 
@@ -316,11 +335,7 @@
 
             if (!order.length) return;
 
-            var heading = el('p', 'rangefinder-filter-heading', text(layer === 'species'
-                ? 'speciesHeading'
-                : 'presenceHeading'));
-
-            wrapper.appendChild(heading);
+            wrapper.appendChild(el('p', 'rangefinder-filter-heading', text(section.heading)));
 
             var list = el('ul');
 
@@ -328,17 +343,20 @@
                 var entry = entries[key];
                 var item = el('li');
 
-                if (layer === 'species') {
-                    item.appendChild(el('span', 'rangefinder-taxon', entry.name));
+                if (section.category === 'verified') {
+                    // displayTaxon trims the author citation for display; the filter key is unaffected.
+                    item.appendChild(el('span', 'rangefinder-taxon', displayTaxon(entry.name)));
 
                     if (entry.ploidy) {
                         item.appendChild(document.createTextNode(' '));
                         item.appendChild(el('span', 'rangefinder-ploidy', entry.ploidy));
                     }
                 } else {
-                    // Presence: show the reported name only with an explicit unverified badge, so
-                    // it can never be read off the page as a determination made at this site.
-                    item.appendChild(el('span', null, entry.name || text('genusOnly')));
+                    // A lead: show the reported name (citation trimmed) or a genus fallback, with an
+                    // explicit unverified badge, so it can never be read off the page as a
+                    // determination made at this site. A demoted (unrecognised) name arrives null
+                    // from the server and falls to the fallback, so it is never shown.
+                    item.appendChild(el('span', null, displayTaxon(entry.name) || text('genusOnly')));
                     item.appendChild(document.createTextNode(' '));
                     item.appendChild(el('span', 'rangefinder-badge', text('unverified')));
                 }
@@ -360,8 +378,8 @@
      *
      * Rebuilds rather than toggles visibility: at 577 localities the whole pass is imperceptible,
      * and a marker's appearance depends on which of its occurrences survive the filter, so there is
-     * no stable per-marker identity to toggle. A locality showing both layers becomes species-only
-     * the moment the presence layer is switched off.
+     * no stable per-marker identity to toggle. A locality showing both a determination and a lead
+     * becomes verified-only the moment its lead buckets are switched off.
      */
     function render() {
         var shownLocalities = 0;
@@ -554,14 +572,16 @@
     /**
      * Populate the species/lineage checkbox list from the facet.
      *
-     * Species layer only. Presence records are never offered as species names -- they are reached
-     * through the presence toggle, which is the whole point of keeping the two axes separate.
+     * The facet lists every taxon that makes a species claim on the map -- verified determinations
+     * and accepted reported names alike -- keyed on canonical_taxon so citation variants of a name
+     * collapse to one choice. Selecting one filters both its verified and its reported records (a
+     * reported match stays a lead in colour and popup; see matches). Genus-only leads are not offered.
      */
     function buildSpeciesFilter() {
         var list = elements.speciesList;
 
         (rf.speciesFacet || []).forEach(function (row) {
-            var key = taxonKey(row.verbatim_scientific_name, row.ploidy);
+            var key = taxonKey(row.canonical_taxon, row.ploidy);
             var label = el('label', 'rangefinder-check');
             var input = document.createElement('input');
 
@@ -571,7 +591,7 @@
             input.addEventListener('change', onSpeciesChange);
 
             label.appendChild(input);
-            label.appendChild(el('span', 'rangefinder-taxon', displayTaxon(row.verbatim_scientific_name)));
+            label.appendChild(el('span', 'rangefinder-taxon', row.display_name));
 
             if (row.ploidy) {
                 label.appendChild(document.createTextNode(' '));
@@ -594,7 +614,12 @@
      */
     function buildCountryFilter() {
         var select = elements.country;
-        var rows = (rf.countryFacet || []).map(function (row) {
+        var rows = (rf.countryFacet || []).filter(function (row) {
+            // Only list countries with at least one record that plots. v_country_facet already
+            // excludes zero-mapped countries; this guards against an older DB where it did not,
+            // so a user never selects a country and is shown an empty map.
+            return row.n_mapped > 0;
+        }).map(function (row) {
             return {
                 code: row.country_code,
                 name: rf.countryName ? rf.countryName(row.country_code, row.country_name)
@@ -628,8 +653,9 @@
 
         var params = new URLSearchParams(window.location.search);
 
-        if (params.has('specieslayer')) state.speciesLayer = params.get('specieslayer') !== '0';
-        if (params.has('presence')) state.presenceLayer = params.get('presence') !== '0';
+        if (params.has('verified')) state.verified = params.get('verified') !== '0';
+        if (params.has('reported')) state.reported = params.get('reported') !== '0';
+        if (params.has('unidentified')) state.unidentified = params.get('unidentified') !== '0';
         if (params.get('gaps') === '1') state.gapsOnly = true;
         if (params.has('country')) state.country = params.get('country') || '';
 
@@ -661,8 +687,9 @@
 
         var params = new URLSearchParams();
 
-        if (!state.speciesLayer) params.set('specieslayer', '0');
-        if (!state.presenceLayer) params.set('presence', '0');
+        if (!state.verified) params.set('verified', '0');
+        if (!state.reported) params.set('reported', '0');
+        if (!state.unidentified) params.set('unidentified', '0');
         if (state.gapsOnly) params.set('gaps', '1');
         if (state.species.length) params.set('species', state.species.join(','));
         if (state.country) params.set('country', state.country);
@@ -693,15 +720,31 @@
                 return input.value;
             });
 
+        syncUnidentifiedLock();
         apply(false);
+    }
+
+    /**
+     * Lock the "not identified" control while a species/lineage selection is active.
+     *
+     * A species query cannot be answered by a genus-only lead, so those records are hidden while a
+     * selection is active (see matches). This reflects that in the control: the checkbox is disabled
+     * and shown unchecked so the reason is visible, while state.unidentified is preserved untouched
+     * and resumes control the moment the selection is cleared.
+     */
+    function syncUnidentifiedLock() {
+        var locked = state.species.length > 0;
+
+        elements.unidentified.disabled = locked;
+        elements.unidentified.checked = locked ? false : state.unidentified;
     }
 
     /**
      * Sync every control to the current state. Used after a preset changes several at once.
      */
     function syncControls() {
-        elements.speciesLayer.checked = state.speciesLayer;
-        elements.presenceLayer.checked = state.presenceLayer;
+        elements.verified.checked = state.verified;
+        elements.reported.checked = state.reported;
         elements.country.value = state.country;
         elements.holding.value = state.holding;
 
@@ -711,16 +754,24 @@
             });
 
         elements.gapMap.setAttribute('aria-pressed', state.gapsOnly ? 'true' : 'false');
+
+        // Depends on state.species, so runs after the species checkboxes are synced above.
+        syncUnidentifiedLock();
     }
 
     function bindControls() {
-        elements.speciesLayer.addEventListener('change', function () {
-            state.speciesLayer = this.checked;
+        elements.verified.addEventListener('change', function () {
+            state.verified = this.checked;
             apply(false);
         });
 
-        elements.presenceLayer.addEventListener('change', function () {
-            state.presenceLayer = this.checked;
+        elements.reported.addEventListener('change', function () {
+            state.reported = this.checked;
+            apply(false);
+        });
+
+        elements.unidentified.addEventListener('change', function () {
+            state.unidentified = this.checked;
             apply(false);
         });
 
@@ -739,17 +790,22 @@
         elements.gapMap.addEventListener('click', function () {
             var enabling = !state.gapsOnly;
 
+            // A gap is a locality with only leads and no verified determination: hide the verified
+            // bucket, keep both lead buckets, and let gapsOnly drop any locality that has a
+            // determination when judged on its full record set (see render()).
             state.gapsOnly = enabling;
-            state.speciesLayer = !enabling;
-            state.presenceLayer = true;
+            state.verified = !enabling;
+            state.reported = true;
+            state.unidentified = true;
             state.species = [];
             syncControls();
             apply(true);
         });
 
         elements.reset.addEventListener('click', function () {
-            state.speciesLayer = true;
-            state.presenceLayer = true;
+            state.verified = true;
+            state.reported = true;
+            state.unidentified = true;
             state.species = [];
             state.country = '';
             state.holding = 'any';
@@ -788,8 +844,9 @@
 
         elements = {
             speciesList: document.getElementById('rangefinderSpecies'),
-            speciesLayer: document.getElementById('rangefinderSpeciesLayer'),
-            presenceLayer: document.getElementById('rangefinderPresenceLayer'),
+            verified: document.getElementById('rangefinderVerified'),
+            reported: document.getElementById('rangefinderReported'),
+            unidentified: document.getElementById('rangefinderUnidentified'),
             country: document.getElementById('rangefinderCountry'),
             holding: document.getElementById('rangefinderHolding'),
             gapMap: document.getElementById('rangefinderGapMap'),
