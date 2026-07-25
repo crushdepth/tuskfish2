@@ -344,6 +344,71 @@
     white-space: nowrap;
 }
 
+/* Per-record drill-down under each popup taxon (D-20): the individual observations behind the
+   tally, each on one compact wrapping line. Indented under the taxon and un-bordered so it reads as
+   detail of the line above, not as sibling taxa. */
+.rangefinder-popup .rangefinder-records {
+    margin: 0.15rem 0 0.1rem 0.6rem;
+    padding-left: 0.5rem;
+    border-left: 2px solid var(--rf-panel-edge);
+}
+
+.rangefinder-popup .rangefinder-records .rangefinder-record {
+    border-top: none;
+    padding: 0.12rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.15rem 0.5rem;
+    font-size: 0.8rem;
+    color: var(--rf-muted);
+}
+
+.rangefinder-record-date {
+    font-variant-numeric: tabular-nums;
+    color: inherit;
+}
+
+.rangefinder-record-source {
+    font-style: italic;
+}
+
+.rangefinder-record-accession,
+.rangefinder-record-link {
+    white-space: nowrap;
+}
+
+/* Material badge: the record is backed by a physical holding. Kept visually distinct from the
+   accession (an identifier) so "obtainable material" only ever reads off the holding, never the
+   accession. Depleted material is muted; obtainable kinds carry the species-blue accent. */
+.rangefinder-record-material {
+    display: inline-block;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.03rem 0.3rem;
+    border-radius: 2px;
+    white-space: nowrap;
+    background: rgba(27, 108, 168, 0.12);
+    border: 1px solid var(--rf-species-edge);
+    color: var(--rf-species-edge);
+}
+
+.rangefinder-record-material.rangefinder-material-exhausted {
+    background: transparent;
+    border-color: var(--rf-panel-edge);
+    color: var(--rf-muted);
+}
+
+/* "+N more" footer under a capped (unidentified) taxon line. Plain muted text until the Phase 4
+   /explore deep-link replaces it. */
+.rangefinder-popup .rangefinder-record-more {
+    margin: 0.1rem 0 0.2rem 0.6rem;
+    font-size: 0.76rem;
+    font-style: italic;
+    color: var(--rf-muted);
+}
+
 .rangefinder-attribution-data {
     font-size: 0.78rem;
     color: var(--rf-muted);

@@ -93,7 +93,7 @@ class Map implements \Tfish\Interface\Viewable
     /**
      * Headline counts for the loaded marker payload.
      *
-     * @return  array ['records', 'localities', 'species', 'presence', 'countries'].
+     * @return  array ['records', 'localities', 'verified', 'reported', 'unidentified', 'countries'].
      */
     public function summary(): array
     {
@@ -115,13 +115,20 @@ class Map implements \Tfish\Interface\Viewable
      *
      * Escaped with the JSON_HEX_* flags so it is safe to embed directly in a <script> block.
      *
-     * @return  string JSON object of {localities, occurrences}.
+     * details[] and sources[] add the record-level card layer (D-20): details[] is aligned
+     * index-identically to occurrences[] and carries the per-record card fields (date, recorder,
+     * accession, …); sources[] is the deduped attribution lookup its sourceIdx points into. Both
+     * ship inline so the popup drill-down renders with no server round-trip and no detail endpoint.
+     *
+     * @return  string JSON object of {localities, occurrences, details, sources}.
      */
     public function markersJson(): string
     {
         return $this->encode([
             'localities' => $this->model->localities(),
             'occurrences' => $this->model->occurrences(),
+            'details' => $this->model->details(),
+            'sources' => $this->model->sources(),
         ]);
     }
 

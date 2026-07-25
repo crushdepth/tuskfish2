@@ -24,11 +24,11 @@
 
     <div class="rangefinder-container">
 
-        <!-- Headline counts: composition of the marker payload actually plotted. Species and
-             presence are counted separately and never summed into a single "records of species X"
-             figure, because the presence half makes no species claim. A self-contained inline flex
-             row rather than the theme grid, so the five figures read as one compact strip instead of
-             a tall stacked column. -->
+        <!-- Headline counts: composition of the marker payload actually plotted. The three
+             confidence buckets are counted separately and never summed into a single "records of
+             species X" figure, because the two lead buckets make no verified species claim. A
+             self-contained inline flex row rather than the theme grid, so the figures read as one
+             compact strip instead of a tall stacked column. -->
         <ul class="rangefinder-summary">
             <li>
                 <span class="rangefinder-count"><?php echo xss((string) ($summary['localities'] ?? 0)); ?></span>
@@ -39,12 +39,16 @@
                 <span class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_RECORDS); ?></span>
             </li>
             <li>
-                <span class="rangefinder-count"><?php echo xss((string) ($summary['species'] ?? 0)); ?></span>
-                <span class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_SPECIES_LAYER); ?></span>
+                <span class="rangefinder-count"><?php echo xss((string) ($summary['verified'] ?? 0)); ?></span>
+                <span class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_VERIFIED); ?></span>
             </li>
             <li>
-                <span class="rangefinder-count"><?php echo xss((string) ($summary['presence'] ?? 0)); ?></span>
-                <span class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_PRESENCE_LAYER); ?></span>
+                <span class="rangefinder-count"><?php echo xss((string) ($summary['reported'] ?? 0)); ?></span>
+                <span class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_REPORTED); ?></span>
+            </li>
+            <li>
+                <span class="rangefinder-count"><?php echo xss((string) ($summary['unidentified'] ?? 0)); ?></span>
+                <span class="rangefinder-label"><?php echo xss(TFISH_RANGEFINDER_UNIDENTIFIED); ?></span>
             </li>
             <li>
                 <span class="rangefinder-count"><?php echo xss((string) ($summary['countries'] ?? 0)); ?></span>
@@ -59,14 +63,18 @@
             <div class="rangefinder-filter-grid">
 
                 <div class="rangefinder-filter">
-                    <span class="rangefinder-filter-heading"><?php echo xss(TFISH_RANGEFINDER_LAYERS); ?></span>
+                    <span class="rangefinder-filter-heading"><?php echo xss(TFISH_RANGEFINDER_CONFIDENCE); ?></span>
                     <label class="rangefinder-check">
-                        <input type="checkbox" id="rangefinderSpeciesLayer" checked>
-                        <?php echo xss(TFISH_RANGEFINDER_SPECIES_LAYER); ?>
+                        <input type="checkbox" id="rangefinderVerified" checked>
+                        <?php echo xss(TFISH_RANGEFINDER_VERIFIED); ?>
                     </label>
                     <label class="rangefinder-check">
-                        <input type="checkbox" id="rangefinderPresenceLayer" checked>
-                        <?php echo xss(TFISH_RANGEFINDER_PRESENCE_LAYER); ?>
+                        <input type="checkbox" id="rangefinderReported" checked>
+                        <?php echo xss(TFISH_RANGEFINDER_REPORTED); ?>
+                    </label>
+                    <label class="rangefinder-check">
+                        <input type="checkbox" id="rangefinderUnidentified" checked>
+                        <?php echo xss(TFISH_RANGEFINDER_UNIDENTIFIED); ?>
                     </label>
                 </div>
 
@@ -87,7 +95,9 @@
                     <select id="rangefinderHolding">
                         <option value="any"><?php echo xss(TFISH_RANGEFINDER_HOLDING_ANY); ?></option>
                         <option value="obtainable"><?php echo xss(TFISH_RANGEFINDER_HOLDING_OBTAINABLE); ?></option>
-                        <option value="live"><?php echo xss(TFISH_RANGEFINDER_HOLDING_LIVE); ?></option>
+                        <option value="live_cysts"><?php echo xss(TFISH_RANGEFINDER_HOLDING_LIVE_CYSTS); ?></option>
+                        <option value="preserved_specimen"><?php echo xss(TFISH_RANGEFINDER_HOLDING_PRESERVED); ?></option>
+                        <option value="tissue_or_dna"><?php echo xss(TFISH_RANGEFINDER_HOLDING_TISSUE); ?></option>
                         <option value="exhausted"><?php echo xss(TFISH_RANGEFINDER_HOLDING_EXHAUSTED); ?></option>
                     </select>
                     <p class="rangefinder-filter-help"><?php echo xss(TFISH_RANGEFINDER_HOLDING_HELP); ?></p>
@@ -149,9 +159,21 @@
         unnamedLocality: <?php echo \json_encode(TFISH_RANGEFINDER_UNNAMED_LOCALITY); ?>,
         unverified: <?php echo \json_encode(TFISH_RANGEFINDER_UNVERIFIED); ?>,
         genusOnly: <?php echo \json_encode(TFISH_RANGEFINDER_GENUS_ONLY); ?>,
-        speciesHeading: <?php echo \json_encode(TFISH_RANGEFINDER_SPECIES_HEADING); ?>,
-        presenceHeading: <?php echo \json_encode(TFISH_RANGEFINDER_PRESENCE_HEADING); ?>,
+        verifiedHeading: <?php echo \json_encode(TFISH_RANGEFINDER_VERIFIED); ?>,
+        reportedHeading: <?php echo \json_encode(TFISH_RANGEFINDER_REPORTED); ?>,
+        unidentifiedHeading: <?php echo \json_encode(TFISH_RANGEFINDER_UNIDENTIFIED); ?>,
         recordTally: <?php echo \json_encode(TFISH_RANGEFINDER_RECORD_TALLY); ?>,
+        recordedBy: <?php echo \json_encode(TFISH_RANGEFINDER_RECORDED_BY); ?>,
+        dateUnknown: <?php echo \json_encode(TFISH_RANGEFINDER_DATE_UNKNOWN); ?>,
+        accessionLabel: <?php echo \json_encode(TFISH_RANGEFINDER_ACCESSION); ?>,
+        viewRecord: <?php echo \json_encode(TFISH_RANGEFINDER_VIEW_RECORD); ?>,
+        moreRecords: <?php echo \json_encode(TFISH_RANGEFINDER_MORE_RECORDS); ?>,
+        materialLabels: {
+            live_cysts: <?php echo \json_encode(TFISH_RANGEFINDER_HOLDING_LIVE_CYSTS); ?>,
+            preserved_specimen: <?php echo \json_encode(TFISH_RANGEFINDER_HOLDING_PRESERVED); ?>,
+            tissue_or_dna: <?php echo \json_encode(TFISH_RANGEFINDER_HOLDING_TISSUE); ?>,
+            exhausted: <?php echo \json_encode(TFISH_RANGEFINDER_HOLDING_EXHAUSTED); ?>
+        },
         mappedTally: <?php echo \json_encode(TFISH_RANGEFINDER_MAPPED_TALLY); ?>,
         showing: <?php echo \json_encode(TFISH_RANGEFINDER_SHOWING); ?>,
         coordsWithPrecision: <?php echo \json_encode(TFISH_RANGEFINDER_COORDS_PRECISION); ?>,

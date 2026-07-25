@@ -7,7 +7,7 @@
  *
  * Reads everything from window.rangefinder, which templates/map.html populates server-side:
  *
- *   markers        {localities: [...], occurrences: [...]}  see expandPayload() for the tuples
+ *   markers        {localities, occurrences, details, sources}  see expandPayload() for the tuples
  *   speciesFacet   [{canonical_taxon, ploidy, display_name, n_records, n_mapped}, ...]
  *   countryFacet   [{country_code, country_name, n_records, min_lat, max_lat, min_lng, max_lng}, ...]
  *   tileProvider   {key, label, url, maxZoom, attribution, subdomains} -- the ACTIVE one only
@@ -91,6 +91,14 @@
     // three kinds that still physically exist; the three narrower options select one kind each.
     // 'exhausted' is a holding that existed and is used up: still evidence the material was
     // collected, but not obtainable now, so it is deliberately excluded from 'obtainable'.
+    // Cap on the per-record drill-down for the 'unidentified' bucket only. These are mostly bare
+    // genus-level leads whose provenance matters little; a dense site can stack dozens under one
+    // "genus-level record" line. We surface the sample-backed ones first (a held specimen can still
+    // be worth chasing even without a species name), cap the list, and defer the full set to the
+    // /explore page (Phase 4). Verified and reported records are never capped — their source is the
+    // point of the card.
+    var UNIDENTIFIED_RECORD_CAP = 8;
+
     var HOLDING = {
         obtainable: ['live_cysts', 'preserved_specimen', 'tissue_or_dna'],
         live_cysts: ['live_cysts'],
@@ -104,6 +112,7 @@
     var clusters = {};
     var precisionLayer = null;
     var localities = [];
+    var sources = [];
     var markersById = {};
     var elements = {};
 
@@ -169,11 +178,31 @@
      *
      *   locality tuple    [locality_id, name, latitude, longitude, precision_m]
      *   occurrence tuple  [localityIndex, canonical_taxon, ploidy, layer, country_code, holding_type, taxon_rank]
+     *   detail tuple      [event_date, recorded_by, sourceIdx, catalog_number, disposition,
+     *                      references_url, holder_url]
+     *   source tuple      [key, label, citation, doi, license]
+     *
+     * details[] is aligned index-identically to occurrences[] (same order, built in one server pass),
+     * so detail[i] belongs to occurrence[i]; sourceIdx points into the deduped sources[] list. The
+     * whole record-level card layer ships inline with the page (D-20): the popup drill-down reads it
+     * from memory, so there is no detail endpoint and no per-record fetch.
      */
     function expandPayload() {
         var payload = rf.markers || {};
         var rawLocalities = payload.localities || [];
         var rawOccurrences = payload.occurrences || [];
+        var rawDetails = payload.details || [];
+        var rawSources = payload.sources || [];
+
+        sources = rawSources.map(function (tuple) {
+            return {
+                key: tuple[0],
+                label: tuple[1],
+                citation: tuple[2],
+                doi: tuple[3],
+                license: tuple[4]
+            };
+        });
 
         localities = rawLocalities.map(function (tuple) {
             return {
@@ -189,10 +218,15 @@
             };
         });
 
-        rawOccurrences.forEach(function (tuple) {
+        rawOccurrences.forEach(function (tuple, i) {
             var locality = localities[tuple[0]];
 
             if (!locality) return;
+
+            // detail[i] is aligned to occurrence[i] by construction; a missing row degrades to an
+            // empty detail rather than throwing, so the marker still renders.
+            var d = rawDetails[i] || [];
+            var sourceIdx = d[2];
 
             locality.occurrences.push({
                 name: tuple[1],
@@ -204,7 +238,18 @@
                 // all read the same value. verified = a determination; reported = a species name
                 // from a non-authoritative source; unidentified = a lead reaching only the genus.
                 category: tuple[3] === 'species' ? 'verified'
-                    : (tuple[6] === 'genus' || !tuple[6]) ? 'unidentified' : 'reported'
+                    : (tuple[6] === 'genus' || !tuple[6]) ? 'unidentified' : 'reported',
+                // Record-level card fields (D-20). Read lazily by buildPopup; never touched on the
+                // hot filter path, so per-keystroke matching is unchanged.
+                detail: {
+                    date: d[0],
+                    recordedBy: d[1],
+                    source: (sourceIdx !== null && sourceIdx !== undefined) ? sources[sourceIdx] : null,
+                    accession: d[3],
+                    disposition: d[4],
+                    referencesUrl: d[5],
+                    holderUrl: d[6]
+                }
             });
 
             // hasSpecies means "a verified determination exists here" and drives the gap map and the
@@ -242,6 +287,109 @@
         if (!name) return '';
 
         return name.charAt(0).toUpperCase() + name.slice(1);
+    }
+
+    /**
+     * Return a URL only if it is a plain http(s) link, else null.
+     *
+     * References and accession links come from external archives and are treated as hostile: a
+     * javascript: or data: value in a source field must never become a live link. Only http:/https:
+     * may pass; anything else is dropped so it renders (if at all) as inert text.
+     *
+     * @param   {?string} url
+     * @returns {?string}
+     */
+    function safeHref(url) {
+        if (!url) return null;
+
+        return /^https?:\/\//i.test(url) ? url : null;
+    }
+
+    /**
+     * Build an external anchor, or null if the URL fails the scheme check.
+     *
+     * @param   {?string} url
+     * @param   {string} label
+     * @param   {string} [className]
+     * @returns {?Element}
+     */
+    function linkEl(url, label, className) {
+        var href = safeHref(url);
+
+        if (!href) return null;
+
+        var a = el('a', className, label);
+        a.setAttribute('href', href);
+        a.setAttribute('target', '_blank');
+        a.setAttribute('rel', 'noopener noreferrer');
+
+        return a;
+    }
+
+    /**
+     * Build the per-record detail line shown under a popup taxon (D-20).
+     *
+     * One compact line per occurrence: date, recorder, source, accession and any external record
+     * link, plus a material badge when the record is backed by a physical holding. Every value is
+     * source-supplied free text, so it goes in via el()/textContent; the two link fields pass the
+     * http(s) scheme check before becoming anchors.
+     *
+     * Accession is shown as an identifier only — never as a claim that material is available. The
+     * material badge (keyed on holding_type, with the finer disposition on hover) is the only
+     * "obtainable material" signal, kept deliberately distinct from the accession.
+     *
+     * @param   {Object} occurrence
+     * @returns {Element}
+     */
+    function buildRecordLine(occurrence) {
+        var d = occurrence.detail || {};
+        var line = el('li', 'rangefinder-record');
+
+        line.appendChild(el('span', 'rangefinder-record-date', d.date || text('dateUnknown')));
+
+        if (d.recordedBy) {
+            line.appendChild(el('span', 'rangefinder-record-by',
+                text('recordedBy', { name: d.recordedBy })));
+        }
+
+        // Source = the citable dataset (institution or publication), its full citation on hover.
+        // This is what distinguishes a Field Museum record from a Naturalis one — never the coarse
+        // holder institution.
+        if (d.source && d.source.label) {
+            var src = el('span', 'rangefinder-record-source', d.source.label);
+
+            if (d.source.citation) src.setAttribute('title', d.source.citation);
+
+            line.appendChild(src);
+        }
+
+        // Accession: a link only when a catalog URL template resolved one server-side (dormant until
+        // a template exists); otherwise plain text. Either way an identifier, not a holding signal.
+        if (d.accession) {
+            var accLabel = text('accessionLabel', { id: d.accession });
+            line.appendChild(linkEl(d.holderUrl, accLabel, 'rangefinder-record-accession')
+                || el('span', 'rangefinder-record-accession', accLabel));
+        }
+
+        // The source's own record page (iNaturalist observation, museum record) — the meaningful
+        // link for a bare observation that has no specimen behind it.
+        var ref = linkEl(d.referencesUrl, text('viewRecord'), 'rangefinder-record-link');
+
+        if (ref) line.appendChild(ref);
+
+        // Material badge: shown only when the record is backed by a physical holding. disposition
+        // (in collection / exhausted / …) rides as the tooltip so the compact badge stays readable.
+        if (occurrence.holding) {
+            var labels = strings.materialLabels || {};
+            var mat = el('span', 'rangefinder-record-material rangefinder-material-' + occurrence.holding,
+                labels[occurrence.holding] || occurrence.holding);
+
+            if (d.disposition) mat.setAttribute('title', d.disposition);
+
+            line.appendChild(mat);
+        }
+
+        return line;
     }
 
     /**
@@ -326,11 +474,12 @@
                 var key = taxonKey(name, ploidy);
 
                 if (!entries[key]) {
-                    entries[key] = { name: name, ploidy: ploidy, count: 0 };
+                    entries[key] = { name: name, ploidy: ploidy, count: 0, records: [] };
                     order.push(key);
                 }
 
                 entries[key].count += 1;
+                entries[key].records.push(occurrence);
             });
 
             if (!order.length) return;
@@ -364,6 +513,48 @@
                 item.appendChild(document.createTextNode(' '));
                 item.appendChild(el('span', 'rangefinder-tally',
                     text('recordTally', { count: entry.count })));
+
+                // Drill-down: the individual records behind this tally (date, recorder, source,
+                // accession, links). A demoted lead reaches here with its name already suppressed
+                // in occurrences[], so the taxon line shows the genus fallback while these lines
+                // still carry the record's real date/source — provenance without a species claim.
+                //
+                // Verified and reported list in full — their source is the point. Unidentified leads
+                // are capped: surface the sample-backed ones first (a held specimen can still matter),
+                // show at most UNIDENTIFIED_RECORD_CAP, and let the "+N more" footer stand in for the
+                // rest until the /explore deep-link exists (Phase 4).
+                var toShow = entry.records;
+
+                if (section.category === 'unidentified') {
+                    toShow = entry.records.filter(function (occurrence) {
+                        return occurrence.holding;
+                    }).sort(function (a, b) {
+                        // Obtainable material ahead of depleted ('exhausted'), so the useful samples
+                        // are the ones that survive the cap.
+                        return (a.holding === 'exhausted' ? 1 : 0) - (b.holding === 'exhausted' ? 1 : 0);
+                    }).slice(0, UNIDENTIFIED_RECORD_CAP);
+                }
+
+                if (toShow.length) {
+                    var records = el('ul', 'rangefinder-records');
+
+                    toShow.forEach(function (occurrence) {
+                        records.appendChild(buildRecordLine(occurrence));
+                    });
+
+                    item.appendChild(records);
+                }
+
+                // How many records this line represents but does not individually show. Only the
+                // capped 'unidentified' bucket ever hides any; the footer is plain text now (a live
+                // /explore link would 404 until Phase 4) but tells the user the records are here.
+                var hidden = entry.count - toShow.length;
+
+                if (section.category === 'unidentified' && hidden > 0) {
+                    item.appendChild(el('p', 'rangefinder-record-more',
+                        text('moreRecords', { count: hidden })));
+                }
+
                 list.appendChild(item);
             });
 
