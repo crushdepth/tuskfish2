@@ -90,11 +90,19 @@
     border-radius: 0;
 }
 
-/* Fullscreen toggle: an L.Control glyph link, sized to match Leaflet's zoom buttons. */
+/* Fullscreen toggle: an L.Control link whose icon is an inline-SVG background image rather than a
+   font glyph, so it renders identically everywhere and needs no icon dependency. The enter icon
+   (arrows out) swaps to the exit icon (arrows in) when rangefinder.js adds .rangefinder-fullscreen-on
+   on entering fullscreen. #333 matches Leaflet's default control-link colour. */
 .rangefinder-fullscreen a {
-    font-size: 18px;
-    line-height: 26px;
-    text-align: center;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 16px 16px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%23333' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 6V2h4M14 6V2h-4M2 10v4h4M14 10v4h-4'/%3E%3C/svg%3E");
+}
+
+.rangefinder-fullscreen a.rangefinder-fullscreen-on {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%23333' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 2v4H2M10 2v4h4M6 14v-4H2M10 14v-4h4'/%3E%3C/svg%3E");
 }
 
 .rangefinder-empty {

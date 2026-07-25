@@ -816,7 +816,10 @@
                 var label = isFull ? text('exitFullscreen') : text('fullscreen');
                 this._link.title = label;
                 this._link.setAttribute('aria-label', label);
-                this._link.innerHTML = isFull ? '✕' : '⛶'; // ✕ / ⛶
+                // The two icons are CSS background images keyed off this class, so the DOM stays free
+                // of markup/glyphs (house style: textContent only) and does not depend on a font
+                // shipping the U+26F6 fullscreen glyph, which many platforms lack.
+                L.DomUtil[isFull ? 'addClass' : 'removeClass'](this._link, 'rangefinder-fullscreen-on');
             },
 
             _toggle: function () {
@@ -825,7 +828,13 @@
                 if (isFull) {
                     (doc.exitFullscreen || doc.webkitExitFullscreen).call(doc);
                 } else {
-                    (container.requestFullscreen || container.webkitRequestFullscreen).call(container);
+                    var req = container.requestFullscreen || container.webkitRequestFullscreen;
+                    var result = req.call(container);
+                    // Standards-track requestFullscreen returns a promise that rejects when the
+                    // request is denied (e.g. embedded in an iframe without allow="fullscreen");
+                    // swallow it so a blocked request fails quietly rather than as a console error.
+                    // The webkit-prefixed form returns undefined, hence the guard.
+                    if (result && typeof result.catch === 'function') result.catch(function () {});
                 }
             }
         });
