@@ -45,8 +45,8 @@ include __DIR__ . '/language/english.php';
 
 // Read-only SQLite occurrence database backing the map (resolved against TFISH_DATABASE_PATH in
 // \Tfish\Rangefinder\Traits\RangefinderDatabase). Rangefinder is the taxon-agnostic engine; this
-// constant names the *deployment* dataset, which for artemia.info is ArtemiaBase. Point it at a
-// different DwC-A-derived database to redeploy the module against another taxon.
+// constant names the *deployment* dataset, which for artemia.info is the Artemia occurrence set.
+// Point it at a different DwC-A-derived database to redeploy the module against another taxon.
 \define("TFISH_RANGEFINDER_DB", 'artemia-occurrences.db');
 
 // Additional routes for the Rangefinder module.

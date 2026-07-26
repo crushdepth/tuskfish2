@@ -24,7 +24,7 @@ namespace Tfish\Rangefinder;
 
 // Page titles and meta descriptions.
 \define("TFISH_RANGEFINDER_MAP", "Map");
-\define("TFISH_RANGEFINDER_MAP_TITLE", "ArtemiaBase \u{2014} Global Artemia Occurrence Map");
+\define("TFISH_RANGEFINDER_MAP_TITLE", "Global Artemia Biodiversity and Conservation Mapping System");
 \define("TFISH_RANGEFINDER_MAP_DESCRIPTION", "A curated map of Artemia (brine shrimp) occurrence records worldwide: verified species determinations from the IATS-CSIC cyst bank, plus genus-level presence records aggregated from GBIF.");
 
 // Map furniture.
@@ -51,7 +51,7 @@ namespace Tfish\Rangefinder;
 // each. "Depleted" is material that existed and is used up. Records that are observations only carry
 // no holding and appear under no option but the disabled default.
 \define("TFISH_RANGEFINDER_HOLDING", "Physical holding");
-\define("TFISH_RANGEFINDER_HOLDING_ANY", "\u{2014}\u{2014}\u{2014}"); // Three em dashes: filter disabled.
+\define("TFISH_RANGEFINDER_HOLDING_ANY", "---"); // Three hyphens: filter disabled.
 \define("TFISH_RANGEFINDER_HOLDING_OBTAINABLE", "Any obtainable material");
 \define("TFISH_RANGEFINDER_HOLDING_LIVE_CYSTS", "Cysts");
 \define("TFISH_RANGEFINDER_HOLDING_PRESERVED", "Preserved specimen");
@@ -70,7 +70,7 @@ namespace Tfish\Rangefinder;
 \define("TFISH_RANGEFINDER_LEGEND_SPECIES", "Verified species determination");
 \define("TFISH_RANGEFINDER_LEGEND_PRESENCE", "Unverified report (reported or not identified to species)");
 \define("TFISH_RANGEFINDER_LEGEND_BOTH", "Both at this locality");
-\define("TFISH_RANGEFINDER_LEGEND_NOTE", "Unverified reports say Artemia was found near a place. Some carry a species name (reported to species), others reach only the genus (not identified to species); neither has been checked by an Artemia expert. They are leads for further survey, not determinations of which species is present.");
+\define("TFISH_RANGEFINDER_LEGEND_NOTE", "Verified records are species-level determinations made by a domain expert. Unverified reports are records not identified to species, or from sources of unknown taxonomic authority. They are leads for further survey, not determinations of which species is present.");
 
 // Strings used by the client-side map (passed to JavaScript as a translated bundle).
 // {token} placeholders are substituted in the browser; keep them intact when translating.
