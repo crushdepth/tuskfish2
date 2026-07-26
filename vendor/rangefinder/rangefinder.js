@@ -788,11 +788,22 @@
      * country still moves the map somewhere meaningful. That fallback is the only reason the boxes
      * ship: it is needed at interaction time, when there is nothing on screen to fit to.
      *
-     * @param   {Array} bounds  Coordinates of the plotted markers.
+     * @param   {Array}   bounds   Coordinates of the plotted markers.
+     * @param   {boolean} animate  False to jump straight to the frame. The first frame of a page
+     *                             load is a correction to the placeholder view, not a response to
+     *                             anything the reader did, so animating it reads as the map drifting
+     *                             on its own. Filter changes animate, because there the movement
+     *                             shows which way the selection moved.
      */
-    function frame(bounds) {
+    function frame(bounds, animate) {
+        var options = {
+            padding: [30, 30],
+            maxZoom: rf.maxZoom || 11,
+            animate: animate !== false
+        };
+
         if (bounds.length) {
-            map.fitBounds(bounds, { padding: [30, 30], maxZoom: rf.maxZoom || 11 });
+            map.fitBounds(bounds, options);
             return;
         }
 
@@ -806,7 +817,7 @@
             map.fitBounds([
                 [country.min_lat, country.min_lng],
                 [country.max_lat, country.max_lng]
-            ], { padding: [30, 30], maxZoom: rf.maxZoom || 11 });
+            ], options);
         }
     }
 
@@ -857,6 +868,9 @@
 
         addFullscreenControl(container);
 
+        // Leaflet needs a view before anything can be added to the map. init() immediately reframes
+        // on the plotted extent, so this is a placeholder, not the module's idea of a default view —
+        // it survives on screen only when the selection plots nothing to fit to.
         map.setView([20, 10], 2);
 
         return true;
@@ -1054,11 +1068,12 @@
      * Apply the current state: redraw, reframe if asked, and update the URL.
      *
      * @param   {boolean} reframe  Whether to move the map to fit the new selection.
+     * @param   {boolean} animate  Passed to frame(); false to move without animating.
      */
-    function apply(reframe) {
+    function apply(reframe, animate) {
         var bounds = render();
 
-        if (reframe) frame(bounds);
+        if (reframe) frame(bounds, animate);
 
         writeUrl();
     }
@@ -1229,7 +1244,11 @@
         // syncControls applies whatever readUrl() found in the query string to them.
         syncControls();
         bindControls();
-        apply(state.country !== '' || state.gapsOnly);
+        // Always frame on the plotted extent, never on buildMap()'s placeholder view. Reset frames
+        // the same way, so anything else makes a freshly loaded page and a reset page — identical in
+        // every filter — sit at different viewports. openLinkedLocality() zooms past this when the
+        // URL names a locality.
+        apply(true, false);
         openLinkedLocality();
     }
 

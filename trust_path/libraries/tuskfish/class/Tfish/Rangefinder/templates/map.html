@@ -153,12 +153,12 @@ $speciesPerColumn = 5;
             </div>
 
             <div class="rangefinder-actions">
+                <button type="button" class="rangefinder-btn rangefinder-btn--accent" id="rangefinderReset">
+                    <?php echo xss(TFISH_RANGEFINDER_RESET); ?>
+                </button>
                 <button type="button" class="rangefinder-btn" id="rangefinderGapMap" aria-pressed="false"
                         title="<?php echo xss(TFISH_RANGEFINDER_GAP_MAP_HELP); ?>">
                     <?php echo xss(TFISH_RANGEFINDER_GAP_MAP); ?>
-                </button>
-                <button type="button" class="rangefinder-btn" id="rangefinderReset">
-                    <?php echo xss(TFISH_RANGEFINDER_RESET); ?>
                 </button>
                 <span class="rangefinder-plotted" id="rangefinderPlotted"></span>
             </div>

@@ -236,6 +236,20 @@
     background: #ececea;
 }
 
+/* Reset is the control users need most often when a filter combination empties the map, so it gets
+   a tint of the species blue to stand out from the plain buttons — an accent, not a call to action. */
+.rangefinder-btn--accent {
+    background: #e8f1f8;
+    border-color: var(--rf-species);
+    color: var(--rf-species-edge);
+}
+
+.rangefinder-btn--accent:hover {
+    background: var(--rf-species);
+    border-color: var(--rf-species-edge);
+    color: #fff;
+}
+
 .rangefinder-btn[aria-pressed="true"] {
     background: var(--rf-presence);
     border-color: var(--rf-presence-edge);
