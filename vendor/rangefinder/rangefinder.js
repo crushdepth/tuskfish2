@@ -748,7 +748,11 @@
         map = L.map(container, {
             maxZoom: maxZoom,
             minZoom: 2,
-            worldCopyJump: true
+            worldCopyJump: true,
+            // Leaflet's default (60px per zoom level) means one wheel notch — 100-120px on most
+            // browsers — overshoots to two levels. Raising the divisor above a single notch pins
+            // it to one level per click.
+            wheelPxPerZoomLevel: 140
         });
 
         L.tileLayer(provider.url, {
