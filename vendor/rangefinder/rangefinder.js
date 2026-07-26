@@ -1036,7 +1036,10 @@
             });
         }
 
-        state.locality = parseInt(params.get('locality'), 10) || 0;
+        // Site key, not the numeric locality_id (D-22): ids are assigned by cluster order at
+        // import and renumber on any rebuild that changes the cluster set, so a link built on
+        // one would quietly point at a different site after the next build.
+        state.locality = params.get('locality') || '';
     }
 
     /**

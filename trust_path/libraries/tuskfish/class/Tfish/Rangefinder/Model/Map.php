@@ -122,6 +122,7 @@ class Map
         return $this->select(
             "SELECT occurrence_id,
                     locality_id,
+                    site_key,
                     locality_name,
                     decimal_latitude,
                     decimal_longitude,
@@ -238,7 +239,7 @@ class Map
      * most of what is left. The index maps are documented in vendor/rangefinder/rangefinder.js,
      * which expands them back into objects on load.
      *
-     *   localities[]  = [locality_id, name, latitude, longitude, precision_m]
+     *   localities[]  = [site_key, name, latitude, longitude, precision_m]
      *   occurrences[] = [localityIndex, canonical_taxon, ploidy, layer, country_code, holding_type, taxon_rank]
      *   details[]     = [event_date, recorded_by, sourceIdx, catalog_number, disposition,
      *                    references_url, holder_url]
@@ -283,7 +284,11 @@ class Map
             if (!isset($index[$localityId])) {
                 $index[$localityId] = \count($localities);
                 $localities[] = [
-                    $localityId,
+                    // Stable site identity (D-22). locality_id is assigned by cluster order at
+                    // import and renumbers on any rebuild that changes the cluster set, so it
+                    // groups rows within this payload and nothing more; site_key is what any
+                    // permalink, bookmark or citation must use.
+                    $row['site_key'],
                     $row['locality_name'],
                     (float) $row['decimal_latitude'],
                     (float) $row['decimal_longitude'],
@@ -539,7 +544,7 @@ class Map
     /**
      * Return the distinct localities of the loaded marker payload (one per map marker).
      *
-     * @return  array List of [locality_id, name, latitude, longitude, precision_m] tuples.
+     * @return  array List of [site_key, name, latitude, longitude, precision_m] tuples.
      */
     public function localities(): array
     {
