@@ -140,6 +140,39 @@ trait RangefinderDatabase
     }
 
     /**
+     * Run a read-only SELECT and yield its rows one at a time.
+     *
+     * Same contract as select() — prepared, every parameter bound, never a string-built statement —
+     * but it streams instead of materialising. select() is right for anything that becomes a page:
+     * bounded result, held in memory, rendered once. This is for the CSV export, where the result set
+     * is the whole filtered dataset and buffering it would mean holding every row of a 43-column
+     * export in PHP memory to write it out row by row anyway.
+     *
+     * Yields nothing (and logs) on failure, so an export degrades to an empty file rather than
+     * emitting a driver error into the middle of a download.
+     *
+     * @param   string $sql SELECT statement, with named placeholders for every variable value.
+     * @param   array $params Named parameters as placeholder => value pairs.
+     * @return  \Generator Rows as associative arrays.
+     */
+    private function selectStream(string $sql, array $params = []): \Generator
+    {
+        if (!$this->isConnected()) return;
+
+        try {
+            $statement = $this->occurrenceDb->prepare($sql);
+            $statement->execute($params);
+        } catch (\PDOException $e) {
+            $this->logger->logError((int) $e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
+            return;
+        }
+
+        while (($row = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            yield $row;
+        }
+    }
+
+    /**
      * Run a read-only SELECT and return the first column of the first row.
      *
      * @param   string $sql SELECT statement, with named placeholders for every variable value.

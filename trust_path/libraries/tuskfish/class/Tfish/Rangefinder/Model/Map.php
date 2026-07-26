@@ -51,6 +51,7 @@ class Map
     use \Tfish\Traits\ValidateString;
     use \Tfish\Rangefinder\Traits\RangefinderDatabase;
     use \Tfish\Rangefinder\Traits\RangefinderTaxonomy;
+    use \Tfish\Rangefinder\Traits\RangefinderConfidence;
     use \Tfish\Rangefinder\Traits\RangefinderCountries;
 
     private $database;
@@ -370,37 +371,19 @@ class Map
             $layer = $row['layer'];
             $rank = $row['taxon_rank'];
 
-            // Demote an unrecognised reported name to a genus-level lead so its name does not appear
-            // on the map. Only ever narrows a presence-layer claim; verified determinations are left
-            // exactly as the database has them.
+            // Demotion, then the confidence bucket (D-18) — both from RangefinderConfidence, which
+            // is the single home of that rule. It lives in a trait rather than here because
+            // /explore has to apply the same rule as a WHERE clause (it paginates, so it cannot
+            // filter in PHP after a LIMIT slice), and the one thing that must not happen is two
+            // surfaces deciding a record's confidence differently. See the trait for both forms and
+            // for the arithmetic check that keeps them in step.
             //
-            // The whitelist is checked for EVERY presence-layer record, whatever rank it declares.
-            // Testing rank === 'species' first would let anything filed at genus keep its name, and
-            // the broad-GBIF layer files plenty of non-names there: BOLD BIN codes ('BOLD:AAD2313'),
-            // and pipeline non-assignments ('unclassified.Artemia urmiana', which put an epithet on
-            // screen against a record whose own label says it could not be classified). Rank is the
-            // publisher's claim about their name; the whitelist is our test of it, and the test has
-            // to run on the name itself.
-            if ($layer === 'presence' && !$this->isAcceptedTaxon($canonical)) {
-                $rank = 'genus';
-                $canonical = null;
-            }
-
-            // Confidence bucket (D-18), decided here and nowhere else. This is the load-bearing
-            // rule of the whole interface — it is what keeps an unverified lead from being read as
-            // an expert determination — so it exists in exactly one place and is shipped as a
-            // value. The client does not re-derive it, and neither does buildSummary(): the
-            // headline counts and the map are counting the same field, so they cannot drift apart.
-            //
-            // Derived AFTER the demotion above, so a lead whose species name was not recognised
-            // (rank forced to genus) correctly falls to 'unidentified' rather than 'reported'.
-            if ($layer === 'species') {
-                $category = 'verified';      // An expert determination.
-            } elseif (($rank ?? 'genus') === 'genus') {
-                $category = 'unidentified';  // A lead reaching only the genus, or rank unrecorded.
-            } else {
-                $category = 'reported';      // A species name, but not from an authoritative source.
-            }
+            // Order matters: the bucket is derived from the demoted rank, so a lead whose species
+            // name was not recognised falls to 'unidentified' rather than 'reported'.
+            $effective = $this->effectiveTaxon($layer, $canonical, $rank);
+            $canonical = $effective['canonical_taxon'];
+            $rank = $effective['taxon_rank'];
+            $category = $this->categoryOf($layer, $rank);
 
             $occurrences[] = [
                 $index[$localityId],

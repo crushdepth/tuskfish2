@@ -160,6 +160,20 @@ $speciesPerColumn = 5;
                         title="<?php echo xss(TFISH_RANGEFINDER_GAP_MAP_HELP); ?>">
                     <?php echo xss(TFISH_RANGEFINDER_GAP_MAP); ?>
                 </button>
+                <!-- Handoff to the table. A real link, not a button: its href is kept current by
+                     writeUrl() in rangefinder.js, so it always carries the filters on screen, and it
+                     middle-clicks into a new tab like a link should. With scripting off it still
+                     works, carrying whatever state the page was loaded with.
+                     This is also the map's only export affordance — the map streams no CSV of its own.
+                     Filter here, cross to the table, download there: one export code path, and the
+                     map keeps no server surface. The base URL is passed as data rather than built in
+                     JavaScript, so nothing client-side knows the site's URL structure. -->
+                <a class="rangefinder-btn" id="rangefinderTableLink"
+                   data-base="<?php echo xss(TFISH_URL . 'explore/'); ?>"
+                   href="<?php echo xss(TFISH_URL . 'explore/'); ?>"
+                   title="<?php echo xss(TFISH_RANGEFINDER_VIEW_AS_TABLE_HELP); ?>">
+                    <?php echo xss(TFISH_RANGEFINDER_VIEW_AS_TABLE); ?>
+                </a>
                 <span class="rangefinder-plotted" id="rangefinderPlotted"></span>
             </div>
         </div>
@@ -228,6 +242,7 @@ $speciesPerColumn = 5;
         accessionLabel: <?php echo \json_encode(TFISH_RANGEFINDER_ACCESSION); ?>,
         viewRecord: <?php echo \json_encode(TFISH_RANGEFINDER_VIEW_RECORD); ?>,
         moreRecords: <?php echo \json_encode(TFISH_RANGEFINDER_MORE_RECORDS); ?>,
+        viewAsTable: <?php echo \json_encode(TFISH_RANGEFINDER_VIEW_AS_TABLE); ?>,
         fewerRecords: <?php echo \json_encode(TFISH_RANGEFINDER_FEWER_RECORDS); ?>,
         materialLabels: {
             live_cysts: <?php echo \json_encode(TFISH_RANGEFINDER_HOLDING_LIVE_CYSTS); ?>,

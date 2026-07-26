@@ -566,3 +566,252 @@
         flex-basis: 100%;
     }
 }
+
+/* ------------------------------------------------------------- /explore/ */
+
+/* The tabular surface. Shares the map's filter panel styling above verbatim — same controls, same
+   words, same look — and adds only what a table needs. No JavaScript is involved in any of it: the
+   disclosure is a native <details>, the sort headers are links, and the filter panel is a GET form. */
+
+/* An <a> used as a button (the handoffs) has to be told to look like the <button>s beside it. */
+a.rangefinder-btn {
+    display: inline-block;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Muted explanatory note. Several of these carry load-bearing sentences rather than hints — that a
+   year range excludes undated records, that an empty ploidy means "not recorded", that the map
+   cannot honour a filter the table can — so they are readable body text, not fine print. */
+.rangefinder-help {
+    display: block;
+    margin: 0.4rem 0 0;
+    font-size: 0.76rem;
+    line-height: 1.35;
+    color: var(--rf-muted);
+}
+
+.rangefinder-range {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.rangefinder-range input {
+    width: 5.5rem;
+    padding: 0.3rem;
+    border: 1px solid var(--rf-panel-edge);
+    border-radius: 3px;
+}
+
+.rangefinder-range-label {
+    font-size: 0.78rem;
+    color: var(--rf-muted);
+}
+
+.rangefinder-filter input[type="search"] {
+    width: 100%;
+    padding: 0.3rem;
+    border: 1px solid var(--rf-panel-edge);
+    border-radius: 3px;
+}
+
+.rangefinder-perpage {
+    margin-left: auto;
+    font-size: 0.85rem;
+    color: var(--rf-muted);
+}
+
+/* The D-6 banner: these rows name a place but have no coordinates. Tinted, because the reader has to
+   register that this is a different population from the mapped set before reading the table. */
+.rangefinder-notice {
+    padding: 0.7rem 0.9rem;
+    margin-bottom: 0.75rem;
+    background: #fff8e1;
+    border: 1px solid #e6d9a8;
+    border-radius: 3px;
+    font-size: 0.88rem;
+}
+
+.rangefinder-result-count {
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+}
+
+.rangefinder-filter-summary {
+    color: var(--rf-muted);
+}
+
+/* The table scrolls inside its own box rather than pushing the page sideways: ten columns will not
+   fit a phone, and a horizontally scrolling PAGE loses the filter panel and the pagination. */
+.rangefinder-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--rf-panel-edge);
+    border-radius: 3px;
+}
+
+.rangefinder-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+}
+
+.rangefinder-table th,
+.rangefinder-table td {
+    padding: 0.4rem 0.55rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--rf-panel-edge);
+}
+
+.rangefinder-table thead th {
+    background: var(--rf-panel-bg);
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--rf-muted);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+}
+
+.rangefinder-sort {
+    color: inherit;
+    text-decoration: none;
+}
+
+.rangefinder-sort:hover {
+    text-decoration: underline;
+}
+
+.rangefinder-sort--active {
+    color: var(--rf-species-edge);
+}
+
+.rangefinder-sort-marker {
+    margin-left: 0.2rem;
+    font-size: 0.7rem;
+}
+
+.rangefinder-table tbody tr:hover {
+    background: #fbfbfa;
+}
+
+/* A row's confidence is carried as a class as well as a badge, and the left border is the quiet
+   version of the map's marker colour: a verified determination reads blue, an unverified lead purple.
+   One rule, two surfaces, so a lead can never be styled as a determination by accident. */
+.rangefinder-row--verified {
+    border-left: 3px solid var(--rf-species);
+}
+
+.rangefinder-row--reported,
+.rangefinder-row--unidentified {
+    border-left: 3px solid var(--rf-presence);
+}
+
+.rangefinder-cell-name .rangefinder-taxon {
+    font-style: italic;
+}
+
+.rangefinder-qualifier {
+    font-size: 0.8rem;
+    color: var(--rf-muted);
+}
+
+/* Our normalised name, shown under the published one only where they differ. Deliberately quiet and
+   labelled as a grouping: the published name is the authority, and nothing here may look like a
+   correction of it. */
+.rangefinder-canonical,
+.rangefinder-sub {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--rf-muted);
+}
+
+.rangefinder-badge {
+    display: inline-block;
+    padding: 0.08rem 0.4rem;
+    border-radius: 2px;
+    font-size: 0.74rem;
+    white-space: nowrap;
+    border: 1px solid transparent;
+}
+
+.rangefinder-badge--verified {
+    background: #e8f1f8;
+    border-color: var(--rf-species);
+    color: var(--rf-species-edge);
+}
+
+/* Both lead buckets take the presence colour, as on the map: the load-bearing distinction is
+   verified vs not, and the badge text draws the finer one. */
+.rangefinder-badge--reported,
+.rangefinder-badge--unidentified {
+    background: #f7ecfa;
+    border-color: var(--rf-presence);
+    color: var(--rf-presence-edge);
+}
+
+.rangefinder-badge--material {
+    background: var(--rf-panel-bg);
+    border-color: var(--rf-panel-edge);
+    color: var(--rf-muted);
+}
+
+/* Flags on a cell that would otherwise be silent: a coordinate that this project overrode (D-21), or
+   a record that cannot be mapped at all. Both are facts about the record, not warnings. */
+.rangefinder-flag {
+    display: block;
+    font-size: 0.76rem;
+    color: #8a5a00;
+}
+
+.rangefinder-cell-coords {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.rangefinder-detail summary {
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--rf-species-edge);
+}
+
+.rangefinder-detail-list {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.15rem 0.6rem;
+    margin: 0.4rem 0 0;
+    font-size: 0.8rem;
+    min-width: 22rem;
+}
+
+.rangefinder-detail-list dt {
+    color: var(--rf-muted);
+}
+
+.rangefinder-detail-list dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.rangefinder-pagination {
+    margin-top: 0.75rem;
+}
+
+/* Per-locality handoff at the foot of a map popup. */
+.rangefinder-popup-table {
+    display: inline-block;
+    margin-top: 0.4rem;
+    font-size: 0.82rem;
+}
+
+@media (max-width: 640px) {
+    .rangefinder-table {
+        font-size: 0.8rem;
+    }
+
+    .rangefinder-perpage {
+        margin-left: 0;
+    }
+}

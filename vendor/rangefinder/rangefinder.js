@@ -712,6 +712,23 @@
             wrapper.appendChild(list);
         });
 
+        // Per-locality handoff: this site's records as a table, in full. The popup shows a summary
+        // (and caps the genus-only bucket), so this is where a visitor goes for everything recorded
+        // here, with dates, accessions, sources and licences per row.
+        //
+        // Keyed on site_key, never locality_id (D-22): the id is assigned by cluster enumeration order
+        // and renumbers on any rebuild that changes the cluster set, so a link carrying it would point
+        // at a different place after an import.
+        if (elements.tableLink && locality.siteKey) {
+            var base = elements.tableLink.getAttribute('data-base') || '';
+
+            if (base) {
+                var siteLink = el('a', 'rangefinder-popup-table', text('viewAsTable'));
+                siteLink.setAttribute('href', base + '?locality=' + encodeURIComponent(locality.siteKey));
+                wrapper.appendChild(siteLink);
+            }
+        }
+
         return wrapper;
     }
 
@@ -1062,6 +1079,38 @@
         var query = params.toString();
 
         window.history.replaceState(null, '', window.location.pathname + (query ? '?' + query : ''));
+        writeTableLink(params);
+    }
+
+    /**
+     * Point the "View as table" control at /explore/ with the current filter state.
+     *
+     * The handoff is a plain <a> whose href is kept current, not a button that assembles a URL on
+     * click: a link middle-clicks into a new tab, can be copied, and works with scripting disabled
+     * (it then simply carries whatever state the page loaded with). The two surfaces share one
+     * parameter vocabulary, so the state crosses over by carrying the query string unchanged -- there
+     * is no translation step to keep in sync.
+     *
+     * The base URL comes from the link's own data attribute, written server-side. Nothing here knows
+     * the site's URL structure.
+     *
+     * A selected locality is added even though the map's own URL omits it, because the table is
+     * exactly where a visitor goes to read one site's records in full.
+     *
+     * @param   {URLSearchParams} params  The state already assembled by writeUrl().
+     */
+    function writeTableLink(params) {
+        if (!elements.tableLink) return;
+
+        var base = elements.tableLink.getAttribute('data-base') || '';
+
+        if (!base) return;
+
+        if (state.locality) params.set('locality', state.locality);
+
+        var query = params.toString();
+
+        elements.tableLink.setAttribute('href', base + (query ? '?' + query : ''));
     }
 
     /**
@@ -1228,6 +1277,11 @@
         });
 
         if (missing) return;
+
+        // Optional, and looked up after the required-elements check on purpose: the handoff is an
+        // enhancement to a working map, so a theme or a template that does not carry the link must
+        // lose the link, not the map.
+        elements.tableLink = document.getElementById('rangefinderTableLink');
 
         expandPayload();
         readUrl();

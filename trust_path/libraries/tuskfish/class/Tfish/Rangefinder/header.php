@@ -56,3 +56,13 @@ $routingTable['/map/'] = new \Tfish\Route(
     '\\Tfish\\View\\Single',
     '\\Tfish\\Rangefinder\\Controller\\Map',
     0);
+
+// The tabular search surface. On \Tfish\View\Listing rather than \Tfish\View\Single, because it
+// paginates: Listing feeds the ViewModel's Listable accessors to \Tfish\Pagination and assigns the
+// rendered control to the template, so this route needs no paging code of its own.
+$routingTable['/explore/'] = new \Tfish\Route(
+    '\\Tfish\\Rangefinder\\Model\\Explore',
+    '\\Tfish\\Rangefinder\\ViewModel\\Explore',
+    '\\Tfish\\View\\Listing',
+    '\\Tfish\\Rangefinder\\Controller\\Explore',
+    0);

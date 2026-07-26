@@ -1,0 +1,581 @@
+<?php declare(strict_types=1); ?>
+<?php $asset = TFISH_RANGEFINDER_ASSET_URL; ?>
+<?php $filters = $viewModel->filters(); ?>
+<?php $totals = $viewModel->datasetTotals(); ?>
+<?php $records = $viewModel->records(); ?>
+<?php $count = $viewModel->contentCount(); ?>
+<?php $exploreUrl = TFISH_URL . 'explore/'; ?>
+<?php
+// Sortable column headers. Each is a link that keeps every other filter and toggles direction if the
+// column is already the active sort — built through $viewModel->url(), so the URL vocabulary lives in
+// one place and a header cannot invent a parameter. Returns the <a> for one column.
+$sortLink = static function (string $key, string $label) use ($viewModel, $filters): string {
+    $active = $filters['sort'] === $key;
+    $direction = ($active && $filters['dir'] === 'asc') ? 'desc' : 'asc';
+    $url = $viewModel->url(['sort' => $key, 'dir' => $direction]);
+
+    return '<a href="' . xss($url) . '" class="rangefinder-sort'
+        . ($active ? ' rangefinder-sort--active' : '') . '">' . xss($label)
+        . ($active ? '<span class="rangefinder-sort-marker">' . ($filters['dir'] === 'asc' ? '&#9650;' : '&#9660;') . '</span>' : '')
+        . '</a>';
+};
+
+// A source URL is rendered as a link only if it is http(s). Archive text is third-party, and a
+// javascript: or data: URL in a link is the one place a hostile string in this dataset could act.
+$isSafeUrl = static function (?string $url): bool {
+    if (empty($url)) return false;
+
+    $scheme = \strtolower((string) \parse_url($url, PHP_URL_SCHEME));
+
+    return $scheme === 'http' || $scheme === 'https';
+};
+
+// A value the source did not record renders as an em dash, not as an empty cell: silence should look
+// deliberate, so a reader can tell "not recorded" from a layout fault.
+$orDash = static function ($value): string {
+    return ($value === null || $value === '') ? TFISH_RANGEFINDER_NO_VALUE : (string) $value;
+};
+?>
+
+<link rel="stylesheet" href="<?php echo xss($asset); ?>rangefinder/rangefinder.css">
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1 class="page-title"><?php echo xss($viewModel->pageTitle()); ?></h1>
+        </div>
+    </div>
+
+    <div class="rangefinder-container rangefinder-explore">
+
+        <!-- The D-6 quarantine banner. These rows name a place but carry no coordinates, so they are
+             listed here and nowhere else, and the banner exists so they can never be mistaken for
+             records that simply happen not to be plotted right now. -->
+        <?php if ($viewModel->isQuarantineSet()): ?>
+            <p class="rangefinder-notice">
+                <?php echo xss(\str_replace('{count}', (string) $totals['quarantined'], TFISH_RANGEFINDER_QUARANTINE_NOTICE)); ?>
+            </p>
+        <?php endif; ?>
+
+        <!-- Filter form. A plain GET form: the query string IS the state, so every view is
+             linkable, bookmarkable and back-button-safe, and the whole surface works with
+             JavaScript off. Checkbox groups submit as species[] and are read in either form
+             (see RangefinderFilters::parseFilters). -->
+        <form class="rangefinder-filters" method="get" action="<?php echo xss($exploreUrl); ?>">
+
+            <!-- Sort, page size and record set are carried as hidden fields so applying a filter does
+                 not silently reset them. `start` is deliberately NOT carried: a new filter means a new
+                 result set, and keeping the old offset would land the visitor mid-way through it. -->
+            <input type="hidden" name="sort" value="<?php echo xss($filters['sort']); ?>">
+            <input type="hidden" name="dir" value="<?php echo xss($filters['dir']); ?>">
+            <input type="hidden" name="per" value="<?php echo xss((string) $filters['per']); ?>">
+            <?php if ($filters['unmapped']): ?>
+                <input type="hidden" name="unmapped" value="1">
+            <?php endif; ?>
+            <?php if ($filters['locality'] !== ''): ?>
+                <input type="hidden" name="locality" value="<?php echo xss($filters['locality']); ?>">
+            <?php endif; ?>
+
+            <div class="rangefinder-filter-grid">
+
+                <div class="rangefinder-filter">
+                    <label for="rangefinderSearch"><?php echo xss(TFISH_RANGEFINDER_SEARCH); ?></label>
+                    <input type="search" id="rangefinderSearch" name="q" maxlength="100"
+                           value="<?php echo xss($filters['q']); ?>">
+                    <span class="rangefinder-help"><?php echo xss(TFISH_RANGEFINDER_SEARCH_HELP); ?></span>
+                </div>
+
+                <div class="rangefinder-filter">
+                    <label for="rangefinderCountry"><?php echo xss(TFISH_RANGEFINDER_COUNTRY); ?></label>
+                    <!-- Every country in the set, not only the mappable ones: this table can show a
+                         record the map cannot, so excluding coordinate-less countries here would hide
+                         their records behind a control that never lists them. -->
+                    <select id="rangefinderCountry" name="country">
+                        <option value=""><?php echo xss(TFISH_RANGEFINDER_ALL_COUNTRIES); ?></option>
+                        <?php foreach ($viewModel->countryOptions() as $country): ?>
+                            <option value="<?php echo xss($country['code']); ?>"
+                                <?php echo $filters['country'] === $country['code'] ? ' selected' : ''; ?>>
+                                <?php echo xss($country['name'] . ' (' . $country['n'] . ')'); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="rangefinder-filter">
+                    <label for="rangefinderHolding"><?php echo xss(TFISH_RANGEFINDER_HOLDING); ?></label>
+                    <select id="rangefinderHolding" name="holding">
+                        <?php foreach ($viewModel->holdingOptions() as $value => $label): ?>
+                            <option value="<?php echo xss($value); ?>"
+                                <?php echo $filters['holding'] === $value ? ' selected' : ''; ?>>
+                                <?php echo xss($label); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <span class="rangefinder-help"><?php echo xss(TFISH_RANGEFINDER_HOLDING_HELP); ?></span>
+                </div>
+
+                <div class="rangefinder-filter">
+                    <label for="rangefinderPloidy"><?php echo xss(TFISH_RANGEFINDER_PLOIDY); ?></label>
+                    <!-- Ploidy on its own axis here, not fused into the species key as on the map, so
+                         "every tetraploid record whatever its name" is askable. The count beside each
+                         option is the honest framing: the column is NULL for most records. -->
+                    <select id="rangefinderPloidy" name="ploidy">
+                        <option value=""><?php echo xss(TFISH_RANGEFINDER_PLOIDY_ANY); ?></option>
+                        <?php foreach ($viewModel->ploidyOptions() as $ploidy): ?>
+                            <option value="<?php echo xss($ploidy['value']); ?>"
+                                <?php echo $filters['ploidy'] === $ploidy['value'] ? ' selected' : ''; ?>>
+                                <?php echo xss($ploidy['value'] . ' (' . $ploidy['n'] . ')'); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <span class="rangefinder-help"><?php echo xss(TFISH_RANGEFINDER_PLOIDY_HELP); ?></span>
+                </div>
+
+                <div class="rangefinder-filter">
+                    <label for="rangefinderDataset"><?php echo xss(TFISH_RANGEFINDER_DATASET); ?></label>
+                    <select id="rangefinderDataset" name="dataset">
+                        <option value=""><?php echo xss(TFISH_RANGEFINDER_DATASET_ANY); ?></option>
+                        <?php foreach ($viewModel->datasetOptions() as $dataset): ?>
+                            <option value="<?php echo xss($dataset['key']); ?>"
+                                <?php echo $filters['dataset'] === $dataset['key'] ? ' selected' : ''; ?>>
+                                <?php echo xss($dataset['label'] . ' (' . $dataset['n'] . ')'); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="rangefinder-filter">
+                    <label for="rangefinderBasis"><?php echo xss(TFISH_RANGEFINDER_BASIS); ?></label>
+                    <select id="rangefinderBasis" name="basis">
+                        <option value=""><?php echo xss(TFISH_RANGEFINDER_BASIS_ANY); ?></option>
+                        <?php foreach ($viewModel->basisOptions() as $basis): ?>
+                            <option value="<?php echo xss($basis['value']); ?>"
+                                <?php echo $filters['basis'] === $basis['value'] ? ' selected' : ''; ?>>
+                                <?php echo xss($basis['value'] . ' (' . $basis['n'] . ')'); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <span class="rangefinder-help"><?php echo xss(TFISH_RANGEFINDER_BASIS_HELP); ?></span>
+                </div>
+
+                <div class="rangefinder-filter">
+                    <span class="rangefinder-filter-heading"><?php echo xss(TFISH_RANGEFINDER_YEARS); ?></span>
+                    <div class="rangefinder-range">
+                        <label for="rangefinderFrom" class="rangefinder-range-label"><?php echo xss(TFISH_RANGEFINDER_YEAR_FROM); ?></label>
+                        <input type="number" id="rangefinderFrom" name="from" min="1500" max="2200" step="1"
+                               value="<?php echo xss($filters['from'] === null ? '' : (string) $filters['from']); ?>">
+                        <label for="rangefinderTo" class="rangefinder-range-label"><?php echo xss(TFISH_RANGEFINDER_YEAR_TO); ?></label>
+                        <input type="number" id="rangefinderTo" name="to" min="1500" max="2200" step="1"
+                               value="<?php echo xss($filters['to'] === null ? '' : (string) $filters['to']); ?>">
+                    </div>
+                    <!-- Stated in words because it is invisible in a result count: an undated record
+                         cannot satisfy any range, so a range silently drops all of them. -->
+                    <span class="rangefinder-help">
+                        <?php echo xss(\str_replace(
+                            ['{count}', '{total}'],
+                            [(string) $totals['undated'], (string) $totals['total']],
+                            TFISH_RANGEFINDER_YEARS_HELP
+                        )); ?>
+                    </span>
+                </div>
+
+                <div class="rangefinder-filter">
+                    <span class="rangefinder-filter-heading"><?php echo xss(TFISH_RANGEFINDER_CONFIDENCE); ?></span>
+                    <!-- Opt-out toggles, matching the map's checkboxes and its URL vocabulary
+                         ('verified=0' hides a bucket). The hidden field carries the '0' when the box
+                         is unchecked; when it is checked, the checkbox's later '1' wins. That is what
+                         lets an opt-out control work in a plain form with no JavaScript. -->
+                    <?php foreach ($viewModel->confidenceFacet() as $bucket): ?>
+                        <label class="rangefinder-check">
+                            <input type="hidden" name="<?php echo xss($bucket['bucket']); ?>" value="0">
+                            <input type="checkbox" name="<?php echo xss($bucket['bucket']); ?>" value="1"
+                                <?php echo $bucket['selected'] ? ' checked' : ''; ?>>
+                            <?php echo xss($bucket['label']); ?>
+                            <span class="rangefinder-tally">(<?php echo xss((string) $bucket['n']); ?>)</span>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+
+                <div class="rangefinder-filter">
+                    <span class="rangefinder-filter-heading"><?php echo xss(TFISH_RANGEFINDER_GEO); ?></span>
+                    <select id="rangefinderGeo" name="geo" aria-label="<?php echo xss(TFISH_RANGEFINDER_GEO); ?>">
+                        <?php foreach ($viewModel->geoOptions() as $value => $label): ?>
+                            <option value="<?php echo xss($value); ?>"
+                                <?php echo $filters['geo'] === $value ? ' selected' : ''; ?>>
+                                <?php echo xss($label); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <label class="rangefinder-check">
+                        <input type="checkbox" name="seq" value="1"<?php echo $filters['seq'] ? ' checked' : ''; ?>>
+                        <?php echo xss(TFISH_RANGEFINDER_SEQUENCES_ONLY); ?>
+                    </label>
+                    <label class="rangefinder-check">
+                        <input type="checkbox" name="gaps" value="1"<?php echo $filters['gaps'] ? ' checked' : ''; ?>>
+                        <?php echo xss(TFISH_RANGEFINDER_GAP_MAP); ?>
+                    </label>
+                </div>
+
+            </div>
+
+            <!-- Species / lineage on its own full-width row, as on the map. Every taxon that makes a
+                 species claim — verified determinations and accepted reported names alike — keyed on
+                 canonical_taxon so citation variants collapse to one choice. A name that is not a
+                 recognised taxon is not offered here, exactly as it is suppressed in the table. -->
+            <div class="rangefinder-filter rangefinder-species-filter">
+                <span class="rangefinder-filter-heading"><?php echo xss(TFISH_RANGEFINDER_SPECIES_FILTER); ?></span>
+                <div class="rangefinder-species-list">
+                    <?php foreach (\array_chunk($viewModel->speciesFacet(), 5) as $column): ?>
+                        <div class="rangefinder-species-col">
+                            <?php foreach ($column as $taxon): ?>
+                                <label class="rangefinder-check">
+                                    <input type="checkbox" name="species[]" value="<?php echo xss($taxon['key']); ?>"
+                                        <?php echo $viewModel->isSelectedSpecies($taxon['key']) ? ' checked' : ''; ?>>
+                                    <span class="rangefinder-taxon"><?php echo xss($taxon['display_name']); ?></span>
+                                    <?php if ($taxon['ploidy'] !== ''): ?>
+                                        <span class="rangefinder-tally"><?php echo xss($taxon['ploidy']); ?></span>
+                                    <?php endif; ?>
+                                    <span class="rangefinder-tally">(<?php echo xss((string) $taxon['n']); ?>)</span>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <div class="rangefinder-actions">
+                <button type="submit" class="rangefinder-btn rangefinder-btn--accent">
+                    <?php echo xss(TFISH_RANGEFINDER_FILTER_APPLY); ?>
+                </button>
+                <?php if ($viewModel->isFiltered()): ?>
+                    <a class="rangefinder-btn" href="<?php echo xss($exploreUrl); ?>">
+                        <?php echo xss(TFISH_RANGEFINDER_FILTER_CLEAR); ?>
+                    </a>
+                <?php endif; ?>
+                <!-- The reciprocal of the map's "View as table": a refinement made here goes back to
+                     the map, carrying the filters the map can express and SAYING which it cannot. A
+                     link that silently widened the set would read as a fault in the data. -->
+                <a class="rangefinder-btn" href="<?php echo xss($viewModel->mapUrl()); ?>"
+                   title="<?php echo xss(TFISH_RANGEFINDER_SHOW_ON_MAP_HELP); ?>">
+                    <?php echo xss(TFISH_RANGEFINDER_SHOW_ON_MAP); ?>
+                </a>
+                <!-- Export (D-7). The only download in the module, and it takes the filter state from
+                     the URL exactly as this page did, so "download" means "this view, as a file". -->
+                <a class="rangefinder-btn" href="<?php echo xss($viewModel->exportUrl()); ?>"
+                   title="<?php echo xss(TFISH_RANGEFINDER_EXPORT_HELP); ?>">
+                    <?php echo xss(TFISH_RANGEFINDER_EXPORT); ?>
+                </a>
+                <a class="rangefinder-btn" href="<?php echo xss($viewModel->switchSetUrl()); ?>">
+                    <?php echo xss($viewModel->isQuarantineSet()
+                        ? TFISH_RANGEFINDER_CURATED_SHOW
+                        : TFISH_RANGEFINDER_QUARANTINE_SHOW); ?>
+                </a>
+                <label class="rangefinder-perpage">
+                    <?php echo xss(TFISH_RANGEFINDER_PER_PAGE); ?>
+                    <select name="per" onchange="this.form.submit()">
+                        <?php foreach ($viewModel->pageSizes() as $size): ?>
+                            <option value="<?php echo xss((string) $size); ?>"
+                                <?php echo $filters['per'] === $size ? ' selected' : ''; ?>>
+                                <?php echo xss((string) $size); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </label>
+            </div>
+
+            <?php $dropped = $viewModel->mapDropped(); ?>
+            <?php if (!empty($dropped)): ?>
+                <p class="rangefinder-help">
+                    <?php echo xss(\str_replace('{filters}', \implode(', ', $dropped), TFISH_RANGEFINDER_SHOW_ON_MAP_DROPPED)); ?>
+                </p>
+            <?php endif; ?>
+        </form>
+
+        <!-- Result count and the active filterset in words, so a visitor (or a colleague following a
+             shared link) can see what the table is a view of without decoding the URL. -->
+        <p class="rangefinder-result-count">
+            <?php echo xss($count === 1
+                ? TFISH_RANGEFINDER_RESULT_ONE
+                : \str_replace('{count}', \number_format($count), TFISH_RANGEFINDER_RESULT_COUNT)); ?>
+            <?php $summary = $viewModel->filterSummary(); ?>
+            <?php if (!empty($summary)): ?>
+                <span class="rangefinder-filter-summary">
+                    <?php echo xss(TFISH_RANGEFINDER_FILTER_ACTIVE); ?>:
+                    <?php $parts = []; foreach ($summary as $item) { $parts[] = $item['label'] . ' = ' . $item['value']; } ?>
+                    <?php echo xss(\implode('; ', $parts)); ?>
+                </span>
+            <?php endif; ?>
+        </p>
+
+        <?php if (empty($records)): ?>
+            <p class="rangefinder-empty">
+                <?php echo xss(TFISH_RANGEFINDER_RESULT_NONE); ?>
+                <?php if ($viewModel->isFiltered()): ?>
+                    <span class="rangefinder-help"><?php echo xss(TFISH_RANGEFINDER_RESULT_NONE_HELP); ?></span>
+                <?php endif; ?>
+            </p>
+        <?php else: ?>
+
+        <div class="rangefinder-table-wrap">
+            <table class="rangefinder-table">
+                <thead>
+                    <tr>
+                        <th scope="col"><?php echo $sortLink('name', TFISH_RANGEFINDER_COL_NAME); ?></th>
+                        <th scope="col"><?php echo $sortLink('confidence', TFISH_RANGEFINDER_COL_CONFIDENCE); ?></th>
+                        <th scope="col"><?php echo xss(TFISH_RANGEFINDER_COL_PLOIDY); ?></th>
+                        <th scope="col"><?php echo $sortLink('locality', TFISH_RANGEFINDER_COL_LOCALITY); ?></th>
+                        <th scope="col"><?php echo $sortLink('country', TFISH_RANGEFINDER_COL_COUNTRY); ?></th>
+                        <th scope="col"><?php echo xss(TFISH_RANGEFINDER_COL_COORDINATES); ?></th>
+                        <th scope="col"><?php echo $sortLink('date', TFISH_RANGEFINDER_COL_DATE); ?></th>
+                        <th scope="col"><?php echo xss(TFISH_RANGEFINDER_COL_MATERIAL); ?></th>
+                        <th scope="col"><?php echo $sortLink('dataset', TFISH_RANGEFINDER_COL_SOURCE); ?></th>
+                        <th scope="col"><?php echo xss(TFISH_RANGEFINDER_COL_DETAIL); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($records as $record): ?>
+                    <!-- The row carries its confidence as a class as well as a badge, so a lead can
+                         never be styled as a determination by accident: one rule, one place. -->
+                    <tr class="rangefinder-row rangefinder-row--<?php echo xss($record['confidence']); ?>">
+
+                        <td class="rangefinder-cell-name">
+                            <!-- As published: the authority. Printed verbatim and always, in italics
+                                 as a scientific name, and never replaced by our normalised form. -->
+                            <em class="rangefinder-taxon"><?php echo xss($orDash($record['verbatim_scientific_name'])); ?></em>
+                            <?php if (!empty($record['identification_qualifier'])): ?>
+                                <span class="rangefinder-qualifier"><?php echo xss($record['identification_qualifier']); ?></span>
+                            <?php endif; ?>
+                            <!-- Our grouping key, shown only where it differs from the published name,
+                                 and labelled as a grouping rather than as a determination. Absent
+                                 entirely for a lead whose name is not a recognised taxon: that name is
+                                 suppressed here exactly as it is on the map. -->
+                            <?php if (!empty($record['display_taxon'])
+                                && \strcasecmp((string) $record['display_taxon'], (string) $record['verbatim_scientific_name']) !== 0): ?>
+                                <span class="rangefinder-canonical">
+                                    <?php echo xss(\str_replace('{name}', (string) $record['display_taxon'], TFISH_RANGEFINDER_CANONICAL_AS)); ?>
+                                </span>
+                            <?php endif; ?>
+                        </td>
+
+                        <td>
+                            <span class="rangefinder-badge rangefinder-badge--<?php echo xss($record['confidence']); ?>">
+                                <?php echo xss($record['confidence_label']); ?>
+                            </span>
+                        </td>
+
+                        <td><?php echo xss($record['ploidy'] ?? TFISH_RANGEFINDER_PLOIDY_NOT_RECORDED); ?></td>
+
+                        <td>
+                            <?php if (!empty($record['site_key'])): ?>
+                                <!-- Linked on site_key, never locality_id (D-22): the id is assigned
+                                     by cluster order and renumbers on every rebuild that changes the
+                                     cluster set, so a link carrying it would point somewhere else
+                                     after an import. -->
+                                <a href="<?php echo xss($viewModel->localityUrl((string) $record['site_key'])); ?>"
+                                   title="<?php echo xss(TFISH_RANGEFINDER_LOCALITY_ON_MAP); ?>">
+                                    <?php echo xss($record['locality_name'] ?? $record['site_key']); ?>
+                                </a>
+                            <?php else: ?>
+                                <?php echo xss($orDash($record['locality_name'] ?? $record['locality_text'])); ?>
+                            <?php endif; ?>
+                            <?php if (!empty($record['locality_text'])
+                                && $record['locality_text'] !== ($record['locality_name'] ?? null)): ?>
+                                <span class="rangefinder-sub"><?php echo xss($record['locality_text']); ?></span>
+                            <?php endif; ?>
+                        </td>
+
+                        <td><?php echo xss($orDash($record['country'])); ?></td>
+
+                        <td class="rangefinder-cell-coords">
+                            <?php if ($record['is_mapped']): ?>
+                                <?php echo xss(\number_format((float) $record['latitude'], 4) . ', '
+                                    . \number_format((float) $record['longitude'], 4)); ?>
+                                <?php if ($record['accuracy_m'] !== null): ?>
+                                    <!-- The source's own declared accuracy, or (IATS) the resolution of
+                                         the verbatim DMS. A record that declares nothing shows nothing:
+                                         a default figure would invent a certainty the data lacks. -->
+                                    <span class="rangefinder-sub">
+                                        <?php echo xss(\str_replace('{radius}', (string) $record['accuracy_m'], TFISH_RANGEFINDER_ACCURACY_M)); ?>
+                                    </span>
+                                <?php endif; ?>
+                                <?php if (!empty($record['coordinate_status']) && $record['coordinate_status'] !== 'as_given'): ?>
+                                    <span class="rangefinder-flag">
+                                        <?php echo xss($record['coordinate_status'] === 'corrected'
+                                            ? TFISH_RANGEFINDER_COORD_CORRECTED
+                                            : TFISH_RANGEFINDER_COORD_SUPPRESSED); ?>
+                                    </span>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <span class="rangefinder-flag"><?php echo xss(TFISH_RANGEFINDER_NOT_MAPPED); ?></span>
+                            <?php endif; ?>
+                        </td>
+
+                        <!-- The date as the source gave it, never padded to a full date it does not
+                             claim; "undated" where there is none. -->
+                        <td><?php echo xss($record['event_date'] ?? ($record['year'] !== null
+                            ? (string) $record['year']
+                            : TFISH_RANGEFINDER_UNDATED)); ?></td>
+
+                        <td>
+                            <!-- Material, framed as material and never as availability: an accession
+                                 number is a source-record identifier, not a claim that anything is
+                                 held or obtainable (D-20). -->
+                            <?php if (!empty($record['holding_type'])): ?>
+                                <span class="rangefinder-badge rangefinder-badge--material">
+                                    <?php echo xss($viewModel->holdingOptions()[$record['holding_type']] ?? $record['holding_type']); ?>
+                                </span>
+                            <?php else: ?>
+                                <?php echo xss(TFISH_RANGEFINDER_NO_VALUE); ?>
+                            <?php endif; ?>
+                            <?php if (!empty($record['disposition'])): ?>
+                                <span class="rangefinder-sub"><?php echo xss($record['disposition']); ?></span>
+                            <?php endif; ?>
+                        </td>
+
+                        <td>
+                            <?php echo xss($orDash($record['source_dataset'] ?? $record['dataset_key'])); ?>
+                            <?php if (!empty($record['license'])): ?>
+                                <span class="rangefinder-sub"><?php echo xss($record['license']); ?></span>
+                            <?php endif; ?>
+                        </td>
+
+                        <td>
+                            <!-- Everything the row does not have space for, in a native <details>
+                                 disclosure: no JavaScript, and the whole curated record is reachable
+                                 without a download. -->
+                            <details class="rangefinder-detail">
+                                <summary><?php echo xss(TFISH_RANGEFINDER_SHOW_DETAIL); ?></summary>
+                                <dl class="rangefinder-detail-list">
+                                    <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_VERBATIM); ?></dt>
+                                    <dd><em><?php echo xss($orDash($record['verbatim_scientific_name'])); ?></em></dd>
+
+                                    <?php if (!empty($record['display_taxon'])): ?>
+                                        <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_CANONICAL); ?></dt>
+                                        <dd><em><?php echo xss($record['display_taxon']); ?></em></dd>
+                                    <?php endif; ?>
+
+                                    <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_RANK); ?></dt>
+                                    <dd><?php echo xss($orDash($record['taxon_rank'])); ?></dd>
+
+                                    <?php if (!empty($record['identification_qualifier'])): ?>
+                                        <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_QUALIFIER); ?></dt>
+                                        <dd><?php echo xss($record['identification_qualifier']); ?></dd>
+                                    <?php endif; ?>
+
+                                    <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_DETERMINATION); ?></dt>
+                                    <dd><?php echo xss($orDash($record['determination_confidence'])); ?></dd>
+
+                                    <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_BASIS); ?></dt>
+                                    <dd><?php echo xss($orDash($record['basis_of_record'])); ?></dd>
+
+                                    <?php if (!empty($record['institution_code'])): ?>
+                                        <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_INSTITUTION); ?></dt>
+                                        <dd><?php echo xss($record['institution_code']); ?></dd>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($record['collection_code'])): ?>
+                                        <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_COLLECTION); ?></dt>
+                                        <dd><?php echo xss($record['collection_code']); ?></dd>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($record['catalog_number'])): ?>
+                                        <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_ACCESSION); ?></dt>
+                                        <dd><?php echo xss($record['catalog_number']); ?></dd>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($record['preparations'])): ?>
+                                        <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_PREPARATIONS); ?></dt>
+                                        <dd><?php echo xss($record['preparations']); ?></dd>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($record['disposition'])): ?>
+                                        <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_DISPOSITION); ?></dt>
+                                        <dd><?php echo xss($record['disposition']); ?></dd>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($record['individual_count'])): ?>
+                                        <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_COUNT); ?></dt>
+                                        <dd><?php echo xss((string) $record['individual_count']); ?></dd>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($record['associated_sequences'])): ?>
+                                        <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_SEQUENCES); ?></dt>
+                                        <dd><?php echo xss($record['associated_sequences']); ?></dd>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($record['recorded_by'])): ?>
+                                        <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_RECORDER); ?></dt>
+                                        <dd><?php echo xss($record['recorded_by']); ?></dd>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($record['occurrence_remarks'])): ?>
+                                        <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_REMARKS); ?></dt>
+                                        <dd><?php echo xss($record['occurrence_remarks']); ?></dd>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($record['verbatim_locality'])): ?>
+                                        <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_PLACE_TEXT); ?></dt>
+                                        <dd><?php echo xss($record['verbatim_locality']); ?></dd>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($record['water_body'])): ?>
+                                        <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_WATER_BODY); ?></dt>
+                                        <dd><?php echo xss($record['water_body']); ?></dd>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($record['georeference_status'])): ?>
+                                        <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_GEOREF_STATUS); ?></dt>
+                                        <dd><?php echo xss($record['georeference_status']); ?></dd>
+                                    <?php endif; ?>
+
+                                    <!-- Attribution, per row. The dataset is the citable unit, and the
+                                         licence is per record: one dataset can carry several, because
+                                         iNaturalist observers licence their own observations. -->
+                                    <?php if (!empty($record['source_citation'])): ?>
+                                        <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_CITATION); ?></dt>
+                                        <dd><?php echo xss($record['source_citation']); ?></dd>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($record['source_doi'])): ?>
+                                        <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_DOI); ?></dt>
+                                        <dd>
+                                            <?php if ($isSafeUrl($record['source_doi'])): ?>
+                                                <a href="<?php echo xss($record['source_doi']); ?>" rel="noopener noreferrer">
+                                                    <?php echo xss($record['source_doi']); ?>
+                                                </a>
+                                            <?php else: ?>
+                                                <?php echo xss($record['source_doi']); ?>
+                                            <?php endif; ?>
+                                        </dd>
+                                    <?php endif; ?>
+
+                                    <dt><?php echo xss(TFISH_RANGEFINDER_DETAIL_LICENSE); ?></dt>
+                                    <dd><?php echo xss($orDash($record['license'])); ?></dd>
+
+                                    <?php if ($isSafeUrl($record['references_url'])): ?>
+                                        <dt><?php echo xss(TFISH_RANGEFINDER_VIEW_RECORD); ?></dt>
+                                        <dd>
+                                            <a href="<?php echo xss($record['references_url']); ?>" rel="noopener noreferrer">
+                                                <?php echo xss($record['references_url']); ?>
+                                            </a>
+                                        </dd>
+                                    <?php endif; ?>
+                                </dl>
+                            </details>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <?php endif; ?>
+
+        <!-- Core pagination, assigned by \Tfish\View\Listing. It carries the filter state through
+             extraParams(), so a page link keeps the filterset. -->
+        <?php if (!empty($pagination)): ?>
+            <div class="rangefinder-pagination"><?php echo $pagination; ?></div>
+        <?php endif; ?>
+
+    </div>
+</div>
