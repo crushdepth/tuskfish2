@@ -1,6 +1,13 @@
 <?php declare(strict_types=1); ?>
 <?php $summary = $viewModel->summary(); ?>
 <?php $asset = TFISH_RANGEFINDER_ASSET_URL; ?>
+<?php
+// Species checkboxes are laid out as side-by-side columns rather than one tall scroll column, which
+// dominated the panel height. Columns are filled in order up to this many entries each, so the
+// leading columns are full and the last carries the remainder (13 rows -> 5 / 5 / 3). Rows read
+// top-to-bottom, left-to-right, so a lineage's ploidy variants are not forced into one column.
+$speciesPerColumn = 5;
+?>
 
 <!-- Client assets. In the body rather than the head because trust_path/ is outside the web root,
      so the module's own CSS/JS cannot ship beside its PHP, and putting them in a theme would mean
@@ -57,8 +64,10 @@
         </ul>
 
         <!-- Filters. All four compose with AND and run client-side against the payload below, so
-             changing one costs no request. The species list is populated by rangefinder.js from the
-             facet; the rest are static and translated here. -->
+             changing one costs no request. Every control is rendered here, in full: the species and
+             country lists are derived from the loaded marker set and do not change after the page is
+             built, so they are markup, not something JavaScript assembles from a shipped facet. The
+             client reads which boxes are checked and nothing more. -->
         <div class="rangefinder-filters">
             <div class="rangefinder-filter-grid">
 
@@ -80,8 +89,16 @@
 
                 <div class="rangefinder-filter">
                     <label for="rangefinderCountry"><?php echo xss(TFISH_RANGEFINDER_COUNTRY); ?></label>
+                    <!-- Mapped countries only, so a visitor cannot pick one and be shown an empty
+                         map. The name is the one the source recorded where there is one, and the
+                         ISO-3166 fallback only where there is not. -->
                     <select id="rangefinderCountry">
                         <option value=""><?php echo xss(TFISH_RANGEFINDER_ALL_COUNTRIES); ?></option>
+                        <?php foreach ($viewModel->countryOptions() as $country): ?>
+                            <option value="<?php echo xss($country['code']); ?>">
+                                <?php echo xss($country['name'] . ' (' . $country['n_mapped'] . ')'); ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
 
@@ -104,7 +121,35 @@
                  instead. -->
             <div class="rangefinder-filter rangefinder-species-filter">
                 <span class="rangefinder-filter-heading"><?php echo xss(TFISH_RANGEFINDER_SPECIES_FILTER); ?></span>
-                <div class="rangefinder-species-list" id="rangefinderSpecies"></div>
+                <!-- Every taxon that makes a species claim on the map — verified determinations and
+                     accepted reported names alike — keyed on canonical_taxon, so citation variants of
+                     a name collapse to one choice. Selecting one filters both its verified and its
+                     reported records (a reported match stays a lead in colour and popup; see matches()
+                     in rangefinder.js). Genus-only leads name no species and are not offered.
+                     The checkbox value is the taxon key (canonical + ploidy), so the visible label is
+                     free to be abbreviated without affecting selection or filtering. -->
+                <div class="rangefinder-species-list" id="rangefinderSpecies">
+                    <?php foreach (\array_chunk($viewModel->speciesFacet(), $speciesPerColumn) as $column): ?>
+                        <div class="rangefinder-species-col">
+                            <?php foreach ($column as $taxon): ?>
+                                <label class="rangefinder-check">
+                                    <input type="checkbox" value="<?php echo xss($taxon['key']); ?>">
+                                    <span class="rangefinder-taxon"><?php echo xss($taxon['display_name']); ?></span>
+                                    <?php if (!empty($taxon['ploidy'])): ?>
+                                        <span class="rangefinder-tally"><?php echo xss($taxon['ploidy']); ?></span>
+                                    <?php endif; ?>
+                                    <span class="rangefinder-tally">
+                                        <?php echo xss(\str_replace(
+                                            '{mapped}',
+                                            (string) $taxon['n_mapped'],
+                                            TFISH_RANGEFINDER_MAPPED_TALLY
+                                        )); ?>
+                                    </span>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
 
             <div class="rangefinder-actions">
@@ -137,7 +182,18 @@
                 <span class="rangefinder-swatch rangefinder-swatch-both"></span>
                 <?php echo xss(TFISH_RANGEFINDER_LEGEND_BOTH); ?>
             </span>
-            <span class="rangefinder-legend-note"><?php echo xss(TFISH_RANGEFINDER_LEGEND_NOTE); ?></span>
+            <!-- Both notes in one wrapper: they are a single block of prose, and the wrapper is the
+                 flex item that gives the block its own full-width line under the swatches. -->
+            <div class="rangefinder-legend-notes">
+                <p class="rangefinder-legend-note">
+                    <strong><?php echo xss(TFISH_RANGEFINDER_LEGEND_NOTE_VERIFIED_TERM); ?></strong>
+                    <?php echo xss(TFISH_RANGEFINDER_LEGEND_NOTE_VERIFIED); ?>
+                </p>
+                <p class="rangefinder-legend-note">
+                    <strong><?php echo xss(TFISH_RANGEFINDER_LEGEND_NOTE_UNVERIFIED_TERM); ?></strong>
+                    <?php echo xss(TFISH_RANGEFINDER_LEGEND_NOTE_UNVERIFIED); ?>
+                </p>
+            </div>
         </div>
 
         <?php if (empty($summary['records'])): ?>
@@ -147,14 +203,16 @@
     </div>
 </div>
 
-<!-- Payload for the client-side map and filters. Markers carry only what is needed to plot and
-     filter; full occurrence detail is fetched on demand from a bounded query endpoint. All of it is
-     JSON_HEX_* escaped server-side, so none of it can break out of this script block. -->
+<!-- Payload for the client-side map. Only what is read at interaction time ships: the markers to
+     plot and filter, with their record-level detail inline (D-20), and the per-country bounding
+     boxes used to reframe a selection that plots nothing. The facets behind the filter controls are
+     not here — they are rendered as markup above, because they never change after this page is
+     built. All of it is JSON_HEX_* escaped server-side, so none of it can break out of this script
+     block. -->
 <script>
     window.rangefinder = window.rangefinder || {};
     window.rangefinder.markers = <?php echo $viewModel->markersJson(); ?>;
-    window.rangefinder.speciesFacet = <?php echo $viewModel->speciesFacetJson(); ?>;
-    window.rangefinder.countryFacet = <?php echo $viewModel->countryFacetJson(); ?>;
+    window.rangefinder.countryBounds = <?php echo $viewModel->countryBoundsJson(); ?>;
     window.rangefinder.tileProvider = <?php echo $viewModel->tileProviderJson(); ?>;
     window.rangefinder.maxZoom = <?php echo (int) $viewModel->maxZoom(); ?>;
     window.rangefinder.strings = {
@@ -177,9 +235,11 @@
             tissue_or_dna: <?php echo \json_encode(TFISH_RANGEFINDER_HOLDING_TISSUE); ?>,
             exhausted: <?php echo \json_encode(TFISH_RANGEFINDER_HOLDING_EXHAUSTED); ?>
         },
-        mappedTally: <?php echo \json_encode(TFISH_RANGEFINDER_MAPPED_TALLY); ?>,
         showing: <?php echo \json_encode(TFISH_RANGEFINDER_SHOWING); ?>,
-        coordsWithPrecision: <?php echo \json_encode(TFISH_RANGEFINDER_COORDS_PRECISION); ?>,
+        accuracyM: <?php echo \json_encode(TFISH_RANGEFINDER_ACCURACY_M); ?>,
+        accuracyKm: <?php echo \json_encode(TFISH_RANGEFINDER_ACCURACY_KM); ?>,
+        accuracyShow: <?php echo \json_encode(TFISH_RANGEFINDER_ACCURACY_SHOW); ?>,
+        accuracyHide: <?php echo \json_encode(TFISH_RANGEFINDER_ACCURACY_HIDE); ?>,
         dataAttribution: <?php echo \json_encode(TFISH_RANGEFINDER_DATA_ATTRIBUTION); ?>,
         noTileProvider: <?php echo \json_encode(TFISH_RANGEFINDER_NO_TILE_PROVIDER); ?>,
         fullscreen: <?php echo \json_encode(TFISH_RANGEFINDER_FULLSCREEN); ?>,
@@ -188,5 +248,4 @@
 </script>
 <script src="<?php echo xss($asset); ?>leaflet/leaflet.js"></script>
 <script src="<?php echo xss($asset); ?>leaflet.markercluster/leaflet.markercluster.js"></script>
-<script src="<?php echo xss($asset); ?>rangefinder/iso3166.js"></script>
 <script src="<?php echo xss($asset); ?>rangefinder/rangefinder.js"></script>

@@ -110,17 +110,31 @@ class Map implements \Tfish\Interface\Viewable
      * This whole payload ships once with the page rather than being fetched per viewport, because
      * clustering is computed in the browser and a cluster count is only truthful if every marker is
      * in the group. Load markers by viewport and a world-zoom bubble over Iran reads "12" when the
-     * answer is 340 — wrong, and wrong silently. At 577 localities it is ~18 KB on the wire, which
-     * also makes every filter interaction round-trip-free.
+     * answer is 340 — wrong, and wrong silently. It also makes every filter interaction
+     * round-trip-free.
+     *
+     * Size, measured 2026-07-26 for 548 localities / 2,127 records: 415 KB of JSON — details[] 44%,
+     * occurrences[] 40%, localities[] 8%, sources[] 7% — in a 469 KB page that gzips to 59 KB on the
+     * wire. The ~100 KB threshold D-12 set for revisiting the shape is a transfer figure, and 59 KB
+     * clears it; the 415 KB is what the browser holds in memory, which is not the same cost. Shape
+     * settled: keep it embedded. Splitting could only move details[] + sources[] (~30 KB gzipped)
+     * behind a fetch, since localities[] + occurrences[] must be in memory for cluster counts to be
+     * truthful — so it would buy half the payload at the price of a round trip per popup and a
+     * detail endpoint to maintain. Revisit if the dataset grows several-fold (10,000+ records) or a
+     * large new source lands, not on the raw byte count alone.
      *
      * Escaped with the JSON_HEX_* flags so it is safe to embed directly in a <script> block.
      *
      * details[] and sources[] add the record-level card layer (D-20): details[] is aligned
      * index-identically to occurrences[] and carries the per-record card fields (date, recorder,
-     * accession, …); sources[] is the deduped attribution lookup its sourceIdx points into. Both
-     * ship inline so the popup drill-down renders with no server round-trip and no detail endpoint.
+     * accession, accuracy radius, …); sources[] is the deduped attribution lookup its sourceIdx
+     * points into. Both ship inline so the popup drill-down renders with no server round-trip and
+     * no detail endpoint.
      *
-     * @return  string JSON object of {localities, occurrences, details, sources}.
+     * taxa{} maps each canonical name to its display form, so the client renders a scientific name
+     * by looking it up rather than by knowing how one is written.
+     *
+     * @return  string JSON object of {localities, occurrences, details, sources, taxa}.
      */
     public function markersJson(): string
     {
@@ -129,6 +143,7 @@ class Map implements \Tfish\Interface\Viewable
             'occurrences' => $this->model->occurrences(),
             'details' => $this->model->details(),
             'sources' => $this->model->sources(),
+            'taxa' => $this->model->taxa(),
         ]);
     }
 
@@ -157,23 +172,43 @@ class Map implements \Tfish\Interface\Viewable
     }
 
     /**
-     * Species / lineage facet as JSON, for the species filter.
+     * Species / lineage facet rows, for the server-rendered species filter.
      *
-     * @return  string JSON array of facet rows.
+     * Not JSON and not shipped to the browser: the facet is fixed once the page is built, so the
+     * checkbox list is rendered in templates/map.html and the client only ever reads which boxes
+     * are checked.
+     *
+     * @return  array List of ['canonical_taxon', 'ploidy', 'key', 'display_name', 'n_mapped'] rows.
      */
-    public function speciesFacetJson(): string
+    public function speciesFacet(): array
     {
-        return $this->encode($this->model->speciesFacet());
+        return $this->model->speciesFacet();
     }
 
     /**
-     * Country facet (with bounding boxes) as JSON, for the country filter.
+     * Country filter options, for the server-rendered country select.
      *
-     * @return  string JSON array of facet rows.
+     * Mapped countries only, names resolved and ordered. Same reasoning as speciesFacet(): static
+     * at render time, so it is markup rather than a payload.
+     *
+     * @return  array List of ['code', 'name', 'sort', 'n_mapped'] rows.
      */
-    public function countryFacetJson(): string
+    public function countryOptions(): array
     {
-        return $this->encode($this->model->countryFacet());
+        return $this->model->countryOptions();
+    }
+
+    /**
+     * Per-country bounding boxes as JSON.
+     *
+     * The one part of the country facet that must reach the browser: it is read at interaction
+     * time, to reframe the map on a country whose current filter combination plots no markers.
+     *
+     * @return  string JSON array of ['code', 'min_lat', 'max_lat', 'min_lng', 'max_lng'] rows.
+     */
+    public function countryBoundsJson(): string
+    {
+        return $this->encode($this->model->countryBounds());
     }
 
     /**

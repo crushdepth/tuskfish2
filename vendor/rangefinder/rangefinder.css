@@ -294,9 +294,23 @@
     border: 2px solid var(--rf-both-edge);
 }
 
+/* The notes are one block of prose, so they are wrapped as a single full-width flex item rather
+   than sitting in the swatch row as two. Without the wrapper each paragraph is its own flex item and
+   picks up the container's row gap between them, which spaces two sentences of one paragraph pair
+   like two separate legend entries; spacing inside the block is then set here, independently of
+   whatever gap the legend uses. */
+.rangefinder-legend-notes {
+    flex: 0 0 100%;
+}
+
 .rangefinder-legend-note {
+    margin: 0;
     color: var(--rf-muted);
     font-size: 0.84rem;
+}
+
+.rangefinder-legend-note + .rangefinder-legend-note {
+    margin-top: 0.4rem;
 }
 
 /* ---------------------------------------------------------------- clusters */
@@ -419,6 +433,36 @@
 .rangefinder-record-accession,
 .rangefinder-record-link {
     white-space: nowrap;
+}
+
+/* Coordinate accuracy: a small toggle that draws this record's accuracy circle on the map. Styled
+   as quiet muted text with a dotted underline rather than as a badge — it is a caveat about the
+   record, not a property of the material, and it must not compete with the holding badge beside it.
+   The pressed state takes the faint blue of the circle itself, so the control and the ring it drew
+   read as the same object. */
+.rangefinder-record-accuracy {
+    font: inherit;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    padding: 0;
+    background: none;
+    border: none;
+    border-bottom: 1px dotted var(--rf-muted);
+    color: var(--rf-muted);
+    cursor: pointer;
+}
+
+.rangefinder-record-accuracy:hover,
+.rangefinder-record-accuracy:focus-visible {
+    color: var(--rf-species-edge);
+    border-bottom-color: var(--rf-species-edge);
+}
+
+.rangefinder-record-accuracy[aria-pressed="true"] {
+    background: rgba(27, 108, 168, 0.12);
+    border-bottom-style: solid;
+    border-bottom-color: var(--rf-species-edge);
+    color: var(--rf-species-edge);
 }
 
 /* Material badge: the record is backed by a physical holding. Kept visually distinct from the

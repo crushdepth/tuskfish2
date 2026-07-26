@@ -51,6 +51,7 @@ class Map
     use \Tfish\Traits\ValidateString;
     use \Tfish\Rangefinder\Traits\RangefinderDatabase;
     use \Tfish\Rangefinder\Traits\RangefinderTaxonomy;
+    use \Tfish\Rangefinder\Traits\RangefinderCountries;
 
     private $database;
     private $preference;
@@ -64,7 +65,9 @@ class Map
     private array $sources = [];
     private array $sourceIndex = [];
     private array $speciesFacet = [];
-    private array $countryFacet = [];
+    private array $taxa = [];
+    private array $countryOptions = [];
+    private array $countryBounds = [];
     private array $summary = [];
 
     public function __construct(
@@ -102,18 +105,20 @@ class Map
         // so it can key on the derived canonical_taxon and include accepted reported taxa — see
         // buildMarkerPayload).
         $this->buildMarkerPayload($this->getMarkers());
-        $this->countryFacet = $this->getCountryFacet();
+        $this->buildCountryFacet($this->getCountryFacet());
         $this->summary = $this->buildSummary();
     }
 
     /**
      * The minimal marker payload: one lean row per geolocated occurrence.
      *
-     * Deliberately not the full record. This ships to the browser to drive client-side filtering,
-     * so it carries only marker coordinates plus the filter keys (verbatim name + ploidy,
-     * layer, taxon_rank, country_code, holding_type). Full occurrence detail is fetched on demand from
-     * v_occurrence_detail by a bounded, parameterised query, so the whole curated dataset is never
-     * harvestable in a single request.
+     * Deliberately not the full record. It carries marker coordinates, the filter keys
+     * (canonical_taxon + ploidy, layer, taxon_rank, country_code, holding_type) and the card fields
+     * the popup drill-down renders (D-20) — and nothing else. Everything wider stays in
+     * v_occurrence_detail for the Phase 3 CSV / Phase 4 explore queries, which read it directly.
+     *
+     * Select only what is used: a column added here is shipped to every visitor on every page load,
+     * once per record.
      *
      * @return  array List of marker rows.
      */
@@ -126,10 +131,9 @@ class Map
                     locality_name,
                     decimal_latitude,
                     decimal_longitude,
-                    coordinate_precision_m,
+                    coordinate_radius_m,
                     canonical_taxon,
                     ploidy,
-                    determination_confidence,
                     layer,
                     taxon_rank,
                     country_code,
@@ -207,19 +211,80 @@ class Map
      * Country filter facet, with per-country bounding boxes for map reframing.
      *
      * Keys on country_code, the only reliable key: the display country name is NULL for every GBIF
-     * row, so country_name here is best-available and the client fills the gaps from a static
-     * ISO-3166 code -> name map.
+     * row, so country_name here is best-available and buildCountryFacet() fills the gaps from the
+     * ISO-3166 table in RangefinderCountries.
+     *
+     * n_mapped is the only tally selected. The view also offers n_records / n_species / n_presence,
+     * but nothing renders them — the headline counts come from the marker payload itself
+     * (buildSummary), so counting the same thing twice from two sources could only drift.
      *
      * @return  array List of country facet rows.
      */
     public function getCountryFacet(): array
     {
         return $this->select(
-            "SELECT country_code, country_name, n_records, n_species, n_presence, n_mapped,
+            "SELECT country_code, country_name, n_mapped,
                     min_lat, max_lat, min_lng, max_lng
              FROM   v_country_facet
              ORDER  BY (country_name IS NULL), country_name, country_code"
         );
+    }
+
+    /**
+     * Resolve the country facet into the filter's option list and the client's bounding boxes.
+     *
+     * Two products, because they serve two different consumers and only one of them has to reach
+     * the browser. The option list is what templates/map.html renders into the <select>: it is
+     * static from the moment the page is built, so it is built here rather than assembled in
+     * JavaScript from a shipped facet. The bounding boxes do have to ship, because they are read at
+     * interaction time — when a country selection plots nothing, the client falls back to the
+     * country's box to move the map somewhere meaningful (see frame() in rangefinder.js).
+     *
+     * Zero-mapped countries are dropped from the option list. v_country_facet already excludes them;
+     * this guards an older database where it did not, so a visitor cannot pick a country and be
+     * shown an empty map.
+     *
+     * Names come from the database where it has one and from the ISO-3166 table only where it does
+     * not (17 of 65 countries on the live dataset) — a source-recorded name is never overwritten
+     * with a standardised one. Ordering is by the accent-folded name, so an accented initial files
+     * with its letter instead of after Z.
+     *
+     * @param   array $rows Country facet rows from v_country_facet.
+     */
+    private function buildCountryFacet(array $rows): void
+    {
+        $options = [];
+        $bounds = [];
+
+        foreach ($rows as $row) {
+            $code = (string) $row['country_code'];
+
+            $bounds[] = [
+                'code' => $code,
+                'min_lat' => $row['min_lat'],
+                'max_lat' => $row['max_lat'],
+                'min_lng' => $row['min_lng'],
+                'max_lng' => $row['max_lng'],
+            ];
+
+            if (empty($row['n_mapped'])) continue;
+
+            $name = $this->countryName($code, $row['country_name']);
+
+            $options[] = [
+                'code' => $code,
+                'name' => $name,
+                'sort' => $this->countrySortKey($name),
+                'n_mapped' => (int) $row['n_mapped'],
+            ];
+        }
+
+        \usort($options, static function (array $a, array $b): int {
+            return $a['sort'] <=> $b['sort'];
+        });
+
+        $this->countryOptions = $options;
+        $this->countryBounds = $bounds;
     }
 
     /**
@@ -239,15 +304,19 @@ class Map
      * most of what is left. The index maps are documented in vendor/rangefinder/rangefinder.js,
      * which expands them back into objects on load.
      *
-     *   localities[]  = [site_key, name, latitude, longitude, precision_m]
-     *   occurrences[] = [localityIndex, canonical_taxon, ploidy, layer, country_code, holding_type, taxon_rank]
+     *   localities[]  = [site_key, name, latitude, longitude]
+     *   occurrences[] = [localityIndex, canonical_taxon, ploidy, layer, country_code, holding_type,
+     *                    taxon_rank, category]
      *   details[]     = [event_date, recorded_by, sourceIdx, catalog_number, disposition,
-     *                    references_url, holder_url]
+     *                    references_url, holder_url, radius_m]
+     *   taxa{}        = canonical_taxon -> display form
      *
-     * taxon_rank rides last (on the occurrence tuple) so the client can split the lead layer into
-     * "reported to species" (rank=species) and "not identified to species" (rank=genus) without a
-     * second request (D-18). details[] is aligned to occurrences[] by construction (built in the same
-     * pass) and carries the record-level card fields inline (D-20) — no detail endpoint, no fetch.
+     * category is the confidence bucket (D-18) — verified / reported / unidentified — decided here
+     * and shipped as a value, so the filter, the popup and the headline counts all read one field
+     * rather than each re-deriving the rule. taxa{} likewise carries the display form of every name
+     * that can appear in a popup, so scientific-name formatting stays a PHP concern. details[] is
+     * aligned to occurrences[] by construction (built in the same pass) and carries the record-level
+     * card fields inline (D-20) — no detail endpoint, no fetch.
      *
      * The name shipped is the derived canonical_taxon (author citation and rank markers stripped,
      * lower-cased at import), not the verbatim string: it is both the filter key and the display
@@ -277,6 +346,7 @@ class Map
         $details = [];
         $index = [];
         $facet = [];
+        $taxa = [];
 
         foreach ($rows as $row) {
             $localityId = (int) $row['locality_id'];
@@ -292,10 +362,6 @@ class Map
                     $row['locality_name'],
                     (float) $row['decimal_latitude'],
                     (float) $row['decimal_longitude'],
-                    // Nullable and load-bearing: a NULL precision means the source declared none,
-                    // and the client must then draw no circle at all rather than a default-radius
-                    // one. Casting it to 0 here would silently invent a certainty the data lacks.
-                    isset($row['coordinate_precision_m']) ? (int) $row['coordinate_precision_m'] : null,
                 ];
             }
 
@@ -304,12 +370,36 @@ class Map
             $layer = $row['layer'];
             $rank = $row['taxon_rank'];
 
-            // Demote an unrecognised reported name to a genus-level lead so its species name does not
-            // appear on the map. Only ever narrows a presence-layer species claim; verified
-            // determinations and names already at genus are left exactly as the database has them.
-            if ($layer === 'presence' && $rank === 'species' && !$this->isAcceptedTaxon($canonical)) {
+            // Demote an unrecognised reported name to a genus-level lead so its name does not appear
+            // on the map. Only ever narrows a presence-layer claim; verified determinations are left
+            // exactly as the database has them.
+            //
+            // The whitelist is checked for EVERY presence-layer record, whatever rank it declares.
+            // Testing rank === 'species' first would let anything filed at genus keep its name, and
+            // the broad-GBIF layer files plenty of non-names there: BOLD BIN codes ('BOLD:AAD2313'),
+            // and pipeline non-assignments ('unclassified.Artemia urmiana', which put an epithet on
+            // screen against a record whose own label says it could not be classified). Rank is the
+            // publisher's claim about their name; the whitelist is our test of it, and the test has
+            // to run on the name itself.
+            if ($layer === 'presence' && !$this->isAcceptedTaxon($canonical)) {
                 $rank = 'genus';
                 $canonical = null;
+            }
+
+            // Confidence bucket (D-18), decided here and nowhere else. This is the load-bearing
+            // rule of the whole interface — it is what keeps an unverified lead from being read as
+            // an expert determination — so it exists in exactly one place and is shipped as a
+            // value. The client does not re-derive it, and neither does buildSummary(): the
+            // headline counts and the map are counting the same field, so they cannot drift apart.
+            //
+            // Derived AFTER the demotion above, so a lead whose species name was not recognised
+            // (rank forced to genus) correctly falls to 'unidentified' rather than 'reported'.
+            if ($layer === 'species') {
+                $category = 'verified';      // An expert determination.
+            } elseif (($rank ?? 'genus') === 'genus') {
+                $category = 'unidentified';  // A lead reaching only the genus, or rank unrecorded.
+            } else {
+                $category = 'reported';      // A species name, but not from an authoritative source.
             }
 
             $occurrences[] = [
@@ -320,7 +410,15 @@ class Map
                 $row['country_code'],
                 $row['holding_type'],
                 $rank,
+                $category,
             ];
+
+            // Display form of every name that can appear in a popup, resolved once per taxon rather
+            // than repeated on each of the 2,000-odd records that carry it. Shipping this is what
+            // lets the client render a name without knowing how a scientific name is formatted.
+            if ($canonical !== null) {
+                $taxa[$canonical] = $this->displayTaxon($canonical);
+            }
 
             // details[] is aligned index-identically to occurrences[] (same order, same length), so
             // no join key is shipped — the card reads details[i] for occurrences[i]. A demoted lead
@@ -341,6 +439,13 @@ class Map
                 $row['disposition'],
                 $row['references_url'],
                 $row['holder_url'],
+                // Accuracy radius in metres, per record. Nullable and load-bearing: NULL means the
+                // record declares no accuracy, and the client must then draw no circle rather than
+                // a default-radius one. Casting it to 0 here would invent a certainty the data
+                // lacks. It rides in details[] rather than localities[] because it belongs to one
+                // record: a site is a ~1 km cluster and its members' radii can differ by four
+                // orders of magnitude, so a per-marker circle would describe none of them.
+                isset($row['coordinate_radius_m']) ? (int) $row['coordinate_radius_m'] : null,
             ];
 
             // Facet: one choice per (canonical, ploidy) that carries a species-level name — every
@@ -353,31 +458,82 @@ class Map
                     $facet[$fkey] = [
                         'canonical_taxon' => $canonical,
                         'ploidy' => $ploidy,
+                        // The checkbox value, and the key matches() compares against. Ploidy is
+                        // part of the identity, not a detail of it: parthenogenetic lineages of
+                        // differing ploidy share a name while being biologically distinct, so
+                        // collapsing them would merge populations the dataset keeps apart. Mirrors
+                        // taxonKey() in rangefinder.js — the two must agree exactly or a selection
+                        // matches nothing.
+                        'key' => $canonical . '~' . ($ploidy ?? ''),
                         // Display form: the canonical is already citation-free and lower-cased. For a
                         // binomial, abbreviate the genus to its initial ("artemia franciscana" ->
                         // "A. franciscana") to keep the filter list compact; a single-word lineage just
                         // gets its initial capitalised. Taxon-agnostic: no genus name is hard-coded.
                         'display_name' => $this->abbreviateTaxon($canonical),
-                        'n_records' => 0,
+                        // v_map_markers is mapped-only, so every row counted here plots. There is no
+                        // separate total: an unmapped record cannot reach this loop.
                         'n_mapped' => 0,
                     ];
                 }
 
-                ++$facet[$fkey]['n_records'];
-                ++$facet[$fkey]['n_mapped']; // v_map_markers is mapped-only, so every row here plots.
+                ++$facet[$fkey]['n_mapped'];
             }
         }
 
+        // Group by name, then order a lineage's variants by increasing ploidy level with unknown
+        // (no ploidy word) first — A. parthenogenetica, then diploid, triploid, tetraploid — rather
+        // than by the ploidy word's alphabetical order, which is meaningless.
         $facet = \array_values($facet);
         \usort($facet, static function (array $a, array $b): int {
-            return [$a['canonical_taxon'], $a['ploidy'] ?? '']
-                <=> [$b['canonical_taxon'], $b['ploidy'] ?? ''];
+            return [$a['canonical_taxon'], self::ploidyRank($a['ploidy'])]
+                <=> [$b['canonical_taxon'], self::ploidyRank($b['ploidy'])];
         });
+
+        \ksort($taxa);
 
         $this->localities = $localities;
         $this->occurrences = $occurrences;
         $this->details = $details;
         $this->speciesFacet = $facet;
+        $this->taxa = $taxa;
+    }
+
+    /**
+     * Sort rank for a ploidy word.
+     *
+     * Unknown (none) first, then by increasing chromosome-set count, with the open-ended
+     * "polyploid" last. Only orders a lineage's variants within the filter list; an unrecognised
+     * value sorts after the known set rather than throwing.
+     *
+     * @param   string|null $ploidy Ploidy word as stored.
+     * @return  int
+     */
+    private static function ploidyRank(?string $ploidy): int
+    {
+        $order = ['diploid' => 1, 'triploid' => 2, 'tetraploid' => 3, 'pentaploid' => 4, 'polyploid' => 5];
+
+        if ($ploidy === null || $ploidy === '') return 0;
+
+        return $order[$ploidy] ?? 6;
+    }
+
+    /**
+     * Full display form of a canonical taxon, for popups and record lines.
+     *
+     * Names arrive as the canonical_taxon: already citation-free, rank-marker-free and lower-cased
+     * at import (the one place normalisation happens). Display just restores binomial case by
+     * capitalising the initial — genus up, epithet down — so there is nothing to parse.
+     *
+     * The compact filter list uses abbreviateTaxon() instead, which shortens the genus to an
+     * initial. Two deliberately different forms, both decided here, so how a scientific name is
+     * written is a PHP concern only and cannot drift between the page and the map.
+     *
+     * @param   string $canonical Lower-cased, citation-free canonical taxon name.
+     * @return  string
+     */
+    private function displayTaxon(string $canonical): string
+    {
+        return \ucfirst($canonical);
     }
 
     /**
@@ -407,42 +563,32 @@ class Map
      * Derived in PHP rather than by extra round trips: the marker set is already in memory and the
      * counts are exactly its composition, so they cannot drift from what the map actually plots.
      *
-     * The three confidence buckets mirror the map's filter (D-18): 'verified' is a determination
-     * (layer=species); the two lead buckets split by rank — 'reported' carries a species name from a
-     * non-authoritative source, 'unidentified' reaches only genus. verified + reported + unidentified
-     * = records.
+     * The three confidence buckets are counted straight off the category assigned in
+     * buildMarkerPayload — the same field the map filters on — so the headline figures and the
+     * markers are counting one thing and cannot disagree. The rule that decides the category is
+     * documented there and lives only there. verified + reported + unidentified = records.
      *
      * @return  array ['records', 'localities', 'verified', 'reported', 'unidentified', 'countries'].
      */
     private function buildSummary(): array
     {
         $countries = [];
-        $verified = 0;
-        $reported = 0;
-        $unidentified = 0;
+        $buckets = ['verified' => 0, 'reported' => 0, 'unidentified' => 0];
 
         foreach ($this->occurrences as $occurrence) {
             if (!empty($occurrence[4])) {
                 $countries[(string) $occurrence[4]] = true;
             }
 
-            if ($occurrence[3] === 'species') {
-                ++$verified;
-            } elseif (($occurrence[6] ?? 'genus') === 'genus') {
-                // Lead with no species claim: genus-only, or a rank the importer left null.
-                ++$unidentified;
-            } else {
-                // Lead carrying a species (or below) name, but not from an authoritative source.
-                ++$reported;
-            }
+            ++$buckets[$occurrence[7]];
         }
 
         return [
             'records' => \count($this->occurrences),
             'localities' => \count($this->localities),
-            'verified' => $verified,
-            'reported' => $reported,
-            'unidentified' => $unidentified,
+            'verified' => $buckets['verified'],
+            'reported' => $buckets['reported'],
+            'unidentified' => $buckets['unidentified'],
             'countries' => \count($countries),
         ];
     }
@@ -544,7 +690,7 @@ class Map
     /**
      * Return the distinct localities of the loaded marker payload (one per map marker).
      *
-     * @return  array List of [site_key, name, latitude, longitude, precision_m] tuples.
+     * @return  array List of [site_key, name, latitude, longitude] tuples.
      */
     public function localities(): array
     {
@@ -556,14 +702,26 @@ class Map
     /**
      * Return the loaded occurrence tuples, each referencing a locality by index.
      *
-     * @return  array List of [localityIndex, verbatim_name, ploidy, layer, country_code,
-     *          holding_type] tuples.
+     * @return  array List of [localityIndex, canonical_taxon, ploidy, layer, country_code,
+     *          holding_type, taxon_rank, category] tuples.
      */
     public function occurrences(): array
     {
         $this->loadMap();
 
         return $this->occurrences;
+    }
+
+    /**
+     * Return the display form of every taxon name that can appear in a popup.
+     *
+     * @return  array Map of canonical_taxon => display form.
+     */
+    public function taxa(): array
+    {
+        $this->loadMap();
+
+        return $this->taxa;
     }
 
     /**
@@ -592,9 +750,9 @@ class Map
     }
 
     /**
-     * Return the loaded species / lineage facet.
+     * Return the loaded species / lineage facet, ordered for the filter list.
      *
-     * @return  array List of species facet rows.
+     * @return  array List of ['canonical_taxon', 'ploidy', 'key', 'display_name', 'n_mapped'] rows.
      */
     public function speciesFacet(): array
     {
@@ -604,15 +762,27 @@ class Map
     }
 
     /**
-     * Return the loaded country facet.
+     * Return the country filter's options: mapped countries only, name-resolved and name-ordered.
      *
-     * @return  array List of country facet rows.
+     * @return  array List of ['code', 'name', 'sort', 'n_mapped'] rows.
      */
-    public function countryFacet(): array
+    public function countryOptions(): array
     {
         $this->loadMap();
 
-        return $this->countryFacet;
+        return $this->countryOptions;
+    }
+
+    /**
+     * Return per-country bounding boxes, for reframing the map when a selection plots nothing.
+     *
+     * @return  array List of ['code', 'min_lat', 'max_lat', 'min_lng', 'max_lng'] rows.
+     */
+    public function countryBounds(): array
+    {
+        $this->loadMap();
+
+        return $this->countryBounds;
     }
 
     /**

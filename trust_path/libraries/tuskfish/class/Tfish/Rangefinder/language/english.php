@@ -70,7 +70,18 @@ namespace Tfish\Rangefinder;
 \define("TFISH_RANGEFINDER_LEGEND_SPECIES", "Verified species determination");
 \define("TFISH_RANGEFINDER_LEGEND_PRESENCE", "Unverified report (reported or not identified to species)");
 \define("TFISH_RANGEFINDER_LEGEND_BOTH", "Both at this locality");
-\define("TFISH_RANGEFINDER_LEGEND_NOTE", "Verified records are species-level determinations made by a domain expert. Unverified reports are records not identified to species, or from sources of unknown taxonomic authority. They are leads for further survey, not determinations of which species is present.");
+// Two paragraphs, not one string with a break in it: a translator must be able to reorder or split
+// them, and the second is a different claim from the first. The verified note carries the temporal
+// caveat — a determination is correct as of its own date, and Artemia synonymy has moved since, so
+// the record's date is part of reading it.
+// Each note is split into the term it defines and the definition, because the term is emphasised in
+// the markup. The split is here rather than as HTML inside one string so the strings stay pure text
+// and can keep being escaped on output. A translation whose term does not lead the sentence should
+// put the whole sentence in the _TERM half and leave the other empty.
+\define("TFISH_RANGEFINDER_LEGEND_NOTE_VERIFIED_TERM", "Verified records");
+\define("TFISH_RANGEFINDER_LEGEND_NOTE_VERIFIED", "are species-level determinations made by a domain expert using the taxonomic understanding of the day. Artemia taxonomy has changed over time, so it is advisable to check the date of individual observations.");
+\define("TFISH_RANGEFINDER_LEGEND_NOTE_UNVERIFIED_TERM", "Unverified reports");
+\define("TFISH_RANGEFINDER_LEGEND_NOTE_UNVERIFIED", "are records not identified to species, or made by sources of unknown taxonomic authority. They are most suitable as indicators of Artemia presence and leads for further survey.");
 
 // Strings used by the client-side map (passed to JavaScript as a translated bundle).
 // {token} placeholders are substituted in the browser; keep them intact when translating.
@@ -95,7 +106,15 @@ namespace Tfish\Rangefinder;
 \define("TFISH_RANGEFINDER_FEWER_RECORDS", "Show fewer");
 \define("TFISH_RANGEFINDER_MAPPED_TALLY", "({mapped} mapped)");
 \define("TFISH_RANGEFINDER_SHOWING", "Showing {shown} of {total} localities \u{2014} {records} records");
-\define("TFISH_RANGEFINDER_COORDS_PRECISION", "{coords} \u{00b1}{precision} m");
+// Per-record accuracy control on a popup record line. The figure is the source's own declared
+// coordinate uncertainty, or (IATS records) the resolution of the verbatim DMS reading — never an
+// inference from decimal places, which measure how a number was written and not how well the site
+// was located. A record that declares nothing gets no control and no circle: silence is the honest
+// rendering of "unknown". Toggling draws one circle of that radius around the marker.
+\define("TFISH_RANGEFINDER_ACCURACY_M", "\u{00b1}{radius} m");
+\define("TFISH_RANGEFINDER_ACCURACY_KM", "\u{00b1}{radius} km");
+\define("TFISH_RANGEFINDER_ACCURACY_SHOW", "Show this record's accuracy on the map");
+\define("TFISH_RANGEFINDER_ACCURACY_HIDE", "Hide accuracy circle");
 \define("TFISH_RANGEFINDER_DATA_ATTRIBUTION", "Occurrence data: IATS-CSIC Artemia cyst bank and GBIF contributors, CC BY-NC 4.0");
 // Map control tooltips. Fullscreen shows the map only; filters stay set but are hidden, so the map
 // carries a note that they are changed after exiting fullscreen.

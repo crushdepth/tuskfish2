@@ -7,22 +7,28 @@
  *
  * Reads everything from window.rangefinder, which templates/map.html populates server-side:
  *
- *   markers        {localities, occurrences, details, sources}  see expandPayload() for the tuples
- *   speciesFacet   [{canonical_taxon, ploidy, display_name, n_records, n_mapped}, ...]
- *   countryFacet   [{country_code, country_name, n_records, min_lat, max_lat, min_lng, max_lng}, ...]
+ *   markers        {localities, occurrences, details, sources, taxa}  see expandPayload() for tuples
+ *   countryBounds  [{code, min_lat, max_lat, min_lng, max_lng}, ...]  reframing fallback only
  *   tileProvider   {key, label, url, maxZoom, attribution, subdomains} -- the ACTIVE one only
  *   maxZoom        hard zoom ceiling, applied on top of the provider's own
  *   strings        translated fragments for text this file generates
+ *
+ * The filter CONTROLS are not built here. The species and country lists are derived from the loaded
+ * marker set and are fixed once the page is built, so templates/map.html renders them as markup and
+ * this file only reads which boxes are checked. Nothing below assembles a control from a payload:
+ * what ships is what is read at interaction time, and no more.
  *
  * The whole marker set arrives with the page, so every filter interaction is local and there is no
  * loading state anywhere in this file. That is deliberate and is what makes the cluster counts
  * trustworthy -- see buildClusterGroups().
  *
- * CONFIDENCE MODEL (D-18). Every occurrence falls in one of three buckets, derived once from its
- * stored layer and taxon_rank (see expandPayload):
- *   verified     -- layer 'species': an expert determination.
- *   reported     -- layer 'presence', rank species: a species name from a non-authoritative source.
- *   unidentified -- layer 'presence', rank genus: a lead that reaches only the genus.
+ * CONFIDENCE MODEL (D-18). Every occurrence falls in one of three buckets:
+ *   verified     -- an expert determination.
+ *   reported     -- a species name from a non-authoritative source.
+ *   unidentified -- a lead that reaches only the genus.
+ * The bucket is NOT decided here. It is assigned server-side and arrives on the occurrence tuple as
+ * a value, so this file and the page's headline counts read one field instead of each applying the
+ * rule and risking a silent disagreement. See buildMarkerPayload() in Model/Map.php for the rule.
  * The filter, the popup and the summary all speak in these three. Marker colour, though, stays
  * TWO-TONE: a verified determination, or a lead (reported and unidentified share the lead colour).
  * That is the load-bearing line -- a lead must never look like a determination, never be totalled
@@ -80,8 +86,9 @@
             fillColor: '#e03131',
             fillOpacity: 0.9
         },
-        // Precision circle. Faint by design: it is a statement about uncertainty, not a feature.
-        precision: {
+        // Accuracy circle for one selected record. Faint by design: it is a statement about
+        // uncertainty, not a feature.
+        accuracy: {
             weight: 1,
             color: '#1b6ca8',
             opacity: 0.35,
@@ -91,10 +98,6 @@
         }
     };
 
-    // Holding filter option -> the holding_type values it admits. 'obtainable' is the union of the
-    // three kinds that still physically exist; the three narrower options select one kind each.
-    // 'exhausted' is a holding that existed and is used up: still evidence the material was
-    // collected, but not obtainable now, so it is deliberately excluded from 'obtainable'.
     // Cap on the per-record drill-down for the 'unidentified' bucket only. These are mostly bare
     // genus-level leads whose provenance matters little; a dense site can stack dozens under one
     // "genus-level record" line. We surface the sample-backed ones first (a held specimen can still
@@ -103,6 +106,10 @@
     // point of the card.
     var UNIDENTIFIED_RECORD_CAP = 8;
 
+    // Holding filter option -> the holding_type values it admits. 'obtainable' is the union of the
+    // three kinds that still physically exist; the three narrower options select one kind each.
+    // 'exhausted' is a holding that existed and is used up: still evidence the material was
+    // collected, but not obtainable now, so it is deliberately excluded from 'obtainable'.
     var HOLDING = {
         obtainable: ['live_cysts', 'preserved_specimen', 'tissue_or_dna'],
         live_cysts: ['live_cysts'],
@@ -114,10 +121,17 @@
     var strings = rf.strings || {};
     var map = null;
     var clusters = {};
-    var precisionLayer = null;
+    // The accuracy circle of the one record whose "show accuracy" control is currently on. At most
+    // one exists at a time, and only while its popup is open: a circle is meaningless without the
+    // record line naming what it belongs to, and 1,185 of them drawn at once would be a wash of
+    // blue over the map rather than information.
+    var accuracyLayer = null;
+    var accuracyCircle = null;
+    var accuracyToggle = null;
     var localities = [];
     var sources = [];
-    var markersById = {};
+    var taxa = {};
+    var markersBySiteKey = {};
     var elements = {};
 
     var state = {
@@ -128,7 +142,9 @@
         country: '',
         holding: 'any',
         gapsOnly: false,
-        locality: 0
+        // A site_key (D-22), so empty means "no site selected" -- never 0, which is a valid
+        // locality_id and would read as a selection.
+        locality: ''
     };
 
     /**
@@ -180,11 +196,13 @@
      * record (~779 KB flat down to ~186 KB). Rehydrating here costs one pass and gives the rest of
      * this file readable property names.
      *
-     *   locality tuple    [locality_id, name, latitude, longitude, precision_m]
-     *   occurrence tuple  [localityIndex, canonical_taxon, ploidy, layer, country_code, holding_type, taxon_rank]
+     *   locality tuple    [site_key, name, latitude, longitude]
+     *   occurrence tuple  [localityIndex, canonical_taxon, ploidy, layer, country_code,
+     *                      holding_type, taxon_rank, category]
      *   detail tuple      [event_date, recorded_by, sourceIdx, catalog_number, disposition,
-     *                      references_url, holder_url]
+     *                      references_url, holder_url, radius_m]
      *   source tuple      [key, label, citation, doi, license]
+     *   taxa              {canonical_taxon: display form}
      *
      * details[] is aligned index-identically to occurrences[] (same order, built in one server pass),
      * so detail[i] belongs to occurrence[i]; sourceIdx points into the deduped sources[] list. The
@@ -198,6 +216,8 @@
         var rawDetails = payload.details || [];
         var rawSources = payload.sources || [];
 
+        taxa = payload.taxa || {};
+
         sources = rawSources.map(function (tuple) {
             return {
                 key: tuple[0],
@@ -210,13 +230,12 @@
 
         localities = rawLocalities.map(function (tuple) {
             return {
-                id: tuple[0],
+                // Stable public site identity (D-22), not the numeric locality_id, which is
+                // assigned by cluster order and renumbers on any rebuild.
+                siteKey: tuple[0],
                 name: tuple[1],
                 lat: tuple[2],
                 lng: tuple[3],
-                // Null means the source declared no precision. It must stay null: drawing a
-                // default-radius circle would invent a certainty the record does not carry.
-                precision: tuple[4],
                 occurrences: [],
                 hasSpecies: false
             };
@@ -238,11 +257,10 @@
                 layer: tuple[3],
                 country: tuple[4],
                 holding: tuple[5],
-                // Confidence bucket (D-18), derived once here so the filter, popup and marker code
-                // all read the same value. verified = a determination; reported = a species name
-                // from a non-authoritative source; unidentified = a lead reaching only the genus.
-                category: tuple[3] === 'species' ? 'verified'
-                    : (tuple[6] === 'genus' || !tuple[6]) ? 'unidentified' : 'reported',
+                // Confidence bucket (D-18), assigned server-side. Absent only if the payload is
+                // malformed, in which case it degrades to the weakest of the three: an unverified
+                // record can never be shown as a determination by a missing value.
+                category: tuple[7] || 'unidentified',
                 // Record-level card fields (D-20). Read lazily by buildPopup; never touched on the
                 // hot filter path, so per-keystroke matching is unchanged.
                 detail: {
@@ -252,7 +270,13 @@
                     accession: d[3],
                     disposition: d[4],
                     referencesUrl: d[5],
-                    holderUrl: d[6]
+                    holderUrl: d[6],
+                    // Accuracy radius in metres, for this record alone. Null means the source
+                    // declared none, and it must stay null: drawing a default-radius circle would
+                    // invent a certainty the record does not carry. Not a locality property --
+                    // a site is a ~1 km cluster whose members' radii can differ by four orders of
+                    // magnitude, so one circle over the marker would belong to no record at all.
+                    radius: d[7]
                 }
             });
 
@@ -278,33 +302,20 @@
     }
 
     /**
-     * Sort rank for a ploidy word: unknown (none) first, then by increasing chromosome-set count,
-     * with the open-ended "polyploid" last. Only used to order a lineage's variants in the filter;
-     * an unrecognised value sorts after the known set rather than throwing.
+     * Display form of a scientific name: a lookup, not a rule.
      *
-     * @param   {?string} ploidy
-     * @returns {number}
-     */
-    function ploidyRank(ploidy) {
-        var order = { diploid: 1, triploid: 2, tetraploid: 3, pentaploid: 4, polyploid: 5 };
-        if (!ploidy) return 0;
-        return order[ploidy] || 6;
-    }
-
-    /**
-     * Display form of a scientific name.
+     * How a scientific name is written is decided server-side (displayTaxon in Model/Map.php) and
+     * shipped as a canonical -> display map, so this file holds no opinion about capitalisation,
+     * author citations or rank markers. Falls back to the stored name if the map somehow lacks an
+     * entry, which shows a plainly-formatted name rather than nothing at all.
      *
-     * Names arrive as the canonical_taxon: already citation-free, rank-marker-free and lower-cased at
-     * import (the one place normalisation happens). Display just restores binomial case by
-     * capitalising the initial (genus up, epithet down), so there is nothing to parse here.
-     *
-     * @param   {?string} name
+     * @param   {?string} name  Canonical taxon as carried on the occurrence tuple.
      * @returns {string}
      */
     function displayTaxon(name) {
         if (!name) return '';
 
-        return name.charAt(0).toUpperCase() + name.slice(1);
+        return taxa[name] || name;
     }
 
     /**
@@ -345,21 +356,84 @@
     }
 
     /**
+     * Remove the accuracy circle, if one is showing, and reset the control that raised it.
+     */
+    function clearAccuracy() {
+        if (accuracyLayer) accuracyLayer.clearLayers();
+
+        accuracyCircle = null;
+
+        if (accuracyToggle) {
+            accuracyToggle.setAttribute('aria-pressed', 'false');
+            accuracyToggle.setAttribute('title', text('accuracyShow'));
+            accuracyToggle = null;
+        }
+    }
+
+    /**
+     * Draw one record's accuracy circle, replacing whichever was showing before.
+     *
+     * One at a time, deliberately. Two circles on the same marker are indistinguishable once drawn
+     * -- both are centred on the same point -- so a second one would not add a comparison, only
+     * ambiguity about which record the visitor is looking at.
+     *
+     * @param   {Object} locality  The marker the record sits on.
+     * @param   {number} radius    Metres.
+     * @param   {Element} toggle   The control that requested it.
+     */
+    function showAccuracy(locality, radius, toggle) {
+        clearAccuracy();
+
+        accuracyCircle = L.circle([locality.lat, locality.lng], {
+            radius: radius,
+            weight: PALETTE.accuracy.weight,
+            color: PALETTE.accuracy.color,
+            opacity: PALETTE.accuracy.opacity,
+            fillColor: PALETTE.accuracy.fillColor,
+            fillOpacity: PALETTE.accuracy.fillOpacity,
+            interactive: PALETTE.accuracy.interactive
+        });
+
+        accuracyLayer.addLayer(accuracyCircle);
+
+        accuracyToggle = toggle;
+        toggle.setAttribute('aria-pressed', 'true');
+        toggle.setAttribute('title', text('accuracyHide'));
+    }
+
+    /**
+     * Format an accuracy radius for display.
+     *
+     * Switches to kilometres above 1 km and rounds, because the extra digits are noise: a record
+     * declaring 92,589 m is not accurate to the metre, and printing it that way says otherwise.
+     *
+     * @param   {number} radius  Metres.
+     * @returns {string}
+     */
+    function formatAccuracy(radius) {
+        return radius >= 1000
+            ? text('accuracyKm', { radius: Math.round(radius / 100) / 10 })
+            : text('accuracyM', { radius: Math.round(radius) });
+    }
+
+    /**
      * Build the per-record detail line shown under a popup taxon (D-20).
      *
      * One compact line per occurrence: date, recorder, source, accession and any external record
-     * link, plus a material badge when the record is backed by a physical holding. Every value is
-     * source-supplied free text, so it goes in via el()/textContent; the two link fields pass the
-     * http(s) scheme check before becoming anchors.
+     * link, plus a material badge when the record is backed by a physical holding, and — where the
+     * record declares one — its coordinate accuracy as a toggle that draws the circle. Every value
+     * is source-supplied free text, so it goes in via el()/textContent; the two link fields pass
+     * the http(s) scheme check before becoming anchors.
      *
      * Accession is shown as an identifier only — never as a claim that material is available. The
      * material badge (keyed on holding_type, with the finer disposition on hover) is the only
      * "obtainable material" signal, kept deliberately distinct from the accession.
      *
+     * @param   {Object} locality  The marker this record sits on (the circle's centre).
      * @param   {Object} occurrence
      * @returns {Element}
      */
-    function buildRecordLine(occurrence) {
+    function buildRecordLine(locality, occurrence) {
         var d = occurrence.detail || {};
         var line = el('li', 'rangefinder-record');
 
@@ -405,6 +479,28 @@
             if (d.disposition) mat.setAttribute('title', d.disposition);
 
             line.appendChild(mat);
+        }
+
+        // Coordinate accuracy, and the control that draws it. Shown only where the record itself
+        // declares one — no control and no circle is the honest rendering of "not declared", and a
+        // default radius would be a fabricated one. A real <button> so it is reachable by keyboard
+        // and announces its pressed state; the circle it raises is centred on this marker and
+        // replaces any other, so exactly one record's accuracy is ever on screen.
+        if (d.radius) {
+            var acc = el('button', 'rangefinder-record-accuracy', formatAccuracy(d.radius));
+            acc.type = 'button';
+            acc.setAttribute('aria-pressed', 'false');
+            acc.setAttribute('title', text('accuracyShow'));
+
+            acc.addEventListener('click', function () {
+                if (accuracyToggle === acc) {
+                    clearAccuracy();
+                } else {
+                    showAccuracy(locality, d.radius, acc);
+                }
+            });
+
+            line.appendChild(acc);
         }
 
         return line;
@@ -481,9 +577,10 @@
         var coords = locality.lat.toFixed(4) + ', ' + locality.lng.toFixed(4);
 
         wrapper.appendChild(el('h2', null, locality.name || text('unnamedLocality')));
-        wrapper.appendChild(el('p', 'rangefinder-coords', locality.precision
-            ? text('coordsWithPrecision', { coords: coords, precision: locality.precision })
-            : coords));
+        // Coordinates only. No accuracy figure here: this is the cluster centroid, and the records
+        // stacked on it can disagree about their accuracy by four orders of magnitude. The figure
+        // belongs to the record line that owns it, further down.
+        wrapper.appendChild(el('p', 'rangefinder-coords', coords));
 
         // Fixed display order, strongest evidence first. 'verified' renders as a determination; the
         // two lead buckets render with an explicit unverified badge so neither can be read as one.
@@ -528,7 +625,7 @@
                 var item = el('li');
 
                 if (section.category === 'verified') {
-                    // displayTaxon trims the author citation for display; the filter key is unaffected.
+                    // displayTaxon looks up the server's display form; the filter key is unaffected.
                     item.appendChild(el('span', 'rangefinder-taxon', displayTaxon(entry.name)));
 
                     if (entry.ploidy) {
@@ -536,7 +633,7 @@
                         item.appendChild(el('span', 'rangefinder-ploidy', entry.ploidy));
                     }
                 } else {
-                    // A lead: show the reported name (citation trimmed) or a genus fallback, with an
+                    // A lead: show the reported name, or a genus fallback, with an
                     // explicit unverified badge, so it can never be read off the page as a
                     // determination made at this site. A demoted (unrecognised) name arrives null
                     // from the server and falls to the fallback, so it is never shown.
@@ -576,7 +673,7 @@
                     var records = el('ul', 'rangefinder-records');
 
                     toShow.forEach(function (occurrence) {
-                        records.appendChild(buildRecordLine(occurrence));
+                        records.appendChild(buildRecordLine(locality, occurrence));
                     });
 
                     item.appendChild(records);
@@ -591,7 +688,7 @@
                     moreList.hidden = true;
 
                     extra.forEach(function (occurrence) {
-                        moreList.appendChild(buildRecordLine(occurrence));
+                        moreList.appendChild(buildRecordLine(locality, occurrence));
                     });
 
                     var moreLabel = text('moreRecords', { count: extra.length });
@@ -633,8 +730,8 @@
 
         clusters.species.clearLayers();
         clusters.presence.clearLayers();
-        precisionLayer.clearLayers();
-        markersById = {};
+        clearAccuracy();
+        markersBySiteKey = {};
 
         localities.forEach(function (locality) {
             // FR-7 gap map: localities with presence reports and no determination at all -- the
@@ -667,21 +764,7 @@
             // A mixed locality goes in the species group: a determination does exist there, so
             // clustering it as presence would understate what is known.
             clusters[hasSpecies ? 'species' : 'presence'].addLayer(marker);
-            markersById[locality.id] = marker;
-
-            // Only where the source declared a precision. No circle is the honest rendering of
-            // "unknown"; a default radius would be a fabricated one.
-            if (locality.precision) {
-                precisionLayer.addLayer(L.circle([locality.lat, locality.lng], {
-                    radius: locality.precision,
-                    weight: PALETTE.precision.weight,
-                    color: PALETTE.precision.color,
-                    opacity: PALETTE.precision.opacity,
-                    fillColor: PALETTE.precision.fillColor,
-                    fillOpacity: PALETTE.precision.fillOpacity,
-                    interactive: PALETTE.precision.interactive
-                }));
-            }
+            markersBySiteKey[locality.siteKey] = marker;
 
             bounds.push([locality.lat, locality.lng]);
             shownLocalities += 1;
@@ -701,8 +784,9 @@
      * Frame the map on the current selection.
      *
      * Prefers the filtered markers' own extent, which is tighter and truer than a country bounding
-     * box. Falls back to the country facet's server-side box when a filter combination plots
-     * nothing, so choosing a country still moves the map somewhere meaningful.
+     * box. Falls back to the server-side box when a filter combination plots nothing, so choosing a
+     * country still moves the map somewhere meaningful. That fallback is the only reason the boxes
+     * ship: it is needed at interaction time, when there is nothing on screen to fit to.
      *
      * @param   {Array} bounds  Coordinates of the plotted markers.
      */
@@ -714,8 +798,8 @@
 
         if (!state.country) return;
 
-        var country = (rf.countryFacet || []).filter(function (row) {
-            return row.country_code === state.country;
+        var country = (rf.countryBounds || []).filter(function (row) {
+            return row.code === state.country;
         })[0];
 
         if (country && country.min_lat !== null && country.min_lat !== undefined) {
@@ -898,117 +982,11 @@
             map.addLayer(clusters[layer]);
         });
 
-        precisionLayer = L.layerGroup().addTo(map);
-    }
+        accuracyLayer = L.layerGroup().addTo(map);
 
-    /**
-     * Populate the species/lineage checkbox list from the facet.
-     *
-     * The facet lists every taxon that makes a species claim on the map -- verified determinations
-     * and accepted reported names alike -- keyed on canonical_taxon so citation variants of a name
-     * collapse to one choice. Selecting one filters both its verified and its reported records (a
-     * reported match stays a lead in colour and popup; see matches). Genus-only leads are not offered.
-     */
-    function buildSpeciesFilter() {
-        var list = elements.speciesList;
-        var rows = (rf.speciesFacet || []).slice();
-
-        if (!rows.length) return;
-
-        // Order a lineage's ploidy variants by increasing ploidy level, unknown (no ploidy word)
-        // first — e.g. A. parthenogenetica, then diploid, triploid, tetraploid, ... — rather than
-        // the incidental facet order. Stable sort on a copy keeps the canonical-name grouping the
-        // facet already supplies and only reorders within each name.
-        rows.sort(function (a, b) {
-            var byName = (a.canonical_taxon || '').localeCompare(b.canonical_taxon || '');
-            if (byName !== 0) return byName;
-            return ploidyRank(a.ploidy) - ploidyRank(b.ploidy);
-        });
-
-        // Lay the facet out as side-by-side columns rather than one tall scroll column, which
-        // dominated the panel height. Columns are filled in order up to MAX_PER_COLUMN entries each,
-        // so the leading columns are full and the last carries the remainder (13 rows -> 5 / 5 / 3).
-        // Rows read top-to-bottom, left-to-right — a lineage's ploidy variants are not forced into
-        // one column.
-        var MAX_PER_COLUMN = 5;
-        var column = null;
-
-        rows.forEach(function (row, i) {
-            if (i % MAX_PER_COLUMN === 0) {
-                column = el('div', 'rangefinder-species-col');
-                list.appendChild(column);
-            }
-
-            column.appendChild(speciesCheck(row));
-        });
-    }
-
-    /**
-     * One species/lineage checkbox row: the taxon name, an optional ploidy word, and the mapped count.
-     * The value is the taxon key (canonical + ploidy), so the label text is free to be abbreviated
-     * without affecting selection or filtering.
-     *
-     * @param   {object} row  Facet row {canonical_taxon, ploidy, display_name, n_mapped, ...}.
-     * @return  {HTMLLabelElement}
-     */
-    function speciesCheck(row) {
-        var label = el('label', 'rangefinder-check');
-        var input = document.createElement('input');
-
-        input.type = 'checkbox';
-        input.value = taxonKey(row.canonical_taxon, row.ploidy);
-        input.checked = state.species.indexOf(input.value) !== -1;
-        input.addEventListener('change', onSpeciesChange);
-
-        label.appendChild(input);
-        label.appendChild(el('span', 'rangefinder-taxon', row.display_name));
-
-        if (row.ploidy) {
-            label.appendChild(document.createTextNode(' '));
-            label.appendChild(el('span', 'rangefinder-tally', row.ploidy));
-        }
-
-        label.appendChild(document.createTextNode(' '));
-        label.appendChild(el('span', 'rangefinder-tally',
-            text('mappedTally', { mapped: row.n_mapped })));
-
-        return label;
-    }
-
-    /**
-     * Populate the country select.
-     *
-     * Falls back to the ISO 3166 table only where the database has no name for a code, so a name
-     * recorded by the original source is never overwritten with a standardised one.
-     */
-    function buildCountryFilter() {
-        var select = elements.country;
-        var rows = (rf.countryFacet || []).filter(function (row) {
-            // Only list countries with at least one record that plots. v_country_facet already
-            // excludes zero-mapped countries; this guards against an older DB where it did not,
-            // so a user never selects a country and is shown an empty map.
-            return row.n_mapped > 0;
-        }).map(function (row) {
-            return {
-                code: row.country_code,
-                name: rf.countryName ? rf.countryName(row.country_code, row.country_name)
-                                     : (row.country_name || row.country_code),
-                mapped: row.n_mapped
-            };
-        });
-
-        rows.sort(function (a, b) {
-            return a.name.localeCompare(b.name);
-        });
-
-        rows.forEach(function (row) {
-            var option = document.createElement('option');
-
-            option.value = row.code;
-            option.textContent = row.name + ' (' + row.mapped + ')';
-            option.selected = state.country === row.code;
-            select.appendChild(option);
-        });
+        // A popup closing takes its circle with it. The control that turned the circle on lives in
+        // that popup, so leaving the circle behind would strand it with no way to turn it off.
+        map.on('popupclose', clearAccuracy);
     }
 
     /**
@@ -1132,6 +1110,10 @@
     }
 
     function bindControls() {
+        // Delegated to the list, not bound per checkbox: the boxes are server-rendered, so there is
+        // no construction step to hang a listener off, and one listener covers them all.
+        elements.speciesList.addEventListener('change', onSpeciesChange);
+
         elements.verified.addEventListener('change', function () {
             state.verified = this.checked;
             apply(false);
@@ -1193,7 +1175,7 @@
     function openLinkedLocality() {
         if (!state.locality) return;
 
-        var marker = markersById[state.locality];
+        var marker = markersBySiteKey[state.locality];
 
         if (!marker) return;
 
@@ -1243,8 +1225,8 @@
         }
 
         buildClusterGroups();
-        buildSpeciesFilter();
-        buildCountryFilter();
+        // The species checkboxes and country options are already in the DOM, server-rendered.
+        // syncControls applies whatever readUrl() found in the query string to them.
         syncControls();
         bindControls();
         apply(state.country !== '' || state.gapsOnly);
