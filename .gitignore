@@ -23,3 +23,6 @@ uploads/media/
 trust_path/libraries/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/*/
 
 mainfile.php
+
+# CodeGraph local index
+.codegraph/
