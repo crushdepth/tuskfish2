@@ -23,7 +23,6 @@ namespace Tfish\Rangefinder;
 \define("TFISH_RANGEFINDER_TITLE_SEPARATOR", "\u{2014}"); // Em dash.
 
 // Page titles and meta descriptions.
-\define("TFISH_RANGEFINDER_MAP", "Map");
 \define("TFISH_RANGEFINDER_MAP_TITLE", "Global Artemia Biodiversity and Conservation Mapping System");
 \define("TFISH_RANGEFINDER_MAP_DESCRIPTION", "A curated map of Artemia (brine shrimp) occurrence records worldwide: verified species determinations from the IATS-CSIC cyst bank, plus genus-level presence records aggregated from GBIF.");
 
@@ -40,7 +39,6 @@ namespace Tfish\Rangefinder;
 \define("TFISH_RANGEFINDER_COUNTRIES", "Countries");
 
 // Filter controls.
-\define("TFISH_RANGEFINDER_FILTERS", "Filters");
 \define("TFISH_RANGEFINDER_CONFIDENCE", "Taxonomic confidence");
 \define("TFISH_RANGEFINDER_SPECIES_FILTER", "Artemia species / lineage");
 \define("TFISH_RANGEFINDER_COUNTRY", "Country");
@@ -126,7 +124,6 @@ namespace Tfish\Rangefinder;
 // same question — the confidence, species, country and holding labels above are reused verbatim, so
 // a filter carried between the two surfaces is called the same thing on both.
 // -----------------------------------------------------------------------------------------------
-\define("TFISH_RANGEFINDER_EXPLORE", "Explore");
 \define("TFISH_RANGEFINDER_EXPLORE_TITLE", "Explore Artemia occurrence records");
 \define("TFISH_RANGEFINDER_EXPLORE_DESCRIPTION", "Search and filter the full curated Artemia occurrence dataset as a table: species and lineage, taxonomic confidence, country, physical material, date range, source dataset and molecular sequences, with every record's source and licence.");
 
@@ -159,7 +156,6 @@ namespace Tfish\Rangefinder;
 \define("TFISH_RANGEFINDER_GEO_UNMAPPED", "Unmapped only");
 \define("TFISH_RANGEFINDER_LOCALITY", "Locality");
 \define("TFISH_RANGEFINDER_RECORD_SET", "Record set");
-\define("TFISH_RANGEFINDER_CURATED_SET", "Curated records");
 \define("TFISH_RANGEFINDER_QUARANTINE_SET", "Place-name-only records");
 // The D-6 quarantine banner. These records are held deliberately: they name a place but carry no
 // coordinates, so they cannot be mapped without a geocoding pass, and they must never be presented
@@ -173,7 +169,6 @@ namespace Tfish\Rangefinder;
 \define("TFISH_RANGEFINDER_FILTER_YES", "yes");
 \define("TFISH_RANGEFINDER_FILTER_ACTIVE", "Filtered by");
 \define("TFISH_RANGEFINDER_FILTER_APPLY", "Apply filters");
-\define("TFISH_RANGEFINDER_FILTER_CLEAR", "Clear all");
 
 // Table headings.
 \define("TFISH_RANGEFINDER_COL_NAME", "Scientific name");
@@ -227,7 +222,6 @@ namespace Tfish\Rangefinder;
 \define("TFISH_RANGEFINDER_RESULT_NONE", "No records match these filters.");
 \define("TFISH_RANGEFINDER_RESULT_NONE_HELP", "Try removing a filter. A year range excludes undated records, and a ploidy selection excludes records that state no ploidy.");
 \define("TFISH_RANGEFINDER_PER_PAGE", "Per page");
-\define("TFISH_RANGEFINDER_SORT_BY", "Sort by");
 
 // The two handoff links (map <-> table). Each names what it carries, and the map link names what it
 // cannot carry: a link that silently widened the set would look like a data error, not a lost filter.

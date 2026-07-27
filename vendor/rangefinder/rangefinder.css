@@ -570,8 +570,28 @@
 /* ------------------------------------------------------------- /explore/ */
 
 /* The tabular surface. Shares the map's filter panel styling above verbatim — same controls, same
-   words, same look — and adds only what a table needs. No JavaScript is involved in any of it: the
-   disclosure is a native <details>, the sort headers are links, and the filter panel is a GET form. */
+   words, same look — and adds only what a table needs. Everything on it still works with scripting
+   off: the disclosure is a native <details>, the sort headers are links, and the filter panel is a
+   GET form with its own submit button. htmx is layered on top of that, not in place of it — it
+   intercepts the same form and re-renders the results block without a page reload, so filtering
+   feels like the map's does. The two rules below are the only styling that layer needs. */
+
+/* With htmx running, the panel filters as it is set and Apply has nothing left to do, so it is
+   hidden — but by a class the script itself adds, never by a media query or a default. The button
+   must survive in the markup and stay visible whenever the script has not run, because it is then
+   the only way to filter at all. */
+.rangefinder-js .rangefinder-apply {
+    display: none;
+}
+
+/* Requests are fast enough that a spinner would flash more than it informed, but not so fast that
+   nothing should acknowledge the click. The results fade while their replacement is in flight, held
+   back a beat so a response that arrives promptly — which is most of them — produces no flicker at
+   all. Reduced-motion is honoured by having no motion to reduce: this is opacity, not movement. */
+#rangefinderResults.htmx-request {
+    opacity: 0.55;
+    transition: opacity 120ms linear 150ms;
+}
 
 /* An <a> used as a button (the handoffs) has to be told to look like the <button>s beside it. */
 a.rangefinder-btn {

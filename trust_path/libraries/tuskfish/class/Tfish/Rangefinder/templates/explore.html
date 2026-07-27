@@ -5,6 +5,42 @@
 <?php $records = $viewModel->records(); ?>
 <?php $count = $viewModel->contentCount(); ?>
 <?php $exploreUrl = TFISH_URL . 'explore/'; ?>
+<?php // Material labels are the same map for every row; read once rather than per record.
+$holdingLabels = $viewModel->holdingOptions(); ?>
+<?php // The confidence facet runs a query (bucketCounts), and is needed twice: once to render the
+// checkboxes and once to name their tally elements in the out-of-band swap list. Read once.
+$confidence = $viewModel->confidenceFacet(); ?>
+<?php
+// Everything outside the results block that htmx must refresh, as a selector list.
+//
+// Filtering swaps #rangefinderResults, but four things elsewhere on the page are also functions of
+// the filter state and would otherwise silently go stale — and stale here is not cosmetic. The three
+// action links carry the filterset in their hrefs, so a stale Export button would download the
+// PREVIOUS filterset under the current page's heading, which is the worst failure this module can
+// have. The confidence tallies are the one facet that varies with the other filters (the country,
+// ploidy, dataset and basis counts are surface-wide constants, so they cannot go stale). And the
+// dropped-filter note states what the map cannot honour, which changes with the filters it lists.
+//
+// Only the tally SPANS are listed, never their enclosing labels: swapping a label would destroy the
+// checkbox the visitor just clicked, and with it their keyboard focus.
+// The count line is swapped by its CONTENTS, not replaced: it is the page's live region, and a live
+// region only announces if the element itself survives.
+$oobTargets = [
+    '#rangefinderCount:innerHTML',
+    '#rangefinderSort',
+    '#rangefinderDir',
+    '#rangefinderMapDropped',
+    '#rangefinderExport',
+    '#rangefinderShowOnMap',
+    '#rangefinderSwitchSet',
+];
+
+foreach ($confidence as $bucket) {
+    $oobTargets[] = '#rangefinderTally-' . $bucket['bucket'];
+}
+
+$oob = \implode(',', $oobTargets);
+?>
 <?php
 // Sortable column headers. Each is a link that keeps every other filter and toggles direction if the
 // column is already the active sort — built through $viewModel->url(), so the URL vocabulary lives in
@@ -39,6 +75,33 @@ $orDash = static function ($value): string {
 
 <link rel="stylesheet" href="<?php echo xss($asset); ?>rangefinder/rangefinder.css">
 
+<!-- htmx, which turns the filter panel below from apply-then-reload into live filtering. Loaded here
+     rather than in a theme for the same reason the stylesheet is: the module installs by dropping in
+     a directory, and requiring a theme edit would defeat that. It is already vendored for the admin
+     side, so this adds a dependency to the page but not to the project.
+
+     Everything it does is enhancement. With scripting off the panel is still the plain GET form it
+     always was, the Apply button below is still there, and the page behaves exactly as it did. -->
+<script src="<?php echo xss($asset); ?>htmx/htmx.min.js"></script>
+<script>
+    document.documentElement.classList.add('rangefinder-js');
+
+    // If a filter request fails — server error, dropped connection, captive portal — htmx's default
+    // is to leave the page as it is. That default is wrong here: the panel would show one filterset
+    // while the table below it showed the results of another, with nothing on screen saying so, and a
+    // page that quietly disagrees with itself about which records it is displaying is the one failure
+    // this module must not have. So a failure falls back to an ordinary navigation to the same URL,
+    // which either renders the page or shows a real error. Either way the visitor sees the truth, and
+    // the fallback is the same plain GET the page uses with scripting off.
+    ['htmx:responseError', 'htmx:sendError', 'htmx:timeout'].forEach(function (event) {
+        document.addEventListener(event, function (e) {
+            var path = e.detail && e.detail.pathInfo;
+
+            if (path) window.location.assign(path.finalRequestPath || path.requestPath);
+        });
+    });
+</script>
+
 <div class="container">
     <div class="row">
         <div class="col">
@@ -46,7 +109,31 @@ $orDash = static function ($value): string {
         </div>
     </div>
 
-    <div class="rangefinder-container rangefinder-explore">
+    <!-- The htmx settings shared by everything that re-renders the table: the filter form, the sort
+         headers and the pagination links. They live on the common ancestor because htmx inherits
+         these attributes down the tree, so the three request sources cannot drift apart — and the
+         sort headers and pagination sit outside the form, so the form could not carry them.
+
+         hx-select means the ordinary, complete page is fetched and the results block extracted from
+         it in the browser. That looks wasteful and is deliberate: the alternative is a second,
+         fragment-only render path on the server, which is a second definition of this page to keep
+         in step with the first. The table is most of the document's weight anyway, and the response
+         is gzipped to well under 20KB, so the saving would be small and the risk of the two paths
+         disagreeing is exactly the failure the map/table parity contract exists to prevent.
+
+         hx-history disables htmx's history snapshot. The snapshot is markup, and the visitor's
+         filter selections live in DOM properties that markup does not carry, so restoring one would
+         show the form in one state and the table in another. Turned off, Back re-requests the URL
+         and the server renders both from the same state, which is the whole point of keeping the
+         filterset in the query string. -->
+    <div class="rangefinder-container rangefinder-explore"
+         hx-target="#rangefinderResults"
+         hx-select="#rangefinderResults"
+         hx-select-oob="<?php echo xss($oob); ?>"
+         hx-swap="outerHTML"
+         hx-indicator="#rangefinderResults"
+         hx-push-url="true"
+         hx-history="false">
 
         <!-- The D-6 quarantine banner. These rows name a place but carry no coordinates, so they are
              listed here and nowhere else, and the banner exists so they can never be mistaken for
@@ -61,14 +148,44 @@ $orDash = static function ($value): string {
              linkable, bookmarkable and back-button-safe, and the whole surface works with
              JavaScript off. Checkbox groups submit as species[] and are read in either form
              (see RangefinderFilters::parseFilters). -->
-        <form class="rangefinder-filters" method="get" action="<?php echo xss($exploreUrl); ?>">
+        <!-- The form is the requesting element, so htmx serialises the whole panel on every trigger.
+             That is what keeps the URL vocabulary in one place: htmx builds the same query string the
+             browser would have submitted, and the server parses it with the same parser it always
+             did. Nothing here knows what a filter means.
 
-            <!-- Sort, page size and record set are carried as hidden fields so applying a filter does
-                 not silently reset them. `start` is deliberately NOT carried: a new filter means a new
-                 result set, and keeping the old offset would land the visitor mid-way through it. -->
-            <input type="hidden" name="sort" value="<?php echo xss($filters['sort']); ?>">
-            <input type="hidden" name="dir" value="<?php echo xss($filters['dir']); ?>">
-            <input type="hidden" name="per" value="<?php echo xss((string) $filters['per']); ?>">
+             The triggers are named per control rather than left as a blanket 'change' on the form,
+             because the controls do not want the same treatment. A select or a checkbox is a
+             finished decision, so it fires at once. A text or number field is not — it fires on
+             'input' (which covers typing, pasting, the search field's clear button and the number
+             spinners alike) behind a delay, so a five-character search is one request and not five.
+             A blanket 'change' would additionally re-fire on blur for a field the visitor had
+             already filtered with, asking the same question twice.
+
+             hx-sync abandons a request that a further keystroke has already superseded, so the
+             answer on screen is always the answer to the last thing asked. -->
+        <form class="rangefinder-filters" method="get" action="<?php echo xss($exploreUrl); ?>"
+              hx-get="<?php echo xss($exploreUrl); ?>"
+              hx-sync="this:replace"
+              hx-trigger="submit,
+                          change from:.rangefinder-filters select,
+                          change from:.rangefinder-filters input[type=checkbox],
+                          input changed delay:400ms from:#rangefinderSearch,
+                          input changed delay:600ms from:#rangefinderFrom,
+                          input changed delay:600ms from:#rangefinderTo">
+
+            <!-- Sort and record set are carried as hidden fields so applying a filter does not
+                 silently reset them. `per` is NOT among them: it has its own <select> further down,
+                 and a hidden field of the same name would submit the parameter twice — which works
+                 only because PHP keeps the last occurrence, i.e. by DOM order. `start` is
+                 deliberately dropped: a new filter means a new result set, and keeping the old
+                 offset would land the visitor mid-way through it. -->
+            <!-- Identified and refreshed out of band, because the sort headers are OUTSIDE this form:
+                 they re-render the table without re-rendering the panel, so without this these two
+                 fields would still hold the sort that was in force when the page was built. The next
+                 filter change would then submit the stale value and silently undo the visitor's
+                 sort — the table reordering itself for no reason they could see. -->
+            <input type="hidden" name="sort" id="rangefinderSort" value="<?php echo xss($filters['sort']); ?>">
+            <input type="hidden" name="dir" id="rangefinderDir" value="<?php echo xss($filters['dir']); ?>">
             <?php if ($filters['unmapped']): ?>
                 <input type="hidden" name="unmapped" value="1">
             <?php endif; ?>
@@ -185,13 +302,16 @@ $orDash = static function ($value): string {
                          ('verified=0' hides a bucket). The hidden field carries the '0' when the box
                          is unchecked; when it is checked, the checkbox's later '1' wins. That is what
                          lets an opt-out control work in a plain form with no JavaScript. -->
-                    <?php foreach ($viewModel->confidenceFacet() as $bucket): ?>
+                    <?php foreach ($confidence as $bucket): ?>
                         <label class="rangefinder-check">
                             <input type="hidden" name="<?php echo xss($bucket['bucket']); ?>" value="0">
                             <input type="checkbox" name="<?php echo xss($bucket['bucket']); ?>" value="1"
                                 <?php echo $bucket['selected'] ? ' checked' : ''; ?>>
                             <?php echo xss($bucket['label']); ?>
-                            <span class="rangefinder-tally">(<?php echo xss((string) $bucket['n']); ?>)</span>
+                            <!-- Identified, and refreshed out of band, because this is the one tally
+                                 that answers "how many would this bucket add to what I am otherwise
+                                 asking for" and so moves with every other filter. -->
+                            <span class="rangefinder-tally" id="rangefinderTally-<?php echo xss($bucket['bucket']); ?>">(<?php echo xss((string) $bucket['n']); ?>)</span>
                         </label>
                     <?php endforeach; ?>
                 </div>
@@ -244,35 +364,53 @@ $orDash = static function ($value): string {
             </div>
 
             <div class="rangefinder-actions">
-                <button type="submit" class="rangefinder-btn rangefinder-btn--accent">
+                <!-- Applying is what htmx now does on its own, so with scripting on this button has
+                     nothing left to do and is hidden by the .rangefinder-js rule. It stays in the
+                     markup because with scripting off it is the only way to run a filter at all. -->
+                <button type="submit" class="rangefinder-btn rangefinder-apply">
                     <?php echo xss(TFISH_RANGEFINDER_FILTER_APPLY); ?>
                 </button>
-                <?php if ($viewModel->isFiltered()): ?>
-                    <a class="rangefinder-btn" href="<?php echo xss($exploreUrl); ?>">
-                        <?php echo xss(TFISH_RANGEFINDER_FILTER_CLEAR); ?>
-                    </a>
-                <?php endif; ?>
+                <!-- Reset. Always present, tinted, and worded as the map words it: the same control
+                     doing the same job on both surfaces should not be a different colour, a different
+                     name, and — as it was — sometimes missing. Appearing only once a filter was set
+                     meant it shifted the whole button row into place the first time it was needed.
+
+                     Left as a plain link deliberately, so it is a real navigation: it clears the
+                     query string AND rebuilds the form from the server, which is what a reset must do
+                     — an htmx swap would leave every checkbox on screen still ticked. -->
+                <a class="rangefinder-btn rangefinder-btn--accent" href="<?php echo xss($exploreUrl); ?>">
+                    <?php echo xss(TFISH_RANGEFINDER_RESET); ?>
+                </a>
                 <!-- The reciprocal of the map's "View as table": a refinement made here goes back to
                      the map, carrying the filters the map can express and SAYING which it cannot. A
                      link that silently widened the set would read as a fault in the data. -->
-                <a class="rangefinder-btn" href="<?php echo xss($viewModel->mapUrl()); ?>"
+                <a class="rangefinder-btn" id="rangefinderShowOnMap"
+                   href="<?php echo xss($viewModel->mapUrl()); ?>"
                    title="<?php echo xss(TFISH_RANGEFINDER_SHOW_ON_MAP_HELP); ?>">
                     <?php echo xss(TFISH_RANGEFINDER_SHOW_ON_MAP); ?>
                 </a>
                 <!-- Export (D-7). The only download in the module, and it takes the filter state from
-                     the URL exactly as this page did, so "download" means "this view, as a file". -->
-                <a class="rangefinder-btn" href="<?php echo xss($viewModel->exportUrl()); ?>"
+                     the URL exactly as this page did, so "download" means "this view, as a file".
+                     Which is why it is in the out-of-band swap list: once filtering stopped reloading
+                     the page, an href left at its load-time value would quietly hand over a different
+                     filterset from the one on screen. -->
+                <a class="rangefinder-btn" id="rangefinderExport"
+                   href="<?php echo xss($viewModel->exportUrl()); ?>"
                    title="<?php echo xss(TFISH_RANGEFINDER_EXPORT_HELP); ?>">
                     <?php echo xss(TFISH_RANGEFINDER_EXPORT); ?>
                 </a>
-                <a class="rangefinder-btn" href="<?php echo xss($viewModel->switchSetUrl()); ?>">
+                <a class="rangefinder-btn" id="rangefinderSwitchSet"
+                   href="<?php echo xss($viewModel->switchSetUrl()); ?>">
                     <?php echo xss($viewModel->isQuarantineSet()
                         ? TFISH_RANGEFINDER_CURATED_SHOW
                         : TFISH_RANGEFINDER_QUARANTINE_SHOW); ?>
                 </a>
                 <label class="rangefinder-perpage">
                     <?php echo xss(TFISH_RANGEFINDER_PER_PAGE); ?>
-                    <select name="per" onchange="this.form.submit()">
+                    <!-- No onchange="this.form.submit()" any more: the form's own change trigger
+                         covers this select like any other, and leaving the handler on would fire a
+                         full page load alongside the htmx request. -->
+                    <select name="per">
                         <?php foreach ($viewModel->pageSizes() as $size): ?>
                             <option value="<?php echo xss((string) $size); ?>"
                                 <?php echo $filters['per'] === $size ? ' selected' : ''; ?>>
@@ -283,17 +421,31 @@ $orDash = static function ($value): string {
                 </label>
             </div>
 
-            <?php $dropped = $viewModel->mapDropped(); ?>
-            <?php if (!empty($dropped)): ?>
-                <p class="rangefinder-help">
-                    <?php echo xss(\str_replace('{filters}', \implode(', ', $dropped), TFISH_RANGEFINDER_SHOW_ON_MAP_DROPPED)); ?>
-                </p>
-            <?php endif; ?>
+            <!-- The container is rendered whether or not it has anything to say, because an
+                 out-of-band swap can only replace an element that is already there: were it absent
+                 when empty, a note from an earlier filterset would have nothing to overwrite it and
+                 would stay on screen naming filters no longer set. -->
+            <div id="rangefinderMapDropped">
+                <?php $dropped = $viewModel->mapDropped(); ?>
+                <?php if (!empty($dropped)): ?>
+                    <p class="rangefinder-help">
+                        <?php echo xss(\str_replace('{filters}', \implode(', ', $dropped), TFISH_RANGEFINDER_SHOW_ON_MAP_DROPPED)); ?>
+                    </p>
+                <?php endif; ?>
+            </div>
         </form>
 
         <!-- Result count and the active filterset in words, so a visitor (or a colleague following a
-             shared link) can see what the table is a view of without decoding the URL. -->
-        <p class="rangefinder-result-count">
+             shared link) can see what the table is a view of without decoding the URL.
+
+             It sits outside the swapped block, and is refreshed by its contents rather than replaced,
+             so that it can be the page's live region. Filtering now changes the table with no page
+             load and so with nothing for a screen reader to announce; role="status" makes the new
+             count and filter summary spoken as they change. That requires the element itself to
+             persist — a live region that is swapped out is a new element, and a new element announces
+             nothing. This one short sentence is also the right thing to speak: it says how many
+             records and on what terms, where announcing the table would read out hundreds of rows. -->
+        <p class="rangefinder-result-count" id="rangefinderCount" role="status">
             <?php echo xss($count === 1
                 ? TFISH_RANGEFINDER_RESULT_ONE
                 : \str_replace('{count}', \number_format($count), TFISH_RANGEFINDER_RESULT_COUNT)); ?>
@@ -307,6 +459,11 @@ $orDash = static function ($value): string {
             <?php endif; ?>
         </p>
 
+        <!-- The table and its pagination, in one block, because both are functions of the filters:
+             swapping them together means a filter change cannot leave the pagination offering pages
+             of a set the table is no longer showing. -->
+        <div id="rangefinderResults">
+
         <?php if (empty($records)): ?>
             <p class="rangefinder-empty">
                 <?php echo xss(TFISH_RANGEFINDER_RESULT_NONE); ?>
@@ -318,7 +475,12 @@ $orDash = static function ($value): string {
 
         <div class="rangefinder-table-wrap">
             <table class="rangefinder-table">
-                <thead>
+                <!-- Boosted, so re-sorting swaps the table in place like filtering does rather than
+                     reloading the page around it. Scoped to the <thead> and not to the results block
+                     as a whole: the rows below contain links out to the map and to third-party record
+                     pages, and boosting those would try to swap another site's page into this table.
+                     The headers stay ordinary links, so they still middle-click into a new tab. -->
+                <thead hx-boost="true">
                     <tr>
                         <th scope="col"><?php echo $sortLink('name', TFISH_RANGEFINDER_COL_NAME); ?></th>
                         <th scope="col"><?php echo $sortLink('confidence', TFISH_RANGEFINDER_COL_CONFIDENCE); ?></th>
@@ -422,7 +584,7 @@ $orDash = static function ($value): string {
                                  held or obtainable (D-20). -->
                             <?php if (!empty($record['holding_type'])): ?>
                                 <span class="rangefinder-badge rangefinder-badge--material">
-                                    <?php echo xss($viewModel->holdingOptions()[$record['holding_type']] ?? $record['holding_type']); ?>
+                                    <?php echo xss($holdingLabels[$record['holding_type']] ?? $record['holding_type']); ?>
                                 </span>
                             <?php else: ?>
                                 <?php echo xss(TFISH_RANGEFINDER_NO_VALUE); ?>
@@ -572,10 +734,20 @@ $orDash = static function ($value): string {
         <?php endif; ?>
 
         <!-- Core pagination, assigned by \Tfish\View\Listing. It carries the filter state through
-             extraParams(), so a page link keeps the filterset. -->
+             extraParams(), so a page link keeps the filterset.
+
+             Boosted at the wrapper, which is how the core's own markup joins in without being
+             touched: every link inside is an /explore/ URL, so the whole block can be boosted
+             wholesale. The swap is told to scroll to the top, unlike a filter change — turning a
+             page is a request for different rows and should present them from the beginning, where
+             filtering refines what is already under the reader's eye and must not move it. -->
         <?php if (!empty($pagination)): ?>
-            <div class="rangefinder-pagination"><?php echo $pagination; ?></div>
+            <div class="rangefinder-pagination" hx-boost="true" hx-swap="outerHTML show:window:top">
+                <?php echo $pagination; ?>
+            </div>
         <?php endif; ?>
+
+        </div><!-- /#rangefinderResults -->
 
     </div>
 </div>

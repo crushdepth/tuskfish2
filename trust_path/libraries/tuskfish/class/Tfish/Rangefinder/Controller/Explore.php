@@ -415,7 +415,7 @@ class Explore
         \header_remove('Pragma');
         \header_remove('Expires');
 
-        \header('Cache-Control: ' . ($loggedIn ? 'private' : 'public') . ', must-revalidate');
+        \header('Cache-Control: ' . $this->cacheScope($loggedIn) . ', must-revalidate');
         \header('ETag: ' . $etag);
 
         $ifNoneMatch = $this->trimString($_SERVER['HTTP_IF_NONE_MATCH'] ?? '');
@@ -427,5 +427,29 @@ class Explore
                 exit;
             }
         }
+    }
+
+    /**
+     * Whether this response may be stored by a shared cache, or only by the visitor's own browser.
+     *
+     * 'public' is only safe on a response that carries nothing visitor-specific, and a Set-Cookie is
+     * exactly that: a shared cache is permitted to store a response with one, so a proxy that did
+     * would hand one visitor's session cookie to the next. Tuskfish starts a session on every
+     * request, so in practice this answers 'private' — but it is decided from what the response
+     * actually carries rather than assumed, so 'public' returns of its own accord if the cookie
+     * stops being issued unconditionally. (Same treatment as Controller\Map.)
+     *
+     * @param   bool $loggedIn Whether a session is active.
+     * @return  string 'public' or 'private'.
+     */
+    private function cacheScope(bool $loggedIn): string
+    {
+        if ($loggedIn) return 'private';
+
+        foreach (\headers_list() as $header) {
+            if (\stripos($header, 'Set-Cookie:') === 0) return 'private';
+        }
+
+        return 'public';
     }
 }

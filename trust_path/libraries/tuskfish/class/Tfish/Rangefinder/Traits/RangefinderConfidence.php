@@ -137,7 +137,8 @@ trait RangefinderConfidence
      * The whitelist arrives as bound placeholders, never interpolated, even though it is
      * hard-coded PHP: one path for values into SQL, no exceptions.
      *
-     * @param   array<string> $buckets Selected bucket names; empty or all three means no restriction.
+     * @param   array<string> $buckets Selected bucket names; all three means no restriction, none
+     *              means no record qualifies.
      * @param   string $alias Table/view alias to qualify columns with ('' for none).
      * @param   string $prefix Placeholder prefix, so several fragments can coexist in one statement.
      * @return  array ['sql' => string, 'params' => array] — sql is '' when nothing is restricted.
@@ -146,9 +147,20 @@ trait RangefinderConfidence
     {
         $selected = \array_values(\array_intersect($this->confidenceBuckets(), $buckets));
 
-        // No selection and a full selection are the same query: everything. Say so with no clause
-        // rather than a three-way OR the planner has to see through.
-        if (empty($selected) || \count($selected) === \count($this->confidenceBuckets())) {
+        // Every record is in exactly one bucket, so selecting none selects nothing. That is NOT the
+        // same as selecting all, and the distinction is load-bearing: parseFilters() only ever
+        // produces an empty selection when the visitor turned all three off explicitly, and the map
+        // answers that state with an empty map (matches() in rangefinder.js rejects a record whose
+        // bucket is switched off). Reading it as "no restriction" here would answer the same URL
+        // with the whole dataset while the page's own summary line said the confidence filter
+        // admitted nothing — one URL, two answers, and the wider one silently wrong.
+        if (empty($selected)) {
+            return ['sql' => '(1 = 0)', 'params' => []];
+        }
+
+        // A full selection is everything. Say so with no clause rather than a three-way OR the
+        // planner has to see through.
+        if (\count($selected) === \count($this->confidenceBuckets())) {
             return ['sql' => '', 'params' => []];
         }
 
