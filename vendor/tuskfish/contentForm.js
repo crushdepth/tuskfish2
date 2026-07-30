@@ -232,10 +232,14 @@ function hideAlerts() {
     $('.alert2').addClass('hide');
 }
 
-// Gets the file extension of the media file (used to set mimetype).
+// Gets the file extension of the media file (used to set mimetype). Lowercased, as the mimetype
+// lists are keyed on lowercase extensions and cameras commonly produce names like "PHOTO.JPG".
 function getFileExtension(filename) {
-    return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
+    return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2).toLowerCase();
 }
+
+// NB: The mimetype lists below must be kept synchronised with those in
+// Traits/Mimetypes.php, which is the server-side upload whitelist.
 
 // Get an audio mimetype.
 function getAudioMimeType() {
@@ -255,6 +259,7 @@ function getImageMimeType() {
 
     imageMimeType.gif = "image/gif";
     imageMimeType.jpg = "image/jpeg";
+    imageMimeType.jpeg = "image/jpeg";
     imageMimeType.png = "image/png";
 
     return imageMimeType;

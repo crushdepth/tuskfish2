@@ -53,6 +53,7 @@ trait Mimetypes
         return [
             "gif" => "image/gif",
             "jpg" => "image/jpeg",
+            "jpeg" => "image/jpeg",
             "png" => "image/png"
         ];
     }

@@ -320,7 +320,7 @@ class FileHandler
             throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
         }
 
-        $mimetypeList = $this->listMimetypes(); // extension => mimetype
+        $mimetypeList = $this->uploadMimetypes($clean_fieldname); // extension => mimetype
         $extension = \mb_strtolower(\pathinfo($filename, PATHINFO_EXTENSION), 'UTF-8');
         $clean_extension = \array_key_exists($extension, $mimetypeList)
                 ? $this->trimString($extension) : false;
@@ -336,6 +336,28 @@ class FileHandler
         }
 
         return false;
+    }
+
+    /**
+     * Return the permitted extension => mimetype list for an upload field.
+     *
+     * The image field (uploads/image) is restricted to image formats, since the only thing done with
+     * those files is to display and resize them. The media field (uploads/media) accepts the full
+     * list of permitted document, audio, video and archive formats.
+     *
+     * Unknown field names are rejected rather than defaulted, so that adding a third upload field
+     * cannot silently inherit the broadest whitelist.
+     *
+     * @param string $fieldname Name of form field associated with this upload ('image' or 'media').
+     * @return array Array of permitted mimetypes and extensions.
+     */
+    private function uploadMimetypes(string $fieldname): array
+    {
+        return match ($fieldname) {
+            'image' => $this->listImageMimetypes(),
+            'media' => $this->listMimetypes(),
+            default => throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE)
+        };
     }
 
     /** @internal */
@@ -387,7 +409,7 @@ class FileHandler
 
         $finfo = new \finfo(\FILEINFO_MIME_TYPE);
         $detected = $finfo->file($tmp) ?: '';
-        $allowed = $this->listMimetypes()[$extension] ?? '';
+        $allowed = $this->uploadMimetypes($fieldname)[$extension] ?? '';
 
         if ($detected !== $allowed) {
             \trigger_error(TFISH_ERROR_ILLEGAL_MIMETYPE, E_USER_NOTICE);

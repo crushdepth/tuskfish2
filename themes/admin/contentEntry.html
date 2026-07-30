@@ -153,7 +153,7 @@
           $("#image").fileinput({
           'showUpload': false,
           'showRemove': true,
-          'allowedFileExtensions': ["gif", "jpg", "png"],
+          'allowedFileExtensions': <?php echo $viewModel->imageExtensionsJson(); ?>,
           'previewFileType': ["image"],
           'fileActionSettings': {
               'showDrag': false},
@@ -172,9 +172,7 @@
           'showUpload': false,
           'showRemove': true,
           'allowedPreviewTypes': ['image', 'video', 'audio', 'object'],
-          'allowedFileExtensions': ["doc","docx","gif","gz","jpg","kml", "kmz", "mp3","mp4","odt",
-              "ods", "odp", "oga","ogg","ogv","pdf","png","ppt", "pptx", "tar","wav","webm","xls",
-              "xlsx", "zip"],
+          'allowedFileExtensions': <?php echo $viewModel->mediaExtensionsJson(); ?>,
           'fileActionSettings': {
               'showDrag': false},
           'theme': "fa"});

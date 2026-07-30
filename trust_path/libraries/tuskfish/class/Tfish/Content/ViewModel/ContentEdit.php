@@ -25,6 +25,7 @@ namespace Tfish\Content\ViewModel;
  * @since       2.0
  * @package     content
  * @uses        trait \Tfish\Traits\Group Whitelist of user groups on system and bitmask authorisation tests.
+ * @uses        trait \Tfish\Traits\Mimetypes Provides a list of common (permitted) mimetypes for file uploads.
  * @uses        trait \Tfish\Traits\Timezones	Provides an array of time zones.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @uses        trait \Tfish\Traits\ValidateToken Provides CSRF check functionality.
@@ -41,6 +42,7 @@ namespace Tfish\Content\ViewModel;
 class ContentEdit implements \Tfish\Interface\Viewable
 {
     use \Tfish\Traits\Group;
+    use \Tfish\Traits\Mimetypes;
     use \Tfish\Traits\Timezones;
     use \Tfish\Traits\ValidateString;
     use \Tfish\Traits\ValidateToken;
@@ -182,6 +184,43 @@ class ContentEdit implements \Tfish\Interface\Viewable
     public function defaultLanguage(): string
     {
         return $this->preference->defaultLanguage();
+    }
+
+    /**
+     * Returns the permitted image extensions as a JSON array, for the upload widget.
+     *
+     * @return  string JSON array of file extensions, eg. ["gif","jpg","jpeg","png"].
+     */
+    public function imageExtensionsJson(): string
+    {
+        return $this->extensionsToJson($this->listImageMimetypes());
+    }
+
+    /**
+     * Returns the permitted media extensions as a JSON array, for the upload widget.
+     *
+     * @return  string JSON array of file extensions, eg. ["doc","docx","pdf"].
+     */
+    public function mediaExtensionsJson(): string
+    {
+        return $this->extensionsToJson($this->listMimetypes());
+    }
+
+    /**
+     * Encode the keys of a mimetype whitelist as a JSON array for embedding in a script block.
+     *
+     * The extension keys are the client-side upload whitelist, which must agree with the server-side
+     * whitelist in \Tfish\Traits\Mimetypes. Emitting them from the trait keeps the two in step, so a
+     * format added to the trait is offered by the upload widget without a second edit.
+     *
+     * JSON_HEX_TAG escapes < and >, so the output cannot terminate the enclosing script element.
+     *
+     * @param   array $mimetypes Whitelist of permitted mimetypes, as extension => mimetype pairs.
+     * @return  string JSON array of the extension keys.
+     */
+    private function extensionsToJson(array $mimetypes): string
+    {
+        return \json_encode(\array_keys($mimetypes), JSON_HEX_TAG);
     }
 
     /**
