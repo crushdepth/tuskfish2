@@ -496,6 +496,7 @@ figcaption { color: var(--muted); font-size: .88rem; margin-top: .4rem; }
      doesn't spill past the block's bottom edge. */
   display: flow-root;
 }
+.related > h2, .collection-children > h2 { font-weight: 600; }
 /* Parent / child titles share the stream teaser heading (var(--h3), weight 600);
    placed after `.article .title` so it wins on source order at equal specificity. */
 .related .title, .collection-children .title { font-size: var(--h3); font-weight: 600; margin-bottom: .35rem; }
