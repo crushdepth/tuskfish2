@@ -6,14 +6,14 @@
   <div class="collection-pagination-top"><?php echo $pagination; ?></div>
   <?php endif; ?>
 
-  <h3><?php echo TFISH_IN_THIS_COLLECTION; ?></h3>
+  <h2><?php echo TFISH_IN_THIS_COLLECTION; ?></h2>
 
   <?php foreach ($children as $child): ?>
   <div class="child-item">
-    <h4 class="title">
+    <h3 class="title">
       <a href="<?php echo xss($child->url()); ?>" class="icon-link"><?php echo $child->icon($child->type()); ?></a>
       <a href="<?php echo xss($child->url()); ?>" class="title-link"><?php echo xss($child->title()); ?></a>
-    </h4>
+    </h3>
 
     <p class="content-info small">
       <?php echo xss($child->date()->format('j F Y')); ?><?php if ($child->info()) echo ' | ' . xss($child->info()); ?>
