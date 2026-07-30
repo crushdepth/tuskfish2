@@ -157,12 +157,11 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
    ========================================================================= */
 
 /* =========================================================================
-   Header / navigation — boost-style hero over the flamingos photo
+   Header / navigation — hero band. Each layout*.html adds a --photo-* modifier
+   class to pick its own header image; no image on the base rule.
    ========================================================================= */
 .site-header {
-  /* Photo background borrowed from the boost theme, displayed at boost's height
-     (45vh) so the image renders at the size it was selected and sized for. */
-  background: url(../boost/assets/img/flamingos-2.jpg);
+  /* No background colour: it would flash before the photo paints. */
   background-size: cover;
   background-position: center center;
   min-height: 45vh;
@@ -170,13 +169,12 @@ hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
   color: #fff;
   box-shadow: var(--shadow-sm);
 }
-/* Home page: full-screen hero over boost layoutHome's pink-lake photo, shown at
-   100vh with the branding at the top and the rest of the viewport left to the
-   image. Only background-image is overridden; size/position come from .site-header. */
-.site-header--home {
-  min-height: 100vh;
-  background-image: url(../boost/assets/img/pink-lake.jpg);
-}
+/* Header images — one class per photo, added in the layout. */
+.site-header--photo-flamingos { background-image: url(../boost/assets/img/flamingos-2.jpg); }
+.site-header--photo-pink-lake { background-image: url(../boost/assets/img/pink-lake.jpg); }
+
+/* Full-screen hero (home): branding at the top, the rest left to the image. */
+.site-header--home { min-height: 100vh; }
 /* The hero fills the photo band; nav sits at the top, the branding block
    is vertically centred in the space that remains. */
 .hero {
