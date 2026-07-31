@@ -146,38 +146,36 @@
         <!-- Image -->
         <div class="col-md-6 mb-3 text-start" id="imageContainer">
           <label for="image" class="form-label"><strong><?php echo TFISH_IMAGE; ?></strong></label>
-          <input id="image" name="content[image]" type="file" data-preview-file-type="text">
+          <div class="tf-filefield"
+               data-max-bytes="<?php echo xss($viewModel->maxUploadBytes()); ?>"
+               data-msg-type="<?php echo xss(TFISH_FILE_TYPE_NOT_PERMITTED); ?>"
+               data-msg-size="<?php echo xss(TFISH_FILE_TOO_LARGE); ?>">
+            <div class="tf-filefield-dropzone">
+              <input id="image" name="content[image]" type="file" accept="<?php echo xss($viewModel->imageAccept()); ?>">
+              <p class="tf-filefield-hint"><?php echo TFISH_DROP_FILE_HERE; ?><?php if ($viewModel->maxUploadSize()): ?> <?php echo TFISH_MAXIMUM_UPLOAD_SIZE . ': ' . xss($viewModel->maxUploadSize()); ?>.<?php endif; ?></p>
+            </div>
+            <div class="tf-filefield-preview" hidden></div>
+            <button type="button" class="tf-filefield-clear btn btn-sm btn-outline-secondary" hidden><?php echo TFISH_CLEAR_SELECTION; ?></button>
+            <p class="tf-filefield-error text-danger" role="alert" hidden></p>
+          </div>
         </div>
-        <script>
-        $(document).ready(function() {
-          $("#image").fileinput({
-          'showUpload': false,
-          'showRemove': true,
-          'allowedFileExtensions': <?php echo $viewModel->imageExtensionsJson(); ?>,
-          'previewFileType': ["image"],
-          'fileActionSettings': {
-              'showDrag': false},
-          'theme': "fa"});
-        });
-        </script>
 
         <!-- Media -->
         <div class="col-md-6 mb-3 text-start" id="mediaContainer">
           <label for="media" class="form-label"><span class="alert2 text-danger d-none"><i class="fas fa-exclamation-triangle" title="<?php echo TFISH_MEDIA_NOT_COMPATIBLE; ?>"></i> </span><strong><?php echo TFISH_MEDIA; ?></strong></label>
-          <input id="media" name="content[media]" type="file" data-preview-file-type="text" >
+          <div class="tf-filefield"
+               data-max-bytes="<?php echo xss($viewModel->maxUploadBytes()); ?>"
+               data-msg-type="<?php echo xss(TFISH_FILE_TYPE_NOT_PERMITTED); ?>"
+               data-msg-size="<?php echo xss(TFISH_FILE_TOO_LARGE); ?>">
+            <div class="tf-filefield-dropzone">
+              <input id="media" name="content[media]" type="file" accept="<?php echo xss($viewModel->mediaAccept()); ?>">
+              <p class="tf-filefield-hint"><?php echo TFISH_DROP_FILE_HERE; ?><?php if ($viewModel->maxUploadSize()): ?> <?php echo TFISH_MAXIMUM_UPLOAD_SIZE . ': ' . xss($viewModel->maxUploadSize()); ?>.<?php endif; ?></p>
+            </div>
+            <div class="tf-filefield-preview" hidden></div>
+            <button type="button" class="tf-filefield-clear btn btn-sm btn-outline-secondary" hidden><?php echo TFISH_CLEAR_SELECTION; ?></button>
+            <p class="tf-filefield-error text-danger" role="alert" hidden></p>
+          </div>
         </div>
-        <script>
-        $(document).ready(function() {
-          $("#media").fileinput({
-          'showUpload': false,
-          'showRemove': true,
-          'allowedPreviewTypes': ['image', 'video', 'audio', 'object'],
-          'allowedFileExtensions': <?php echo $viewModel->mediaExtensionsJson(); ?>,
-          'fileActionSettings': {
-              'showDrag': false},
-          'theme': "fa"});
-        });
-        </script>
 
         <!-- External media -->
         <div class="col-12 mb-3 text-start" id="externalMediaContainer">

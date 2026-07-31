@@ -186,78 +186,81 @@
       </div>
 
       <!-- Image -->
-      <?php if (!empty($content->image())): ?>
-      <div class="col-md-6 mb-4 text-start" id="imageContainer">
+      <div class="col-md-6 mb-3 text-start" id="imageContainer">
         <label for="image" class="form-label"><strong><?php echo TFISH_IMAGE; ?></strong></label>
-        <input id="image" name="content[image]" type="file" data-preview-file-type="image" value="<?php echo xss($content->image()); ?>">
-      </div>
-      <?php else: ?>
-        <div class="col-md-6 mb-3 text-start" id="imageContainer">
-          <label for="image" class="form-label"><strong><?php echo TFISH_IMAGE; ?></strong></label>
-          <input id="image" name="content[image]" type="file" data-preview-file-type="image">
+        <div class="tf-filefield"
+             data-max-bytes="<?php echo xss($viewModel->maxUploadBytes()); ?>"
+             data-msg-type="<?php echo xss(TFISH_FILE_TYPE_NOT_PERMITTED); ?>"
+             data-msg-size="<?php echo xss(TFISH_FILE_TOO_LARGE); ?>"
+             data-delete-flag="deleteImage">
+          <?php if (!empty($content->image())): ?>
+          <div class="tf-filefield-current">
+            <p class="tf-filefield-currentlabel"><?php echo TFISH_CURRENT_FILE; ?></p>
+            <img src="<?php echo TFISH_IMAGE_URL . xss($content->image()); ?>" alt="">
+            <p class="tf-filefield-caption">
+              <a href="<?php echo TFISH_IMAGE_URL . xss($content->image()); ?>" download><?php echo xss($content->image()); ?></a>
+            </p>
+            <button type="button" class="tf-filefield-delete btn btn-sm btn-outline-danger" hidden
+                    data-label-remove="<?php echo xss(TFISH_REMOVE_FILE); ?>"
+                    data-label-undo="<?php echo xss(TFISH_KEEP_FILE); ?>"><?php echo TFISH_REMOVE_FILE; ?></button>
+            <p class="tf-filefield-deletenote text-danger" hidden><?php echo TFISH_FILE_MARKED_FOR_REMOVAL; ?></p>
+          </div>
+          <?php endif; ?>
+          <div class="tf-filefield-dropzone">
+            <input id="image" name="content[image]" type="file" accept="<?php echo xss($viewModel->imageAccept()); ?>">
+            <p class="tf-filefield-hint"><?php echo TFISH_DROP_FILE_HERE; ?><?php if ($viewModel->maxUploadSize()): ?> <?php echo TFISH_MAXIMUM_UPLOAD_SIZE . ': ' . xss($viewModel->maxUploadSize()); ?>.<?php endif; ?></p>
+          </div>
+          <div class="tf-filefield-preview" hidden></div>
+          <button type="button" class="tf-filefield-clear btn btn-sm btn-outline-secondary" hidden><?php echo TFISH_CLEAR_SELECTION; ?></button>
+          <p class="tf-filefield-error text-danger" role="alert" hidden></p>
         </div>
-      <?php endif; ?>
-      <script>
-      $(document).ready(function() {
-        $("#image").fileinput({
-        'showUpload': false,
-        'allowedFileExtensions': <?php echo $viewModel->imageExtensionsJson(); ?>,
-        'previewFileType': ["image"],
-        'initialPreview': '<?php if ($content->image()) echo TFISH_IMAGE_URL . xss($content->image()); ?>',
-        'initialPreviewAsData': true,
-        'initialPreviewShowDelete': false,
-        'initialPreviewDownloadUrl': '<?php if ($content->image()) echo TFISH_IMAGE_URL . xss($content->image()); ?>',
-        'initialCaption': '<?php if (!empty($content->image())) echo xss($content->image()); ?>',
-        'fileActionSettings': {
-            'showDrag': false,
-            'showRemove': false},
-        'theme': "fa"});
-
-        $('#image').on('fileclear', function(tf_deleteImage) {
-            document.getElementById("deleteImage").value = "1";
-        });
-      });
-      </script>
+      </div>
 
       <!-- Delete image -->
       <input type="hidden" name="deleteImage" id="deleteImage" value="0">
 
       <!-- Media -->
-      <?php if (!empty($content->media())): ?>
-      <div class="col-md-6 mb-4 text-start" id="mediaContainer">
-        <label for="media" class="form-label"><strong><span class="alert2 text-danger d-none"><i class="fas fa-exclamation-triangle" title="<?php echo TFISH_MEDIA_NOT_COMPATIBLE; ?>"></i> </span><?php echo TFISH_MEDIA; ?></strong></label>
-        <input id="media" name="content[media]" type="file" data-preview-file-type="text" value="<?php echo xss($content->media()); ?>">
-      </div>
-      <?php else: ?>
-        <div class="col-md-6 mb-4 text-start" id="mediaContainer">
-          <label for="media" class="form-label"><span class="alert2 text-danger d-none"><i class="fas fa-exclamation-triangle" title="<?php echo TFISH_MEDIA_NOT_COMPATIBLE; ?>"></i> </span><strong><?php echo TFISH_MEDIA; ?></strong></label>
-          <input id="media" name="content[media]" type="file" data-preview-file-type="text">
+      <div class="col-md-6 mb-3 text-start" id="mediaContainer">
+        <label for="media" class="form-label"><span class="alert2 text-danger d-none"><i class="fas fa-exclamation-triangle" title="<?php echo TFISH_MEDIA_NOT_COMPATIBLE; ?>"></i> </span><strong><?php echo TFISH_MEDIA; ?></strong></label>
+        <div class="tf-filefield"
+             data-max-bytes="<?php echo xss($viewModel->maxUploadBytes()); ?>"
+             data-msg-type="<?php echo xss(TFISH_FILE_TYPE_NOT_PERMITTED); ?>"
+             data-msg-size="<?php echo xss(TFISH_FILE_TOO_LARGE); ?>"
+             data-delete-flag="deleteMedia">
+          <?php if (!empty($content->media())): ?>
+          <?php
+            $mediaUrl = TFISH_MEDIA_URL . xss($content->media());
+            $mediaFormat = $content->format();
+          ?>
+          <div class="tf-filefield-current">
+            <p class="tf-filefield-currentlabel"><?php echo TFISH_CURRENT_FILE; ?></p>
+            <?php if (\str_starts_with($mediaFormat, 'image/')): ?>
+            <img src="<?php echo $mediaUrl; ?>" alt="">
+            <?php elseif (\str_starts_with($mediaFormat, 'audio/')): ?>
+            <audio src="<?php echo $mediaUrl; ?>" controls></audio>
+            <?php elseif (\str_starts_with($mediaFormat, 'video/')): ?>
+            <video src="<?php echo $mediaUrl; ?>" controls></video>
+            <?php elseif ($mediaFormat === 'application/pdf'): ?>
+            <embed src="<?php echo $mediaUrl; ?>" type="application/pdf">
+            <?php endif; ?>
+            <p class="tf-filefield-caption">
+              <a href="<?php echo $mediaUrl; ?>" download><?php echo xss($content->media()); ?></a>
+            </p>
+            <button type="button" class="tf-filefield-delete btn btn-sm btn-outline-danger" hidden
+                    data-label-remove="<?php echo xss(TFISH_REMOVE_FILE); ?>"
+                    data-label-undo="<?php echo xss(TFISH_KEEP_FILE); ?>"><?php echo TFISH_REMOVE_FILE; ?></button>
+            <p class="tf-filefield-deletenote text-danger" hidden><?php echo TFISH_FILE_MARKED_FOR_REMOVAL; ?></p>
+          </div>
+          <?php endif; ?>
+          <div class="tf-filefield-dropzone">
+            <input id="media" name="content[media]" type="file" accept="<?php echo xss($viewModel->mediaAccept()); ?>">
+            <p class="tf-filefield-hint"><?php echo TFISH_DROP_FILE_HERE; ?><?php if ($viewModel->maxUploadSize()): ?> <?php echo TFISH_MAXIMUM_UPLOAD_SIZE . ': ' . xss($viewModel->maxUploadSize()); ?>.<?php endif; ?></p>
+          </div>
+          <div class="tf-filefield-preview" hidden></div>
+          <button type="button" class="tf-filefield-clear btn btn-sm btn-outline-secondary" hidden><?php echo TFISH_CLEAR_SELECTION; ?></button>
+          <p class="tf-filefield-error text-danger" role="alert" hidden></p>
         </div>
-      <?php endif; ?>
-      <script>
-      $(document).ready(function() {
-        var mimetype = $("#format").val();
-
-        $("#media").fileinput({
-          'showUpload': false,
-          'initialPreview': '<?php if ($content->media()) echo TFISH_MEDIA_URL . xss($content->media()); ?>',
-          'initialPreviewAsData': true,
-          'initialPreviewConfig': [{type: setPreviewType(mimetype)}],
-          'initialPreviewShowDelete': false,
-          'initialPreviewDownloadUrl': '<?php if ($content->media()) echo TFISH_MEDIA_URL . xss($content->media()); ?>',
-          'initialCaption': '<?php echo xss($content->media()); ?>',
-          'allowedFileExtensions': <?php echo $viewModel->mediaExtensionsJson(); ?>,
-          'fileActionSettings': {
-              'showDrag': false,
-              'showRemove': false},
-          'theme': "fa"});
-
-        $('#media').on('fileclear', function(tf_deleteMedia) {
-            document.getElementById("deleteMedia").value = "1";
-        });
-
-      });
-      </script>
+      </div>
 
       <!-- Delete media -->
       <input type="hidden" name="deleteMedia" id="deleteMedia" value="0">

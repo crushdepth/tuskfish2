@@ -330,6 +330,16 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_IN_FEED", "Include in feeds");
 \define("TFISH_IN_FEED_SHORT", "Feed");
 
+// File upload fields.
+\define("TFISH_DROP_FILE_HERE", "Drop a file here, or click to browse.");
+\define("TFISH_CURRENT_FILE", "Current file");
+\define("TFISH_SELECTED_FILE", "Selected file (replaces the current file when saved)");
+\define("TFISH_CLEAR_SELECTION", "Clear selection");
+\define("TFISH_REMOVE_FILE", "Remove");
+\define("TFISH_KEEP_FILE", "Undo remove");
+\define("TFISH_FILE_MARKED_FOR_REMOVAL", "Will be removed when saved.");
+\define("TFISH_MAXIMUM_UPLOAD_SIZE", "Maximum upload size");
+
 // Related and parent works.
 \define("TFISH_RELATED", "Related");
 \define("TFISH_IN_THIS_COLLECTION", "In this collection");
@@ -343,6 +353,8 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_PLEASE_LOGIN", "Please login to view this content.");
 
 // Errors.
+\define("TFISH_FILE_TYPE_NOT_PERMITTED", "That file type is not permitted. Permitted types:");
+\define("TFISH_FILE_TOO_LARGE", "That file exceeds the maximum upload size of");
 \define("TFISH_MEDIA_NOT_COMPATIBLE", "The selected media file is not compatible with the current "
         . "content type. Inline media players will not display.");
 \define("TFISH_ERROR_PARENT_UPDATE_FAILED", "Attempt to update references to a non-extant collection"
