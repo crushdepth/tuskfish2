@@ -289,6 +289,13 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
     is usually caused by your session timing out, but it can be an indication of a cross-site
     request forgery. As a precaution, your request has not been processed. Please try again.");
 
+// Oversized request errors.
+\define("TFISH_REQUEST_TOO_LARGE", "Upload too large");
+\define("TFISH_SORRY_REQUEST_TOO_LARGE", "Sorry, your submission was larger than this site accepts,
+    so it was discarded before it could be processed. This is usually caused by attaching more than
+    one large file to the same form: the limit applies to the whole submission, not to each file
+    separately. Please go back, attach smaller files, and try again.");
+
 // File upload error messages.
 \define("TFISH_ERROR_UPLOAD_ERR_INI_SIZE", "Upload failed: File exceeds maximimum permitted .ini "
         . "size.");
@@ -355,6 +362,8 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 // Errors.
 \define("TFISH_FILE_TYPE_NOT_PERMITTED", "That file type is not permitted. Permitted types:");
 \define("TFISH_FILE_TOO_LARGE", "That file exceeds the maximum upload size of");
+\define("TFISH_FILES_TOO_LARGE_COMBINED", "Together these files exceed the maximum size of a single "
+        . "submission, which is");
 \define("TFISH_MEDIA_NOT_COMPATIBLE", "The selected media file is not compatible with the current "
         . "content type. Inline media players will not display.");
 \define("TFISH_ERROR_PARENT_UPDATE_FAILED", "Attempt to update references to a non-extant collection"

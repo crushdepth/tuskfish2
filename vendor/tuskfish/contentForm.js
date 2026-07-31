@@ -59,6 +59,7 @@ $(document).ready(function() {
     // Activate the drag-and-drop file fields and wire up the media field's side effects.
     initDropGuard();
     initFileFields();
+    initSubmitSizeGuard();
     initMediaFormatTracking();
 });
 
@@ -472,6 +473,10 @@ function initFileField(wrapper) {
 
     function showError(message) {
         if (error) {
+            // This message belongs to this field alone, so the combined-size flag is dropped: the
+            // form-level handler that withdraws combined messages must not withdraw this one.
+            delete error.dataset.combined;
+
             // Revealed before the text is set: a live region that is still hidden when its content
             // changes is not reliably announced by screen readers.
             error.hidden = false;
@@ -481,9 +486,110 @@ function initFileField(wrapper) {
 
     function hideError() {
         if (error) {
+            delete error.dataset.combined;
             error.textContent = '';
             error.hidden = true;
         }
+    }
+}
+
+// Refuses a submission whose attachments cannot fit in one request.
+//
+// The per-field check enforces the lower of upload_max_filesize and post_max_size, which cannot see
+// that two individually acceptable files breach post_max_size between them. PHP discards such a
+// request entirely, taking the rest of the form with it, so it is worth catching here rather than
+// letting the user wait for an upload that is already lost.
+//
+// Only the files are counted, not the text fields that share the same budget. Under-counting is
+// deliberate: a false negative merely falls through to the front controller, which reports the
+// problem properly, whereas a false positive would block a submission that would have succeeded.
+function initSubmitSizeGuard() {
+    var forms = document.querySelectorAll('form[data-max-post-bytes]');
+
+    for (var i = 0; i < forms.length; i++) {
+        bindSubmitSizeGuard(forms[i]);
+    }
+}
+
+function bindSubmitSizeGuard(form) {
+    var maxBytes = parseInt(form.dataset.maxPostBytes, 10) || 0;
+
+    // A post_max_size of 0 means unlimited, and there is then nothing to enforce.
+    if (maxBytes < 1) {
+        return;
+    }
+
+    // A combined error describes the file set as a whole, so it outlives the field it is displayed
+    // in: dropping one of the files fixes the problem, but only that field hears about it. Clearing
+    // the message whenever any file in the form changes stops the others contradicting reality.
+    ['change', 'tf:fileclear'].forEach(function (name) {
+        form.addEventListener(name, function (event) {
+            if (event.target && event.target.matches && event.target.matches('.tf-filefield input[type="file"]')) {
+                clearCombinedErrors(form);
+            }
+        });
+    });
+
+    form.addEventListener('submit', function (event) {
+        var inputs = form.querySelectorAll('.tf-filefield input[type="file"]');
+        var attached = [];
+        var total = 0;
+
+        clearCombinedErrors(form);
+
+        for (var i = 0; i < inputs.length; i++) {
+            for (var j = 0; j < inputs[i].files.length; j++) {
+                total += inputs[i].files[j].size;
+            }
+
+            if (inputs[i].files.length) {
+                attached.push(inputs[i]);
+            }
+        }
+
+        if (total <= maxBytes) {
+            return;
+        }
+
+        event.preventDefault();
+        reportCombinedSize(attached, (form.dataset.msgCombined || '') + ' ' + formatBytes(maxBytes) + '.');
+    });
+}
+
+// Reports an oversized submission against every field contributing to it, since no one file is at
+// fault and the user has to decide which to shed.
+function reportCombinedSize(inputs, message) {
+    for (var i = 0; i < inputs.length; i++) {
+        var wrapper = inputs[i].closest('.tf-filefield');
+
+        if (!wrapper) {
+            continue;
+        }
+
+        var error = wrapper.querySelector('.tf-filefield-error');
+
+        if (error) {
+            // Flagged so that it can be withdrawn from every field at once. Per-field messages are
+            // not flagged, and are left alone.
+            error.dataset.combined = 'true';
+            error.hidden = false;
+            error.textContent = message;
+        }
+    }
+
+    if (inputs.length) {
+        inputs[0].scrollIntoView({'behavior': 'smooth', 'block': 'center'});
+    }
+}
+
+// Withdraws combined-size messages from every field in a form.
+function clearCombinedErrors(form) {
+    var errors = form.querySelectorAll('.tf-filefield-error[data-combined]');
+
+    for (var i = 0; i < errors.length; i++) {
+        errors[i].textContent = '';
+        errors[i].hidden = true;
+        delete errors[i].dataset.combined;
     }
 }
 

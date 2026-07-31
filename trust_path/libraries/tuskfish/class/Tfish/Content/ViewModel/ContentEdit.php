@@ -253,6 +253,21 @@ class ContentEdit implements \Tfish\Interface\Viewable
     }
 
     /**
+     * Returns the maximum permitted size of an entire form submission, in bytes.
+     *
+     * post_max_size caps the whole request rather than each file within it, so two attachments that
+     * each pass maxUploadBytes() can still breach it between them. PHP discards such a request
+     * before any script runs. The widget uses this to refuse a submission that is certain to fail;
+     * the front controller catches whatever gets past it.
+     *
+     * @return  int Maximum request size in bytes, or 0 if no limit could be determined.
+     */
+    public function postMaxBytes(): int
+    {
+        return $this->iniBytes((string) \ini_get('post_max_size'));
+    }
+
+    /**
      * Returns the maximum permitted upload size formatted for display.
      *
      * @return  string Human readable size, eg. "8 MB", or an empty string if there is no limit.

@@ -25,7 +25,9 @@
 <div class="row">
   <div class="col">
 
-  <form action="<?php echo TFISH_ADMIN_URL . 'content/'; ?>" method="post" enctype="multipart/form-data" accept-charset="UTF-8">
+  <form action="<?php echo TFISH_ADMIN_URL . 'content/'; ?>" method="post" enctype="multipart/form-data" accept-charset="UTF-8"
+        data-max-post-bytes="<?php echo xss($viewModel->postMaxBytes()); ?>"
+        data-msg-combined="<?php echo xss(TFISH_FILES_TOO_LARGE_COMBINED); ?>">
     <div class="row">
 
       <!-- ID -->
