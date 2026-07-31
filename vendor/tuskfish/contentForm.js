@@ -56,33 +56,10 @@ $(document).ready(function() {
         $('#metaCounter').text(len + ' characters');
     });
 
-    // Set flag that media file should be deleted from server.
-    $('#media').on('fileclear', function(tf_deleteMedia) {
-        document.getElementById("format").value="";
-
-        // Not required on data entry form as no media has been uploaded.
-        if (document.getElementById("deleteMedia")) {
-            document.getElementById("deleteMedia").value = "1";
-        }
-
-        checkMedia();
-    });
-
-    // Updates the format (mimetype) property when media file is changed.
-    $('#media').on('change', function(event) {
-        var filename = document.getElementById("media").files[0].name;
-        var extension = getFileExtension(filename);
-        var mimeType = '';
-        var allMimeTypes = getAllMimeType();
-
-        if (allMimeTypes[extension]) {
-            mimeType = allMimeTypes[extension];
-        }
-
-        var format = document.getElementById("format");
-        document.getElementById("format").value = mimeType;
-        checkMedia();
-    });
+    // Activate the drag-and-drop file fields and wire up the media field's side effects.
+    initDropGuard();
+    initFileFields();
+    initMediaFormatTracking();
 });
 
 // Validate the media file if content object type or selected file changes.
@@ -172,40 +149,425 @@ function loadTemplateOptions() {
     });
 }
 
-// Read the file type and set an appropriate preview type for Bootstrap-fileinput. Somehow it knows
-// what preview to use when a file is uploaded, but needs it explicitly set on edit.
-function setPreviewType(mimetype) {
+// File upload fields.
+//
+// These are progressive enhancement over a plain <input type="file">: with scripting disabled the
+// form still selects and uploads files, it just loses the drop zone, preview and inline warnings.
+// Everything here is vanilla JS and uses no library. All configuration is read from the markup, so
+// the templates remain the single source of truth for labels and whitelists.
+//
+// Three custom events are dispatched on the file input so that fields can attach side effects
+// without this code needing to know about them:
+//
+//   tf:fileselect  A valid file was chosen or dropped. detail: {file}
+//   tf:fileclear   The pending selection was cleared.
+//   tf:filedelete  The stored file was marked (or unmarked) for deletion. detail: {deleted}
 
-    var preview = '';
+// Stops a file dropped anywhere other than a drop zone from being opened by the browser.
+//
+// The default action for a file dropped on a page is to navigate to it, which would discard a
+// half-completed form. A drop zone is a target worth aiming at, and therefore worth missing: a drag
+// that lands just outside the dashed border would otherwise cost the user everything they had typed.
+//
+// Drags into the TinyMCE editor are unaffected, as its editable body is in an iframe and its events
+// do not reach this document.
+function initDropGuard() {
+    ['dragover', 'drop'].forEach(function (name) {
+        document.addEventListener(name, function (event) {
+            // Only files are intercepted. Dragging text within the form must keep working.
+            if (!event.dataTransfer || !dragCarriesFiles(event.dataTransfer)) {
+                return;
+            }
 
-    switch(mimetype) {
-        case "audio/mpeg":
-        case "audio/ogg": // Covers both .ogg and .oga
-        case "audio/x-wav":
-            preview = "audio";
-            break;
+            // Drops on a zone are the zone's business; it calls preventDefault itself.
+            if (event.target && event.target.closest && event.target.closest('.tf-filefield-dropzone')) {
+                return;
+            }
 
-        case "image/gif":
-        case "image/jpeg":
-        case "image/png":
-            preview = "image";
-            break;
+            // Cancelling the default action alone would leave the browser showing a "you may drop
+            // here" cursor over ground where the drop is silently discarded. Marking the target as
+            // invalid gives the no-entry cursor instead, which points the user at the drop zone.
+            if (name === 'dragover') {
+                event.dataTransfer.dropEffect = 'none';
+            }
 
-        case "application/pdf":
-            preview = "pdf";
-            break;
+            event.preventDefault();
+        });
+    });
+}
 
-        case "video/mp4":
-        case "video/ogg":
-        case "video/webm":
-            preview = "video";
-            break;
+// Reports whether a drag is carrying files, as opposed to text or a link. The types property is a
+// DOMStringList in some browsers and an array in others, so it is not safe to assume indexOf().
+function dragCarriesFiles(dataTransfer) {
+    var types = dataTransfer.types;
 
-        default: // Anything not listed.
-            preview = "object";
+    if (!types) {
+        return false;
     }
 
-    return preview;
+    for (var i = 0; i < types.length; i++) {
+        if (types[i] === 'Files') {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function initFileFields() {
+    var fields = document.querySelectorAll('.tf-filefield');
+
+    for (var i = 0; i < fields.length; i++) {
+        initFileField(fields[i]);
+    }
+}
+
+function initFileField(wrapper) {
+    var input = wrapper.querySelector('input[type="file"]');
+
+    if (!input) {
+        return;
+    }
+
+    var dropzone = wrapper.querySelector('.tf-filefield-dropzone') || wrapper;
+    var preview = wrapper.querySelector('.tf-filefield-preview');
+    var error = wrapper.querySelector('.tf-filefield-error');
+    var clearButton = wrapper.querySelector('.tf-filefield-clear');
+    var deleteButton = wrapper.querySelector('.tf-filefield-delete');
+
+    // The accept attribute is already the client-side whitelist, so there is no need to emit it a
+    // second time as JSON. Note that accept only filters the operating system's file picker; it does
+    // not filter dropped files, which is why the check below is repeated in script.
+    var extensions = parseAcceptAttribute(input.accept);
+    var maxBytes = parseInt(wrapper.dataset.maxBytes, 10) || 0;
+    var objectUrl = '';
+
+    // Drag and drop. A file input is a drop target in its own right, but the target is only as big
+    // as the control. Handling the events on a wrapper gives something worth aiming at.
+    ['dragenter', 'dragover'].forEach(function (name) {
+        dropzone.addEventListener(name, function (event) {
+            event.preventDefault();
+            dropzone.classList.add('is-dragging');
+        });
+    });
+
+    ['dragend', 'drop'].forEach(function (name) {
+        dropzone.addEventListener(name, function () {
+            dropzone.classList.remove('is-dragging');
+        });
+    });
+
+    // dragleave bubbles from descendants, so a pointer crossing the hint text or the preview would
+    // otherwise flicker the highlight off and on. Only a departure from the zone itself counts.
+    dropzone.addEventListener('dragleave', function (event) {
+        if (event.relatedTarget && dropzone.contains(event.relatedTarget)) {
+            return;
+        }
+
+        dropzone.classList.remove('is-dragging');
+    });
+
+    dropzone.addEventListener('drop', function (event) {
+        event.preventDefault();
+
+        if (!event.dataTransfer || !event.dataTransfer.files.length) {
+            return;
+        }
+
+        // Assigning to input.files is what makes a custom drop zone possible without a library: the
+        // dropped file becomes the input's selection and is submitted with the form as usual.
+        //
+        // A drop can carry several files even though these inputs accept only one. Assigning the
+        // list wholesale would submit every one of them under the same field name, leaving PHP to
+        // keep the last while the preview showed the first. Copying through a DataTransfer trims
+        // the list to what the input actually accepts.
+        if (input.multiple) {
+            input.files = event.dataTransfer.files;
+        } else {
+            var transfer = new DataTransfer();
+            transfer.items.add(event.dataTransfer.files[0]);
+            input.files = transfer.files;
+        }
+
+        input.dispatchEvent(new Event('change', {'bubbles': true}));
+    });
+
+    // Click-to-browse anywhere in the zone, not just on the input's own button. Clicks that landed
+    // on the input or on a control of its own are left alone, which also stops the synthetic click
+    // below from re-entering this handler.
+    dropzone.addEventListener('click', function (event) {
+        if (event.target === input || event.target.closest('button, a, label')) {
+            return;
+        }
+
+        input.click();
+    });
+
+    input.addEventListener('change', function () {
+        var file = input.files.length ? input.files[0] : null;
+
+        hideError();
+
+        if (!file) {
+            clearSelection();
+            return;
+        }
+
+        var message = validateFile(file);
+
+        // A rejected file leaves the field empty, so it is reported as a clear: anything tracking
+        // the selection (the media format, for one) must not be left describing a file that is no
+        // longer there.
+        if (message) {
+            clearSelection();
+            showError(message);
+            return;
+        }
+
+        renderPreview(file);
+
+        if (clearButton) {
+            clearButton.hidden = false;
+        }
+
+        input.dispatchEvent(new CustomEvent('tf:fileselect', {'bubbles': true, 'detail': {'file': file}}));
+    });
+
+    if (clearButton) {
+        clearButton.addEventListener('click', function () {
+            clearSelection();
+            hideError();
+        });
+    }
+
+    // Marks the file already stored on the server for deletion. This is a toggle rather than a
+    // one-way action, so that a mistaken click can be undone without abandoning the form.
+    //
+    // The button is shipped hidden and revealed here, because it does nothing without this handler:
+    // with scripting off it would be a visible control that silently ignores every click.
+    if (deleteButton) {
+        deleteButton.hidden = false;
+
+        deleteButton.addEventListener('click', function () {
+            var flag = document.getElementById(wrapper.dataset.deleteFlag);
+
+            if (!flag) {
+                return;
+            }
+
+            var current = wrapper.querySelector('.tf-filefield-current');
+            var note = wrapper.querySelector('.tf-filefield-deletenote');
+            var deleted = flag.value !== '1';
+
+            flag.value = deleted ? '1' : '0';
+            deleteButton.textContent = deleted ? deleteButton.dataset.labelUndo : deleteButton.dataset.labelRemove;
+
+            if (current) {
+                current.classList.toggle('is-marked-for-deletion', deleted);
+            }
+
+            if (note) {
+                note.hidden = !deleted;
+            }
+
+            input.dispatchEvent(new CustomEvent('tf:filedelete', {'bubbles': true, 'detail': {'deleted': deleted}}));
+        });
+    }
+
+    // Checks a file against the whitelist and size ceiling. Both are conveniences that save a failed
+    // round trip; the server performs its own checks and is the actual gate.
+    function validateFile(file) {
+        if (extensions.length) {
+            if (extensions.indexOf(getFileExtension(file.name)) === -1) {
+                return (wrapper.dataset.msgType || '') + ' ' + extensions.join(', ') + '.';
+            }
+        }
+
+        if (maxBytes > 0 && file.size > maxBytes) {
+            return (wrapper.dataset.msgSize || '') + ' ' + formatBytes(maxBytes) + '.';
+        }
+
+        return '';
+    }
+
+    function renderPreview(file) {
+        if (!preview) {
+            return;
+        }
+
+        clearPreview();
+
+        objectUrl = URL.createObjectURL(file);
+
+        var node = previewNodeFor(file, objectUrl);
+
+        if (node) {
+            preview.appendChild(node);
+        }
+
+        var caption = document.createElement('p');
+        caption.className = 'tf-filefield-caption';
+        caption.textContent = file.name + ' (' + formatBytes(file.size) + ')';
+        preview.appendChild(caption);
+
+        preview.hidden = false;
+    }
+
+    function previewNodeFor(file, url) {
+        var node;
+
+        if (file.type.indexOf('image/') === 0) {
+            node = new Image();
+            node.src = url;
+            node.alt = '';
+
+            return node;
+        }
+
+        if (file.type.indexOf('audio/') === 0 || file.type.indexOf('video/') === 0) {
+            node = document.createElement(file.type.indexOf('audio/') === 0 ? 'audio' : 'video');
+            node.src = url;
+            node.controls = true;
+
+            return node;
+        }
+
+        if (file.type === 'application/pdf') {
+            node = document.createElement('embed');
+            node.src = url;
+            node.type = 'application/pdf';
+
+            return node;
+        }
+
+        // Anything else (documents, archives, GPS tracks) has no useful inline representation, so
+        // the caption alone reports what was selected.
+        return null;
+    }
+
+    function clearPreview() {
+        if (objectUrl) {
+            URL.revokeObjectURL(objectUrl);
+            objectUrl = '';
+        }
+
+        if (preview) {
+            preview.replaceChildren();
+            preview.hidden = true;
+        }
+    }
+
+    // Empties the field and announces it. Every route back to "no file chosen" goes through here so
+    // that the input, the preview and any listener stay in agreement.
+    function clearSelection() {
+        input.value = '';
+        clearPreview();
+
+        if (clearButton) {
+            clearButton.hidden = true;
+        }
+
+        input.dispatchEvent(new CustomEvent('tf:fileclear', {'bubbles': true}));
+    }
+
+    function showError(message) {
+        if (error) {
+            // Revealed before the text is set: a live region that is still hidden when its content
+            // changes is not reliably announced by screen readers.
+            error.hidden = false;
+            error.textContent = message;
+        }
+    }
+
+    function hideError() {
+        if (error) {
+            error.textContent = '';
+            error.hidden = true;
+        }
+    }
+}
+
+// Keeps the format (mimetype) property and the content-type compatibility warning in step with the
+// media field. The format is what the front end uses to choose an inline player, so it has to follow
+// the file rather than be entered by hand.
+function initMediaFormatTracking() {
+    var media = document.getElementById('media');
+    var format = document.getElementById('format');
+
+    if (!media || !format) {
+        return;
+    }
+
+    // The format of the file already stored on the server, restored if a pending change is undone.
+    var savedFormat = format.value;
+
+    // The format of a file chosen but not yet uploaded, if any. A pending file outranks the stored
+    // one, because it is what the server will end up saving.
+    var pendingFormat = null;
+
+    var setFormat = function (value) {
+        format.value = value;
+        checkMedia();
+    };
+
+    var storedFormat = function () {
+        var flag = document.getElementById('deleteMedia');
+
+        return (flag && flag.value === '1') ? '' : savedFormat;
+    };
+
+    media.addEventListener('tf:fileselect', function (event) {
+        var mimeTypes = getAllMimeType();
+        var extension = getFileExtension(event.detail.file.name);
+
+        pendingFormat = mimeTypes[extension] ? mimeTypes[extension] : '';
+        setFormat(pendingFormat);
+    });
+
+    // Clearing a pending selection falls back to the stored file, unless that is marked for deletion.
+    media.addEventListener('tf:fileclear', function () {
+        pendingFormat = null;
+        setFormat(storedFormat());
+    });
+
+    // Marking the stored file for deletion says nothing about a file waiting to replace it, so the
+    // pending format survives the toggle.
+    media.addEventListener('tf:filedelete', function () {
+        setFormat(pendingFormat !== null ? pendingFormat : storedFormat());
+    });
+}
+
+// Reads a file input's accept attribute into a list of lowercase extensions. Entries that are
+// mimetypes or wildcards rather than extensions are ignored, as they cannot be matched by name.
+function parseAcceptAttribute(accept) {
+    var extensions = [];
+
+    if (!accept) {
+        return extensions;
+    }
+
+    accept.split(',').forEach(function (entry) {
+        entry = entry.trim().toLowerCase();
+
+        if (entry.charAt(0) === '.' && entry.length > 1) {
+            extensions.push(entry.slice(1));
+        }
+    });
+
+    return extensions;
+}
+
+// Formats a byte count for display, eg. 8388608 => "8 MB".
+function formatBytes(bytes) {
+    var units = ['bytes', 'KB', 'MB', 'GB'];
+    var unit = 0;
+
+    while (bytes >= 1024 && unit < units.length - 1) {
+        bytes = bytes / 1024;
+        unit++;
+    }
+
+    return (unit === 0 ? bytes : Math.round(bytes * 10) / 10) + ' ' + units[unit];
 }
 
 // Show warning if media file type is inappropriate for this content type.
