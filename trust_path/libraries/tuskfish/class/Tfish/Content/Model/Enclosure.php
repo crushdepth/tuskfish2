@@ -167,7 +167,12 @@ class Enclosure
         \header('Content-Disposition: attachment; filename="' . $filename . '.' . $fileExtension . '"');
         \header("Content-Type: " . $mimetype);
         \header("Content-Length: " . $fileSize);
-        \ob_clean();
+
+        // Must close buffer or very large files will fail (memory).
+        while (\ob_get_level()) {
+            \ob_end_clean();
+        }
+
         \flush();
         \readfile($filepath);
     }
