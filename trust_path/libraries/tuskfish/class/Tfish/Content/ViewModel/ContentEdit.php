@@ -187,40 +187,132 @@ class ContentEdit implements \Tfish\Interface\Viewable
     }
 
     /**
-     * Returns the permitted image extensions as a JSON array, for the upload widget.
+     * Returns the permitted image extensions as an accept attribute value.
      *
-     * @return  string JSON array of file extensions, eg. ["gif","jpg","jpeg","png"].
+     * @return  string Comma-delimited extension list, eg. ".gif,.jpg,.jpeg,.png".
      */
-    public function imageExtensionsJson(): string
+    public function imageAccept(): string
     {
-        return $this->extensionsToJson($this->listImageMimetypes());
+        return $this->extensionsToAccept($this->listImageMimetypes());
     }
 
     /**
-     * Returns the permitted media extensions as a JSON array, for the upload widget.
+     * Returns the permitted media extensions as an accept attribute value.
      *
-     * @return  string JSON array of file extensions, eg. ["doc","docx","pdf"].
+     * @return  string Comma-delimited extension list, eg. ".doc,.docx,.pdf".
      */
-    public function mediaExtensionsJson(): string
+    public function mediaAccept(): string
     {
-        return $this->extensionsToJson($this->listMimetypes());
+        return $this->extensionsToAccept($this->listMimetypes());
     }
 
     /**
-     * Encode the keys of a mimetype whitelist as a JSON array for embedding in a script block.
+     * Format a mimetype whitelist as the value of a file input's accept attribute.
      *
-     * The extension keys are the client-side upload whitelist, which must agree with the server-side
-     * whitelist in \Tfish\Traits\Mimetypes. Emitting them from the trait keeps the two in step, so a
-     * format added to the trait is offered by the upload widget without a second edit.
-     *
-     * JSON_HEX_TAG escapes < and >, so the output cannot terminate the enclosing script element.
+     * The accept attribute filters the file types offered by the operating system's file picker. It
+     * is a convenience only; it does not filter files that are dragged and dropped, and it is not a
+     * security control. The server-side whitelist in \Tfish\Traits\Mimetypes is the actual gate.
      *
      * @param   array $mimetypes Whitelist of permitted mimetypes, as extension => mimetype pairs.
-     * @return  string JSON array of the extension keys.
+     * @return  string Comma-delimited list of extensions, each prefixed with a dot.
      */
-    private function extensionsToJson(array $mimetypes): string
+    private function extensionsToAccept(array $mimetypes): string
     {
-        return \json_encode(\array_keys($mimetypes), JSON_HEX_TAG);
+        $extensions = \array_keys($mimetypes);
+
+        if (empty($extensions)) {
+            return '';
+        }
+
+        return '.' . \implode(',.', $extensions);
+    }
+
+    /**
+     * Returns the maximum permitted upload size in bytes, as configured in PHP.
+     *
+     * The effective ceiling is the lower of upload_max_filesize and post_max_size. It is emitted to
+     * the upload widget so that an oversized file can be reported before the user waits for a
+     * submission that PHP will silently truncate.
+     *
+     * @return  int Maximum upload size in bytes, or 0 if no limit could be determined.
+     */
+    public function maxUploadBytes(): int
+    {
+        $limits = [];
+
+        foreach (['upload_max_filesize', 'post_max_size'] as $directive) {
+            $bytes = $this->iniBytes((string) \ini_get($directive));
+
+            // A value of 0 (or unparseable) means unlimited, so it does not constrain the ceiling.
+            if ($bytes > 0) {
+                $limits[] = $bytes;
+            }
+        }
+
+        return empty($limits) ? 0 : \min($limits);
+    }
+
+    /**
+     * Returns the maximum permitted size of an entire form submission, in bytes.
+     *
+     * post_max_size caps the whole request rather than each file within it, so two attachments that
+     * each pass maxUploadBytes() can still breach it between them. PHP discards such a request
+     * before any script runs. The widget uses this to refuse a submission that is certain to fail;
+     * the front controller catches whatever gets past it.
+     *
+     * @return  int Maximum request size in bytes, or 0 if no limit could be determined.
+     */
+    public function postMaxBytes(): int
+    {
+        return $this->iniBytes((string) \ini_get('post_max_size'));
+    }
+
+    /**
+     * Returns the maximum permitted upload size formatted for display.
+     *
+     * @return  string Human readable size, eg. "8 MB", or an empty string if there is no limit.
+     */
+    public function maxUploadSize(): string
+    {
+        $bytes = $this->maxUploadBytes();
+
+        if ($bytes < 1) {
+            return '';
+        }
+
+        $units = ['bytes', 'KB', 'MB', 'GB'];
+        $unit = 0;
+
+        while ($bytes >= 1024 && $unit < \count($units) - 1) {
+            $bytes = $bytes / 1024;
+            $unit++;
+        }
+
+        return \round($bytes, 1) . ' ' . $units[$unit];
+    }
+
+    /**
+     * Convert a PHP ini shorthand size (eg. "8M") to bytes.
+     *
+     * @param   string $value Ini directive value, optionally suffixed with K, M or G.
+     * @return  int Size in bytes.
+     */
+    private function iniBytes(string $value): int
+    {
+        $value = \trim($value);
+
+        if ($value === '') {
+            return 0;
+        }
+
+        $number = (int) $value;
+
+        return match (\strtolower(\substr($value, -1))) {
+            'g' => $number * 1024 * 1024 * 1024,
+            'm' => $number * 1024 * 1024,
+            'k' => $number * 1024,
+            default => $number,
+        };
     }
 
     /**

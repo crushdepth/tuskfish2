@@ -196,3 +196,122 @@ figcaption {
     --bs-form-switch-bg: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'><circle r='3' fill='%23ffffff'/></svg>");
 }
 #closeSite:checked {background-color: var(--bs-danger);border-color: #000;}
+
+/* ---------------------------------------------------------------------------
+   File upload fields (.tf-filefield)
+
+   Replaces the bootstrap-fileinput widget. The markup is server-rendered by the
+   content entry/edit templates and enhanced by vendor/tuskfish/contentForm.js.
+   Uses CSS grid and Bootstrap custom properties only, so it can be lifted into
+   a grid-based theme by restating the colours.
+   --------------------------------------------------------------------------- */
+
+.tf-filefield {
+    display: grid;
+    gap: 0.75rem;
+    justify-items: start;
+}
+
+/* The script toggles the hidden attribute on the preview, the clear button and the messages. Those
+   elements also carry a display rule, which would override the browser default for [hidden]. Restate
+   it here so the field does not depend on a reset supplying "[hidden] {display: none !important}". */
+.tf-filefield [hidden] {
+    display: none;
+}
+
+.tf-filefield-dropzone {
+    display: grid;
+    gap: 0.5rem;
+    justify-items: start;
+    width: 100%;
+    padding: 1rem;
+    border: 2px dashed var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    background-color: var(--bs-tertiary-bg);
+    transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+}
+
+.tf-filefield-dropzone.is-dragging {
+    border-color: var(--bs-primary);
+    background-color: var(--bs-secondary-bg);
+}
+
+.tf-filefield-dropzone input[type="file"] {
+    max-width: 100%;
+    color: var(--bs-body-color);
+}
+
+.tf-filefield-dropzone input[type="file"]::file-selector-button {
+    margin-right: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    cursor: pointer;
+}
+
+.tf-filefield-dropzone input[type="file"]:hover::file-selector-button {
+    background-color: var(--bs-secondary-bg);
+}
+
+.tf-filefield-hint {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--bs-secondary-color);
+}
+
+/* The file already stored on the server, and the file pending upload. */
+.tf-filefield-current,
+.tf-filefield-preview {
+    display: grid;
+    gap: 0.5rem;
+    justify-items: start;
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+}
+
+.tf-filefield-currentlabel {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: bold;
+    color: var(--bs-secondary-color);
+}
+
+.tf-filefield-current img,
+.tf-filefield-current video,
+.tf-filefield-preview img,
+.tf-filefield-preview video {
+    max-width: 100%;
+    max-height: 12rem;
+    height: auto;
+}
+
+.tf-filefield-current audio,
+.tf-filefield-preview audio {
+    max-width: 100%;
+}
+
+.tf-filefield-current embed,
+.tf-filefield-preview embed {
+    width: 100%;
+    height: 12rem;
+}
+
+.tf-filefield-caption {
+    margin: 0;
+    font-size: 0.875rem;
+    overflow-wrap: anywhere;
+}
+
+.tf-filefield-current.is-marked-for-deletion {
+    opacity: 0.5;
+}
+
+.tf-filefield-deletenote,
+.tf-filefield-error {
+    margin: 0;
+    font-size: 0.875rem;
+}

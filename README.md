@@ -10,7 +10,7 @@ The project emphasis is on creating the simplest and most lightweight code base 
 * Security is a lot easier to manage in a small project.
 * Avoiding use of external libraries as far as possible to reduce attack surface, maintenance overhead
   and code bloat. External libraries in use are: Boostrap 5, jQuery, Bootstrap-datepicker,
-  Bootstrap-fileinput, HTMLPurifier and TinyMCE.
+  HTMLPurifier and TinyMCE.
 
 Features include:
 * Publish a mixed stream of articles, downloads, images, audio, video, static pages, GPS tracks and collections with one simple form.

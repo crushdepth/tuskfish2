@@ -289,6 +289,13 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
     is usually caused by your session timing out, but it can be an indication of a cross-site
     request forgery. As a precaution, your request has not been processed. Please try again.");
 
+// Oversized request errors.
+\define("TFISH_REQUEST_TOO_LARGE", "Upload too large");
+\define("TFISH_SORRY_REQUEST_TOO_LARGE", "Sorry, your submission was larger than this site accepts,
+    so it was discarded before it could be processed. This is usually caused by attaching more than
+    one large file to the same form: the limit applies to the whole submission, not to each file
+    separately. Please go back, attach smaller files, and try again.");
+
 // File upload error messages.
 \define("TFISH_ERROR_UPLOAD_ERR_INI_SIZE", "Upload failed: File exceeds maximimum permitted .ini "
         . "size.");
@@ -330,6 +337,16 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_IN_FEED", "Include in feeds");
 \define("TFISH_IN_FEED_SHORT", "Feed");
 
+// File upload fields.
+\define("TFISH_DROP_FILE_HERE", "Drop a file here, or click to browse.");
+\define("TFISH_CURRENT_FILE", "Current file");
+\define("TFISH_SELECTED_FILE", "Selected file (replaces the current file when saved)");
+\define("TFISH_CLEAR_SELECTION", "Clear selection");
+\define("TFISH_REMOVE_FILE", "Remove");
+\define("TFISH_KEEP_FILE", "Undo remove");
+\define("TFISH_FILE_MARKED_FOR_REMOVAL", "Will be removed when saved.");
+\define("TFISH_MAXIMUM_UPLOAD_SIZE", "Maximum upload size");
+
 // Related and parent works.
 \define("TFISH_RELATED", "Related");
 \define("TFISH_IN_THIS_COLLECTION", "In this collection");
@@ -343,6 +360,10 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_PLEASE_LOGIN", "Please login to view this content.");
 
 // Errors.
+\define("TFISH_FILE_TYPE_NOT_PERMITTED", "That file type is not permitted. Permitted types:");
+\define("TFISH_FILE_TOO_LARGE", "That file exceeds the maximum upload size of");
+\define("TFISH_FILES_TOO_LARGE_COMBINED", "Together these files exceed the maximum size of a single "
+        . "submission, which is");
 \define("TFISH_MEDIA_NOT_COMPATIBLE", "The selected media file is not compatible with the current "
         . "content type. Inline media players will not display.");
 \define("TFISH_ERROR_PARENT_UPDATE_FAILED", "Attempt to update references to a non-extant collection"

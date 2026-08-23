@@ -123,6 +123,12 @@ return [
         '\\Tfish\\View\\Single',
         '\\Tfish\\Controller\\Login',
         0),
+    '/oversize/' => new Route(
+        '\\Tfish\\Model\\Error',
+        '\\Tfish\\ViewModel\\Oversize',
+        '\\Tfish\\View\\Single',
+        '\\Tfish\\Controller\\Error',
+        0),
     '/preference/' => new Route(
         '\\Tfish\\Model\\Preference',
         '\\Tfish\\ViewModel\\PreferenceList',

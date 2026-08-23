@@ -22,6 +22,28 @@ namespace Tfish;
 // Access trust path, DB credentials, configuration and preferences.
 require_once 'mainfile.php';
 
+// Reject a form submission that PHP has already discarded for exceeding post_max_size.
+//
+// That directive caps the entire request, not each file within it, so two attachments that each
+// pass the per-file upload_max_filesize check can still breach it between them. When they do, PHP
+// empties $_POST and $_FILES before any script runs. Without this guard the request reaches the
+// router carrying no action and no token, and is served as though the form had never been
+// submitted: nothing is saved and nothing is reported.
+//
+// The test is narrowed to the two encodings PHP populates $_POST from. A request body that PHP was
+// never going to parse (JSON to a future API endpoint, say) also presents an empty $_POST and must
+// not be mistaken for a truncated form.
+$requestType = \strtolower(\trim(\explode(';', $_SERVER['CONTENT_TYPE'] ?? '')[0]));
+
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST'
+    && ($requestType === 'application/x-www-form-urlencoded' || $requestType === 'multipart/form-data')
+    && empty($_POST)
+    && empty($_FILES)
+    && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 0) {
+    \header('Location: ' . TFISH_URL . 'oversize/', true, 303);
+    exit;
+}
+
 // Routing table for front end controller is declared here for convenient editing.
 $routingTable = require_once TFISH_PATH . 'routingTable.php';
 

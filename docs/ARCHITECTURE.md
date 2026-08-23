@@ -22,7 +22,7 @@ The core data flow is: the admin logs in, creates a content object (choosing its
 | HTML sanitisation | HTMLPurifier | Filters admin-supplied HTML input |
 | Mail | PHPMailer | SMTP notifications (login alerts, contact form) |
 | 2FA | Self-contained WebAuthn implementation | Hardware security keys (e.g. Yubikey) as second factor |
-| CSS/JS | Bootstrap 5, jQuery, Bootstrap-datepicker, Bootstrap-fileinput, TinyMCE, HTMX | Front-end; vendored under `vendor/` |
+| CSS/JS | Bootstrap 5, jQuery, Bootstrap-datepicker, TinyMCE, HTMX | Front-end; vendored under `vendor/` |
 | Web server | Apache | mod_rewrite-style front-controller routing via `.htaccess` |
 
 There is no SPA, no bundler, no Node.js build step, no Composer-managed runtime dependency graph. Pages are server-rendered HTML. The few JavaScript helpers (`vendor/tuskfish/*.js`) cover the content/block editor forms and the WebAuthn ceremonies; everything else is progressive enhancement supplied by the vendored libraries.
@@ -366,7 +366,6 @@ Authoritative sources: `README.md` for system requirements, `version.php` for th
 | Bootstrap 5 | CSS framework and components |
 | jQuery | DOM/AJAX support for vendored widgets |
 | Bootstrap-datepicker | Date picker in the editor |
-| Bootstrap-fileinput | File upload widget |
 | TinyMCE | Rich-text editor for content bodies |
 | HTMX | Progressive enhancement |
 | (icon set) | Content-type icons |
