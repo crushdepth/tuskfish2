@@ -241,18 +241,47 @@ figcaption {
     color: var(--bs-body-color);
 }
 
+/* A solid button in the theme's primary colour, shifting to its info colour on hover. Both are
+   Bootstrap custom properties, so the button follows the palette if this theme's bootstrap.css is
+   ever recompiled from a different bootswatch. A shade of the primary would be the usual choice for
+   hover, but is nearly invisible on a dark primary, so this uses a different hue instead.
+
+   "appearance: none" is required because Bootstrap's reboot sets "-webkit-appearance: button" on
+   this pseudo-element, which otherwise lets the browser paint its native grey chrome over the
+   background colour. The background must be opaque: the drop zone behind it is
+   var(--bs-tertiary-bg) and would show through a transparent button as grey. */
 .tf-filefield-dropzone input[type="file"]::file-selector-button {
+    -webkit-appearance: none;
+    appearance: none;
     margin-right: 0.75rem;
     padding: 0.25rem 0.75rem;
-    border: 1px solid var(--bs-border-color);
+    border: 1px solid var(--bs-primary);
     border-radius: var(--bs-border-radius);
-    background-color: var(--bs-body-bg);
-    color: var(--bs-body-color);
+    background-color: var(--bs-primary);
+    color: #fff;
+    font-weight: 500;
     cursor: pointer;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
 }
 
 .tf-filefield-dropzone input[type="file"]:hover::file-selector-button {
-    background-color: var(--bs-secondary-bg);
+    background-color: var(--bs-info);
+    border-color: var(--bs-info);
+}
+
+/* Pressed state. Darkened with a filter rather than a second hardcoded colour, because Bootstrap
+   publishes no "darker info" custom property to reference. */
+.tf-filefield-dropzone input[type="file"]:active::file-selector-button {
+    background-color: var(--bs-info);
+    border-color: var(--bs-info);
+    filter: brightness(0.85);
+}
+
+/* ::file-selector-button cannot take :focus-visible, so the ring goes on the input itself. */
+.tf-filefield-dropzone input[type="file"]:focus-visible {
+    outline: 0;
+    border-radius: var(--bs-border-radius);
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
 }
 
 .tf-filefield-hint {
