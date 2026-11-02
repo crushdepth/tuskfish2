@@ -69,21 +69,46 @@ trait Group
     }
 
     /**
-     * Compute OR of all valid group bits.
+     * Return the home URL for the highest-privilege group in a user's mask.
+     *
+     * groupHomes() is ordered by privilege (super, editor, member), so the first matching bit wins.
+     * Falls back to the site home page if no known group bit is set.
+     *
+     * @param int $userMask User's group bitmask.
+     * @return string URL.
      */
-    public function groupsMask(): int
+    public function groupHome(int $userMask): string
     {
-        static $mask = null;
-
-        if ($mask === null) {
-            $mask = 0;
-
-            foreach (\array_keys($this->listUserGroups()) as $bit) {
-                $mask |= (int) $bit;
+        foreach ($this->groupHomes() as $bit => $url) {
+            if (($userMask & $bit) !== 0) {
+                return $url;
             }
         }
 
-        return $mask;
+        return TFISH_URL;
+    }
+
+    /**
+     * Return the OR of all valid group bits.
+     *
+     * Built from the group constants directly (not from listUserGroups(), whose labels depend on a
+     * module language file), so authorisation never depends on language constants being loaded.
+     * If you add a group, add its constant here as well as in listUserGroups().
+     */
+    public function groupsMask(): int
+    {
+        return self::G_SUPER | self::G_EDITOR | self::G_MEMBER;
+    }
+
+    /**
+     * Check that a stored user group mask is valid: non-zero, and containing only known group bits.
+     *
+     * @param int $userMask User's group bitmask.
+     * @return bool True if valid, false otherwise.
+     */
+    public function isValidUserMask(int $userMask): bool
+    {
+        return $userMask > 0 && ($userMask & ~$this->groupsMask()) === 0;
     }
 
     /**
