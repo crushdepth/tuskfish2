@@ -59,20 +59,36 @@ class Rss
     /**
      * Customise RSS feed title and description for a specific tag or collection.
      *
+     * The feed is public, so only public (accessGroups = 0), online collections and tags may
+     * customise it. Restricted objects fall back to the site title and description, otherwise
+     * their (protected) description would be disclosed in the channel header.
+     *
+     * Note: Tags are excluded as feed *items* (see getObjects() / getObjectsforTag()), but a tag
+     * may legitimately supply the channel title and description for its own feed.
+     *
+     * The caller states the expected type, so a collection feed (?id=) only matches a collection
+     * and a tag feed (?tag=) only matches a tag.
+     *
      * @param   int $id ID of a target tag or collection object.
-     * @return arrayl|bool Array containing title and description of custom feed or false if no result.
+     * @param   string $type Expected type of the target object: TfCollection or TfTag.
+     * @return  array|bool Array containing title and description of custom feed or false if no result.
      */
-    public function customFeed(int $id): array|bool
+    public function customFeed(int $id, string $type): array|bool
     {
         if ($id < 1) {
             throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
+        // Only collections and tags may customise a feed.
+        if (!\in_array($type, ['TfCollection', 'TfTag'], true)) {
+            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_TYPE);
+        }
+
         $criteria = $this->criteriaFactory->criteria();
         $criteria->add($this->criteriaFactory->item('id', $id));
-        // $criteria->add($this->criteriaFactory->item('inFeed', 1));
+        $criteria->add($this->criteriaFactory->item('type', $type));
         $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
-        $criteria->add($this->criteriaFactory->item('type', 'TfTag', '!='));
+        $criteria->add($this->criteriaFactory->item('accessGroups', 0));
         $statement = $this->database->select('content', $criteria, ['title', 'description']);
 
         return $statement->fetch(\PDO::FETCH_ASSOC);
@@ -135,7 +151,7 @@ class Rss
 
         $sql = rtrim($sql, ",");
         $sql .= ") ";
-        $sql .= "AND `inFeed` = 1 AND `onlineStatus` = '1' ";
+        $sql .= "AND `inFeed` = 1 AND `onlineStatus` = '1' AND `type` != 'TfTag' ";
         $sql .= "ORDER BY `date` DESC, `submissionTime` DESC ";
 
         $sql .= "LIMIT ? OFFSET 0";
