@@ -109,11 +109,20 @@ class FrontController
         \ob_start();
 
         $cacheParams = $this->controller->{$action}();
-        $cache->check($path, $cacheParams);
+
+        // Editors and admins see role-specific page content (eg. the admin link), but share the
+        // 'loggedIn' cache key with members. Never serve them a cached page or cache theirs.
+        $userMask = (int) $this->session->verifyPrivileges();
+        $cacheable = ($userMask & (self::G_SUPER | self::G_EDITOR)) === 0;
+
+        if ($cacheable) {
+            $cache->check($path, $cacheParams);
+        }
+
         $this->renderLayout($metadata, $viewModel, $path, $cacheParams);
 
         // Do not cache restricted content.
-        if ($viewModel->doNotCache() === false) {
+        if ($cacheable && $viewModel->doNotCache() === false) {
             $cache->save($cacheParams, \ob_get_contents());
         }
 

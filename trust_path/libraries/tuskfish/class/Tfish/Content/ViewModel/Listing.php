@@ -153,6 +153,10 @@ class Listing implements \Tfish\Interface\Listable
             $this->response = TFISH_ERROR_NO_SUCH_CONTENT;
             $this->backUrl = TFISH_URL;
             $this->template = 'response';
+
+            // Do not cache 'no such content' responses: the response template embeds the session's
+            // CSRF token, and caching arbitrary non-existent IDs would allow the cache to be bloated.
+            $this->doNotCache = true;
         }
     }
 
