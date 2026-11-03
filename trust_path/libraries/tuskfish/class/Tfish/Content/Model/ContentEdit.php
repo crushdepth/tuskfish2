@@ -159,8 +159,20 @@ class ContentEdit
         $savedContent = $this->getRow($id);
         $content['image'] = $savedContent['image'];
 
-        if ($content['type'] !== 'TfVideo') {
-            $content['media'] = $savedContent['media'];
+        // A stored media file is kept when the content type changes (including to and from
+        // TfVideo), so that an accidental type change can be undone without losing the file. It is
+        // only replaced by a new upload or removed via the delete flag. Remote video URLs are held
+        // in externalMedia; a URL left in the media field by older versions is not carried over
+        // to non-video types.
+        $savedMedia = (string) ($savedContent['media'] ?? '');
+        $hasMediaFile = $savedMedia !== '' && !$this->isUrl($savedMedia);
+
+        if ($hasMediaFile) {
+            $content['media'] = $savedMedia;
+            $content['format'] = $savedContent['format'];
+            $content['fileSize'] = (int) $savedContent['fileSize'];
+        } elseif ($content['type'] !== 'TfVideo') {
+            $content['media'] = '';
         }
 
         // Check if there are any redundant image/media files that should be deleted.
@@ -174,18 +186,11 @@ class ContentEdit
             $this->fileHandler->deleteFile('image/' . $savedContent['image']);
         }
 
-        if ($savedContent['type'] !== 'TfVideo') {
-
-            if (!empty($savedContent['media']) && $savedContent['media'] !== $content['media']) {
-                $this->fileHandler->deleteFile('media/' . $savedContent['media']);
-            }
-
-            if (($_POST['deleteMedia'] ?? '0') === '1' && !empty($savedContent['media'])) {
-                $content['media'] = '';
-                $content['format'] = '';
-                $content['fileSize'] = 0;
-                $this->fileHandler->deleteFile('media/' . $savedContent['media']);
-            }
+        if ($hasMediaFile && ($_POST['deleteMedia'] ?? '0') === '1') {
+            $content['media'] = '';
+            $content['format'] = '';
+            $content['fileSize'] = 0;
+            $this->fileHandler->deleteFile('media/' . $savedMedia);
         }
 
         // Upload any new image/media files and update file names.
