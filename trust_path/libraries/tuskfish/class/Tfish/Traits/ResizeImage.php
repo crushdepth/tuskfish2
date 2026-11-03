@@ -104,8 +104,10 @@ trait ResizeImage
             $destinationHeight = $cleanHeight;
         }
 
-        // Final sanity on computed dimensions.
-        if ($destinationWidth < 1 || $destinationHeight < 1) {
+        // Final sanity on computed dimensions. Upscaling a narrow image can produce a huge canvas
+        // that exhausts memory and breaks the page, so cap the output at 10 megapixels.
+        if ($destinationWidth < 1 || $destinationHeight < 1
+                || $destinationWidth * $destinationHeight > 10000000) {
             return false;
         }
 
