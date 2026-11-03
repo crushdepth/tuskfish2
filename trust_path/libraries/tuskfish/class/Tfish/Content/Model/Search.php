@@ -24,20 +24,24 @@ namespace Tfish\Content\Model;
  * @version     Release: 2.0
  * @since       2.0
  * @package     content
+ * @uses        trait \Tfish\Traits\Group  Provides methods for checking user group membership.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         \Tfish\Database $database Instance of the Tuskfish database class.
  * @var         \Tfish\CriteriaFactory $criteriaFactory A factory class that returns instances of Criteria and CriteriaItem.
  * @var         \Tfish\Entity\Preference Instance of the Tfish site preferences class.
+ * @var         \Tfish\Session $session Instance of the Tuskfish session manager class.
  * @var         int $onlineStatus Switch to filter online/offline content.
  */
 
 class Search
 {
+    use \Tfish\Traits\Group;
     use \Tfish\Traits\ValidateString;
 
     private \Tfish\Database $database;
     private \Tfish\CriteriaFactory $criteriaFactory;
     private \Tfish\Entity\Preference $preference;
+    private \Tfish\Session $session;
     private int $onlineStatus;
 
     /**
@@ -46,16 +50,19 @@ class Search
      * @param   \Tfish\Database $database Instance of the Tuskfish database class.
      * @param   \Tfish\CriteriaFactory $criteriaFactory Instance of the criteria factory class.
      * @param   \Tfish\Entity\Preference $preference Instance of the Tuskfish site preferences class.
+     * @param   \Tfish\Session $session Instance of the Tuskfish session manager class.
      */
     public function __construct(
         \Tfish\Database $database,
         \Tfish\CriteriaFactory $criteriaFactory,
-        \Tfish\Entity\Preference $preference
+        \Tfish\Entity\Preference $preference,
+        \Tfish\Session $session
         )
     {
         $this->database = $database;
         $this->criteriaFactory = $criteriaFactory;
         $this->preference = $preference;
+        $this->session = $session;
         $this->onlineStatus = 1; // Default to online content only.
     }
 
@@ -149,7 +156,24 @@ class Search
             return [];
         }
 
-        $sql .= "WHERE ";
+        /**
+         * Restricted content remains discoverable via its public fields (title, teaser, caption,
+         * creator, publisher), but its description is only searched if the current user is
+         * authorised to read it. Otherwise matches would reveal the contents of protected
+         * descriptions. This mirrors canAccess(): public content, superusers and editors are
+         * unrestricted; other users must share at least one group with the content. As with
+         * hasAnyGroup(), content masks containing non-whitelisted bits fail closed.
+         */
+        $userMask = ((int) $this->session->verifyPrivileges()) & $this->groupsMask();
+        $restrictDescription = ($userMask & (self::G_SUPER | self::G_EDITOR)) === 0;
+        $descriptionGuard = $restrictDescription
+            ? "(`accessGroups` = 0 OR ((`accessGroups` & :userMask) != 0 AND (`accessGroups` & :invalidBits) = 0)) AND "
+            : "";
+
+        // Group all term predicates so that the onlineStatus condition below applies to every
+        // alternative. Without the outer parentheses, AND binds tighter than OR and offline
+        // content matching earlier terms would leak into OR searches.
+        $sql .= "WHERE (";
 
         for ($i = 0; $i < $count; $i++) {
             $searchTermPlaceholders[$i] = ':searchTerm' . (string) $i;
@@ -157,7 +181,7 @@ class Search
             $sql .= "(";
             $sql .= "`title` LIKE " . $searchTermPlaceholders[$i] . " OR ";
             $sql .= "`teaser` LIKE " . $escapedTermPlaceholders[$i] . " OR ";
-            $sql .= "`description` LIKE " . $escapedTermPlaceholders[$i] . " OR ";
+            $sql .= "(" . $descriptionGuard . "`description` LIKE " . $escapedTermPlaceholders[$i] . ") OR ";
             $sql .= "`caption` LIKE " . $searchTermPlaceholders[$i] . " OR ";
             $sql .= "`creator` LIKE " . $searchTermPlaceholders[$i] . " OR ";
             $sql .= "`publisher` LIKE " . $searchTermPlaceholders[$i];
@@ -167,6 +191,8 @@ class Search
                $sql .= " " . $cleanSearchType . " ";
             }
         }
+
+        $sql .= ")";
 
         if ($params['onlineStatus'] !== 0) {
             $sql .= " AND `onlineStatus` = :onlineStatus";
@@ -187,6 +213,11 @@ class Search
 
             if ($params['onlineStatus'] !== 0) {
                 $statement->bindValue(":onlineStatus", $params['onlineStatus'], \PDO::PARAM_INT);
+            }
+
+            if ($restrictDescription) {
+                $statement->bindValue(":userMask", $userMask, \PDO::PARAM_INT);
+                $statement->bindValue(":invalidBits", ~$this->groupsMask(), \PDO::PARAM_INT);
             }
 
         } else {
@@ -225,6 +256,11 @@ class Search
 
             if ($params['onlineStatus'] !== 0) {
                 $statement->bindValue(":onlineStatus", $params['onlineStatus'], \PDO::PARAM_INT);
+            }
+
+            if ($restrictDescription) {
+                $statement->bindValue(":userMask", $userMask, \PDO::PARAM_INT);
+                $statement->bindValue(":invalidBits", ~$this->groupsMask(), \PDO::PARAM_INT);
             }
 
         } else {
