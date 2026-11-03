@@ -411,6 +411,7 @@ class Session
         // If login successful regenerate session due to privilege escalation.
         if (\password_verify($dirtyPassword, $user['passwordHash'])) {
             // Regenerate session immediately after successful password verification
+            unset($_SESSION['destroyed']); // Login must always rotate the session ID.
             $this->regenerate();
 
             // Check if second factor authentication is required
@@ -574,6 +575,7 @@ class Session
         }
 
         // Regenerate session due to privilege escalation
+        unset($_SESSION['destroyed']); // Login must always rotate the session ID.
         $this->regenerate();
         $this->setLoginFlags($user);
 
