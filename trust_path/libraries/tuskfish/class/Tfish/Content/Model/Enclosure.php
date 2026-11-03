@@ -97,9 +97,10 @@ class Enclosure
 
         $statement->closeCursor();
 
-        // Check that object is online and hasn't expired.
+        // Check that object is online and hasn't expired. expiresOn is stored as Y-m-d; content
+        // remains available through its expiry date, matching the expiresOn cron.
         if ($row && $row['onlineStatus'] == '1'
-            && (empty($row['expiresOn']) || $row['expiresOn'] >= \time())) {
+            && (empty($row['expiresOn']) || $row['expiresOn'] >= \date('Y-m-d'))) {
 
             // Authorisation check.
             $contentMask = (int) $row['accessGroups'];
