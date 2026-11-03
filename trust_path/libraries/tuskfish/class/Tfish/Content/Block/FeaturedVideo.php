@@ -32,6 +32,7 @@ class FeaturedVideo implements \Tfish\Interface\Block
 {
     use \Tfish\Content\Traits\ContentTypes;
     use \Tfish\Traits\BlockTemplate;
+    use \Tfish\Traits\Group;
     use \Tfish\Traits\IntegerCheck;
     use \Tfish\Traits\ValidateString;
 
@@ -47,11 +48,13 @@ class FeaturedVideo implements \Tfish\Interface\Block
     private string $configTemplate = 'featured-video-config';
     private int $onlineStatus = 0;
     private mixed $content = false;
+    private int $userMask = 0;
 
     /** Constructor. */
-    public function __construct(array $row, \Tfish\Database $database, \Tfish\CriteriaFactory $criteriaFactory, string $theme = '')
+    public function __construct(array $row, \Tfish\Database $database, \Tfish\CriteriaFactory $criteriaFactory, string $theme = '', int $userMask = 0)
     {
         $this->theme = $this->trimString($theme);
+        $this->userMask = $userMask;
 
         if (empty($row['id'])) return;
 
@@ -107,6 +110,12 @@ class FeaturedVideo implements \Tfish\Interface\Block
     public function render(): void
     {
         $content = $this->content;
+
+        // Render nothing if the video is not found (offline or deleted) or the visitor may not view it.
+        if (!$content || !$this->canAccess($this->userMask, (int) $content->accessGroups())) {
+            $this->html = '';
+            return;
+        }
 
         $filepath = $this->blockTemplatePath($this->theme, $this->template, TFISH_CONTENT_BLOCK_PATH);
 
@@ -228,6 +237,19 @@ class FeaturedVideo implements \Tfish\Interface\Block
     public function html(): string
     {
         return $this->html;
+    }
+
+    /**
+     * Whether the page containing this block must not be cached.
+     *
+     * A restricted video is shown only to authorised visitors, so the page varies by visitor and
+     * must never enter the shared page cache.
+     *
+     * @return bool
+     */
+    public function doNotCache(): bool
+    {
+        return $this->content && (int) $this->content->accessGroups() !== 0;
     }
 
     /**
