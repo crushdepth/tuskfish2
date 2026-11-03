@@ -116,5 +116,6 @@ class WebAuthnChallenge
         unset($_SESSION['webauthn_registration_challenge']);
         unset($_SESSION['webauthn_authentication_challenge']);
         unset($_SESSION['webauthn_pending_user_id']);
+        unset($_SESSION['webauthn_pending_auth_hash']);
     }
 }

@@ -421,6 +421,7 @@ class Session
                 // Store pending user ID for WebAuthn verification
                 $challengeModel = new \Tfish\Model\WebAuthnChallenge();
                 $challengeModel->storePendingUserId((int)$user['id']);
+                $_SESSION['webauthn_pending_auth_hash'] = \hash('sha256', $user['passwordHash']);
                 return ['webauthn_required' => true];
             }
 
@@ -678,7 +679,10 @@ class Session
         $userStatement->execute();
         $user = $userStatement->fetch(\PDO::FETCH_ASSOC);
 
-        if (!$user) {
+        // Reject if the password has changed since it was verified at the first stage.
+        $pendingAuthHash = (string) ($_SESSION['webauthn_pending_auth_hash'] ?? '');
+
+        if (!$user || !\hash_equals($pendingAuthHash, \hash('sha256', $user['passwordHash']))) {
             $challengeModel->clear();
             return false;
         }
