@@ -405,10 +405,13 @@ class ContentEdit
 
         $media = $this->trimString($form['media'] ?? '');
 
+        // Local media file names are only set by uploadMedia() (on insert/update) or carried over
+        // from the stored record (on update). The form field is a file input, so a text value
+        // for non-video content is not expected and is discarded.
         if ($clean['type'] === 'TfVideo') {
             $clean['media'] = $this->isUrl($media) ? $media : '';
         } else {
-            $clean['media'] = $media;
+            $clean['media'] = '';
         }
 
         $format = $this->trimString($form['format'] ?? '');

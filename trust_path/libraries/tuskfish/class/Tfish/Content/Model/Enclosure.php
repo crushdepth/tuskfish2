@@ -120,15 +120,15 @@ class Enclosure
                 exit;
             }
 
-            $media = $row['media'] ?? false;
+            $media = (string) ($row['media'] ?? '');
+            $filepath = $this->resolveMediaPath($media);
+            $fileExtension = \strtolower(\pathinfo($media, PATHINFO_EXTENSION));
+            $mimetypeList = $this->listMimetypes();
 
-            if ($media && \is_readable(TFISH_MEDIA_PATH . $media)) {
+            if ($filepath && isset($mimetypeList[$fileExtension])) {
                 \ob_start();
-                $filepath = TFISH_MEDIA_PATH . $media;
-                $filename = empty($filename) ? \pathinfo($filepath, PATHINFO_FILENAME) : $filename;
-                $fileExtension = \strtolower(\pathinfo($filepath, PATHINFO_EXTENSION));
-                $fileSize = \filesize(TFISH_MEDIA_PATH . $media);
-                $mimetypeList = $this->listMimetypes();
+                $filename = empty($filename) ? \pathinfo($media, PATHINFO_FILENAME) : $filename;
+                $fileSize = \filesize($filepath);
                 $mimetype = $mimetypeList[$fileExtension];
 
                 // Update counter.
@@ -150,6 +150,32 @@ class Enclosure
             \header('Location: ' . TFISH_URL . 'error/', true, 303);
             exit;
         }
+    }
+
+    /**
+     * Resolve a stored media file name to a readable file inside the media directory.
+     *
+     * @param string $media File name as stored in the content table.
+     * @return string|false Resolved path on success, false if the file is missing or lies outside
+     * the media directory.
+     */
+    private function resolveMediaPath(string $media): string|false
+    {
+        if ($media === '') {
+            return false;
+        }
+
+        $root = \realpath(TFISH_MEDIA_PATH);
+        $candidate = \realpath(TFISH_MEDIA_PATH . $media);
+
+        if ($root === false || $candidate === false
+            || !\is_file($candidate) || !\is_readable($candidate)) {
+            return false;
+        }
+
+        $root = \rtrim($root, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+        return \str_starts_with($candidate, $root) ? $candidate : false;
     }
 
     /** @internal */
