@@ -41,6 +41,7 @@ class WebAuthnService
     private \lbuchs\WebAuthn\WebAuthn $webAuthn;
     private string $rpName;
     private string $rpId;
+    private string $expectedOrigin;
 
     /**
      * Constructor.
@@ -84,6 +85,15 @@ class WebAuthnService
         if (!$isLocalhost && $configuredScheme !== 'https') {
             throw new \RuntimeException('WebAuthn requires HTTPS in production');
         }
+
+        // Exact origin the browser must report in clientDataJSON (scheme://host[:port], no path).
+        // The library only checks that the origin host ends with the RP ID, which would also
+        // accept assertions relayed from a subdomain of the site.
+        $configuredScheme = \strtolower($configuredScheme);
+        $configuredPort = \parse_url(TFISH_URL, PHP_URL_PORT);
+        $defaultPort = $configuredScheme === 'https' ? 443 : 80;
+        $this->expectedOrigin = $configuredScheme . '://' . \strtolower($configuredDomain)
+            . (($configuredPort && $configuredPort !== $defaultPort) ? ':' . $configuredPort : '');
 
         // Load library.
         require_once TFISH_CLASS_PATH . 'webauthn/WebAuthn.php';
@@ -169,6 +179,7 @@ class WebAuthnService
             $clientDataDecoded = \lbuchs\WebAuthn\Binary\ByteBuffer::fromBase64Url($clientDataJSON)->getBinaryString();
             $attestationDecoded = \lbuchs\WebAuthn\Binary\ByteBuffer::fromBase64Url($attestationObject)->getBinaryString();
             $challengeBuffer = new \lbuchs\WebAuthn\Binary\ByteBuffer($challenge);
+            $this->assertExpectedOrigin($clientDataDecoded);
 
             $data = $this->webAuthn->processCreate(
                 $clientDataDecoded,
@@ -273,6 +284,7 @@ class WebAuthnService
 
         try {
             $challengeBuffer = new \lbuchs\WebAuthn\Binary\ByteBuffer($challenge);
+            $this->assertExpectedOrigin($clientDataDecoded);
 
             // IMPORTANT: The underlying library checks signature counter when $prevSignatureCount
             // is provided. If the counter doesn't increment, it indicates credential cloning
@@ -327,5 +339,22 @@ class WebAuthnService
     public function getSignatureCounter(): int
     {
         return (int)$this->webAuthn->getSignatureCounter();
+    }
+
+    /**
+     * Require the signed client data origin to exactly match the site origin from TFISH_URL.
+     *
+     * @param   string $clientDataDecoded Decoded clientDataJSON.
+     * @return  void
+     * @throws  \RuntimeException If the origin is missing or does not match.
+     */
+    private function assertExpectedOrigin(string $clientDataDecoded): void
+    {
+        $clientData = \json_decode($clientDataDecoded, false, 16);
+
+        if (!\is_object($clientData) || !isset($clientData->origin) || !\is_string($clientData->origin)
+            || \strtolower($clientData->origin) !== $this->expectedOrigin) {
+            throw new \RuntimeException('Origin mismatch');
+        }
     }
 }
