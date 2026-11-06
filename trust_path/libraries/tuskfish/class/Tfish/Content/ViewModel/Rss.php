@@ -91,11 +91,12 @@ class Rss implements \Tfish\Interface\Viewable
      * Customise RSS feed title description for a specific tag or collection.
      *
      * @param int $id ID of the tag or collection to customise feed for.
+     * @param string $type Expected type of the object (TfCollection or TfTag).
      * @return void
      */
-    private function customFeed(int $id): void
+    private function customFeed(int $id, string $type): void
     {
-        $customFeed = $this->model->customFeed($id);
+        $customFeed = $this->model->customFeed($id, $type);
 
         if (!empty($customFeed)) {
             $this->title = $this->trimString($customFeed['title']);
@@ -164,7 +165,7 @@ class Rss implements \Tfish\Interface\Viewable
     public function setCollection(int $id): void
     {
         $this->id = $id;
-        $this->customFeed($id);
+        $this->customFeed($id, 'TfCollection');
     }
 
     /**
@@ -176,7 +177,7 @@ class Rss implements \Tfish\Interface\Viewable
     public function setTag(int $tag): void
     {
         $this->tag = $tag;
-        $this->customFeed($tag);
+        $this->customFeed($tag, 'TfTag');
     }
 
     /**

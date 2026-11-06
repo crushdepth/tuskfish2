@@ -27,6 +27,7 @@ namespace Tfish\Content\Model;
  * @uses        trait \Tfish\Traits\Content\ContentTypes	Provides definition of permitted content object types.
  * @uses        trait \Tfish\Traits\Taglink Manage object-tag associations via taglinks.
  * @uses        trait \Tfish\Traits\TagRead Retrieve tag information for display.
+ * @uses        trait \Tfish\Traits\UrlCheck Validate that a URL meets the specification.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         \Tfish\Database $database Instance of the Tuskfish database class.
  * @var         \Tfish\CriteriaFactory $criteriaFactory A factory class that returns instances of Criteria and CriteriaItem.
@@ -40,6 +41,7 @@ class Admin
     use \Tfish\Content\Traits\ContentTypes;
     use \Tfish\Traits\Taglink;
     use \Tfish\Traits\TagRead;
+    use \Tfish\Traits\UrlCheck;
     use \Tfish\Traits\ValidateString;
 
     private \Tfish\Database $database;
@@ -96,8 +98,9 @@ class Admin
             return false;
         }
 
-        // Delete associated media.
-        if ($row['type'] !== 'TfVideo' && $row['media'] && !$this->deleteMedia($row['media'])) {
+        // Delete associated media file. Any content type may hold one (see ContentEdit::update()),
+        // but a URL left in the media field by older versions is not a file.
+        if ($row['media'] && !$this->isUrl($row['media']) && !$this->deleteMedia($row['media'])) {
             return false;
         }
 

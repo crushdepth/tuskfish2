@@ -58,6 +58,7 @@ class FrontController
     private $controller;
     private $criteriaFactory;
     private $database;
+    private bool $blocksDoNotCache = false;
 
     /**
      * Constructor
@@ -109,11 +110,20 @@ class FrontController
         \ob_start();
 
         $cacheParams = $this->controller->{$action}();
-        $cache->check($path, $cacheParams);
+
+        // Editors and admins see role-specific page content (eg. the admin link), but share the
+        // 'loggedIn' cache key with members. Never serve them a cached page or cache theirs.
+        $userMask = (int) $this->session->verifyPrivileges();
+        $cacheable = ($userMask & (self::G_SUPER | self::G_EDITOR)) === 0;
+
+        if ($cacheable) {
+            $cache->check($path, $cacheParams);
+        }
+
         $this->renderLayout($metadata, $viewModel, $path, $cacheParams);
 
-        // Do not cache restricted content.
-        if ($viewModel->doNotCache() === false) {
+        // Do not cache restricted content (including restricted content shown in blocks).
+        if ($cacheable && $viewModel->doNotCache() === false && !$this->blocksDoNotCache) {
             $cache->save($cacheParams, \ob_get_contents());
         }
 
@@ -239,6 +249,7 @@ class FrontController
         $statement->execute();
 
         $blocks = ['position' => []];
+        $userMask = (int) $this->session->verifyPrivileges();
 
         while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
             $className = $row['type'];
@@ -247,7 +258,17 @@ class FrontController
                 continue;
             }
 
-            $obj = new $className($row, $this->database, $this->criteriaFactory, $theme);
+            $obj = new $className($row, $this->database, $this->criteriaFactory, $theme, $userMask);
+
+            // Blocks showing restricted content vary by visitor, so the page must not be cached.
+            if (\method_exists($obj, 'doNotCache') && $obj->doNotCache()) {
+                $this->blocksDoNotCache = true;
+            }
+
+            // Skip blocks with nothing to show, so the layout does not render an empty wrapper.
+            if (\trim($obj->html()) === '') {
+                continue;
+            }
 
             $blocks[$row['id']] = $obj;
 

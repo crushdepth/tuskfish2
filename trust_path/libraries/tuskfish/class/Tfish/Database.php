@@ -315,6 +315,11 @@ class Database
         $cleanTable = $this->validateTableName($table);
         $cleanCriteria = $this->validateCriteriaObject($criteria);
 
+        // Refuse to empty the table: at least one item condition is required (tags are ignored).
+        if (empty($cleanCriteria->item)) {
+            throw new \InvalidArgumentException(TFISH_ERROR_REQUIRED_PROPERTY_NOT_SET);
+        }
+
         return $this->_deleteAll($cleanTable, $cleanCriteria);
     }
 

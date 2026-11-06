@@ -89,31 +89,26 @@ class Session
      * For added security this could retrieve an encrypted token, preferably the SSL session id,
      * although thats availability seems to depend on server configuration.
      *
+     * Tests the G_SUPER bit, consistent with the bitmask checks in the Group trait.
+     *
      * @return bool True if admin false if not.
      */
     public function isAdmin(): bool
     {
-        if ($this->verifyPrivileges() === 1) {
-            return true;
-        }
-
-        return false;
+        return ($this->verifyPrivileges() & self::G_SUPER) !== 0;
     }
 
     /**
      * Shorthand editor privileges check (admin also qualifies).
      *
+     * Tests the G_SUPER and G_EDITOR bits, so a user whose mask combines editor with other groups
+     * still qualifies.
+     *
      * @return boolean
      */
     public function isEditor(): bool
     {
-        $privileges = $this->verifyPrivileges();
-
-        if ($privileges === 1 || $privileges === 2) {
-            return true;
-        }
-
-        return false;
+        return ($this->verifyPrivileges() & (self::G_SUPER | self::G_EDITOR)) !== 0;
     }
 
     /**
@@ -268,7 +263,10 @@ class Session
             return 0;
         }
 
-        return (int) $user['userGroup'];
+        // Fail closed on an invalid stored mask (eg. -1, which has every bit set).
+        $userGroup = (int) $user['userGroup'];
+
+        return $this->isValidUserMask($userGroup) ? $userGroup : 0;
     }
 
     /**
@@ -404,8 +402,8 @@ class Session
             $this->delayLogin((int) $user['loginErrors']);
         }
 
-        // If this user is suspended, do not proceed any further.
-        if ((int) $user['onlineStatus'] !== 1) {
+        // If this user is suspended, or has an invalid group mask, do not proceed any further.
+        if ((int) $user['onlineStatus'] !== 1 || !$this->isValidUserMask((int) $user['userGroup'])) {
             $this->logout(TFISH_URL . "login/");
             exit;
         }
@@ -413,6 +411,7 @@ class Session
         // If login successful regenerate session due to privilege escalation.
         if (\password_verify($dirtyPassword, $user['passwordHash'])) {
             // Regenerate session immediately after successful password verification
+            unset($_SESSION['destroyed']); // Login must always rotate the session ID.
             $this->regenerate();
 
             // Check if second factor authentication is required
@@ -423,6 +422,7 @@ class Session
                 // Store pending user ID for WebAuthn verification
                 $challengeModel = new \Tfish\Model\WebAuthnChallenge();
                 $challengeModel->storePendingUserId((int)$user['id']);
+                $_SESSION['webauthn_pending_auth_hash'] = \hash('sha256', $user['passwordHash']);
                 return ['webauthn_required' => true];
             }
 
@@ -442,7 +442,7 @@ class Session
             if (!empty($next)) {
                 \header('Location: ' . TFISH_LINK . $next, true, 303);
             } else {
-                \header('Location: ' . $this->groupHomes()[$user['userGroup']], true, 303);
+                \header('Location: ' . $this->groupHome((int) $user['userGroup']), true, 303);
             }
             exit;
         } else {
@@ -575,6 +575,7 @@ class Session
         }
 
         // Regenerate session due to privilege escalation
+        unset($_SESSION['destroyed']); // Login must always rotate the session ID.
         $this->regenerate();
         $this->setLoginFlags($user);
 
@@ -680,7 +681,10 @@ class Session
         $userStatement->execute();
         $user = $userStatement->fetch(\PDO::FETCH_ASSOC);
 
-        if (!$user) {
+        // Reject if the password has changed since it was verified at the first stage.
+        $pendingAuthHash = (string) ($_SESSION['webauthn_pending_auth_hash'] ?? '');
+
+        if (!$user || !\hash_equals($pendingAuthHash, \hash('sha256', $user['passwordHash']))) {
             $challengeModel->clear();
             return false;
         }

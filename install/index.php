@@ -299,7 +299,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "description" => "Default content tag, please edit it to something useful.",
             "media" => '',
             "format" => '',
-            "fileSize" => '',
+            "fileSize" => 0,
             "externalMedia" => '',
             "creator" => '',
             "image" => '',

@@ -5,7 +5,6 @@ cache/
 trust_path/cache/
 !trust_path/cache/index.html
 
-trust_path/configuration/
 
 trust_path/database/
 !trust_path/database/index.html

@@ -242,8 +242,7 @@ class ByteBuffer implements \JsonSerializable, \Serializable {
      * @param string $serialized
      */
     public function unserialize($serialized) {
-        $this->_data = \unserialize($serialized);
-        $this->_length = \strlen($this->_data);
+        $this->_setFromSerializedString($serialized);
     }
 
     /**
@@ -271,9 +270,29 @@ class ByteBuffer implements \JsonSerializable, \Serializable {
      */
     public function __unserialize($data) {
         if ($data && isset($data['data'])) {
-            $this->_data = \unserialize($data['data']);
-            $this->_length = \strlen($this->_data);
+            $this->_setFromSerializedString($data['data']);
         }
+    }
+
+    /**
+     * Restore buffer contents from a serialized byte string.
+     *
+     * Tuskfish hardening: the payload only ever holds a serialized string, so object
+     * instantiation is disabled and any non-string result is rejected.
+     *
+     * @param mixed $serialized
+     * @return void
+     * @throws WebAuthnException
+     */
+    private function _setFromSerializedString($serialized): void {
+        $value = \is_string($serialized) ? \unserialize($serialized, ['allowed_classes' => false]) : false;
+
+        if (!\is_string($value)) {
+            throw new WebAuthnException('ByteBuffer: invalid serialized data', WebAuthnException::BYTEBUFFER);
+        }
+
+        $this->_data = $value;
+        $this->_length = \strlen($value);
     }
 
     // -----------------------

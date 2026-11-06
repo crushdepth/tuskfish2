@@ -50,9 +50,10 @@ namespace Tfish\Traits;
  * - Only whitelisted MIME types (jpeg, png, gif) are processed; anything else is rejected before
  *   a process is spawned.
  *
- * Concurrency: each thumbnail is written to a unique temporary file and then atomically renamed
- * into place (rename() is atomic on a single filesystem). Concurrent requests for the same image
- * can therefore never read or serve a half-written cache file.
+ * Writes: thumbnails are written directly to their final cache path, as in the GD and ImageMagick
+ * variants. rename() is deliberately NOT used, because it is commonly listed in disable_functions
+ * on hardened hosts (and calling a disabled function throws an Error that @ cannot suppress). If
+ * libvips fails, any partially written output is deleted so it is not served from the cache.
  *
  * ---------------------------------------------------------------------------------------------
  * LIMITATIONS (read before deploying)
@@ -324,10 +325,9 @@ trait ResizeImage
      * `vips sharpen`. To avoid double JPEG compression, the resize stage writes a lossless temporary
      * libvips file (.v) which the sharpen stage reads and encodes to the final format.
      *
-     * The finished thumbnail is always encoded to a UNIQUE temporary file and then atomically
-     * renamed onto $cachedPath. This means concurrent requests for the same image cannot collide on
-     * a shared temp name, and a reader can never see a partially written cache file (rename() is
-     * atomic on a single filesystem). Temp files share $cachedPath's already-validated directory.
+     * The thumbnail is encoded directly to $cachedPath (rename() is not used; see the class notes).
+     * If libvips fails, any partially written output at $cachedPath is deleted. The sharpening
+     * intermediate uses a unique temp file in $cachedPath's already-validated directory.
      *
      * @param string $mime The validated MIME type of the source image.
      * @param string $originalPath The file path to the original image.
@@ -361,22 +361,18 @@ trait ResizeImage
         $sharpen = ($this->sharpenSigma > 0)
             && \in_array($mime, ['image/jpeg', 'image/png'], true);
 
-        // Encode to a unique temp file with the SAME extension as the final file, so vips selects
-        // the correct encoder. It is atomically renamed onto $cachedPath once complete.
-        $extension = \pathinfo($cachedPath, PATHINFO_EXTENSION);
-        $encodeTemp = $this->tempSibling($cachedPath, $extension);
-
+        // Encode directly to $cachedPath (vips selects the encoder from its extension).
         if (!$sharpen) {
             $ok = $this->runVips([
                 'vipsthumbnail',
                 $originalPath,
                 '--size', $size,
                 '--export-profile', 'srgb',
-                '-o', $encodeTemp . $saveOptions,
+                '-o', $cachedPath . $saveOptions,
             ]);
         } else {
-            // Resize to a unique lossless intermediate, then sharpen + encode to the final-format
-            // temp. This avoids double JPEG compression.
+            // Resize to a unique lossless intermediate, then sharpen + encode to $cachedPath. This
+            // avoids double JPEG compression.
             $resizeTemp = $this->tempSibling($cachedPath, 'v');
 
             $resized = $this->runVips([
@@ -395,24 +391,17 @@ trait ResizeImage
             $ok = $this->runVips([
                 'vips', 'sharpen',
                 $resizeTemp,
-                $encodeTemp . $saveOptions,
+                $cachedPath . $saveOptions,
                 '--sigma', (string) $this->sharpenSigma,
             ]);
 
             $this->unlinkIfExists($resizeTemp);
         }
 
+        // On failure, remove any partially written output. cachedImage() serves any readable file
+        // at $cachedPath, so a truncated thumbnail would otherwise persist until the cache is flushed.
         if (!$ok) {
-            $this->unlinkIfExists($encodeTemp);
-            return false;
-        }
-
-        // Atomically move the finished thumbnail into place. Same directory => atomic on POSIX, and
-        // overwrites any copy a concurrent request produced in the meantime (both are valid).
-        if (!@\rename($encodeTemp, $cachedPath)) {
-            \trigger_error("Unable to move thumbnail into the cache: " . $cachedPath,
-                E_USER_WARNING);
-            $this->unlinkIfExists($encodeTemp);
+            $this->unlinkIfExists($cachedPath);
             return false;
         }
 
@@ -515,10 +504,9 @@ trait ResizeImage
     /**
      * Builds a unique, collision-resistant temporary path beside the final cache file.
      *
-     * The temp lives in the same (already validated) cache directory as $finalPath, so the atomic
-     * rename onto $finalPath stays within one filesystem. A random component guarantees concurrent
-     * requests for the same image use distinct temp files. The requested extension is appended so
-     * libvips selects the correct encoder from the filename.
+     * The temp lives in the same (already validated) cache directory as $finalPath. A random
+     * component guarantees concurrent requests for the same image use distinct temp files. The
+     * requested extension is appended so libvips selects the correct format from the filename.
      *
      * @param string $finalPath The eventual destination path (inside the cache directory).
      * @param string $extension Extension the temp file should carry (e.g. 'jpg', 'png', 'v').
