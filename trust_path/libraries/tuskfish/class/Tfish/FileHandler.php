@@ -366,7 +366,7 @@ class FileHandler
     /** @internal */
     private function _uploadFile(string $filename, string $fieldname, string $extension)
     {
-        $filename = \time() . '_' . $filename;
+        $filename = \bin2hex(\random_bytes(8)) . '_' . $filename;
         $upload_path = TFISH_UPLOADS_PATH . $fieldname . '/' . $filename . '.' . $extension;
 
         if (($_FILES['content']['error'][$fieldname] ?? 0) !== 0) {
