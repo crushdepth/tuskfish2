@@ -242,7 +242,7 @@ class UserEdit
         $row = $this->getRow($clean['id']);
 
         if ((int) $row['userGroup'] === 1) {
-            unset($clean['password']); // Admin must use the 'Change password' feature for their own.
+            unset($clean['passwordHash']); // Admin must use the 'Change password' feature for their own.
             $clean['userGroup'] = 1;
             $clean['onlineStatus'] = 1;
         }

@@ -73,6 +73,7 @@ class Password
 
         $this->viewModel->setPassword($_POST['password'] ?? '');
         $this->viewModel->setConfirm($_POST['confirm'] ?? '');
+        $this->viewModel->setCurrent($_POST['current'] ?? '');
 
         $this->viewModel->displaySetPassword();
 

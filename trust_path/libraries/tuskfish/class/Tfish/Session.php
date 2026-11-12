@@ -510,6 +510,19 @@ class Session
     }
 
     /**
+     * Check a password against the stored hash of the logged in user.
+     *
+     * @param string $password Input password.
+     * @return bool True if the password matches, otherwise false.
+     */
+    public function verifyPassword(string $password): bool
+    {
+        $user = $this->_getUser($_SESSION['adminEmail'] ?? '');
+
+        return !empty($user) && \password_verify($password, $user['passwordHash']);
+    }
+
+    /**
      * Destroys the current session on logout
      *
      * @param string $urlRedirect The URL to redirect the user to on logging out.

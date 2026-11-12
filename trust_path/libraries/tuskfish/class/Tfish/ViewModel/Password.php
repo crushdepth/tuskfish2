@@ -42,6 +42,7 @@ class Password implements \Tfish\Interface\Viewable
     private object $model;
     private string $password = '';
     private string $confirm = '';
+    private string $current = '';
     private string $backUrl = '';
     private string $response = '';
 
@@ -80,7 +81,7 @@ class Password implements \Tfish\Interface\Viewable
         $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
         $this->validateToken($token);
 
-        if ($this->model->changePassword($this->password, $this->confirm)) {
+        if ($this->model->changePassword($this->password, $this->confirm, $this->current)) {
             $this->response = TFISH_PASSWORD_CHANGED_SUCCESSFULLY;
         } else {
             $this->response =  TFISH_PASSWORD_CHANGE_FAILED;
@@ -112,6 +113,16 @@ class Password implements \Tfish\Interface\Viewable
     public function setConfirm(string $confirm): void
     {
         $this->confirm = $confirm;
+    }
+
+    /**
+     * Set current password.
+     *
+     * @param   string $current The current password.
+     */
+    public function setCurrent(string $current): void
+    {
+        $this->current = $current;
     }
 
     /**
