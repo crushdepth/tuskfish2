@@ -85,6 +85,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_IMAGE_GALLERY", "Gallery");
 
 // Password reset.
+\define("TFISH_CURRENT_PASSWORD", "Enter current password");
 \define("TFISH_NEW_PASSWORD", "Enter new password");
 \define("TFISH_CONFIRM_PASSWORD", "Re-enter new password to confirm");
 \define("TFISH_PASSWORD_MINIMUM_LENGTH_WEAKNESS", "Password must be at least 15 characters long to "

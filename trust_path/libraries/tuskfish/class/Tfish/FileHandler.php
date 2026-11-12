@@ -312,6 +312,9 @@ class FileHandler
 
         $filename = $this->trimString($filename);
         $cleanFilename = \mb_strtolower(\pathinfo($filename, PATHINFO_FILENAME), 'UTF-8');
+        // Keep only a-z, 0-9, underscore and hyphen, so no dots (double extensions), quotes,
+        // spaces or other special characters reach the file system, URLs or headers.
+        $cleanFilename = \trim(\preg_replace('/[^a-z0-9_-]+/', '_', $cleanFilename), '_') ?: 'file';
 
         // Check that target directory is whitelisted (locked to uploads/image or uploads/media).
         if ($fieldname === 'image' || $fieldname === 'media') {
@@ -363,7 +366,7 @@ class FileHandler
     /** @internal */
     private function _uploadFile(string $filename, string $fieldname, string $extension)
     {
-        $filename = \time() . '_' . $filename;
+        $filename = \bin2hex(\random_bytes(8)) . '_' . $filename;
         $upload_path = TFISH_UPLOADS_PATH . $fieldname . '/' . $filename . '.' . $extension;
 
         if (($_FILES['content']['error'][$fieldname] ?? 0) !== 0) {

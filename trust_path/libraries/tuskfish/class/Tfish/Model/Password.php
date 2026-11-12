@@ -50,10 +50,15 @@ class Password
      *
      * @param   string $password
      * @param   string $confirm Confirmation password.
+     * @param   string $current Current password.
      * @return  bool True on success, false on failure.
      */
-    public function changePassword(string $password, string $confirm): bool
+    public function changePassword(string $password, string $confirm, string $current): bool
     {
+        if (!$this->session->verifyPassword($current)) {
+            return false;
+        }
+
         if ($this->passwordIsNotValid($password, $confirm)) {
             return false;
         }

@@ -460,13 +460,13 @@ class Session
      * Delay login processing to frustrate brute force attacks.
      *
      * Login is cumulatively delayed by one second for each failed login.
-     * Delay is capped at 15 seconds to prevent DOS / abuse of this feature.
+     * Delay is capped at 2 seconds to prevent DOS / abuse of this feature.
      *
      * @param   int $seconds Number of seconds to delay the login attempt.
      */
     private function delayLogin(int $seconds)
     {
-        $delay = ($seconds <= 15) ? $seconds : 15;
+        $delay = ($seconds <= 2) ? $seconds : 2;
         \sleep($delay);
     }
 
@@ -487,6 +487,8 @@ class Session
         $_SESSION['id'] = $user['id'];
         $_SESSION['adminEmail'] = $user['adminEmail'];
         $_SESSION['authHash'] = \hash('sha256', $user['passwordHash']);
+        unset($_SESSION['token']); // New CSRF token on login.
+        $this->setToken();
     }
 
     /**
@@ -505,6 +507,19 @@ class Session
         $password = \password_hash($password, PASSWORD_DEFAULT, $options);
 
         return $password;
+    }
+
+    /**
+     * Check a password against the stored hash of the logged in user.
+     *
+     * @param string $password Input password.
+     * @return bool True if the password matches, otherwise false.
+     */
+    public function verifyPassword(string $password): bool
+    {
+        $user = $this->_getUser($_SESSION['adminEmail'] ?? '');
+
+        return !empty($user) && \password_verify($password, $user['passwordHash']);
     }
 
     /**
@@ -903,8 +918,9 @@ class Session
         // If true PHP will *attempt* to send the httponly flag when setting the session cookie.
         $http_only = true;
 
-        // Instruct browsers to disallow embedding of site in frame. Options: strict, lax, none.
-        $samesite = 'strict';
+        // Send the session cookie on same-site requests and on links followed from other sites,
+        // but not on cross-site form posts or embedded requests. Options: strict, lax, none.
+        $samesite = 'lax';
 
         // Set the parameters and start the session.
         \session_name($sessionName);
