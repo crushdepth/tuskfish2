@@ -487,6 +487,8 @@ class Session
         $_SESSION['id'] = $user['id'];
         $_SESSION['adminEmail'] = $user['adminEmail'];
         $_SESSION['authHash'] = \hash('sha256', $user['passwordHash']);
+        unset($_SESSION['token']); // New CSRF token on login.
+        $this->setToken();
     }
 
     /**
