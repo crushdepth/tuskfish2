@@ -918,8 +918,9 @@ class Session
         // If true PHP will *attempt* to send the httponly flag when setting the session cookie.
         $http_only = true;
 
-        // Instruct browsers to disallow embedding of site in frame. Options: strict, lax, none.
-        $samesite = 'strict';
+        // Send the session cookie on same-site requests and on links followed from other sites,
+        // but not on cross-site form posts or embedded requests. Options: strict, lax, none.
+        $samesite = 'lax';
 
         // Set the parameters and start the session.
         \session_name($sessionName);
