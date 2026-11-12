@@ -460,13 +460,13 @@ class Session
      * Delay login processing to frustrate brute force attacks.
      *
      * Login is cumulatively delayed by one second for each failed login.
-     * Delay is capped at 15 seconds to prevent DOS / abuse of this feature.
+     * Delay is capped at 2 seconds to prevent DOS / abuse of this feature.
      *
      * @param   int $seconds Number of seconds to delay the login attempt.
      */
     private function delayLogin(int $seconds)
     {
-        $delay = ($seconds <= 15) ? $seconds : 15;
+        $delay = ($seconds <= 2) ? $seconds : 2;
         \sleep($delay);
     }
 

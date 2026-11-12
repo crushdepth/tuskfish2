@@ -548,7 +548,7 @@ $statement = $this->database->select('content', $criteria);
 `login($email, $password)` → `_login()` → `_authenticateUser()` (`Session.php:344`):
 
 1. The email is validated as an email (it doubles as the username) and looked up in the `user` table via a prepared statement.
-2. **Brute-force delay**: if the user has prior `loginErrors`, `delayLogin()` sleeps one second per failure, capped at 15 seconds (the cap prevents the feature being weaponised for DoS).
+2. **Brute-force delay**: if the user has prior `loginErrors`, `delayLogin()` sleeps one second per failure, capped at 2 seconds (the cap prevents the feature being weaponised for DoS).
 3. Suspended accounts (`onlineStatus !== 1`) are rejected.
 4. `password_verify()` checks the password against the stored bcrypt hash.
 5. On success the session is **regenerated immediately** (privilege escalation), then second-factor is checked: if the user has a WebAuthn credential, the session enters the pending-2FA state and returns `['webauthn_required' => true]` (§21).
