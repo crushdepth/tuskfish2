@@ -246,7 +246,8 @@ class Search implements \Tfish\Interface\Listable
             }
         }
 
-        $this->searchTerms = $cleanSearchTerms;
+        // Cap the number of terms; each one adds six unindexed LIKE scans to the query.
+        $this->searchTerms = \array_slice($cleanSearchTerms, 0, 10);
 
         foreach ($escapedSearchTerms as $escapedTerm) {
             $escapedTerm = $this->trimString($escapedTerm);
@@ -257,7 +258,7 @@ class Search implements \Tfish\Interface\Listable
             }
         }
 
-        $this->escapedSearchTerms = $cleanEscapedSearchTerms;
+        $this->escapedSearchTerms = \array_slice($cleanEscapedSearchTerms, 0, 10);
     }
 
     /**
