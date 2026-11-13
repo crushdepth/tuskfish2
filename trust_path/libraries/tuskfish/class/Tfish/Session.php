@@ -371,6 +371,9 @@ class Session
             return $this->_authenticateUser($user, $dirtyPassword);
         }
 
+        // Spend the same bcrypt time as a known account, so timing does not reveal which emails exist.
+        $this->hashPassword($dirtyPassword);
+
         // Redirect to login page.
         $this->logout(TFISH_URL . "login/");
         exit;
