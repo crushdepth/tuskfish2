@@ -98,6 +98,13 @@ class Listing implements \Tfish\Interface\Listable
     {
         $this->template = 'listView';
         $this->listContent();
+
+        // Do not cache empty lists (start past the end, unused tag) or a start that is not on a page
+        // boundary (pagination never links there): their keys are unbounded.
+        if (empty($this->contentList) || $this->start % \max(1, $this->limit())) {
+            $this->doNotCache = true;
+        }
+
         $this->countContent();
         $this->setMetadata();
     }
@@ -146,6 +153,14 @@ class Listing implements \Tfish\Interface\Listable
             $this->setMetadata();
 
             if ($this->content->accessGroups() !== 0) {
+                $this->doNotCache = true;
+            }
+
+            // A single item ignores 'tag', and 'start' only pages a collection's children, on page
+            // boundaries.
+            $offPage = $this->start % \max(1, $this->childLimit());
+
+            if ($this->tag || ($this->start && (empty($this->children) || $offPage))) {
                 $this->doNotCache = true;
             }
         } else {
