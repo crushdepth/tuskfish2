@@ -914,10 +914,8 @@ class Session
         // as there are admin checks in some templates).
         $path = '/';
 
-        // Cookie domain, for example www.php.net. To make cookies visible on all subdomains
-        // (default) prefix with dot eg. '.php.net'
-        $host   = $_SERVER['SERVER_NAME'] ?? '';
-        $domain = \strncasecmp($host, 'www.', 4) === 0 ? \substr($host, 4) : $host;
+        // Host-only cookie: no Domain attribute, so subdomains neither receive nor share it.
+        $domain = '';
 
         // If true the cookie will only be sent over secure connections.
         $secure = isset($_SERVER['HTTPS'])
