@@ -754,14 +754,19 @@ class Session
 
         $service = new \Tfish\WebAuthnService($this->preference->siteName(), $rpId);
 
-        $verified = $service->verifyAuthentication(
-            $clientDataJSON,
-            $authenticatorData,
-            $signature,
-            $credential['publicKey'],
-            $challenge,
-            (int)$credential['signCount']
-        );
+        try {
+            $verified = $service->verifyAuthentication(
+                $clientDataJSON,
+                $authenticatorData,
+                $signature,
+                $credential['publicKey'],
+                $challenge,
+                (int)$credential['signCount']
+            );
+        } catch (\Throwable $e) {
+            // The library throws on every failed check; treat it as a failed assertion.
+            $verified = false;
+        }
 
         if ($verified) {
             // Update signature counter with clone detection
