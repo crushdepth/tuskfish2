@@ -341,8 +341,9 @@ class Session
      */
     public function login(string $email, string $password): array
     {
-        // Check email and password have been supplied
-        if (empty($email) || empty($password)) {
+        // Check email and password have been supplied. A NUL byte would make password_hash() throw
+        // for unknown emails only, revealing which emails have accounts.
+        if (empty($email) || empty($password) || \str_contains($password, "\0")) {
             // Issue incomplete form warning and redirect to the login page.
             $this->logout(TFISH_URL . "login/");
             return [];

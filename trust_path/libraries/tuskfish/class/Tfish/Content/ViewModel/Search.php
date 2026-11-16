@@ -284,7 +284,7 @@ class Search implements \Tfish\Interface\Listable
     /**
      * Set search type.
      *
-     * @param   string $searchType Options are: "AND", "OR", "exact".
+     * @param   string $searchType Options are: "AND", "OR", "exact". Anything else defaults to "AND".
      * @return void
      */
     public function setSearchType(string $searchType): void
@@ -292,7 +292,7 @@ class Search implements \Tfish\Interface\Listable
         $searchType = $this->trimString($searchType);
 
         if (!\in_array($searchType, ['AND', 'OR', 'exact'], true)) {
-            throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_VALUE);
+            $searchType = 'AND';
         }
 
         $this->searchType = $searchType;

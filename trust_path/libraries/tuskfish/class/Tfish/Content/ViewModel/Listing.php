@@ -524,7 +524,7 @@ class Listing implements \Tfish\Interface\Listable
     /**
      * Set type.
      *
-     * Filter list by content type.
+     * Filter list by content type. An unknown type is treated as empty (no filter).
      *
      * @param   string $type Type of content object.
      * @return void
@@ -532,7 +532,7 @@ class Listing implements \Tfish\Interface\Listable
     public function setType(string $type): void
     {
         if (!empty($type) && !\array_key_exists($type, $this->listTypes())) {
-           throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_TYPE);
+           $type = '';
         }
 
         $this->type = $this->trimString($type);

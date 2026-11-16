@@ -66,7 +66,7 @@ class Search
     public function search(): array
     {
         $this->viewModel->setAction('search');
-        $start = (int) ($_GET['start'] ?? 0);
+        $start = \max(0, (int) ($_GET['start'] ?? 0));
         $this->viewModel->setStart($start);
 
         $searchType = $this->trimString($_REQUEST['searchType'] ?? '');

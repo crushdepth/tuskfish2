@@ -101,8 +101,10 @@ class FrontController
 
         $action = $this->trimString(($_REQUEST['action'] ?? 'display'));
 
-        // Attempt to inject a bad action will throw a soft error.
-        if (!$this->isAlpha($action) || !\method_exists($this->controller, $action)) {
+        // Attempt to inject a bad action will throw a soft error. Actions are public controller
+        // methods without required parameters (excludes private methods and trait helpers).
+        if (!$this->isAlpha($action) || !\is_callable([$this->controller, $action])
+            || (new \ReflectionMethod($this->controller, $action))->getNumberOfRequiredParameters() > 0) {
             \header('Location: ' . TFISH_URL . 'error/');
             exit;
         }

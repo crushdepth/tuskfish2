@@ -62,12 +62,12 @@ class Listing
             $cacheParams['loggedIn'] = '1';
         }
 
-        $start = (int) ($_GET['start'] ?? 0);
+        $start = \max(0, (int) ($_GET['start'] ?? 0));
 
         $this->viewModel->setStart($start);
         if (!empty($start)) $cacheParams['start'] = $start;
 
-        $tag = (int) ($_GET['tag'] ?? 0);
+        $tag = \max(0, (int) ($_GET['tag'] ?? 0));
 
         $this->viewModel->setTag($tag);
         if (!empty($tag)) $cacheParams['tag'] = $tag;
@@ -75,7 +75,7 @@ class Listing
         $type = $this->trimString($_GET['type'] ?? '');
 
         $this->viewModel->setType($type);
-        if (!empty($type)) $cacheParams['type'] = $this->viewModel->type();
+        if (!empty($this->viewModel->type())) $cacheParams['type'] = $this->viewModel->type();
 
         $this->viewModel->setSort('date');
         $this->viewModel->setOrder('DESC');
