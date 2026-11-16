@@ -1,0 +1,3 @@
+# Original images are only read by PHP (to make resized copies in /cache/). Deny direct web
+# access so a public thumbnail cannot be used to fetch the full-size original.
+Require all denied

@@ -198,10 +198,10 @@
           <?php if (!empty($content->image())): ?>
           <div class="tf-filefield-current">
             <p class="tf-filefield-currentlabel"><?php echo TFISH_CURRENT_FILE; ?></p>
-            <img src="<?php echo TFISH_IMAGE_URL . xss($content->image()); ?>" alt="">
-            <p class="tf-filefield-caption">
-              <a href="<?php echo TFISH_IMAGE_URL . xss($content->image()); ?>" download><?php echo xss($content->image()); ?></a>
-            </p>
+            <?php if ($preview = $content->cachedImage(400)): ?>
+            <img src="<?php echo $preview; ?>" alt="">
+            <?php endif; ?>
+            <p class="tf-filefield-caption"><?php echo xss($content->image()); ?></p>
             <button type="button" class="tf-filefield-delete btn btn-sm btn-outline-danger" hidden
                     data-label-remove="<?php echo xss(TFISH_REMOVE_FILE); ?>"
                     data-label-undo="<?php echo xss(TFISH_KEEP_FILE); ?>"><?php echo TFISH_REMOVE_FILE; ?></button>
