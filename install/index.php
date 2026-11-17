@@ -36,6 +36,12 @@ if (\is_readable("../mainfile.php")) {
     exit;
 }
 
+// Refuse to run if a database is already configured.
+if (\defined('TFISH_DATABASE') && \is_file(TFISH_DATABASE)) {
+    echo TFISH_ALREADY_INSTALLED;
+    exit;
+}
+
 $logger = new \Tfish\Logger();
 $fileHandler = new \Tfish\FileHandler();
 

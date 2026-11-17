@@ -83,6 +83,7 @@
 \define("TFISH_PATH_TO_MAINFILE_OK", "Path to mainfile is good");
 \define("TFISH_PATH_TO_MAINFILE_INVALID", "mainfile.php is missing, please check that all files were "
         . "uploaded as installation cannot proceed");
+\define("TFISH_ALREADY_INSTALLED", "Tuskfish is already installed. Please delete the install directory.");
 \define("TFISH_ROOT_PATH_OK", "TFISH_ROOT_PATH set");
 \define("TFISH_ROOT_PATH_INVALID", "TFISH_ROOT_PATH is invalid, please set the path in mainfile.php");
 \define("TFISH_TRUST_PATH_OK", "TFISH_TRUST_PATH set");
