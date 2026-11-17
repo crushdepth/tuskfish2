@@ -1,21 +1,22 @@
 .DS_Store
 
-cache/
+/cache/*
+!/cache/index.html
 
-trust_path/cache/
+trust_path/cache/*
 !trust_path/cache/index.html
 
-
-trust_path/database/
+trust_path/database/*
 !trust_path/database/index.html
 
-trust_path/log/
+trust_path/log/*
 !trust_path/log/index.html
 
-uploads/image/
+uploads/image/*
 !uploads/image/index.html
+!uploads/image/.htaccess
 
-uploads/media/
+uploads/media/*
 !uploads/media/index.html
 
 # HTMLPurifier serializer definition cache (generated at runtime; keep the README)

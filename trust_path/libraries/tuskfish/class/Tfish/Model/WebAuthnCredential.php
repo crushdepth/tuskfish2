@@ -205,7 +205,7 @@ class WebAuthnCredential
         $statement->bindValue(':credentialId', $credentialId, \PDO::PARAM_STR);
         $statement->bindValue(':currentSignCount', $currentSignCount, \PDO::PARAM_INT);
 
-        $result = $this->database->executeTransaction($statement);
+        $result = $this->database->executeTransaction($statement) && $statement->rowCount() > 0;
 
         // If update affected 0 rows, race condition occurred or credential was modified
         if (!$result) {
@@ -235,7 +235,7 @@ class WebAuthnCredential
         $statement->bindValue(':id', $id, \PDO::PARAM_INT);
         $statement->bindValue(':userId', $userId, \PDO::PARAM_INT);
 
-        return $this->database->executeTransaction($statement);
+        return $this->database->executeTransaction($statement) && $statement->rowCount() > 0;
     }
 
     /**

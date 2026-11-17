@@ -98,6 +98,13 @@ class Listing implements \Tfish\Interface\Listable
     {
         $this->template = 'listView';
         $this->listContent();
+
+        // Do not cache empty lists (start past the end, unused tag) or a start that is not on a page
+        // boundary (pagination never links there): their keys are unbounded.
+        if (empty($this->contentList) || $this->start % \max(1, $this->limit())) {
+            $this->doNotCache = true;
+        }
+
         $this->countContent();
         $this->setMetadata();
     }
@@ -146,6 +153,14 @@ class Listing implements \Tfish\Interface\Listable
             $this->setMetadata();
 
             if ($this->content->accessGroups() !== 0) {
+                $this->doNotCache = true;
+            }
+
+            // A single item ignores 'tag', and 'start' only pages a collection's children, on page
+            // boundaries.
+            $offPage = $this->start % \max(1, $this->childLimit());
+
+            if ($this->tag || ($this->start && (empty($this->children) || $offPage))) {
                 $this->doNotCache = true;
             }
         } else {
@@ -509,7 +524,7 @@ class Listing implements \Tfish\Interface\Listable
     /**
      * Set type.
      *
-     * Filter list by content type.
+     * Filter list by content type. An unknown type is treated as empty (no filter).
      *
      * @param   string $type Type of content object.
      * @return void
@@ -517,7 +532,7 @@ class Listing implements \Tfish\Interface\Listable
     public function setType(string $type): void
     {
         if (!empty($type) && !\array_key_exists($type, $this->listTypes())) {
-           throw new \InvalidArgumentException(TFISH_ERROR_ILLEGAL_TYPE);
+           $type = '';
         }
 
         $this->type = $this->trimString($type);

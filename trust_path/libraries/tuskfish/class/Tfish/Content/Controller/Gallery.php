@@ -64,12 +64,12 @@ class Gallery
         $this->viewModel->setId($id);
         if (!empty($id)) $cacheParams['id'] = $id;
 
-        $start = (int) ($_GET['start'] ?? 0);
+        $start = \max(0, (int) ($_GET['start'] ?? 0));
 
         $this->viewModel->setStart($start);
         if (!empty($start)) $cacheParams['start'] = $start;
 
-        $tag = (int) ($_GET['tag'] ?? 0);
+        $tag = \max(0, (int) ($_GET['tag'] ?? 0));
 
         $this->viewModel->setTag($tag);
         if (!empty($tag)) $cacheParams['tag'] = $tag;

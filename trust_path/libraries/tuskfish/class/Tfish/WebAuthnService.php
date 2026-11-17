@@ -303,7 +303,7 @@ class WebAuthnService
             // After successful verification, update the stored signature counter with
             // getSignatureCounter() to detect cloning on subsequent authentications
             return $result;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Log detailed error internally, throw generic error to client
             \error_log('WebAuthn authentication verification error: ' . $this->sanitiseLogField($e->getMessage()));
             throw new \RuntimeException('Authentication verification failed');

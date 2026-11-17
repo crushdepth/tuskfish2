@@ -1,0 +1,2 @@
+# trust_path should sit outside the web root. If it doesn't, deny all web access to it.
+Require all denied

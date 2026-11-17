@@ -31,6 +31,9 @@ class Logger
 {
     use Traits\ValidateString;
 
+    /** Maximum size of the log file in bytes (10 MB). */
+    private const MAX_LOG_SIZE = 10485760;
+
     /**
      * Constructor.
      */
@@ -67,7 +70,7 @@ class Logger
         $line  = $line  ?? TFISH_ERROR_UNSPECIFIED;
 
         $message = \date('Y-m-d, H:i:s') . ": [ERROR][$errno][$error][$file:$line]\n";
-        \error_log($message, 3, TFISH_ERROR_LOG_PATH);
+        $this->writeLog($message);
 
         return false;
     }
@@ -86,11 +89,36 @@ class Logger
         $message .= '[' . $this->sanitiseLogField($this->trimString($e->getMessage())) . ']';
         $message .= '[' . $this->sanitiseLogField($e->getFile()) . ':' . $e->getLine() . "]\n";
         $message .= $this->sanitiseLogField($e->getTraceAsString()) . "\n";
-        \error_log($message, 3, TFISH_ERROR_LOG_PATH);
+
+        // Log full, fall back to a one-line summary in PHP's own error log.
+        if (!$this->writeLog($message)) {
+            \error_log(\strtok($message, "\n"));
+        }
 
         if (!\headers_sent()) {
             \http_response_code(500);
         }
+    }
+
+    /**
+     * Append a message to the log file, unless it has reached MAX_LOG_SIZE.
+     *
+     * The log is capped rather than rotated (rename() is not available on all hosts). Delete or
+     * truncate the file to resume logging. is_file() avoids a filesize() warning before the log
+     * file exists.
+     *
+     * @param string $message Message to log.
+     * @return bool True if written, false if the log is full or could not be written.
+     */
+    private function writeLog(string $message): bool
+    {
+        $size = \is_file(TFISH_ERROR_LOG_PATH) ? \filesize(TFISH_ERROR_LOG_PATH) : 0;
+
+        if ($size >= self::MAX_LOG_SIZE) {
+            return false;
+        }
+
+        return \error_log($message, 3, TFISH_ERROR_LOG_PATH);
     }
 
 }

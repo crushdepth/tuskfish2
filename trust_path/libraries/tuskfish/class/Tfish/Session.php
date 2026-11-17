@@ -341,8 +341,9 @@ class Session
      */
     public function login(string $email, string $password): array
     {
-        // Check email and password have been supplied
-        if (empty($email) || empty($password)) {
+        // Check email and password have been supplied. A NUL byte would make password_hash() throw
+        // for unknown emails only, revealing which emails have accounts.
+        if (empty($email) || empty($password) || \str_contains($password, "\0")) {
             // Issue incomplete form warning and redirect to the login page.
             $this->logout(TFISH_URL . "login/");
             return [];
@@ -370,6 +371,9 @@ class Session
         if ($user) {
             return $this->_authenticateUser($user, $dirtyPassword);
         }
+
+        // Spend the same bcrypt time as a known account, so timing does not reveal which emails exist.
+        $this->hashPassword($dirtyPassword);
 
         // Redirect to login page.
         $this->logout(TFISH_URL . "login/");
@@ -751,14 +755,19 @@ class Session
 
         $service = new \Tfish\WebAuthnService($this->preference->siteName(), $rpId);
 
-        $verified = $service->verifyAuthentication(
-            $clientDataJSON,
-            $authenticatorData,
-            $signature,
-            $credential['publicKey'],
-            $challenge,
-            (int)$credential['signCount']
-        );
+        try {
+            $verified = $service->verifyAuthentication(
+                $clientDataJSON,
+                $authenticatorData,
+                $signature,
+                $credential['publicKey'],
+                $challenge,
+                (int)$credential['signCount']
+            );
+        } catch (\Throwable $e) {
+            // The library throws on every failed check; treat it as a failed assertion.
+            $verified = false;
+        }
 
         if ($verified) {
             // Update signature counter with clone detection
@@ -906,10 +915,8 @@ class Session
         // as there are admin checks in some templates).
         $path = '/';
 
-        // Cookie domain, for example www.php.net. To make cookies visible on all subdomains
-        // (default) prefix with dot eg. '.php.net'
-        $host   = $_SERVER['SERVER_NAME'] ?? '';
-        $domain = \strncasecmp($host, 'www.', 4) === 0 ? \substr($host, 4) : $host;
+        // Host-only cookie: no Domain attribute, so subdomains neither receive nor share it.
+        $domain = '';
 
         // If true the cookie will only be sent over secure connections.
         $secure = isset($_SERVER['HTTPS'])

@@ -80,6 +80,13 @@ class Gallery implements \Tfish\Interface\Listable
     public function displayList(): void
     {
         $this->listContent();
+
+        // Do not cache empty lists (start past the end, unused tag), id lookups (which ignore start
+        // and tag) or a start that is not on a page boundary: their keys are unbounded.
+        if (empty($this->contentList) || $this->id || $this->start % \max(1, $this->limit())) {
+            $this->doNotCache = true;
+        }
+
         $this->countContent();
     }
 

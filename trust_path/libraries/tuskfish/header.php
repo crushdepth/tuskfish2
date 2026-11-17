@@ -43,6 +43,7 @@ declare(strict_types=1);
 // Set error reporting levels and custom error handler.
 \ini_set('display_errors', '0'); // Needs to be set to 0 for production.
 \ini_set('log_errors', '1');
+\ini_set('zend.exception_ignore_args', '1'); // Keep arguments (eg. passwords) out of exception traces.
 \error_reporting(E_ALL);
 
 // Make core language files available.

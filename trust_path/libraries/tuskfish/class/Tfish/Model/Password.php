@@ -79,7 +79,8 @@ class Password
     {
         $len = \mb_strlen($password, 'UTF-8');
 
-        if ($password !== $confirm || $len < 15 || $len === false) {
+        // Bcrypt cannot hash a NUL byte (password_hash() throws).
+        if ($password !== $confirm || $len < 15 || $len === false || \str_contains($password, "\0")) {
             return true;
         }
         return false;
