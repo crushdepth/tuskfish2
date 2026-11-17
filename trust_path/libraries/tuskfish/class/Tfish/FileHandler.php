@@ -415,7 +415,10 @@ class FileHandler
         $detected = $finfo->file($tmp) ?: '';
         $allowed = $this->uploadMimetypes($fieldname)[$extension] ?? '';
 
-        if ($detected !== $allowed) {
+        // Current libmagic reports gzip as application/gzip and KMZ as a plain zip archive.
+        $aliases = ['gz' => 'application/gzip', 'kmz' => 'application/zip'];
+
+        if ($detected !== $allowed && $detected !== ($aliases[$extension] ?? '')) {
             \trigger_error(TFISH_ERROR_ILLEGAL_MIMETYPE, E_USER_NOTICE);
             return false;
         }
