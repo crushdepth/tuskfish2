@@ -94,3 +94,4 @@ function tfish_autoload(string $classname) {
 \spl_autoload_register('tfish_autoload');
 
 // Site database name are appended here.
+if (\is_file(__DIR__ . '/config.local.php')) require_once __DIR__ . '/config.local.php';

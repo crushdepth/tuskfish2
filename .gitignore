@@ -24,3 +24,5 @@ trust_path/libraries/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serialize
 mainfile.php
 
 .codegraph/
+
+trust_path/configuration/config.local.php
