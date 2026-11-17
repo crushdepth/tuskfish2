@@ -904,6 +904,8 @@ class Session
         \ini_set('session.use_cookies', '1');
         \ini_set('session.use_only_cookies', '1');
         \ini_set('session.use_trans_sid', '0');
+        // Reject session IDs the server did not issue (e.g. one planted by an attacker).
+        \ini_set('session.use_strict_mode', '1');
 
         // Session name. If the preference has been messed up it will assign one.
         $sessionName = !empty($this->preference->sessionName()) ? $this->preference->sessionName() : 'tfish';
