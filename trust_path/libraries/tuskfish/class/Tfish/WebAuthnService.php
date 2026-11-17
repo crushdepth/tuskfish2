@@ -193,7 +193,7 @@ class WebAuthnService
             );
 
             return $data;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Log detailed error internally, throw generic error to client
             \error_log('WebAuthn registration verification error: ' . $this->sanitiseLogField($e->getMessage()));
             throw new \RuntimeException('Invalid credential data');
