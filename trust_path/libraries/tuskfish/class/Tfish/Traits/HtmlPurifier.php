@@ -72,6 +72,8 @@ trait HtmlPurifier
         $config->set('Core.Encoding', 'UTF-8');
         $config->set('Attr.EnableID', true);
         $config->set('Attr.ID.HTML5', true);
+        // <img name> becomes a named property of document and can shadow built-ins (F-24).
+        $config->set('HTML.ForbiddenAttributes', ['img@name']);
 
         // Set optional configuration options.
         if ($configOptions) {

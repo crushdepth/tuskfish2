@@ -165,8 +165,9 @@ class WebAuthnService
      */
     public function verifyRegistration(string $clientDataJSON, string $attestationObject, string $challenge): object
     {
-        // Validate input lengths to prevent DoS (1MB limit)
-        if (\strlen($clientDataJSON) > 1048576 || \strlen($attestationObject) > 1048576) {
+        // Validate input lengths to prevent DoS (1MB limit). The attestation object is CBOR, so
+        // a small limit also bounds nesting depth in the decoder (F-25); real ones are < 1KB.
+        if (\strlen($clientDataJSON) > 1048576 || \strlen($attestationObject) > 16384) {
             throw new \RuntimeException('Input data exceeds maximum size');
         }
 
@@ -254,9 +255,10 @@ class WebAuthnService
         ?int $prevSignatureCount = null
     ): bool
     {
-        // Validate input lengths to prevent DoS (1MB limit for browser data)
+        // Validate input lengths to prevent DoS (1MB limit for browser data). Authenticator data
+        // is 37 bytes plus small CBOR extensions; the small limit bounds CBOR nesting (F-25).
         if (\strlen($clientDataJSON) > 1048576 ||
-            \strlen($authenticatorData) > 1048576 ||
+            \strlen($authenticatorData) > 4096 ||
             \strlen($signature) > 1048576) {
             throw new \RuntimeException('Input data exceeds maximum size');
         }

@@ -154,7 +154,7 @@
       <label for="html" class="form-label"><strong><?php echo TFISH_HTML; ?></strong></label>
       <div>
         <textarea class="form-control" name="content[html]" id="html" rows="4"><?php
-            if (!empty($content['html'])) { echo ($content['html']); }
+            if (!empty($content['html'])) { echo \htmlspecialchars((string) $content['html'], ENT_NOQUOTES, 'UTF-8', true); }
         ?></textarea>
       </div>
     </div>
