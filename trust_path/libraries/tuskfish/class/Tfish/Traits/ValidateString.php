@@ -118,17 +118,19 @@ trait ValidateString
     }
 
     /**
-     * Cast to string, check UTF-8 encoding and strip trailing whitespace and control characters.
+     * Cast to string, check UTF-8 encoding and trim whitespace and control characters from both ends.
      *
-     * Removes whitespace and control characters (ASCII <= 32 / UTF-8 points 0-32 inclusive),
-     * checks for UTF-8 character set and casts input to a string. Note that the data returned by
-     * this function still requires escaping at the point of use; it is not database or XSS safe.
+     * Removes bytes 0x00-0x20 (ASCII control characters and space) from the start and end only.
+     * Characters inside the string, including NUL, CR and LF, are kept. Unicode whitespace such as
+     * a non-breaking space is not trimmed. Returns an empty string if the input is not valid UTF-8.
      *
-     * As the input is cast to a string do NOT apply this function to non-string types (int, float,
-     * bool, object, resource, null, array, etc).
+     * The result is not database or XSS safe; escape it at the point of use.
+     *
+     * Only pass strings or scalars. null becomes '', an array becomes 'Array' (with a PHP
+     * warning) and an object without __toString() throws an \Error.
      *
      * @param mixed $text Input to be trimmed.
-     * @return string Trimmed and UTF-8 validated string.
+     * @return string Trimmed string, or '' if the input is not valid UTF-8.
      */
     public function trimString($text): string
     {

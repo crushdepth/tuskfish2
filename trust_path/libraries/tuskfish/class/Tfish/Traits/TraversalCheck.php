@@ -16,7 +16,7 @@ namespace Tfish\Traits;
  */
 
 /**
- * Validates that a filename or path does NOT contain directory traversals in any form.
+ * Checks a filename or path for ".." segments and null bytes (a second line of defence).
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -29,23 +29,22 @@ namespace Tfish\Traits;
 trait TraversalCheck
 {
     /**
-     * Check if a file path contains traversals (including encoded traversals) or null bytes.
+     * Check if a path contains a ".." segment or a null byte, including in encoded form.
      *
-     * Directory traversals are not permitted in Tuskfish method parameters. If a path is found to
-     * contain a traversal it is presumed to be an attack. Encoded traversals are a clear sign of
-     * attempted abuse.
+     * ".." counts only as a whole segment between separators (slash or backslash) or the ends of the
+     * string, so "..." and "a..b" pass. Up to two rounds of URL and HTML-entity decoding are
+     * applied first; anything encoded three or more times is not decoded and passes.
+     *
+     * Not checked: absolute paths ("/etc/passwd") and stream wrappers ("php://", "phar://").
+     * Callers must prefix a fixed base directory, which is what makes those harmless.
      *
      * In general untrusted data should never be used to construct a file path. This method exists
      * as a second line safety measure.
      *
-     * @see https://www.owasp.org/index.php/Path_Traversal.
+     * @see https://owasp.org/www-community/attacks/Path_Traversal
      *
-     * @param string $path
-     * @return boolean True if a traversal or null byte is found, otherwise false.
-     */
-    /**
-     * True if $path contains a traversal ("..") segment or a null byte.
-     * Handles %XX and HTML entities with up to TWO decode passes.
+     * @param string $path Path or filename to check.
+     * @return bool True if a ".." segment or null byte is found, otherwise false.
      */
     public function hasTraversalorNullByte(string $path): bool
     {
