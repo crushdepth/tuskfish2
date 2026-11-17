@@ -48,12 +48,13 @@ class FileHandler
      */
     public function appendToFile(string $filepath, string $contents): bool
     {
+        $cleanFilepath = $this->trimString($filepath);
+
         // Check for directory traversals and null byte injection.
-        if ($this->hasTraversalorNullByte($filepath)) {
+        if ($this->hasTraversalorNullByte($cleanFilepath)) {
             throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
 
-        $cleanFilepath = $this->trimString($filepath);
         // NOTE: Calling trim() removes linefeed from the contents.
         $cleanContent = PHP_EOL . $this->trimString($contents);
 
@@ -89,12 +90,12 @@ class FileHandler
      */
     public function clearDirectory(string $filepath): bool
     {
+        $cleanFilepath = $this->trimString($filepath);
+
         // Check for directory traversals and null byte injection.
-        if ($this->hasTraversalorNullByte($filepath)) {
+        if ($this->hasTraversalorNullByte($cleanFilepath)) {
             throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
-
-        $cleanFilepath = $this->trimString($filepath);
 
         if (!empty($cleanFilepath)) {
             $result = $this->_clearDirectory($cleanFilepath);
@@ -189,13 +190,13 @@ class FileHandler
             return false;
         }
 
+        $cleanFilepath = $this->trimString($filepath);
+
         // Check for directory traversals and null byte injection.
-        if ($this->hasTraversalorNullByte($filepath)) {
+        if ($this->hasTraversalorNullByte($cleanFilepath)) {
             throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
             return false;
         }
-
-        $cleanFilepath = $this->trimString($filepath);
 
         if ($cleanFilepath) {
             $result = $this->_deleteDirectory($cleanFilepath);
@@ -253,12 +254,12 @@ class FileHandler
      */
     public function deleteFile(string $filepath): bool
     {
+        $cleanFilepath = $this->trimString($filepath);
+
         // Check for directory traversals and null byte injection.
-        if ($this->hasTraversalorNullByte($filepath)) {
+        if ($this->hasTraversalorNullByte($cleanFilepath)) {
             throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
-
-        $cleanFilepath = $this->trimString($filepath);
 
         if (!empty($cleanFilepath)) {
             $result = $this->_deleteFile($cleanFilepath);
@@ -305,12 +306,12 @@ class FileHandler
      */
     public function uploadFile(string $filename, string $fieldname)
     {
+        $filename = $this->trimString($filename);
+
         // Check for directory traversals and null byte injection.
         if ($this->hasTraversalorNullByte($filename)) {
             throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
         }
-
-        $filename = $this->trimString($filename);
         $cleanFilename = \mb_strtolower(\pathinfo($filename, PATHINFO_FILENAME), 'UTF-8');
         // Keep only a-z, 0-9, underscore and hyphen, so no dots (double extensions), quotes,
         // spaces or other special characters reach the file system, URLs or headers.
