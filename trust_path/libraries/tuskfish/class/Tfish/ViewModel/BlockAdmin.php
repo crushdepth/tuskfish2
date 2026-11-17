@@ -83,55 +83,6 @@ class BlockAdmin implements \Tfish\Interface\Listable
     /** Actions */
 
     /**
-     * Display Add user form.
-     *
-     * @return void
-     */
-    public function displayAdd(): void
-    {
-        $this->pageTitle = TFISH_BLOCK_ADD;
-        $this->template = 'blockEntry';
-    }
-
-    /**
-     * Save block object (new or updated).
-     *
-     * @return void
-     */
-    public function displaySave(): void
-    {
-        $token = isset($_POST['token']) ? $this->trimString($_POST['token']) : '';
-        $this->validateToken($token);
-
-        $id = (int) ($_POST['content']['id'] ?? 0);
-
-        if (empty($id)) {
-
-            if ($this->model->insert()) {
-                $this->pageTitle = TFISH_SUCCESS;
-                $this->response = TFISH_OBJECT_WAS_INSERTED;
-            } else {
-                $this->pageTitle = TFISH_FAILED;
-                $this->response = TFISH_OBJECT_INSERTION_FAILED;
-            }
-        }
-
-        if (!empty($id)) {
-
-            if ($this->model->update()) {
-                $this->pageTitle = TFISH_SUCCESS;
-                $this->response = TFISH_OBJECT_WAS_UPDATED;
-            } else {
-                $this->pageTitle = TFISH_FAILED;
-                $this->response = TFISH_OBJECT_UPDATE_FAILED;
-            }
-        }
-
-        $this->template = 'response';
-        $this->backUrl = TFISH_ADMIN_BLOCK_URL;
-    }
-
-    /**
      * Cancel action and redirect to admin page.
      *
      * @return void

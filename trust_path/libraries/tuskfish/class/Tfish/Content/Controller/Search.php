@@ -72,17 +72,9 @@ class Search
         $searchType = $this->trimString($_REQUEST['searchType'] ?? '');
         $this->viewModel->setSearchType($searchType);
 
-        // Search terms passed in from a pagination control link have been i) encoded and ii) escaped.
-        // Search terms entered directly into the search form can be used directly.
-        $cleanTerms = '';
-
-        if (isset($_GET['searchTerms'])) {
-            $terms = $this->trimString($_REQUEST['searchTerms']);
-            $terms = \rawurldecode($terms);
-            $cleanTerms = \htmlspecialchars_decode($terms, ENT_QUOTES|ENT_HTML5);
-        } else {
-            $cleanTerms = $this->trimString($_POST['searchTerms'] ?? '');
-        }
+        // The browser and PHP have already decoded the terms (form submissions and pagination links
+        // alike), so they are used as received. Decoding again would alter terms such as '%41'.
+        $cleanTerms = $this->trimString($_GET['searchTerms'] ?? $_POST['searchTerms'] ?? '');
 
         $this->viewModel->setSearchTerms($cleanTerms);
         $this->viewModel->search();

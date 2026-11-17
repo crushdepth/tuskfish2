@@ -132,30 +132,14 @@ class Rss
             throw new \InvalidArgumentException(TFISH_ERROR_NOT_INT);
         }
 
-        $criteria = $this->criteriaFactory->criteria();
-        $criteria->add($this->criteriaFactory->item('module', 'content'));
-        $criteria->add($this->criteriaFactory->item('tagId', $tagId));
-
-        $params = $this->database->selectDistinct('taglink', ['contentId'], $criteria)
-            ->fetchAll(\PDO::FETCH_COLUMN);
-
-        if (empty($params)) {
-            return [];
-        }
-
-        $sql = "SELECT * FROM `content` WHERE `id` IN (";
-
-        foreach ($params as $id) {
-            $sql .= "?,";
-        }
-
-        $sql = rtrim($sql, ",");
-        $sql .= ") ";
+        // Subquery keeps the bound parameter count fixed, however many items carry the tag.
+        $sql = "SELECT * FROM `content` WHERE `id` IN ("
+            . "SELECT `contentId` FROM `taglink` WHERE `tagId` = ? AND `module` = 'content') ";
         $sql .= "AND `inFeed` = 1 AND `onlineStatus` = '1' AND `type` != 'TfTag' ";
         $sql .= "ORDER BY `date` DESC, `submissionTime` DESC ";
 
         $sql .= "LIMIT ? OFFSET 0";
-        $params[] = $this->preference->rssPosts();
+        $params = [$tagId, $this->preference->rssPosts()];
         $statement = $this->database->preparedStatement($sql);
 
         $result = $statement->execute($params);
