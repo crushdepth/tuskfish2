@@ -98,7 +98,10 @@ class WebAuthnService
         // Load library.
         require_once TFISH_CLASS_PATH . 'webauthn/WebAuthn.php';
 
-        $this->webAuthn = new \lbuchs\WebAuthn\WebAuthn($rpName, $rpId, null, true);
+        // Attestation is requested as 'none' and never verified against a trust root, so only accept
+        // 'none' and 'packed' (the spec lets browsers pass packed self-attestation through unchanged).
+        // This keeps the other format parsers out of reach. Only affects registration, not login.
+        $this->webAuthn = new \lbuchs\WebAuthn\WebAuthn($rpName, $rpId, ['none', 'packed'], true);
     }
 
     /**
