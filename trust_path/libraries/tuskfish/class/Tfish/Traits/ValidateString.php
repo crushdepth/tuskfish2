@@ -126,14 +126,19 @@ trait ValidateString
      *
      * The result is not database or XSS safe; escape it at the point of use.
      *
-     * Only pass strings or scalars. null becomes '', an array becomes 'Array' (with a PHP
-     * warning) and an object without __toString() throws an \Error.
+     * Scalars are cast to string (true becomes '1', false and null become ''). Arrays, resources
+     * and objects without __toString() return ''.
      *
      * @param mixed $text Input to be trimmed.
      * @return string Trimmed string, or '' if the input is not valid UTF-8.
      */
     public function trimString($text): string
     {
+        // Arrays, resources and objects without __toString() have no meaningful string value.
+        if ($text !== null && !\is_scalar($text) && !($text instanceof \Stringable)) {
+            return '';
+        }
+
         $text = (string) $text;
 
         if ($this->isUtf8($text)) {
