@@ -27,8 +27,7 @@ namespace Tfish;
  * @version     Release: 1.0
  * @since       1.1
  * @package     core
- * @uses        trait \Tfish\Traits\TraversalCheck	Validates that a filename or path does NOT contain directory traversals in any form.
- * @uses        trait \Tfish\Traits\UrlCheck	Validate that a URL meets the specification.
+ * @uses        trait \Tfish\Traits\UrlCheck	Checks that a string is an absolute http:// or https:// URL.
  * @uses        trait \Tfish\Traits\ValidateString  Provides methods for validating UTF-8 character encoding and string composition.
  * @var         \Tfish\Entity\Preference $preference Instance of the Tuskfish site preference class.
  * @var         int $count Number of records in the result set.
@@ -42,7 +41,6 @@ namespace Tfish;
 
 class Pagination
 {
-    use \Tfish\Traits\TraversalCheck;
     use \Tfish\Traits\UrlCheck;
     use \Tfish\Traits\ValidateString;
 
@@ -251,10 +249,6 @@ class Pagination
         $clean_extraParams = [];
 
         foreach ($extraParams as $key => $value) {
-            if ($this->hasTraversalorNullByte((string) $key) || $this->hasTraversalorNullByte((string) $value)) {
-                throw new \InvalidArgumentException(TFISH_ERROR_TRAVERSAL_OR_NULL_BYTE);
-            }
-
             // URL encode and \htmlspecialchars() the key/value pairs.
             $clean_extraParams[] = $this->encodeEscapeUrl((string) $key) . '=' . $this->encodeEscapeUrl((string) $value);
             unset($key, $value);
