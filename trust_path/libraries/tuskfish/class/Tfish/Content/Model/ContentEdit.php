@@ -246,6 +246,19 @@ class ContentEdit
     /** Utilities. */
 
     /**
+     * Check that a date is a real calendar date in YYYY-MM-DD format.
+     *
+     * @param   string $date
+     * @return  bool True if valid, otherwise false.
+     */
+    private function isYmd(string $date): bool
+    {
+        $check = \DateTime::createFromFormat('!Y-m-d', $date);
+
+        return $check !== false && $check->format('Y-m-d') === $date;
+    }
+
+    /**
      * Check if the object used to be a TfCollection and delete parental references if necessary.
      *
      * When updating an object, this method is used to check if it used to be a collection. If so,
@@ -456,10 +469,26 @@ class ContentEdit
         $clean['image'] = $image;
 
         $clean['caption'] = $this->trimString($form['caption'] ?? '');
-        $clean['date'] = $this->trimString($form['date'] ?? '');
+        // Dates must be YYYY-MM-DD. An empty date defaults to today, as in Content::setDate().
+        $date = $this->trimString($form['date'] ?? '');
+
+        if ($date === '') {
+            $date = \date('Y-m-d');
+        }
+
+        if (!$this->isYmd($date)) {
+            throw new \InvalidArgumentException(TFISH_ERROR_BAD_DATE);
+        }
+
+        $clean['date'] = $date;
         $clean['submissionTime'] = (int) ($form['submissionTime'] ?? 0);
         $clean['lastUpdated'] = (int) ($form['lastUpdated'] ?? 0);
         $clean['expiresOn'] = !empty($form['expiresOn']) ? $this->trimString($form['expiresOn']) : '';
+
+        if ($clean['expiresOn'] !== '' && !$this->isYmd($clean['expiresOn'])) {
+            throw new \InvalidArgumentException(TFISH_ERROR_BAD_DATE);
+        }
+
         $clean['counter'] = (int) ($form['counter'] ?? 0);
         $clean['inFeed'] = (int) ($form['inFeed'] ?? 0);
         $clean['onlineStatus'] = (int) ($form['onlineStatus'] ?? 0);
