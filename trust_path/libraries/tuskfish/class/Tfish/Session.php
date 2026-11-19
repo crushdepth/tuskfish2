@@ -915,6 +915,9 @@ class Session
      *
      * @param bool $required False lets an anonymous visitor without a session cookie skip the
      * session (no session file, no cookie). ensureStarted() opens one later if needed.
+     * Public routes may therefore run without a session: code that stores session data on a
+     * public route must call ensureStarted() first (as the setters in this class do), otherwise
+     * the data is silently lost.
      */
     public function start(bool $required = true)
     {
