@@ -156,6 +156,10 @@ class ContentEdit
         $id = (int) $content['id'];
         $content['lastUpdated'] = \time();
 
+        if (\in_array($content['parent'], $this->invalidParents($id), true)) {
+            throw new \InvalidArgumentException(TFISH_ERROR_CIRCULAR_PARENT_REFERENCE);
+        }
+
         // Set image/media to currently stored values.
         $savedContent = $this->getRow($id);
         $content['image'] = $savedContent['image'];
@@ -286,14 +290,15 @@ class ContentEdit
     /**
      * Get all colllection-type content objects.
      *
+     * @param   bool $onlineOnly Exclude offline collections.
      * @return  array Array of collections.
      */
-    public function collections(): array
+    public function collections(bool $onlineOnly = true): array
     {
         $criteria = $this->criteriaFactory->criteria();
 
         $criteria->add($this->criteriaFactory->item('type', 'TfCollection'));
-        $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
+        if ($onlineOnly) $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
         $criteria->setSort('title');
         $criteria->setOrder('ASC');
         $criteria->setSecondarySort('submissionTime');
@@ -306,6 +311,24 @@ class ContentEdit
         }
 
         return $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Content\Entity\Content');
+    }
+
+    /**
+     * Return the IDs of a content object and all collections below it (online and offline).
+     *
+     * None of these may be chosen as its parent, as that would create a parent loop.
+     *
+     * @param   int $id ID of content object.
+     * @return  array Array of IDs.
+     */
+    public function invalidParents(int $id): array
+    {
+        if ($id < 1) return [];
+
+        $collections = $this->collections(false);
+        $tree = new \Tfish\Tree($collections, 'id', 'parent');
+
+        return \array_merge([$id], \array_keys($tree->getAllChild($id)));
     }
 
     /**

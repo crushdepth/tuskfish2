@@ -175,8 +175,9 @@
       <div class="col-12 mb-3 text-start" id="parentContainer">
         <label for="parent" class="form-label"><strong><?php echo TFISH_PARENT; ?></strong></label>
         <select class="form-select" name="content[parent]" id="parent">
+        <?php $invalidParents = $viewModel->invalidParents(); ?>
         <?php foreach ($viewModel->parentOptions() as $key => $option): ?>
-          <?php if ($key === $content->id()): ?>
+          <?php if (isset($invalidParents[$key])): ?>
             <option value="<?php echo xss($key); ?>" disabled><?php echo xss($option); ?></option>
           <?php elseif ($key === $content->parent()): ?>
             <option value="<?php echo xss($key); ?>" selected><?php echo xss($option); ?></option>

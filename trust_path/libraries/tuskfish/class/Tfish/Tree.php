@@ -141,6 +141,9 @@ class Tree
         if (isset($this->_tree[$key]['child'])) {
 
             foreach ($this->_tree[$key]['child'] as $childkey) {
+                // Skip nodes already collected, so that a parent loop in the data cannot recurse forever.
+                if (\array_key_exists($childkey, $ret)) continue;
+
                 $ret[$childkey] = & $this->_tree[$childkey]['obj'];
                 $children = $this->getAllChild($childkey, $ret);
 
