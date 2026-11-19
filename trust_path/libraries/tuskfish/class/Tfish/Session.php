@@ -176,6 +176,7 @@ class Session
      */
     public function setNextUrl(string $path = '')
     {
+        $this->ensureStarted();
         $parsed = \parse_url($path);
 
         if (empty($path) || !\is_array($parsed) || isset($parsed['scheme']) || isset($parsed['host'])) {
@@ -211,6 +212,7 @@ class Session
      */
     public function setRedirectTitle(string $title = ''): void
     {
+        $this->ensureStarted();
         $_SESSION['redirectTitle'] = $this->trimString($title);
     }
 
@@ -232,6 +234,7 @@ class Session
      */
     public function setRedirectMessage(string $message = ''): void
     {
+        $this->ensureStarted();
         $_SESSION['redirectMessage'] = $this->trimString($message);
     }
 
@@ -556,8 +559,10 @@ class Session
                     $params["secure"], $params["httponly"]);
         }
 
-        // Destroy the session and redirect
-        \session_destroy();
+        // Destroy the session (if there is one) and redirect
+        if (\session_status() === PHP_SESSION_ACTIVE) {
+            \session_destroy();
+        }
 
         // No-store: avoid caching any personalized logout response
         \header('Cache-Control: no-store', true);
@@ -896,9 +901,22 @@ class Session
     }
 
     /**
-     * Initialises a session and sets session cookie parameters to security-conscious values.
+     * Start a session if none is active (for public pages that need to store state).
      */
-    public function start()
+    private function ensureStarted(): void
+    {
+        if (\session_status() !== PHP_SESSION_ACTIVE) {
+            $this->start();
+        }
+    }
+
+    /**
+     * Initialises a session and sets session cookie parameters to security-conscious values.
+     *
+     * @param bool $required False lets an anonymous visitor without a session cookie skip the
+     * session (no session file, no cookie). ensureStarted() opens one later if needed.
+     */
+    public function start(bool $required = true)
     {
         // Force session to use cookies to prevent the session ID being passed in the URL.
         \ini_set('session.use_cookies', '1');
@@ -942,6 +960,12 @@ class Session
             'samesite' => $samesite,
         ];
         \session_set_cookie_params($options);
+
+        // Anonymous visitors without a session cookie get no session unless the page needs one.
+        if (!$required && empty($_COOKIE[$sessionName])) {
+            return;
+        }
+
         \session_start();
 
         // Set a CSRF token.
