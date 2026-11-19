@@ -31,7 +31,7 @@ System requirements
 * PDO extension.
 * pdo_sqlite extension.
 * GD2 extension.
-* [Optional]: ImageMagick 6 if you prefer to use that over GD2 for thumbnail generation.
+* [Optional]: ImageMagick 6 if you prefer to use that over GD2 for thumbnail generation (an sRGB colour profile is bundled, so no configuration is needed).
 * Apache webserver.
 
 Documentation

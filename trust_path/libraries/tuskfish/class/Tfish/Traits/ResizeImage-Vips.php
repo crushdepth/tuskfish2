@@ -117,6 +117,14 @@ trait ResizeImage
     private int $pngCompression = 9;
 
     /**
+     * Maximum time in seconds that a single libvips command may run before it is killed.
+     *
+     * This is a safety net against a hung process, not a performance limit. A thumbnail can take
+     * several seconds on a slow single-core server, so keep it generous.
+     */
+    private int $vipsTimeout = 120;
+
+    /**
      * Resizes and caches an associated image and returns a URL to the cached copy.
      *
      * Allows arbitrary sized thumbnails to be produced from the object's image property. These are
@@ -486,10 +494,54 @@ trait ResizeImage
         }
 
         \fclose($pipes[0]);
-        \stream_get_contents($pipes[1]);
-        $stderr = \stream_get_contents($pipes[2]);
-        \fclose($pipes[1]);
-        \fclose($pipes[2]);
+
+        // Drain stdout and stderr together, so that a full pipe cannot stall the child, and give
+        // up once the time limit has passed. Only the start of stderr is kept, for the log.
+        $open = [1 => $pipes[1], 2 => $pipes[2]];
+        $stderr = '';
+        $deadline = \microtime(true) + $this->vipsTimeout;
+
+        foreach ($open as $pipe) {
+            \stream_set_blocking($pipe, false);
+        }
+
+        while ($open && ($remaining = $deadline - \microtime(true)) > 0) {
+            $read = $open;
+            $write = $except = null;
+            $seconds = (int) $remaining;
+
+            if (\stream_select($read, $write, $except, $seconds,
+                (int) (($remaining - $seconds) * 1000000)) === false) {
+                break;
+            }
+
+            foreach ($read as $key => $pipe) {
+                $chunk = (string) \fread($pipe, 8192);
+
+                if ($key === 2 && \strlen($stderr) < 8192) {
+                    $stderr .= $chunk;
+                }
+
+                if (\feof($pipe)) {
+                    \fclose($pipe);
+                    unset($open[$key]);
+                }
+            }
+        }
+
+        // Pipes still open means the time limit passed (or select failed): kill the child.
+        if ($open) {
+            \proc_terminate($process, 9);
+
+            foreach ($open as $pipe) {
+                \fclose($pipe);
+            }
+
+            \proc_close($process);
+            \trigger_error("libvips command did not finish within {$this->vipsTimeout} seconds.",
+                E_USER_WARNING);
+            return false;
+        }
 
         $exitCode = \proc_close($process);
 
