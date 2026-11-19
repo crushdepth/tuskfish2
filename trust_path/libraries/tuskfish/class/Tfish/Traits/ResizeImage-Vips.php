@@ -64,7 +64,7 @@ namespace Tfish\Traits;
  *   JPEG and PNG continue to work. If you must support GIF on such a build, keep the GD or
  *   ImageMagick variant of this trait for GIFs.
  * - No resource policy. Unlike ImageMagick (which you constrain with policy.xml), libvips has no
- *   per-operation resource limit, and these calls carry no execution timeout. libvips' shrink-on-
+ *   per-operation resource limit (each call is stopped after $vipsTimeout seconds). libvips' shrink-on-
  *   load keeps memory low for large images, but the safeguard against hostile or oversized uploads
  *   must live in your upload validation (enforce maximum dimensions and file size there).
  * - The optional sharpening pass (sharpenSigma > 0) uses `vips sharpen`. Verify the result on your
