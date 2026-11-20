@@ -268,6 +268,7 @@ define("TFISH_MINIMUM_CHARACTERS", "Minimum 15 characters");
 \define("TFISH_ERROR_BAD_PATH", "Bad file path.");
 \define("TFISH_ERROR_NO_SUCH_CONTENT", "Sorry, this content is not available.");
 \define("TFISH_ERROR_BAD_DATE_DEFAULTING_TO_TODAY", "Bad date supplied, defaulting to today.");
+\define("TFISH_ERROR_BAD_DATE", "Invalid date, use the format YYYY-MM-DD.");
 \define("TFISH_ERROR_ROOT_PATH_NOT_DEFINED", "TFISH_ROOT_PATH not defined.");
 \define("TFISH_ERROR_CIRCULAR_PARENT_REFERENCE", "Circular reference: Content object cannot declare "
         . "self as parent.");

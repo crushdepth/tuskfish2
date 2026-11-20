@@ -339,6 +339,16 @@ class ContentEdit implements \Tfish\Interface\Viewable
     }
 
     /**
+     * Returns the parent options that are disabled because they would create a parent loop.
+     *
+     * @return  array IDs of the content object and its descendant collections, as keys.
+     */
+    public function invalidParents(): array
+    {
+        return \array_flip($this->model->invalidParents($this->content->id()));
+    }
+
+    /**
      * Return the site author preference.
      *
      * @return  string

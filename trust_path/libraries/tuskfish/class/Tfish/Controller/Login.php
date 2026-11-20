@@ -201,7 +201,7 @@ class Login
                 \header('Content-Type: application/json');
                 echo \json_encode(['error' => TFISH_WEBAUTHN_ERROR_AUTHENTICATION_FAILED]);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \error_log("WebAuthn authentication verification error: " . $this->sanitiseLogField($e->getMessage()));
             \http_response_code(500);
             \header('Content-Type: application/json');

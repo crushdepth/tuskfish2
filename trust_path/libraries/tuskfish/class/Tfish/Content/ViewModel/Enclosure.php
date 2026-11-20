@@ -58,7 +58,7 @@ class Enclosure implements \Tfish\Interface\Viewable
      */
     public function streamFile()
     {
-        if ($this->id === 0) {
+        if ($this->id < 1) {
             $this->pageTitle = TFISH_ERROR;
             $this->backUrl = TFISH_URL;
             $this->template = 'response';

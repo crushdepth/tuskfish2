@@ -82,7 +82,7 @@ class Listing
 
         $params['id'] = $id;
 
-        if (!$this->session->isAdmin()) { // Restrict to online content if NOT admin.
+        if (!$this->session->isEditor()) { // Restrict to online content if NOT editor (admins qualify).
             $params['onlineStatus'] = 1;
         }
 

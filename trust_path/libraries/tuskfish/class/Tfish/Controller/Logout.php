@@ -61,6 +61,13 @@ class Logout
      */
     public function display(): array
     {
+        // Logout is a plain GET link, so refuse requests that browsers flag as coming from another
+        // site (prevents forced logout). Browsers that don't send Sec-Fetch-Site fall through.
+        if (($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '') === 'cross-site') {
+            \header('Location: ' . TFISH_URL, true, 303);
+            exit;
+        }
+
         $this->model->logout();
 
         return [];

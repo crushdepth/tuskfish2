@@ -110,8 +110,7 @@ trait Mimetypes
             "zip" => "application/zip", // Archives.
             "gz" => "application/x-gzip",
             "tar" => "application/x-tar",
-            "kml" => "application/vnd.google-earth.kml+xml", // GPS tracks.
-            "kmz" => "application/vnd.google-earth.kmz"
+            "kmz" => "application/vnd.google-earth.kmz" // GPS tracks.
         ];
     }
 }

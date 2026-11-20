@@ -160,7 +160,7 @@ class Preference
         $this->setEnableCache((int) ($input['enableCache'] ?? 0));
         $this->setCacheLife((int) ($input['cacheLife'] ?? 86400));
         $this->setMapsApiKey((string) ($input['mapsApiKey'] ?? ''));
-        $this->setAdminTheme((string) $input['adminTheme'] ?? 'admin');
+        $this->setAdminTheme((string) ($input['adminTheme'] ?? 'admin'));
         $this->setDefaultTheme((string) ($input['defaultTheme'] ?? 'default'));
         $this->setSmtpHost((string) ($input['smtpHost'] ?? ''));
         $this->setSmtpPort((int) ($input['smtpPort'] ?? 587));

@@ -185,13 +185,13 @@ class BlockEdit
 
         $id = (int) $validContent['id'];
 
-        // Replace block routes.
-        if (!$this->updateBlockRoutes($id, $validRoutes)) {
+        // Update block.
+        if (!$this->database->update('block', $id, $validContent)) {
             return false;
         }
 
-        // Update block.
-        if (!$this->database->update('block', $id, $validContent)) {
+        // Replace block routes.
+        if (!$this->updateBlockRoutes($id, $validRoutes)) {
             return false;
         }
 
@@ -259,7 +259,6 @@ class BlockEdit
 
             $statement->bindValue(':blockId', $id, \PDO::PARAM_INT);
             if (!$statement->execute()) {
-                $this->database->rollBack();
                 throw new \RuntimeException(TFISH_BLOCK_ROUTE_UPDATE_FAILED);
             }
 
@@ -275,7 +274,6 @@ class BlockEdit
                 foreach ($routes as $routeValue) {
                     $route = $routeValue;
                     if (!$statement->execute()) {
-                        $this->database->rollBack();
                         throw new \RuntimeException(TFISH_BLOCK_ROUTE_UPDATE_FAILED);
                     }
                 }

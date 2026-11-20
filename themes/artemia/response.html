@@ -9,7 +9,7 @@
   </div>
 
   <form method="post" action="<?php echo xss($viewModel->backUrl()); ?>">
-    <input type="hidden" name="token" value="<?php echo xss($_SESSION['token']); ?>">
+    <input type="hidden" name="token" value="<?php echo xss($_SESSION['token'] ?? ''); ?>">
     <button type="submit" class="btn"><?php echo TFISH_BACK; ?></button>
   </form>
 <!-- /.container -->

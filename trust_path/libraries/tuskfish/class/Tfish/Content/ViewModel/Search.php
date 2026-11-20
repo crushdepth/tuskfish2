@@ -223,19 +223,13 @@ class Search implements \Tfish\Interface\Listable
     {
         $searchTerms = $this->trimString($searchTerms);
 
-        $cleanSearchTerms = $escapedSearchTerms = $cleanEscapedSearchTerms = [];
-
-        // Create an escaped copy that will be used to search the HTML teaser and description fields.
-        $escapedSearchTerms = \htmlspecialchars($searchTerms, ENT_NOQUOTES, "UTF-8");
+        $cleanSearchTerms = [];
 
         if ($this->searchType !== 'exact') {
             $searchTerms = \explode(" ", $searchTerms);
-            $escapedSearchTerms = \explode(" ", $escapedSearchTerms);
         } else {
             $searchTerms = [$searchTerms];
-            $escapedSearchTerms = [$escapedSearchTerms];
         }
-
 
         // Trim search terms and discard any that are less than the minimum search length characters.
         foreach ($searchTerms as $term) {
@@ -249,16 +243,9 @@ class Search implements \Tfish\Interface\Listable
         // Cap the number of terms; each one adds six unindexed LIKE scans to the query.
         $this->searchTerms = \array_slice($cleanSearchTerms, 0, 10);
 
-        foreach ($escapedSearchTerms as $escapedTerm) {
-            $escapedTerm = $this->trimString($escapedTerm);
-
-            if (!empty($escapedTerm) && \mb_strlen($escapedTerm, 'UTF-8')
-                    >= $this->preference->minSearchLength()) {
-                $cleanEscapedSearchTerms[] = (string) $escapedTerm;
-            }
-        }
-
-        $this->escapedSearchTerms = \array_slice($cleanEscapedSearchTerms, 0, 10);
+        // Escaped copy of the same terms, used to search the HTML teaser and description fields.
+        $this->escapedSearchTerms = \array_map(
+            fn($term) => \htmlspecialchars($term, ENT_NOQUOTES, "UTF-8"), $this->searchTerms);
     }
 
     /**

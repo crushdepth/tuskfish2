@@ -117,6 +117,7 @@ class ContentEdit
         $content['submissionTime'] = \time();
         $content['lastUpdated'] = 0;
         $content['counter'] = 0;
+        $content['image'] = '';
 
         // Upload image/media files and update the file names in $content.
         $this->uploadImage($content);
@@ -154,6 +155,10 @@ class ContentEdit
 
         $id = (int) $content['id'];
         $content['lastUpdated'] = \time();
+
+        if (\in_array($content['parent'], $this->invalidParents($id), true)) {
+            throw new \InvalidArgumentException(TFISH_ERROR_CIRCULAR_PARENT_REFERENCE);
+        }
 
         // Set image/media to currently stored values.
         $savedContent = $this->getRow($id);
@@ -245,6 +250,19 @@ class ContentEdit
     /** Utilities. */
 
     /**
+     * Check that a date is a real calendar date in YYYY-MM-DD format.
+     *
+     * @param   string $date
+     * @return  bool True if valid, otherwise false.
+     */
+    private function isYmd(string $date): bool
+    {
+        $check = \DateTime::createFromFormat('!Y-m-d', $date);
+
+        return $check !== false && $check->format('Y-m-d') === $date;
+    }
+
+    /**
      * Check if the object used to be a TfCollection and delete parental references if necessary.
      *
      * When updating an object, this method is used to check if it used to be a collection. If so,
@@ -272,14 +290,15 @@ class ContentEdit
     /**
      * Get all colllection-type content objects.
      *
+     * @param   bool $onlineOnly Exclude offline collections.
      * @return  array Array of collections.
      */
-    public function collections(): array
+    public function collections(bool $onlineOnly = true): array
     {
         $criteria = $this->criteriaFactory->criteria();
 
         $criteria->add($this->criteriaFactory->item('type', 'TfCollection'));
-        $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
+        if ($onlineOnly) $criteria->add($this->criteriaFactory->item('onlineStatus', 1));
         $criteria->setSort('title');
         $criteria->setOrder('ASC');
         $criteria->setSecondarySort('submissionTime');
@@ -292,6 +311,24 @@ class ContentEdit
         }
 
         return $statement->fetchAll(\PDO::FETCH_CLASS, '\Tfish\Content\Entity\Content');
+    }
+
+    /**
+     * Return the IDs of a content object and all collections below it (online and offline).
+     *
+     * None of these may be chosen as its parent, as that would create a parent loop.
+     *
+     * @param   int $id ID of content object.
+     * @return  array Array of IDs.
+     */
+    public function invalidParents(int $id): array
+    {
+        if ($id < 1) return [];
+
+        $collections = $this->collections(false);
+        $tree = new \Tfish\Tree($collections, 'id', 'parent');
+
+        return \array_merge([$id], \array_keys($tree->getAllChild($id)));
     }
 
     /**
@@ -455,10 +492,26 @@ class ContentEdit
         $clean['image'] = $image;
 
         $clean['caption'] = $this->trimString($form['caption'] ?? '');
-        $clean['date'] = $this->trimString($form['date'] ?? '');
+        // Dates must be YYYY-MM-DD. An empty date defaults to today, as in Content::setDate().
+        $date = $this->trimString($form['date'] ?? '');
+
+        if ($date === '') {
+            $date = \date('Y-m-d');
+        }
+
+        if (!$this->isYmd($date)) {
+            throw new \InvalidArgumentException(TFISH_ERROR_BAD_DATE);
+        }
+
+        $clean['date'] = $date;
         $clean['submissionTime'] = (int) ($form['submissionTime'] ?? 0);
         $clean['lastUpdated'] = (int) ($form['lastUpdated'] ?? 0);
         $clean['expiresOn'] = !empty($form['expiresOn']) ? $this->trimString($form['expiresOn']) : '';
+
+        if ($clean['expiresOn'] !== '' && !$this->isYmd($clean['expiresOn'])) {
+            throw new \InvalidArgumentException(TFISH_ERROR_BAD_DATE);
+        }
+
         $clean['counter'] = (int) ($form['counter'] ?? 0);
         $clean['inFeed'] = (int) ($form['inFeed'] ?? 0);
         $clean['onlineStatus'] = (int) ($form['onlineStatus'] ?? 0);

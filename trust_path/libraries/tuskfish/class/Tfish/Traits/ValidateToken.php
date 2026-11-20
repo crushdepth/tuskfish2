@@ -24,10 +24,13 @@ namespace Tfish\Traits;
  * @version     Release: 2.0
  * @since       2.0
  * @package     core
+ * @uses        trait \Tfish\Traits\ValidateString	Provides trimString().
  */
 
 trait ValidateToken
 {
+    use \Tfish\Traits\ValidateString;
+
     /**
      * Validate a cross-site request forgery token from a form submission.
      *
@@ -36,8 +39,11 @@ trait ValidateToken
      * the value against that stored in the user's session. If they do not match then the request
      * could be a forgery and the form submission should be rejected.
      *
+     * If the token does not match, sends a 303 redirect to /token/ and exits, so this never
+     * returns false.
+     *
      * @param string $token A form token to validate against the user's session.
-     * @return boolean True if token is valid.
+     * @return bool Always true (an invalid token ends the request).
      */
     public function validateToken(string $token): bool
     {

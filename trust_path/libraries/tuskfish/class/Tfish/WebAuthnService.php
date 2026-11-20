@@ -98,7 +98,10 @@ class WebAuthnService
         // Load library.
         require_once TFISH_CLASS_PATH . 'webauthn/WebAuthn.php';
 
-        $this->webAuthn = new \lbuchs\WebAuthn\WebAuthn($rpName, $rpId, null, true);
+        // Attestation is requested as 'none' and never verified against a trust root, so only accept
+        // 'none' and 'packed' (the spec lets browsers pass packed self-attestation through unchanged).
+        // This keeps the other format parsers out of reach. Only affects registration, not login.
+        $this->webAuthn = new \lbuchs\WebAuthn\WebAuthn($rpName, $rpId, ['none', 'packed'], true);
     }
 
     /**
@@ -165,8 +168,9 @@ class WebAuthnService
      */
     public function verifyRegistration(string $clientDataJSON, string $attestationObject, string $challenge): object
     {
-        // Validate input lengths to prevent DoS (1MB limit)
-        if (\strlen($clientDataJSON) > 1048576 || \strlen($attestationObject) > 1048576) {
+        // Validate input lengths to prevent DoS (1MB limit). The attestation object is CBOR, so
+        // a small limit also bounds nesting depth in the decoder (F-25); real ones are < 1KB.
+        if (\strlen($clientDataJSON) > 1048576 || \strlen($attestationObject) > 16384) {
             throw new \RuntimeException('Input data exceeds maximum size');
         }
 
@@ -179,7 +183,7 @@ class WebAuthnService
             $clientDataDecoded = \lbuchs\WebAuthn\Binary\ByteBuffer::fromBase64Url($clientDataJSON)->getBinaryString();
             $attestationDecoded = \lbuchs\WebAuthn\Binary\ByteBuffer::fromBase64Url($attestationObject)->getBinaryString();
             $challengeBuffer = new \lbuchs\WebAuthn\Binary\ByteBuffer($challenge);
-            $this->assertExpectedOrigin($clientDataDecoded);
+            $this->assertClientData($clientDataDecoded);
 
             $data = $this->webAuthn->processCreate(
                 $clientDataDecoded,
@@ -192,7 +196,7 @@ class WebAuthnService
             );
 
             return $data;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Log detailed error internally, throw generic error to client
             \error_log('WebAuthn registration verification error: ' . $this->sanitiseLogField($e->getMessage()));
             throw new \RuntimeException('Invalid credential data');
@@ -254,9 +258,10 @@ class WebAuthnService
         ?int $prevSignatureCount = null
     ): bool
     {
-        // Validate input lengths to prevent DoS (1MB limit for browser data)
+        // Validate input lengths to prevent DoS (1MB limit for browser data). Authenticator data
+        // is 37 bytes plus small CBOR extensions; the small limit bounds CBOR nesting (F-25).
         if (\strlen($clientDataJSON) > 1048576 ||
-            \strlen($authenticatorData) > 1048576 ||
+            \strlen($authenticatorData) > 4096 ||
             \strlen($signature) > 1048576) {
             throw new \RuntimeException('Input data exceeds maximum size');
         }
@@ -284,7 +289,7 @@ class WebAuthnService
 
         try {
             $challengeBuffer = new \lbuchs\WebAuthn\Binary\ByteBuffer($challenge);
-            $this->assertExpectedOrigin($clientDataDecoded);
+            $this->assertClientData($clientDataDecoded);
 
             // IMPORTANT: The underlying library checks signature counter when $prevSignatureCount
             // is provided. If the counter doesn't increment, it indicates credential cloning
@@ -342,19 +347,32 @@ class WebAuthnService
     }
 
     /**
-     * Require the signed client data origin to exactly match the site origin from TFISH_URL.
+     * Validate signed client data fields that the bundled library does not check.
+     *
+     * - The origin must exactly match the site origin from TFISH_URL.
+     * - crossOrigin, if present, must be exactly false (WebAuthn L3: ceremonies from an embedded
+     *   cross-origin iframe are not accepted).
+     * - Token binding is not implemented, so a status of 'present' is rejected.
      *
      * @param   string $clientDataDecoded Decoded clientDataJSON.
      * @return  void
-     * @throws  \RuntimeException If the origin is missing or does not match.
+     * @throws  \RuntimeException If any check fails.
      */
-    private function assertExpectedOrigin(string $clientDataDecoded): void
+    private function assertClientData(string $clientDataDecoded): void
     {
         $clientData = \json_decode($clientDataDecoded, false, 16);
 
         if (!\is_object($clientData) || !isset($clientData->origin) || !\is_string($clientData->origin)
             || \strtolower($clientData->origin) !== $this->expectedOrigin) {
             throw new \RuntimeException('Origin mismatch');
+        }
+
+        if (\property_exists($clientData, 'crossOrigin') && $clientData->crossOrigin !== false) {
+            throw new \RuntimeException('Cross-origin ceremony rejected');
+        }
+
+        if (isset($clientData->tokenBinding->status) && $clientData->tokenBinding->status === 'present') {
+            throw new \RuntimeException('Token binding not supported');
         }
     }
 }

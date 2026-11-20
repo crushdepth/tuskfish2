@@ -1,7 +1,7 @@
 # tuskfish2
 A second generation rewrite of Tuskfish CMS along MVVM architectural lines.
 
-Tuskfish is a single user micro CMS. It is designed to provide a minimalist yet capable framework for
+Tuskfish is a micro CMS. It is designed to provide a minimalist yet capable framework for
 publishing different kinds of content. It is suitable for use by individuals and small
 organisations. It provides the publishing tools that you need and nothing that you don't.
 
@@ -9,20 +9,21 @@ The project emphasis is on creating the simplest and most lightweight code base 
 * A small, simple code base is easy to understand and maintain as PHP evolves.
 * Security is a lot easier to manage in a small project.
 * Avoiding use of external libraries as far as possible to reduce attack surface, maintenance overhead
-  and code bloat. External libraries in use are: Boostrap 5, jQuery, Bootstrap-datepicker,
-  HTMLPurifier and TinyMCE.
+  and code bloat. External libraries in use are: Bootstrap 5, jQuery, Bootstrap-datepicker,
+  HTMX, HTMLPurifier, TinyMCE, PHPMailer, WebAuthn (lbuchs) and Dice.
 
 Features include:
 * Publish a mixed stream of articles, downloads, images, audio, video, static pages, GPS tracks and collections with one simple form.
 * Organise your content with tags, collections and content types.
 * Both native CSS grid and Bootstrap-based templates with responsive, mobile-first themes.
 * Native PHP template engine; easily create new template sets.
-* PHP 8, HTML5 and SQLite3 database.
-* Single admin system: There is no user rights management system to worry about. They don't have any.
+* PHP 8.4+, HTML5 and SQLite3 database.
+* Simple user management: three groups (admin, editor and member). Content can be restricted to members.
 * SQLite database: There is no database server to worry about.
 * Exclusive use of prepared statements with bound values and parameters as protection against SQL injection.
 * Minimal public-facing code base: Most of the code lives outside the web root.
-* Optional two-factor authentication with Yubikeys (main and backup keys).
+* Optional two-factor authentication with passkeys (WebAuthn), such as Yubikeys or device passkeys.
+  Register more than one as a backup.
 * Lightweight core library.
 
 System requirements
@@ -31,8 +32,20 @@ System requirements
 * PDO extension.
 * pdo_sqlite extension.
 * GD2 extension.
-* [Optional]: ImageMagick 6 if you prefer to use that over GD2 for thumbnail generation.
 * Apache webserver.
+
+Image resizing (thumbnails)
+* GD2 is used by default (`trust_path/libraries/tuskfish/class/Tfish/Traits/ResizeImage.php`). No setup needed.
+* Two optional drop-in alternatives live in the same folder. To use one, move the GD file out of the
+  way and rename the drop-in to `ResizeImage.php`. Delete the cache folder contents afterwards so
+  thumbnails are regenerated.
+* libvips (`ResizeImage-Vips.php`, recommended for large or busy sites): fastest, lowest memory use and
+  colour-managed. Needs the libvips command-line tools (Debian/Ubuntu: `apt-get install libvips-tools`)
+  and `proc_open()` enabled in PHP (it can stay the only enabled process function). No shell is used.
+* ImageMagick 6 (`ResizeImage-Imagick.php`): needs the `convert` command and `exec()` enabled in PHP.
+  An sRGB colour profile is bundled, so no configuration is needed. Constrain ImageMagick's resources
+  with its `policy.xml`.
+* The GD version refuses to make thumbnails larger than 10 megapixels; the drop-ins have no such cap.
 
 Documentation
 * Please visit https://tuskfish.biz for the installation guide, user manual, developer manual and API documentation.

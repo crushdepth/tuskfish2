@@ -7,8 +7,8 @@ namespace Tfish\Traits;
 /**
  * \Tfish\Traits\ResizeImage trait file.
  *
- * Supports both GD2 (automatically) and ImageMagick V6 (requires configuration of
- * createThumbnailWithExec() below).
+ * Supports both GD2 (automatically) and ImageMagick V6. JPEG thumbnails are converted to sRGB
+ * using the bundled CC0 profile in trust_path/libraries/tuskfish/icc/.
  *
  * @copyright   Simon Wilkinson 2019+ (https://tuskfish.biz)
  * @license     https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html GNU General Public License (GPL) V2
@@ -94,7 +94,8 @@ trait ResizeImage
         // for outputting size attribute.
         $properties = \getimagesize($originalPath);
 
-        if (!$properties) {
+        // Guard against corrupt/unreadable images (and division by zero below).
+        if (!$properties || (int)$properties[0] < 1 || (int)$properties[1] < 1) {
             return false;
         }
 
@@ -106,6 +107,12 @@ trait ResizeImage
             $width = (int) (($cleanHeight / $properties[1]) * $properties[0]);
             $height = $cleanHeight;
         }
+
+        // Final sanity on computed dimensions.
+        if ($width < 1 || $height < 1) {
+            return false;
+        }
+
         $result = $this->scaleAndCacheImage($properties, $originalPath, $cachedPath,
             $width, $height);
         if (!$result) {
@@ -218,8 +225,9 @@ trait ResizeImage
      * compression quality is applied. Returns true on success or false if an error occurs. Only
      * one dimension (width or height) needs to be specified, the image will be scaled proportionally.
      *
-     * YOU MUST CONFIGURE THE FILE PATH TO sRGB.icc BELOW! You can also adjust the level of
-     * compression and sharpening in the case statement.
+     * JPEGs are converted to sRGB using the bundled profile (see $profilePath below; you can point
+     * it at a different sRGB profile). You can also adjust the level of compression and sharpening
+     * in the case statement.
      *
      * @param array $properties Original image size properties as returned by getimagesize().
      * @param string $originalPath The file path to the original image.
@@ -236,8 +244,8 @@ trait ResizeImage
         int $width = 0,
         int $height = 0)
     {
-        // The path to the sRGB colour profile must be configured below, for Linux it is usually:
-        $profilePath = '/usr/share/color/icc/sRGB.icc'; // default
+        // Bundled CC0 sRGB profile (https://github.com/saucecontrol/Compact-ICC-Profiles).
+        $profilePath = TFISH_LIBRARIES_PATH . 'tuskfish/icc/sRGB-v2-magic.icc';
         $profileExists = \is_file($profilePath);
 
         // Resize image while maintaining proportions.

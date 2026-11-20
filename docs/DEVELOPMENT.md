@@ -174,7 +174,7 @@ The MIME type is resolved from the file extension against the `Mimetypes` trait 
 
 ## 4. Images & the Thumbnail Cache
 
-Inline images are resized on demand and cached as files in the **public** cache directory (`cache/`, served at `TFISH_CACHE_URL`). Resizing logic lives in the `ResizeImage` trait (`class/Tfish/Traits/ResizeImage.php`), with an Imagick-based alternative in `ResizeImage-Imagick.php`. The default uses PHP's GD2 extension.
+Inline images are resized on demand and cached as files in the **public** cache directory (`cache/`, served at `TFISH_CACHE_URL`). Resizing logic lives in the `ResizeImage` trait (`class/Tfish/Traits/ResizeImage.php`), with an Imagick-based alternative in `ResizeImage-Imagick.php`. The default uses PHP's GD2 extension. The Imagick variant converts JPEGs to sRGB with a bundled CC0 profile (`trust_path/libraries/tuskfish/icc/sRGB-v2-magic.icc`).
 
 ### The `cachedImage()` convention
 

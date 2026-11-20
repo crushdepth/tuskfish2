@@ -88,7 +88,8 @@ class FrontController
         $this->criteriaFactory = $criteriaFactory;
         $this->session = $session;
 
-        $session->start();
+        // Anonymous visitors only need a session for login and for member-only routes.
+        $session->start($path === '/login/' || $route->loginRequired() !== 0);
         $this->checkSiteClosed($preference, $path);
         $this->checkAccessRights($route);
 
