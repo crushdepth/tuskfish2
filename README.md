@@ -36,7 +36,7 @@ System requirements
 
 Image resizing (thumbnails)
 * GD2 is used by default (`trust_path/libraries/tuskfish/class/Tfish/Traits/ResizeImage.php`). No setup needed.
-* Two optional drop-in alternatives live in the same folder. To use one, move the GD file out of the
+* Two optional (and better) drop-in alternatives live in the same folder. To use one, move the GD file out of the
   way and rename the drop-in to `ResizeImage.php`. Delete the cache folder contents afterwards so
   thumbnails are regenerated.
 * libvips (`ResizeImage-Vips.php`, recommended for large or busy sites): fastest, lowest memory use and
@@ -45,7 +45,7 @@ Image resizing (thumbnails)
 * ImageMagick 6 (`ResizeImage-Imagick.php`): needs the `convert` command and `exec()` enabled in PHP.
   An sRGB colour profile is bundled, so no configuration is needed. Constrain ImageMagick's resources
   with its `policy.xml`.
-* The GD version refuses to make thumbnails larger than 10 megapixels; the drop-ins have no such cap.
+* Thumbnails are restricted to less than 10 megapixels.
 
 Documentation
 * Please visit https://tuskfish.biz for the installation guide, user manual, developer manual and API documentation.
